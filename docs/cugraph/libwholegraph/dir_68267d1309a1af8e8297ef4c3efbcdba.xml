@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_68267d1309a1af8e8297ef4c3efbcdba" kind="dir">
+    <compoundname>src</compoundname>
+    <innerdir refid="dir_8f4a32b0c5c354e3431b7ea1289fcb71">src/graph_ops</innerdir>
+    <innerdir refid="dir_49654b5ba03f57b9f84e9cb24215fe1d">src/nvshmem_plugins</innerdir>
+    <innerdir refid="dir_220657b2618dc919af8fb14ad818985b">src/wholegraph_ops</innerdir>
+    <innerdir refid="dir_779cc2464d0247269ca0fd14c471c901">src/wholememory</innerdir>
+    <innerdir refid="dir_55d3f1ac8055b83567974a3573e247c9">src/wholememory_ops</innerdir>
+    <innerfile refid="cuda__macros_8cpp">cuda_macros.cpp</innerfile>
+    <innerfile refid="cuda__macros_8hpp">cuda_macros.hpp</innerfile>
+    <innerfile refid="error_8hpp">error.hpp</innerfile>
+    <innerfile refid="logger_8cpp">logger.cpp</innerfile>
+    <innerfile refid="logger_8hpp">logger.hpp</innerfile>
+    <innerfile refid="net__utils_8cpp">net_utils.cpp</innerfile>
+    <innerfile refid="net__utils_8h">net_utils.h</innerfile>
+    <innerfile refid="parallel__utils_8cpp">parallel_utils.cpp</innerfile>
+    <innerfile refid="parallel__utils_8hpp">parallel_utils.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/"/>
+  </compounddef>
+</doxygen>

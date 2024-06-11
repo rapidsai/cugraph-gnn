@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1cu__error" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory::cu_error</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">raft::exception</basecompoundref>
+    <includes refid="cuda__macros_8hpp" local="no">cuda_macros.hpp</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structwholememory_1_1cu__error_1a1cb00fa865615a4a3b6c8e261b342206" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>wholememory::cu_error::cu_error</definition>
+        <argsstring>(char const *const message)</argsstring>
+        <name>cu_error</name>
+        <param>
+          <type>char const *const</type>
+          <declname>message</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/cuda_macros.hpp" line="48" column="12" bodyfile="src/cuda_macros.hpp" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="structwholememory_1_1cu__error_1a3a11520d886c9e26ebdfccf320e918c8" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>wholememory::cu_error::cu_error</definition>
+        <argsstring>(std::string const &amp;message)</argsstring>
+        <name>cu_error</name>
+        <param>
+          <type>std::string const &amp;</type>
+          <declname>message</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/cuda_macros.hpp" line="49" column="12" bodyfile="src/cuda_macros.hpp" bodystart="49" bodyend="49"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception thrown when a CUDA driver error is encountered. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>wholememory::cu_error</label>
+        <link refid="structwholememory_1_1cu__error"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>raft::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory::cu_error</label>
+        <link refid="structwholememory_1_1cu__error"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>raft::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="src/cuda_macros.hpp" line="47" column="1" bodyfile="src/cuda_macros.hpp" bodystart="47" bodyend="50"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1cu__error_1a1cb00fa865615a4a3b6c8e261b342206" prot="public" virt="non-virtual"><scope>wholememory::cu_error</scope><name>cu_error</name></member>
+      <member refid="structwholememory_1_1cu__error_1a3a11520d886c9e26ebdfccf320e918c8" prot="public" virt="non-virtual"><scope>wholememory::cu_error</scope><name>cu_error</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

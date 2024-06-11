@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="wholememory__test__op_8cu" kind="file" language="C++">
+    <compoundname>wholememory_test_op.cu</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/wholememory_op.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;cuda_macros.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;error.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;logger.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;output_memory_handle.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;register.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;temp_memory_handle.hpp&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>DataTypeT&gt;</highlight></codeline>
+<codeline><highlight class="normal">__global__<sp/>void<sp/>EnvTestTempFUnc(const<sp/>DataTypeT*<sp/>input_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DataTypeT*<sp/>output_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>emb_dim,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>output_stride)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>id<sp/>=<sp/>blockIdx.x;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>output_ptr<sp/>+=<sp/>output_stride<sp/>*<sp/>id;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>float<sp/>f_id<sp/>=<sp/>static_cast&lt;float&gt;(id);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>for<sp/>(int<sp/>idx<sp/>=<sp/>threadIdx.x;<sp/>idx<sp/>&lt;<sp/>emb_dim;<sp/>idx<sp/>+=<sp/>blockDim.x)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_ptr[idx]<sp/>=<sp/>static_cast&lt;DataTypeT&gt;(f_id)<sp/>+<sp/>input_ptr[idx];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>DataTypeT&gt;</highlight></codeline>
+<codeline><highlight class="normal">void<sp/>EnvTestTempFunc(const<sp/>void*<sp/>input_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>out_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>emb_dim,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>entry_count,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>output_stride,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>thread_count<sp/>=<sp/>std::min&lt;int&gt;(emb_dim,<sp/>512);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>block_count<sp/><sp/>=<sp/>entry_count;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>EnvTestTempFUnc&lt;DataTypeT&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>&lt;&lt;&lt;block_count,<sp/>thread_count,<sp/>0,<sp/>stream&gt;&gt;&gt;(static_cast&lt;const<sp/>DataTypeT*&gt;(input_ptr),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>static_cast&lt;DataTypeT*&gt;(out_ptr),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>emb_dim,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_stride);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WM_CUDA_CHECK_NO_THROW(cudaGetLastError());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WM_CUDA_DEBUG_SYNC_STREAM(stream);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">REGISTER_DISPATCH_ONE_TYPE(EnvTestTempFunc,<sp/>EnvTestTempFunc,<sp/>ALLSINT_ALLFLOAT)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline><highlight class="normal">extern<sp/>&quot;C&quot;<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>wholememory_env_test_op(wholememory_tensor_t<sp/>input_tensor,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_tensor_t<sp/>output_fixed_tensor,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>output_variable_device_tensor_handle,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>output_variable_pinned_tensor_handle,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>output_variable_host_tensor_handle,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>output_variable_entry_count,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>stream)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto*<sp/>input_desc<sp/><sp/>=<sp/>wholememory_tensor_get_tensor_description(input_tensor);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto*<sp/>output_desc<sp/>=<sp/>wholememory_tensor_get_tensor_description(output_fixed_tensor);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WHOLEMEMORY_CHECK_NOTHROW(input_desc-&gt;dim<sp/>==<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>emb_dim<sp/>=<sp/>input_desc-&gt;sizes[0];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WHOLEMEMORY_CHECK_NOTHROW(output_desc-&gt;dim<sp/>==<sp/>2);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WHOLEMEMORY_CHECK_NOTHROW(output_desc-&gt;sizes[0]<sp/>==<sp/>output_variable_entry_count);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WHOLEMEMORY_CHECK_NOTHROW(output_desc-&gt;sizes[1]<sp/>==<sp/>emb_dim);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WHOLEMEMORY_CHECK_NOTHROW(input_desc-&gt;dtype<sp/>==<sp/>output_desc-&gt;dtype);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_ops::output_memory_handle<sp/>out_device_handle(p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_variable_device_tensor_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_ops::output_memory_handle<sp/>out_pinned_handle(p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_variable_pinned_tensor_handle);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_ops::output_memory_handle<sp/>out_host_handle(p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_variable_host_tensor_handle);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_ops::temp_memory_handle<sp/>temp_buffer_handle(p_env_fns);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>start<sp/>allocate<sp/>temp<sp/>device<sp/>ptr.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>temp_buffer_ptr<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>temp_buffer_handle.device_malloc(output_variable_entry_count<sp/>*<sp/>emb_dim,<sp/>input_desc-&gt;dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>temp<sp/>device<sp/>allocated=%ld\n&quot;,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>reinterpret_cast&lt;int64_t&gt;(temp_buffer_ptr));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>output_size<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_variable_entry_count<sp/>*<sp/>emb_dim<sp/>*<sp/>wholememory_dtype_get_element_size(input_desc-&gt;dtype);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>cuda_stream<sp/>=<sp/>static_cast&lt;cudaStream_t&gt;(stream);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>start<sp/>computing.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DISPATCH_ONE_TYPE(input_desc-&gt;dtype,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>EnvTestTempFunc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_tensor_get_data_pointer(input_tensor),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp_buffer_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>emb_dim,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_variable_entry_count,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_desc-&gt;strides[0],</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cuda_stream);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>compute<sp/>done.\n&quot;);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>start<sp/>allocate<sp/>output<sp/>device<sp/>ptr.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output_device_ptr<sp/>=<sp/>nullptr;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_variable_device_tensor_handle<sp/>!=<sp/>nullptr)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_device_ptr<sp/>=<sp/>out_device_handle.device_malloc(output_desc);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>Output<sp/>device<sp/>allocated=%ld\n&quot;,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>reinterpret_cast&lt;int64_t&gt;(output_device_ptr));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>start<sp/>allocate<sp/>output<sp/>pinned<sp/>ptr.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output_pinned_ptr<sp/>=<sp/>nullptr;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_variable_pinned_tensor_handle<sp/>!=<sp/>nullptr)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_pinned_ptr<sp/>=<sp/>out_pinned_handle.pinned_malloc(output_desc);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>Output<sp/>pinned<sp/>allocated=%ld\n&quot;,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>reinterpret_cast&lt;int64_t&gt;(output_pinned_ptr));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>start<sp/>allocate<sp/>output<sp/>host<sp/>ptr.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output_host_ptr<sp/>=<sp/>nullptr;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_variable_host_tensor_handle<sp/>!=<sp/>nullptr)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_host_ptr<sp/>=<sp/>out_host_handle.host_malloc(output_desc);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>Output<sp/>host<sp/>allocated=%ld\n&quot;,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>reinterpret_cast&lt;int64_t&gt;(output_host_ptr));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WM_CUDA_CHECK_NO_THROW(cudaMemcpyAsync(wholememory_tensor_get_data_pointer(output_fixed_tensor),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp_buffer_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMemcpyDefault,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cuda_stream));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_device_ptr)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK_NO_THROW(cudaMemcpyAsync(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_device_ptr,<sp/>temp_buffer_ptr,<sp/>output_size,<sp/>cudaMemcpyDefault,<sp/>cuda_stream));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_pinned_ptr)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK_NO_THROW(cudaMemcpyAsync(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_pinned_ptr,<sp/>temp_buffer_ptr,<sp/>output_size,<sp/>cudaMemcpyDefault,<sp/>cuda_stream));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_host_ptr)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK_NO_THROW(cudaMemcpyAsync(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_host_ptr,<sp/>temp_buffer_ptr,<sp/>output_size,<sp/>cudaMemcpyDefault,<sp/>cuda_stream));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WM_CUDA_DEBUG_SYNC_STREAM(static_cast&lt;cudaStream_t&gt;(stream));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>//<sp/>fprintf(stderr,<sp/>&quot;===&gt;<sp/>IN<sp/>OP<sp/>all<sp/>done.\n&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>__cplusplus</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory_ops/wholememory_test_op.cu"/>
+  </compounddef>
+</doxygen>

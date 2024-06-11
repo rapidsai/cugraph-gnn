@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="embedding_8hpp" kind="file" language="C++">
+    <compoundname>embedding.hpp</compoundname>
+    <includes refid="embedding_8h" local="no">wholememory/embedding.h</includes>
+    <includes refid="wholememory__tensor_8h" local="no">wholememory/wholememory_tensor.h</includes>
+    <includes refid="embedding__optimizer_8hpp" local="yes">embedding_optimizer.hpp</includes>
+    <includedby refid="embedding_8cpp" local="yes">src/wholememory/embedding.cpp</includedby>
+    <includedby refid="embedding__optimizer_8cpp" local="yes">src/wholememory/embedding_optimizer.cpp</includedby>
+    <incdepgraph>
+      <node id="14">
+        <label>embedding_optimizer.hpp</label>
+        <link refid="embedding__optimizer_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>functional</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>stdlib.h</label>
+      </node>
+      <node id="1">
+        <label>src/wholememory/embedding.hpp</label>
+        <link refid="embedding_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>wholememory/wholememory.h</label>
+        <link refid="wholememory_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>string</label>
+      </node>
+      <node id="16">
+        <label>map</label>
+      </node>
+      <node id="13">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>wholememory/env_func_ptrs.h</label>
+        <link refid="env__func__ptrs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>unistd.h</label>
+      </node>
+      <node id="2">
+        <label>wholememory/embedding.h</label>
+        <link refid="embedding_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>wholememory/wholememory_tensor.h</label>
+        <link refid="wholememory__tensor_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>cuda_runtime_api.h</label>
+      </node>
+      <node id="12">
+        <label>wholememory/global_reference.h</label>
+        <link refid="global__reference_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>embedding_cache.hpp</label>
+        <link refid="embedding__cache_8hpp"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory/tensor_description.h</label>
+        <link refid="tensor__description_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdio.h</label>
+      </node>
+      <node id="17">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/wholememory/embedding.hpp</label>
+        <link refid="embedding_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/wholememory/embedding_optimizer.cpp</label>
+        <link refid="embedding__optimizer_8cpp"/>
+      </node>
+      <node id="2">
+        <label>src/wholememory/embedding.cpp</label>
+        <link refid="embedding_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structwholememory__embedding__" prot="public">wholememory_embedding_</innerclass>
+    <innerclass refid="classwholememory_1_1embedding__base" prot="public">wholememory::embedding_base</innerclass>
+    <innernamespace refid="namespacewholememory">wholememory</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2024,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="embedding_8h" kindref="compound">wholememory/embedding.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="wholememory__tensor_8h" kindref="compound">wholememory/wholememory_tensor.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="embedding__optimizer_8hpp" kindref="compound">embedding_optimizer.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="structwholememory__embedding__" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwholememory__embedding__" kindref="compound">wholememory_embedding_</ref><sp/>{</highlight></codeline>
+<codeline lineno="28" refid="structwholememory__embedding___1a031161bc7b46f80203168e8ae2550200" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/><ref refid="structwholememory__embedding___1a031161bc7b46f80203168e8ae2550200" kindref="member">allocated_embedding</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="29" refid="structwholememory__embedding___1a0e101b543ac0ac833f91ab319022715f" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/><ref refid="structwholememory__embedding___1a0e101b543ac0ac833f91ab319022715f" kindref="member">user_embedding</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;<sp/><sp/></highlight><highlight class="comment">//<sp/>subtensor<sp/>of<sp/>allocated_embedding</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="structwholememory__embedding___1a6106fbe92781e1df2d11613428580c04" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="structwholememory__embedding__cache__policy__" kindref="compound">wholememory_embedding_cache_policy_t</ref><sp/><ref refid="structwholememory__embedding___1a6106fbe92781e1df2d11613428580c04" kindref="member">cache_policy</ref><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="31" refid="structwholememory__embedding___1a2133505171fd0e4bea9a567d1961ccaf" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="structwholememory__embedding__optimizer__" kindref="compound">wholememory_embedding_optimizer_t</ref><sp/><ref refid="structwholememory__embedding___1a2133505171fd0e4bea9a567d1961ccaf" kindref="member">optimizer</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewholememory" kindref="compound">wholememory</ref><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="classwholememory_1_1embedding__base" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classwholememory_1_1embedding__base" kindref="compound">embedding_base</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="structwholememory__embedding__" kindref="compound">wholememory_embedding_</ref><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="42" refid="classwholememory_1_1embedding__base_1a704f35c62d8f45a89f42950f9b6e7cfe" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classwholememory_1_1embedding__base_1a704f35c62d8f45a89f42950f9b6e7cfe" kindref="member">embedding_base</ref>()<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43" refid="classwholememory_1_1embedding__base_1a20f721d0f193a111e457f4f87b760ae9" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a20f721d0f193a111e457f4f87b760ae9" kindref="member">~embedding_base</ref>()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a4b83750917d44c143ff495b143af486c" kindref="member">allocate</ref>(<ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref>*<sp/>embedding_description,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structwholememory__comm__" kindref="compound">wholememory_comm_t</ref><sp/>comm,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory_8h_1a58cc0d50d4f407e416d73b7a806aff50" kindref="member">wholememory_memory_type_t</ref><sp/>memory_type,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory_8h_1aaab2c1ef14fcbfffce91ce5856c5d9fe" kindref="member">wholememory_memory_location_t</ref><sp/>memory_location,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structwholememory__embedding__cache__policy__" kindref="compound">wholememory_embedding_cache_policy_t</ref><sp/>policy,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structwholememory__embedding__optimizer__" kindref="compound">wholememory_embedding_optimizer_t</ref><sp/>opt)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a1174b52da0b3849a24ab95cf5e279aa8" kindref="member">deallocate</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="51" refid="classwholememory_1_1embedding__base_1a96e0910f2ce859bdac3f3f879737dd89" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a96e0910f2ce859bdac3f3f879737dd89" kindref="member">gather</ref>(<ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>indices,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>output,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>adjust_cache,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/>p_env_fns,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream)<sp/>noexcept<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a8d2d6fda07d2e582b46c09928a1ea2cf" kindref="member">gather_gradient_apply</ref>(<ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>indices,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>grads,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>adjust_cache,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>lr,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/>p_env_fns,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="classwholememory_1_1embedding__base_1ac86de8299a3baf93bf3196f95e68900e" refkind="member"><highlight class="normal"><sp/><sp/>[[nodiscard]]<sp/>const<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>const*<sp/><ref refid="classwholememory_1_1embedding__base_1ac86de8299a3baf93bf3196f95e68900e" kindref="member">get_optimizer_state_names</ref>()<sp/>const<sp/>noexcept</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref>-&gt;<ref refid="classwholememory_1_1embedding__optimizer__impl__base_1a976d95cf996f76287174a977fc8b7e71" kindref="member">get_optimizer_state_names</ref>();</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71" refid="classwholememory_1_1embedding__base_1a4130c9a4a116eb29ec3009d4a300e020" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a4130c9a4a116eb29ec3009d4a300e020" kindref="member">get_optimizer_state</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">*<sp/>state_name)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>noexcept</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref>-&gt;<ref refid="classwholememory_1_1embedding__optimizer__impl__base_1ac21af5cd643e09fb8c48b8d677217294" kindref="member">get_optimizer_state</ref>(<ref refid="classwholememory_1_1embedding__base_1a38a07e103423646cbb8d8250bd36690d" kindref="member">optimizer_state_</ref>.get(),<sp/>state_name);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a957adfa95b9e83884e66e2a56ffc7f88" kindref="member">writeback_embedding_cache</ref>(cudaStream_t<sp/>stream)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>noexcept;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a0678542d34ba10f6b24f0f745e34a5dd" kindref="member">writeback_all_caches</ref>(cudaStream_t<sp/>stream)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>noexcept;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a0e16bf03d142f33f98bdfa9f92859ffe" kindref="member">drop_embedding_cache</ref>(cudaStream_t<sp/>stream)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>noexcept;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1ab29b0849801d6d0f3b1df4721962887b" kindref="member">drop_all_caches</ref>(cudaStream_t<sp/>stream)<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>noexcept;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="classwholememory_1_1embedding__base_1a0b36730c961a11882c23c5d95e95d162" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="classwholememory_1_1embedding__cache__base" kindref="compound">wholememory::embedding_cache_base</ref>*<sp/><ref refid="classwholememory_1_1embedding__base_1a0b36730c961a11882c23c5d95e95d162" kindref="member">get_cache_ptr</ref>()</highlight><highlight class="keyword"><sp/>const<sp/></highlight><highlight class="normal">{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a483f64a0f0c16ca20482943a379742bd" kindref="member">cache_ptr_</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a81e5f838030eb93c6e8bd391f92feeb7" kindref="member">set_shard_method</ref>(</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref>*<sp/>embedding_matrix_description,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>embedding_world_size,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>round_robin_size)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a49b8b96660934b26c7a797cb3a4016f3" kindref="member">set_gather_sms</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sms)<sp/>noexcept;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1abbc49494c69b4355ddda6991f0908708" kindref="member">get_round_robin_size</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/>protected:</highlight></codeline>
+<codeline lineno="92" refid="classwholememory_1_1embedding__base_1a4dba8ea8827c27a95f37552b6ee4fb2f" refkind="member"><highlight class="normal"><sp/><sp/>virtual<sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a4dba8ea8827c27a95f37552b6ee4fb2f" kindref="member">init_optimizer_states</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref><sp/>!=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory_8h_1a5502d912a6793c7600a87a241798cf43" kindref="member">WHOLEMEMORY_RETURN_ON_FAIL</ref>(</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref>-&gt;<ref refid="classwholememory_1_1embedding__optimizer__impl__base_1aee0bcaad108275688856166922e61fec" kindref="member">init_optimizer_states</ref>(<ref refid="classwholememory_1_1embedding__base_1a38a07e103423646cbb8d8250bd36690d" kindref="member">optimizer_state_</ref>.get()));</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory_8h_1a5502d912a6793c7600a87a241798cf43" kindref="member">WHOLEMEMORY_RETURN_ON_FAIL</ref>(<ref refid="wholememory_8h_1a50d5b529e38c0967a8f8ac3cb0903606" kindref="member">wholememory_communicator_barrier</ref>(<ref refid="classwholememory_1_1embedding__base_1a0055cbf2fb1c69819f2ab52ab95940ba" kindref="member">raw_embedding_comm_</ref>));</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2af2acb13945f12e60c989bc7e7d433fba" kindref="member">WHOLEMEMORY_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a695f0de6a56652e7c04f91aa28e7d1ce" kindref="member">WHOLEMEMORY_LOGIC_ERROR</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a7c8441f06b4de23b1c201a6a88aa5fb8" kindref="member">create_optimizer_states</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1af9cc662b24d46861de6be22ce4c83bbf" kindref="member">destroy_optimizer_states</ref>()<sp/>noexcept;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="classwholememory_1_1embedding__base_1aa624c565f7d675b2b0bdaedfcda5bf92" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1aa624c565f7d675b2b0bdaedfcda5bf92" kindref="member">gather_sms_</ref>;</highlight></codeline>
+<codeline lineno="106" refid="classwholememory_1_1embedding__base_1a182639998e90b6a6940b5fda5917bb39" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classwholememory_1_1embedding__base_1a182639998e90b6a6940b5fda5917bb39" kindref="member">round_robin_size_</ref>;</highlight></codeline>
+<codeline lineno="107" refid="classwholememory_1_1embedding__base_1a0055cbf2fb1c69819f2ab52ab95940ba" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="structwholememory__comm__" kindref="compound">wholememory_comm_t</ref><sp/><ref refid="classwholememory_1_1embedding__base_1a0055cbf2fb1c69819f2ab52ab95940ba" kindref="member">raw_embedding_comm_</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keywordtype">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="108" refid="classwholememory_1_1embedding__base_1a483f64a0f0c16ca20482943a379742bd" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacewholememory" kindref="compound">wholememory</ref>::<ref refid="classwholememory_1_1embedding__cache__base" kindref="compound">embedding_cache_base</ref>*<sp/><ref refid="classwholememory_1_1embedding__base_1a483f64a0f0c16ca20482943a379742bd" kindref="member">cache_ptr_</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keywordtype">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="109" refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="namespacewholememory" kindref="compound">wholememory</ref>::<ref refid="classwholememory_1_1embedding__optimizer__impl__base" kindref="compound">embedding_optimizer_impl_base</ref>*<sp/><ref refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" kindref="member">optimizer_impl_base_</ref><sp/>=<sp/></highlight><highlight class="keywordtype">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110" refid="classwholememory_1_1embedding__base_1a38a07e103423646cbb8d8250bd36690d" refkind="member"><highlight class="normal"><sp/><sp/>std::unique_ptr&lt;<ref refid="namespacewholememory" kindref="compound">wholememory</ref>::<ref refid="classwholememory_1_1optimizer__state__t" kindref="compound">optimizer_state_t</ref>&gt;<sp/><ref refid="classwholememory_1_1embedding__base_1a38a07e103423646cbb8d8250bd36690d" kindref="member">optimizer_state_</ref><sp/>=<sp/></highlight><highlight class="keywordtype">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>wholememory</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory/embedding.hpp"/>
+  </compounddef>
+</doxygen>

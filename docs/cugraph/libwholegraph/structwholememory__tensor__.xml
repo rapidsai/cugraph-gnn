@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__tensor__" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_tensor_</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__tensor___1a6f4d1d8af639d121b517db653f82398e" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+        <definition>wholememory_handle_t wholememory_tensor_::wholememory_handle</definition>
+        <argsstring></argsstring>
+        <name>wholememory_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="40" column="26" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1a2fc9f434d700cce4ed54f3627e408af8" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* wholememory_tensor_::storage_ptr</definition>
+        <argsstring></argsstring>
+        <name>storage_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="41" column="10" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1a4b8855cdb09e7cf0b9cf9564bbba0628" prot="public" static="no" mutable="no">
+        <type>union wholememory_tensor_::@0</type>
+        <definition>union wholememory_tensor_::@0 wholememory_tensor_::@1</definition>
+        <argsstring></argsstring>
+        <name>@1</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="42" column="3"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1a38ee0de86c8ccb7d5336435c79e8192a" prot="public" static="no" mutable="no">
+        <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref></type>
+        <definition>wholememory_tensor_description_t wholememory_tensor_::tensor_description</definition>
+        <argsstring></argsstring>
+        <name>tensor_description</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="43" column="36" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1a332b9f9595d2806e9c4ac79e3ff15c30" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory_tensor_::root_tensor</definition>
+        <argsstring></argsstring>
+        <name>root_tensor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="44" column="24" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1a35c94dc720a7bd1a20ac7ab1ce2b6baf" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool wholememory_tensor_::is_wholememory</definition>
+        <argsstring></argsstring>
+        <name>is_wholememory</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="45" column="8" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__tensor___1ac22d4c5ed1f4158a6a19dd75e78ece93" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool wholememory_tensor_::own_handle</definition>
+        <argsstring></argsstring>
+        <name>own_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/wholememory_tensor.cpp" line="46" column="8" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5">
+        <label>wholememory::wholememory_impl::partition_strategy</label>
+      </node>
+      <node id="7">
+        <label>wholememory::nccl_comms</label>
+        <link refid="classwholememory_1_1nccl__comms"/>
+      </node>
+      <node id="8">
+        <label>wholememory::wholememory_impl::alloc_strategy</label>
+      </node>
+      <node id="2">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+      <node id="1">
+        <label>wholememory_tensor_</label>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+tensor_description</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+wholememory_handle</edgelabel>
+        </childnode>
+        <childnode refid="1" relation="usage">
+          <edgelabel>+root_tensor</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>wholememory_comm_</label>
+        <link refid="structwholememory__comm__"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+raft_nccl_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory::wholememory_impl</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>#rank_partition_strategy_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#comm_</edgelabel>
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>#handle_</edgelabel>
+        </childnode>
+        <childnode refid="8" relation="usage">
+          <edgelabel>#alloc_strategy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>wholememory_handle_</label>
+        <link refid="structwholememory__handle__"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+impl</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/wholememory_tensor.cpp" line="38" column="1" bodyfile="src/wholememory/wholememory_tensor.cpp" bodystart="38" bodyend="47"/>
+    <listofallmembers>
+      <member refid="structwholememory__tensor___1a35c94dc720a7bd1a20ac7ab1ce2b6baf" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>is_wholememory</name></member>
+      <member refid="structwholememory__tensor___1ac22d4c5ed1f4158a6a19dd75e78ece93" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>own_handle</name></member>
+      <member refid="structwholememory__tensor___1a332b9f9595d2806e9c4ac79e3ff15c30" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>root_tensor</name></member>
+      <member refid="structwholememory__tensor___1a2fc9f434d700cce4ed54f3627e408af8" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>storage_ptr</name></member>
+      <member refid="structwholememory__tensor___1a38ee0de86c8ccb7d5336435c79e8192a" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>tensor_description</name></member>
+      <member refid="structwholememory__tensor___1a6f4d1d8af639d121b517db653f82398e" prot="public" virt="non-virtual"><scope>wholememory_tensor_</scope><name>wholememory_handle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,321 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="initialize_8cpp" kind="file" language="C++">
+    <compoundname>initialize.cpp</compoundname>
+    <includes refid="initialize_8hpp" local="yes">initialize.hpp</includes>
+    <includes local="no">cuda.h</includes>
+    <includes local="no">cuda_runtime_api.h</includes>
+    <includes local="no">nccl.h</includes>
+    <includes refid="communicator_8hpp" local="yes">communicator.hpp</includes>
+    <includes refid="cuda__macros_8hpp" local="yes">cuda_macros.hpp</includes>
+    <includes refid="error_8hpp" local="yes">error.hpp</includes>
+    <includes refid="logger_8hpp" local="yes">logger.hpp</includes>
+    <incdepgraph>
+      <node id="25">
+        <label>iomanip</label>
+      </node>
+      <node id="28">
+        <label>raft/core/error.hpp</label>
+      </node>
+      <node id="12">
+        <label>cstdint</label>
+      </node>
+      <node id="18">
+        <label>stdint.h</label>
+      </node>
+      <node id="19">
+        <label>stdlib.h</label>
+      </node>
+      <node id="33">
+        <label>cassert</label>
+      </node>
+      <node id="11">
+        <label>communicator.hpp</label>
+        <link refid="communicator_8hpp"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory/wholememory.h</label>
+        <link refid="wholememory_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="32">
+        <label>string</label>
+      </node>
+      <node id="31">
+        <label>cstdarg</label>
+      </node>
+      <node id="14">
+        <label>map</label>
+      </node>
+      <node id="8">
+        <label>stddef.h</label>
+      </node>
+      <node id="30">
+        <label>logger.hpp</label>
+        <link refid="logger_8hpp"/>
+        <childnode refid="31" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="32" relation="include">
+        </childnode>
+        <childnode refid="33" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>error.hpp</label>
+        <link refid="error_8hpp"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>cstdio</label>
+      </node>
+      <node id="6">
+        <label>unistd.h</label>
+      </node>
+      <node id="16">
+        <label>vector</label>
+      </node>
+      <node id="2">
+        <label>initialize.hpp</label>
+        <link refid="initialize_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>cstdlib</label>
+      </node>
+      <node id="26">
+        <label>iostream</label>
+      </node>
+      <node id="20">
+        <label>cuda_macros.hpp</label>
+        <link refid="cuda__macros_8hpp"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>cuda.h</label>
+      </node>
+      <node id="15">
+        <label>mutex</label>
+      </node>
+      <node id="3">
+        <label>cuda_runtime_api.h</label>
+      </node>
+      <node id="21">
+        <label>chrono</label>
+      </node>
+      <node id="7">
+        <label>wholememory/global_reference.h</label>
+        <link refid="global__reference_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>nccl.h</label>
+      </node>
+      <node id="1">
+        <label>src/wholememory/initialize.cpp</label>
+        <link refid="initialize_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>wholememory/tensor_description.h</label>
+        <link refid="tensor__description_8h"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdio.h</label>
+      </node>
+      <node id="24">
+        <label>execinfo.h</label>
+      </node>
+      <node id="13">
+        <label>cstring</label>
+      </node>
+      <node id="27">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacewholememory">wholememory</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="initialize_8hpp" kindref="compound">initialize.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cuda.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cuda_runtime_api.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;nccl.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="communicator_8hpp" kindref="compound">communicator.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cuda__macros_8hpp" kindref="compound">cuda_macros.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="error_8hpp" kindref="compound">error.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="logger_8hpp" kindref="compound">logger.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewholememory" kindref="compound">wholememory</ref><sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>std::mutex<sp/><ref refid="communicator_8hpp_1a9e631d74e28c39bc9af0c6c59cb97998" kindref="member">mu</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_wm_init<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::string<sp/>RAFT_NAME<sp/><sp/>=<sp/></highlight><highlight class="stringliteral">&quot;wholememory&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>cudaDeviceProp*<sp/>device_props<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="namespacewholememory_1a939f4ae8079adfe5287c493cf2d007b5" kindref="member">init</ref>(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,<sp/><ref refid="wholememory_8h_1aca1fd1d8935433e6ba2e3918214e07f9" kindref="member">LogLevel</ref><sp/>log_level)<sp/>noexcept</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>lock(mu);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)flags;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1af59b2af87c5d45e0543be49eb5afe262" kindref="member">WHOLEMEMORY_EXPECTS</ref>(!is_wm_init,<sp/></highlight><highlight class="stringliteral">&quot;WholeMemory<sp/>has<sp/>already<sp/>been<sp/>initialized.&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1ab91989c3164b0d59babf67dddbf74120" kindref="member">WM_CU_CHECK</ref>(cuInit(0));</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dev_count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDeviceCount(&amp;dev_count));</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dev_count<sp/>&lt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>no<sp/>CUDA<sp/>device<sp/>found&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a227d180e89097c8a95afb251a607d302" kindref="member">WHOLEMEMORY_CUDA_ERROR</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>device_props<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>cudaDeviceProp[dev_count];</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>dev_count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDeviceProperties(device_props<sp/>+<sp/>i,<sp/>i));</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>is_wm_init<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="namespacewholememory_1a8e4a31a1162a4a8b732df36bd7c2fb40" kindref="member">wholememory::set_log_level</ref>(log_level);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2af2acb13945f12e60c989bc7e7d433fba" kindref="member">WHOLEMEMORY_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(raft::logic_error&amp;<sp/>logic_error)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>logic_error=%s&quot;</highlight><highlight class="normal">,<sp/>logic_error.what());</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a695f0de6a56652e7c04f91aa28e7d1ce" kindref="member">WHOLEMEMORY_LOGIC_ERROR</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(<ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref>&amp;<sp/>wle)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>logic_error=%s&quot;</highlight><highlight class="normal">,<sp/>wle.what());</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a695f0de6a56652e7c04f91aa28e7d1ce" kindref="member">WHOLEMEMORY_LOGIC_ERROR</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(<ref refid="structwholememory_1_1cuda__error" kindref="compound">wholememory::cuda_error</ref>&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>cuda_error=%s&quot;</highlight><highlight class="normal">,<sp/>wce.what());</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a227d180e89097c8a95afb251a607d302" kindref="member">WHOLEMEMORY_CUDA_ERROR</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(<ref refid="structwholememory_1_1cu__error" kindref="compound">wholememory::cu_error</ref>&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>cu_error=%s&quot;</highlight><highlight class="normal">,<sp/>wce.what());</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a227d180e89097c8a95afb251a607d302" kindref="member">WHOLEMEMORY_CUDA_ERROR</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(...)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;init<sp/>failed,<sp/>Unknown<sp/>error.&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2a222cd3ef87c325a96a0e71296cfdf809" kindref="member">WHOLEMEMORY_UNKNOW_ERROR</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="namespacewholememory_1a0c4fb9586479b32565199d381f5d6653" kindref="member">finalize</ref>()<sp/>noexcept</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>lock(mu);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/>is_wm_init<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><ref refid="wholememory_8h_1a5502d912a6793c7600a87a241798cf43" kindref="member">WHOLEMEMORY_RETURN_ON_FAIL</ref>(<ref refid="namespacewholememory_1ad3eaac5ad3d1adab0c25930187bbb892" kindref="member">destroy_all_communicators</ref>());</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">[]<sp/>device_props;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/>device_props<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2af2acb13945f12e60c989bc7e7d433fba" kindref="member">WHOLEMEMORY_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal">cudaDeviceProp*<sp/><ref refid="namespacewholememory_1ad389ed05d77a5e3e7eef6b4fb99ca833" kindref="member">get_device_prop</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>)<sp/>noexcept</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref><sp/>==<sp/>-1)<sp/>{<sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice(&amp;<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>));<sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1af32f7e28d8982de1feb7cfa07a6c8794" kindref="member">WHOLEMEMORY_CHECK</ref>(<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref><sp/>&gt;=<sp/>0);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>device_props<sp/>+<sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(...)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="logger_8hpp_1a34c74df9f1821c923aad87bc826c78d6" kindref="member">WHOLEMEMORY_ERROR</ref>(</highlight><highlight class="stringliteral">&quot;get_device_prop<sp/>for<sp/>dev_id=%d<sp/>failed.&quot;</highlight><highlight class="normal">,<sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>wholememory</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory/initialize.cpp"/>
+  </compounddef>
+</doxygen>

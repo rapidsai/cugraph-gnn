@@ -1,0 +1,586 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="wholegraph__op_8h" kind="file" language="C++">
+    <compoundname>wholegraph_op.h</compoundname>
+    <includes refid="env__func__ptrs_8h" local="no">wholememory/env_func_ptrs.h</includes>
+    <includes refid="wholememory_8h" local="no">wholememory/wholememory.h</includes>
+    <includes refid="wholememory__tensor_8h" local="no">wholememory/wholememory_tensor.h</includes>
+    <includedby refid="unweighted__sample__without__replacement_8cpp" local="no">src/wholegraph_ops/unweighted_sample_without_replacement.cpp</includedby>
+    <includedby refid="weighted__sample__without__replacement_8cpp" local="no">src/wholegraph_ops/weighted_sample_without_replacement.cpp</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>stdlib.h</label>
+      </node>
+      <node id="7">
+        <label>wholememory/wholememory.h</label>
+        <link refid="wholememory_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>wholememory/env_func_ptrs.h</label>
+        <link refid="env__func__ptrs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>unistd.h</label>
+      </node>
+      <node id="12">
+        <label>wholememory/wholememory_tensor.h</label>
+        <link refid="wholememory__tensor_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/wholememory/wholegraph_op.h</label>
+        <link refid="wholegraph__op_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>cuda_runtime_api.h</label>
+      </node>
+      <node id="10">
+        <label>wholememory/global_reference.h</label>
+        <link refid="global__reference_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory/tensor_description.h</label>
+        <link refid="tensor__description_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/wholegraph_ops/unweighted_sample_without_replacement.cpp</label>
+        <link refid="unweighted__sample__without__replacement_8cpp"/>
+      </node>
+      <node id="1">
+        <label>include/wholememory/wholegraph_op.h</label>
+        <link refid="wholegraph__op_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/wholegraph_ops/weighted_sample_without_replacement.cpp</label>
+        <link refid="weighted__sample__without__replacement_8cpp"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="wholegraph__op_8h_1ae437af1452571fb6c64a613a6ed98d3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholegraph_csr_unweighted_sample_without_replacement</definition>
+        <argsstring>(wholememory_tensor_t wm_csr_row_ptr_tensor, wholememory_tensor_t wm_csr_col_ptr_tensor, wholememory_tensor_t center_nodes_tensor, int max_sample_count, wholememory_tensor_t output_sample_offset_tensor, void *output_dest_memory_context, void *output_center_localid_memory_context, void *output_edge_gid_memory_context, unsigned long long random_seed, wholememory_env_func_t *p_env_fns, void *stream)</argsstring>
+        <name>wholegraph_csr_unweighted_sample_without_replacement</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_csr_row_ptr_tensor</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_csr_col_ptr_tensor</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>center_nodes_tensor</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_sample_count</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>output_sample_offset_tensor</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_dest_memory_context</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_center_localid_memory_context</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_edge_gid_memory_context</declname>
+        </param>
+        <param>
+          <type>unsigned long long</type>
+          <declname>random_seed</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unweighted sample without replacement kernel op <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wm_csr_row_ptr_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of graph csr_row_ptr </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_csr_col_ptr_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of graph csr_col_ptr </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>center_nodes_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: None Wholememory Tensor of center node to sample </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: maximum sample count </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_sample_offset_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to output sample offset </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_dest_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output dest nodes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_center_localid_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output center local id </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_edge_gid_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output edge global id </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>random_seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>random number generator seed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointers to environment functions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: CUDA stream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/wholegraph_op.h" line="42" column="26" bodyfile="src/wholegraph_ops/unweighted_sample_without_replacement.cpp" bodystart="23" bodyend="169" declfile="include/wholememory/wholegraph_op.h" declline="42" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="wholegraph__op_8h_1a1aea1705edba4342951ddf167c417098" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholegraph_csr_weighted_sample_without_replacement</definition>
+        <argsstring>(wholememory_tensor_t wm_csr_row_ptr_tensor, wholememory_tensor_t wm_csr_col_ptr_tensor, wholememory_tensor_t wm_csr_weight_ptr_tensor, wholememory_tensor_t center_nodes_tensor, int max_sample_count, wholememory_tensor_t output_sample_offset_tensor, void *output_dest_memory_context, void *output_center_localid_memory_context, void *output_edge_gid_memory_context, unsigned long long random_seed, wholememory_env_func_t *p_env_fns, void *stream)</argsstring>
+        <name>wholegraph_csr_weighted_sample_without_replacement</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_csr_row_ptr_tensor</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_csr_col_ptr_tensor</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_csr_weight_ptr_tensor</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>center_nodes_tensor</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_sample_count</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>output_sample_offset_tensor</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_dest_memory_context</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_center_localid_memory_context</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output_edge_gid_memory_context</declname>
+        </param>
+        <param>
+          <type>unsigned long long</type>
+          <declname>random_seed</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unweighted sample without replacement kernel op <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wm_csr_row_ptr_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of graph csr_row_ptr </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_csr_col_ptr_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of graph csr_col_ptr </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_csr_weight_ptr_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of graph edge weight </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>center_nodes_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: None Wholememory Tensor of center node to sample </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: maximum sample count </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_sample_offset_tensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to output sample offset </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_dest_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output dest nodes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_center_localid_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output center local id </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output_edge_gid_memory_context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: memory context to output edge global id </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>random_seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>random number generator seed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointers to environment functions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: CUDA stream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/wholegraph_op.h" line="72" column="26" bodyfile="src/wholegraph_ops/weighted_sample_without_replacement.cpp" bodystart="23" bodyend="156" declfile="include/wholememory/wholegraph_op.h" declline="72" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="wholegraph__op_8h_1a5bf5c1b75fc68e590f0be396443c726d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t generate_random_positive_int_cpu</definition>
+        <argsstring>(int64_t random_seed, int64_t subsequence, wholememory_tensor_t output)</argsstring>
+        <name>generate_random_positive_int_cpu</name>
+        <param>
+          <type>int64_t</type>
+          <declname>random_seed</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>subsequence</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>raft_pcg_generator_random_int cpu op <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>random_seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: random seed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subsequence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: subsequence for generating random value </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of output </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/wholegraph_op.h" line="93" column="26" declfile="include/wholememory/wholegraph_op.h" declline="93" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="wholegraph__op_8h_1a8ae68426f77b5d923c327ca1b07e02bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t generate_exponential_distribution_negative_float_cpu</definition>
+        <argsstring>(int64_t random_seed, int64_t subsequence, wholememory_tensor_t output)</argsstring>
+        <name>generate_exponential_distribution_negative_float_cpu</name>
+        <param>
+          <type>int64_t</type>
+          <declname>random_seed</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>subsequence</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>raft_pcg_generator_random_float cpu op <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>random_seed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: random seed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subsequence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: subsequence for generating random value </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Wholememory Tensor of output </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/wholegraph_op.h" line="104" column="26" declfile="include/wholememory/wholegraph_op.h" declline="104" declcolumn="26"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="env__func__ptrs_8h" kindref="compound">wholememory/env_func_ptrs.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="wholememory_8h" kindref="compound">wholememory/wholememory.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="wholememory__tensor_8h" kindref="compound">wholememory/wholememory_tensor.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="wholegraph__op_8h_1ae437af1452571fb6c64a613a6ed98d3c" kindref="member">wholegraph_csr_unweighted_sample_without_replacement</ref>(</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>wm_csr_row_ptr_tensor,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>wm_csr_col_ptr_tensor,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>center_nodes_tensor,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>max_sample_count,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>output_sample_offset_tensor,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_dest_memory_context,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_center_localid_memory_context,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_edge_gid_memory_context,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>random_seed,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/>p_env_fns,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>stream);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="wholegraph__op_8h_1a1aea1705edba4342951ddf167c417098" kindref="member">wholegraph_csr_weighted_sample_without_replacement</ref>(</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>wm_csr_row_ptr_tensor,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>wm_csr_col_ptr_tensor,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>wm_csr_weight_ptr_tensor,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>center_nodes_tensor,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>max_sample_count,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>output_sample_offset_tensor,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_dest_memory_context,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_center_localid_memory_context,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>output_edge_gid_memory_context,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>random_seed,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/>p_env_fns,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>stream);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="wholegraph__op_8h_1a5bf5c1b75fc68e590f0be396443c726d" refkind="member"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="wholegraph__op_8h_1a5bf5c1b75fc68e590f0be396443c726d" kindref="member">generate_random_positive_int_cpu</ref>(int64_t<sp/>random_seed,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>subsequence,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>output);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="wholegraph__op_8h_1a8ae68426f77b5d923c327ca1b07e02bf" refkind="member"><highlight class="normal"><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref><sp/><ref refid="wholegraph__op_8h_1a8ae68426f77b5d923c327ca1b07e02bf" kindref="member">generate_exponential_distribution_negative_float_cpu</ref>(</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/>int64_t<sp/>random_seed,<sp/>int64_t<sp/>subsequence,<sp/><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref><sp/>output);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="include/wholememory/wholegraph_op.h"/>
+  </compounddef>
+</doxygen>

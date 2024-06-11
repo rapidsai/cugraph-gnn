@@ -1,0 +1,269 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classwholememory_1_1device__cached__host__embedding" kind="class" language="C++" prot="public">
+    <compoundname>wholememory::device_cached_host_embedding</compoundname>
+    <basecompoundref refid="classwholememory_1_1embedding__base" prot="public" virt="non-virtual">wholememory::embedding_base</basecompoundref>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classwholememory_1_1device__cached__host__embedding_1a08a4705552135393fe438594b530a0b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>wholememory::device_cached_host_embedding::device_cached_host_embedding</definition>
+        <argsstring>()=default</argsstring>
+        <name>device_cached_host_embedding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.cpp" line="523" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classwholememory_1_1device__cached__host__embedding_1ae34151aefdf20bf8ec82861705df50c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>virtual wholememory::device_cached_host_embedding::~device_cached_host_embedding</definition>
+        <argsstring>()=default</argsstring>
+        <name>~device_cached_host_embedding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.cpp" line="524" column="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classwholememory_1_1device__cached__host__embedding_1a5ae49bf8bd573e31be4142037e47d86b" prot="public" static="no" const="no" explicit="no" inline="no" noexcept="yes" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory::device_cached_host_embedding::gather</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t output, bool adjust_cache, wholememory_env_func_t *p_env_fns, cudaStream_t stream) noexcept override</argsstring>
+        <name>gather</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>adjust_cache</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.cpp" line="525" column="28" bodyfile="src/wholememory/embedding.cpp" bodystart="532" bodyend="710"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>wholememory::device_cached_host_embedding</label>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>wholememory_embedding_</label>
+        <link refid="structwholememory__embedding__"/>
+      </node>
+      <node id="2">
+        <label>wholememory::embedding_base</label>
+        <link refid="classwholememory_1_1embedding__base"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="8">
+        <label>wholememory::wholememory_impl::partition_strategy</label>
+      </node>
+      <node id="15">
+        <label>wholememory::embedding_cache_base</label>
+        <link refid="classwholememory_1_1embedding__cache__base"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#raw_comm_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#padded_raw_tensor_</edgelabel>
+          <edgelabel>+access_count_wm_tensor_</edgelabel>
+          <edgelabel>+cache_line_data_wm_tensor_</edgelabel>
+          <edgelabel>+cache_line_lfu_count_wm_tensor_</edgelabel>
+          <edgelabel>+cache_line_tag_wm_tensor_</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>#cache_policy_</edgelabel>
+        </childnode>
+        <childnode refid="16" relation="usage">
+          <edgelabel>#matrix_description_</edgelabel>
+          <edgelabel>#padded_matrix_description_</edgelabel>
+        </childnode>
+        <childnode refid="17" relation="usage">
+          <edgelabel>#local_cache_</edgelabel>
+        </childnode>
+      </node>
+      <node id="10">
+        <label>wholememory::nccl_comms</label>
+        <link refid="classwholememory_1_1nccl__comms"/>
+      </node>
+      <node id="12">
+        <label>wholememory_embedding_cache_policy_</label>
+        <link refid="structwholememory__embedding__cache__policy__"/>
+        <childnode refid="9" relation="usage">
+          <edgelabel>+cache_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>wholememory::wholememory_impl::alloc_strategy</label>
+      </node>
+      <node id="1">
+        <label>wholememory::device_cached_host_embedding</label>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+      <node id="4">
+        <label>wholememory_tensor_</label>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+tensor_description</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>+wholememory_handle</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+root_tensor</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>wholememory_embedding_</label>
+        <link refid="structwholememory__embedding__"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+allocated_embedding</edgelabel>
+          <edgelabel>+user_embedding</edgelabel>
+        </childnode>
+        <childnode refid="12" relation="usage">
+          <edgelabel>+cache_policy</edgelabel>
+        </childnode>
+        <childnode refid="13" relation="usage">
+          <edgelabel>+optimizer</edgelabel>
+        </childnode>
+      </node>
+      <node id="17">
+        <label>wholememory::embedding_cache_local_data</label>
+        <link refid="classwholememory_1_1embedding__cache__local__data"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+access_count_</edgelabel>
+          <edgelabel>+cache_line_data_</edgelabel>
+          <edgelabel>+cache_line_lfu_count_</edgelabel>
+          <edgelabel>+cache_line_tag_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>wholememory::embedding_base</label>
+        <link refid="classwholememory_1_1embedding__base"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="14" relation="usage">
+          <edgelabel>#optimizer_impl_base_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#raw_embedding_comm_</edgelabel>
+        </childnode>
+        <childnode refid="15" relation="usage">
+          <edgelabel>#cache_ptr_</edgelabel>
+        </childnode>
+      </node>
+      <node id="14">
+        <label>wholememory::embedding_optimizer_impl_base</label>
+        <link refid="classwholememory_1_1embedding__optimizer__impl__base"/>
+        <childnode refid="13" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>wholememory_embedding_optimizer_</label>
+        <link refid="structwholememory__embedding__optimizer__"/>
+      </node>
+      <node id="9">
+        <label>wholememory_comm_</label>
+        <link refid="structwholememory__comm__"/>
+        <childnode refid="10" relation="usage">
+          <edgelabel>+raft_nccl_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="16">
+        <label>wholememory_matrix_description_t</label>
+        <link refid="structwholememory__matrix__description__t"/>
+      </node>
+      <node id="7">
+        <label>wholememory::wholememory_impl</label>
+        <childnode refid="8" relation="usage">
+          <edgelabel>#rank_partition_strategy_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#comm_</edgelabel>
+        </childnode>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#handle_</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>#alloc_strategy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="6">
+        <label>wholememory_handle_</label>
+        <link refid="structwholememory__handle__"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+impl</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/embedding.cpp" line="521" column="1" bodyfile="src/wholememory/embedding.cpp" bodystart="521" bodyend="530"/>
+    <listofallmembers>
+      <member refid="classwholememory_1_1embedding__base_1a4b83750917d44c143ff495b143af486c" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>allocate</name></member>
+      <member refid="structwholememory__embedding___1a031161bc7b46f80203168e8ae2550200" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>allocated_embedding</name></member>
+      <member refid="structwholememory__embedding___1a6106fbe92781e1df2d11613428580c04" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>cache_policy</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a483f64a0f0c16ca20482943a379742bd" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>cache_ptr_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a7c8441f06b4de23b1c201a6a88aa5fb8" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>create_optimizer_states</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a1174b52da0b3849a24ab95cf5e279aa8" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>deallocate</name></member>
+      <member refid="classwholememory_1_1embedding__base_1af9cc662b24d46861de6be22ce4c83bbf" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>destroy_optimizer_states</name></member>
+      <member refid="classwholememory_1_1device__cached__host__embedding_1a08a4705552135393fe438594b530a0b4" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>device_cached_host_embedding</name></member>
+      <member refid="classwholememory_1_1embedding__base_1ab29b0849801d6d0f3b1df4721962887b" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>drop_all_caches</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a0e16bf03d142f33f98bdfa9f92859ffe" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>drop_embedding_cache</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a704f35c62d8f45a89f42950f9b6e7cfe" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>embedding_base</name></member>
+      <member refid="classwholememory_1_1device__cached__host__embedding_1a5ae49bf8bd573e31be4142037e47d86b" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>gather</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a8d2d6fda07d2e582b46c09928a1ea2cf" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>gather_gradient_apply</name></member>
+      <member refid="classwholememory_1_1embedding__base_1aa624c565f7d675b2b0bdaedfcda5bf92" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>gather_sms_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a0b36730c961a11882c23c5d95e95d162" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>get_cache_ptr</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a4130c9a4a116eb29ec3009d4a300e020" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>get_optimizer_state</name></member>
+      <member refid="classwholememory_1_1embedding__base_1ac86de8299a3baf93bf3196f95e68900e" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>get_optimizer_state_names</name></member>
+      <member refid="classwholememory_1_1embedding__base_1abbc49494c69b4355ddda6991f0908708" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>get_round_robin_size</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a4dba8ea8827c27a95f37552b6ee4fb2f" prot="protected" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>init_optimizer_states</name></member>
+      <member refid="structwholememory__embedding___1a2133505171fd0e4bea9a567d1961ccaf" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>optimizer</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a83b6101cde13b157047ce10f9452cc7d" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>optimizer_impl_base_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a38a07e103423646cbb8d8250bd36690d" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>optimizer_state_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a0055cbf2fb1c69819f2ab52ab95940ba" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>raw_embedding_comm_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a182639998e90b6a6940b5fda5917bb39" prot="protected" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>round_robin_size_</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a49b8b96660934b26c7a797cb3a4016f3" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>set_gather_sms</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a81e5f838030eb93c6e8bd391f92feeb7" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>set_shard_method</name></member>
+      <member refid="structwholememory__embedding___1a0e101b543ac0ac833f91ab319022715f" prot="public" virt="non-virtual"><scope>wholememory::device_cached_host_embedding</scope><name>user_embedding</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a0678542d34ba10f6b24f0f745e34a5dd" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>writeback_all_caches</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a957adfa95b9e83884e66e2a56ffc7f88" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>writeback_embedding_cache</name></member>
+      <member refid="classwholememory_1_1device__cached__host__embedding_1ae34151aefdf20bf8ec82861705df50c4" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>~device_cached_host_embedding</name></member>
+      <member refid="classwholememory_1_1embedding__base_1a20f721d0f193a111e457f4f87b760ae9" prot="public" virt="virtual"><scope>wholememory::device_cached_host_embedding</scope><name>~embedding_base</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

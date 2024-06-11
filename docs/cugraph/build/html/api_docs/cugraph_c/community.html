@@ -1,0 +1,1320 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Community &#8212; cugraph 24.08.00 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="https://docs.rapids.ai/assets/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/references.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script defer="defer" src="https://docs.rapids.ai/assets/js/custom.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_docs/cugraph_c/community';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Core" href="core.html" />
+    <link rel="prev" title="Centrality" href="centrality.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cugraph 24.08.00 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="ms-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+            <li class="nav-item dropdown pst-header-nav-item">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item  current active">
+  <a class="nav-link dropdown-item nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Core Graph API Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cugraph/index.html">cugraph API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/structure.html">Graph Classes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.html">cugraph.Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.MultiGraph.html">cugraph.MultiGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_cudf_adjlist.html">cugraph.Graph.from_cudf_adjlist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_cudf_edgelist.html">cugraph.Graph.from_cudf_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_dask_cudf_edgelist.html">cugraph.Graph.from_dask_cudf_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_pandas_adjacency.html">cugraph.Graph.from_pandas_adjacency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_pandas_edgelist.html">cugraph.Graph.from_pandas_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_numpy_array.html">cugraph.Graph.from_numpy_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.from_numpy_matrix.html">cugraph.Graph.from_numpy_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.add_internal_vertex_id.html">cugraph.Graph.add_internal_vertex_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.add_nodes_from.html">cugraph.Graph.add_nodes_from</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.clear.html">cugraph.Graph.clear</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.Graph.unrenumber.html">cugraph.Graph.unrenumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.symmetrize.html">cugraph.symmetrize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.symmetrize_ddf.html">cugraph.symmetrize_ddf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.symmetrize_df.html">cugraph.symmetrize_df</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_adjlist.html">cugraph.from_adjlist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_cudf_edgelist.html">cugraph.from_cudf_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_edgelist.html">cugraph.from_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_numpy_array.html">cugraph.from_numpy_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_numpy_matrix.html">cugraph.from_numpy_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_pandas_adjacency.html">cugraph.from_pandas_adjacency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.from_pandas_edgelist.html">cugraph.from_pandas_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.to_numpy_array.html">cugraph.to_numpy_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.to_numpy_matrix.html">cugraph.to_numpy_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.to_pandas_adjacency.html">cugraph.to_pandas_adjacency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.to_pandas_edgelist.html">cugraph.to_pandas_edgelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.html">cugraph.structure.NumberMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.from_internal_vertex_id.html">cugraph.structure.NumberMap.from_internal_vertex_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.to_internal_vertex_id.html">cugraph.structure.NumberMap.to_internal_vertex_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.add_internal_vertex_id.html">cugraph.structure.NumberMap.add_internal_vertex_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.compute_vals.html">cugraph.structure.NumberMap.compute_vals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.compute_vals_types.html">cugraph.structure.NumberMap.compute_vals_types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.generate_unused_column_name.html">cugraph.structure.NumberMap.generate_unused_column_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.renumber.html">cugraph.structure.NumberMap.renumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.renumber_and_segment.html">cugraph.structure.NumberMap.renumber_and_segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.set_renumbered_col_names.html">cugraph.structure.NumberMap.set_renumbered_col_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.unrenumber.html">cugraph.structure.NumberMap.unrenumber</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.NumberMap.vertex_column_size.html">cugraph.structure.NumberMap.vertex_column_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.hypergraph.html">cugraph.hypergraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/graph_implementation.html">Graph Implementation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_edge_list.html">cugraph.structure.graph_implementation.simpleGraphImpl.view_edge_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.delete_edge_list.html">cugraph.structure.graph_implementation.simpleGraphImpl.delete_edge_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_adj_list.html">cugraph.structure.graph_implementation.simpleGraphImpl.view_adj_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_transposed_adj_list.html">cugraph.structure.graph_implementation.simpleGraphImpl.view_transposed_adj_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.delete_adj_list.html">cugraph.structure.graph_implementation.simpleGraphImpl.delete_adj_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.enable_batch.html">cugraph.structure.graph_implementation.simpleGraphImpl.enable_batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.get_two_hop_neighbors.html">cugraph.structure.graph_implementation.simpleGraphImpl.get_two_hop_neighbors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_vertices.html">cugraph.structure.graph_implementation.simpleGraphImpl.number_of_vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_nodes.html">cugraph.structure.graph_implementation.simpleGraphImpl.number_of_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_edges.html">cugraph.structure.graph_implementation.simpleGraphImpl.number_of_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.in_degree.html">cugraph.structure.graph_implementation.simpleGraphImpl.in_degree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.out_degree.html">cugraph.structure.graph_implementation.simpleGraphImpl.out_degree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.degree.html">cugraph.structure.graph_implementation.simpleGraphImpl.degree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.degrees.html">cugraph.structure.graph_implementation.simpleGraphImpl.degrees</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_edge.html">cugraph.structure.graph_implementation.simpleGraphImpl.has_edge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_node.html">cugraph.structure.graph_implementation.simpleGraphImpl.has_node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_self_loop.html">cugraph.structure.graph_implementation.simpleGraphImpl.has_self_loop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.edges.html">cugraph.structure.graph_implementation.simpleGraphImpl.edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.nodes.html">cugraph.structure.graph_implementation.simpleGraphImpl.nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.neighbors.html">cugraph.structure.graph_implementation.simpleGraphImpl.neighbors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.vertex_column_size.html">cugraph.structure.graph_implementation.simpleGraphImpl.vertex_column_size</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/property_graph.html">Property Graph</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertySelection.html">cugraph.experimental.PropertySelection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.html">cugraph.experimental.PropertyGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.add_edge_data.html">cugraph.experimental.PropertyGraph.add_edge_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.add_vertex_data.html">cugraph.experimental.PropertyGraph.add_vertex_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.annotate_dataframe.html">cugraph.experimental.PropertyGraph.annotate_dataframe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.edge_props_to_graph.html">cugraph.experimental.PropertyGraph.edge_props_to_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.extract_subgraph.html">cugraph.experimental.PropertyGraph.extract_subgraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.get_edge_data.html">cugraph.experimental.PropertyGraph.get_edge_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.get_num_edges.html">cugraph.experimental.PropertyGraph.get_num_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.get_num_vertices.html">cugraph.experimental.PropertyGraph.get_num_vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.get_vertex_data.html">cugraph.experimental.PropertyGraph.get_vertex_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.get_vertices.html">cugraph.experimental.PropertyGraph.get_vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.has_duplicate_edges.html">cugraph.experimental.PropertyGraph.has_duplicate_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.is_multigraph.html">cugraph.experimental.PropertyGraph.is_multigraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.renumber_edges_by_type.html">cugraph.experimental.PropertyGraph.renumber_edges_by_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.renumber_vertices_by_type.html">cugraph.experimental.PropertyGraph.renumber_vertices_by_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.select_edges.html">cugraph.experimental.PropertyGraph.select_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.experimental.PropertyGraph.select_vertices.html">cugraph.experimental.PropertyGraph.select_vertices</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/centrality.html">Centrality</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.centrality.betweenness_centrality.html">cugraph.centrality.betweenness_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.centrality.edge_betweenness_centrality.html">cugraph.centrality.edge_betweenness_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.centrality.betweenness_centrality.html">cugraph.dask.centrality.betweenness_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.centrality.katz_centrality.html">cugraph.centrality.katz_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.centrality.katz_centrality.katz_centrality.html">cugraph.dask.centrality.katz_centrality.katz_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.centrality.degree_centrality.html">cugraph.centrality.degree_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.centrality.eigenvector_centrality.html">cugraph.centrality.eigenvector_centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.centrality.eigenvector_centrality.eigenvector_centrality.html">cugraph.dask.centrality.eigenvector_centrality.eigenvector_centrality</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/community.html">Community</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.batched_ego_graphs.html">cugraph.batched_ego_graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.ego_graph.html">cugraph.ego_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.ecg.html">cugraph.ecg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.k_truss.html">cugraph.k_truss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.ktruss_subgraph.html">cugraph.ktruss_subgraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.leiden.html">cugraph.leiden</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.louvain.html">cugraph.louvain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.community.louvain.louvain.html">cugraph.dask.community.louvain.louvain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.analyzeClustering_edge_cut.html">cugraph.analyzeClustering_edge_cut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.analyzeClustering_modularity.html">cugraph.analyzeClustering_modularity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.analyzeClustering_ratio_cut.html">cugraph.analyzeClustering_ratio_cut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.spectralBalancedCutClustering.html">cugraph.spectralBalancedCutClustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.spectralModularityMaximizationClustering.html">cugraph.spectralModularityMaximizationClustering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.subgraph.html">cugraph.subgraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.triangle_count.html">cugraph.triangle_count</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/components.html">Components</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.connected_components.html">cugraph.connected_components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.strongly_connected_components.html">cugraph.strongly_connected_components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.weakly_connected_components.html">cugraph.weakly_connected_components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.components.connectivity.weakly_connected_components.html">cugraph.dask.components.connectivity.weakly_connected_components</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/cores.html">Cores</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.core_number.html">cugraph.core_number</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.k_core.html">cugraph.k_core</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/layout.html">Layout</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.force_atlas2.html">cugraph.force_atlas2</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/linear_assignment.html">Linear Assignment</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.hungarian.html">cugraph.hungarian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dense_hungarian.html">cugraph.dense_hungarian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/link_analysis.html">Link Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.hits.html">cugraph.hits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.link_analysis.hits.hits.html">cugraph.dask.link_analysis.hits.hits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.pagerank.html">cugraph.pagerank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.link_analysis.pagerank.pagerank.html">cugraph.dask.link_analysis.pagerank.pagerank</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/link_prediction.html">Link Prediction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.jaccard.html">cugraph.jaccard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.jaccard_coefficient.html">cugraph.jaccard_coefficient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.overlap.html">cugraph.overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.overlap_coefficient.html">cugraph.overlap_coefficient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.sorensen.html">cugraph.sorensen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.sorensen_coefficient.html">cugraph.sorensen_coefficient</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/sampling.html">Sampling</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.random_walks.html">cugraph.random_walks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.ego_graph.html">cugraph.ego_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.uniform_neighbor_sample.html">cugraph.uniform_neighbor_sample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.node2vec.html">cugraph.node2vec</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/traversal.html">Traversal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.bfs.html">cugraph.bfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.bfs_edges.html">cugraph.bfs_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.traversal.bfs.bfs.html">cugraph.dask.traversal.bfs.bfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.filter_unreachable.html">cugraph.filter_unreachable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.shortest_path.html">cugraph.shortest_path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.shortest_path_length.html">cugraph.shortest_path_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.sssp.html">cugraph.sssp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.traversal.sssp.sssp.html">cugraph.dask.traversal.sssp.sssp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/tree.html">Tree</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.tree.minimum_spanning_tree.minimum_spanning_tree.html">cugraph.tree.minimum_spanning_tree.minimum_spanning_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.tree.minimum_spanning_tree.maximum_spanning_tree.html">cugraph.tree.minimum_spanning_tree.maximum_spanning_tree</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/generators.html">Generators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.generators.rmat.html">cugraph.generators.rmat</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph/helper_functions.html">DASK MG Helper functions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.initialize.html">cugraph.dask.comms.comms.initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.destroy.html">cugraph.dask.comms.comms.destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.is_initialized.html">cugraph.dask.comms.comms.is_initialized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_comms.html">cugraph.dask.comms.comms.get_comms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_workers.html">cugraph.dask.comms.comms.get_workers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_session_id.html">cugraph.dask.comms.comms.get_session_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_2D_partition.html">cugraph.dask.comms.comms.get_2D_partition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_default_handle.html">cugraph.dask.comms.comms.get_default_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_handle.html">cugraph.dask.comms.comms.get_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.comms.comms.get_worker_id.html">cugraph.dask.comms.comms.get_worker_id</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/cugraph/cugraph.dask.common.read_utils.get_chunksize.html">cugraph.dask.common.read_utils.get_chunksize</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../cugraph/dask-cugraph.html">Multi-GPU with cuGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../plc/pylibcugraph.html">pylibcugraph API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.eigenvector_centrality.html">pylibcugraph.eigenvector_centrality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.katz_centrality.html">pylibcugraph.katz_centrality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.strongly_connected_components.html">pylibcugraph.strongly_connected_components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.weakly_connected_components.html">pylibcugraph.weakly_connected_components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.pagerank.html">pylibcugraph.pagerank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.hits.html">pylibcugraph.hits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.node2vec.html">pylibcugraph.node2vec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.bfs.html">pylibcugraph.bfs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plc/pylibcugraph.sssp.html">pylibcugraph.sssp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">cuGraph C API documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="centrality.html">Centrality</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Community</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeling.html">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sampling.html">Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="similarity.html">Similarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traversal.html">Traversal</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Graph Nerual Networks API Documentation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cugraph-dgl/cugraph_dgl.html">cugraph-dgl API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-dgl/cugraph_dgl.convert.cugraph_storage_from_heterograph.html">cugraph_dgl.convert.cugraph_storage_from_heterograph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-dgl/cugraph_dgl.cugraph_storage.CuGraphStorage.html">cugraph_dgl.cugraph_storage.CuGraphStorage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cugraph-pyg/cugraph_pyg.html">cugraph-pyg API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.data.dask_graph_store.DaskGraphStore.html">cugraph_pyg.data.dask_graph_store.DaskGraphStore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.data.graph_store.GraphStore.html">cugraph_pyg.data.graph_store.GraphStore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.data.feature_store.TensorDictFeatureStore.html">cugraph_pyg.data.feature_store.TensorDictFeatureStore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.data.feature_store.WholeFeatureStore.html">cugraph_pyg.data.feature_store.WholeFeatureStore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader.html">cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.BulkSampleLoader.html">cugraph_pyg.loader.dask_node_loader.BulkSampleLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.loader.node_loader.NodeLoader.html">cugraph_pyg.loader.node_loader.NodeLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.loader.neighbor_loader.NeighborLoader.html">cugraph_pyg.loader.neighbor_loader.NeighborLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.sampler.sampler.BaseSampler.html">cugraph_pyg.sampler.sampler.BaseSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleReader.html">cugraph_pyg.sampler.sampler.SampleReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.sampler.sampler.HomogeneousSampleReader.html">cugraph_pyg.sampler.sampler.HomogeneousSampleReader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleIterator.html">cugraph_pyg.sampler.sampler.SampleIterator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../cugraph-ops/index.html">cugraph-ops API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cugraph-ops/python/index.html">cugraph-ops Python API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../cugraph-ops/python/graph_types.html">Graph types</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.make_csc.html">pylibcugraphops.make_csc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.make_csc_hg.html">pylibcugraphops.make_csc_hg</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.make_bipartite_csc.html">pylibcugraphops.make_bipartite_csc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.make_bipartite_csc_hg.html">pylibcugraphops.make_bipartite_csc_hg</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../cugraph-ops/python/operators.html">Operators for Message-Passing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_n2n_fwd.html">pylibcugraphops.operators.agg_simple_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_n2n_bwd.html">pylibcugraphops.operators.agg_simple_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_e2n_fwd.html">pylibcugraphops.operators.agg_simple_e2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_e2n_bwd.html">pylibcugraphops.operators.agg_simple_e2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_n2n_e2n_fwd.html">pylibcugraphops.operators.agg_simple_n2n_e2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_simple_n2n_e2n_bwd.html">pylibcugraphops.operators.agg_simple_n2n_e2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_n2n_fwd.html">pylibcugraphops.operators.agg_concat_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_n2n_bwd.html">pylibcugraphops.operators.agg_concat_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_e2n_fwd.html">pylibcugraphops.operators.agg_concat_e2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_e2n_bwd.html">pylibcugraphops.operators.agg_concat_e2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_n2n_e2n_fwd.html">pylibcugraphops.operators.agg_concat_n2n_e2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_n2n_e2n_bwd.html">pylibcugraphops.operators.agg_concat_n2n_e2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_weighted_n2n_fwd.html">pylibcugraphops.operators.agg_weighted_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_weighted_n2n_bwd.html">pylibcugraphops.operators.agg_weighted_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_weighted_n2n_fwd.html">pylibcugraphops.operators.agg_concat_weighted_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_concat_weighted_n2n_bwd.html">pylibcugraphops.operators.agg_concat_weighted_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_hg_basis_n2n_post_fwd.html">pylibcugraphops.operators.agg_hg_basis_n2n_post_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_hg_basis_n2n_post_bwd.html">pylibcugraphops.operators.agg_hg_basis_n2n_post_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_bf16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_fwd_bf16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_fp16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_fwd_fp16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_fwd_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_bf16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_bf16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp32_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_bwd_fp32_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_bf16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_bf16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_bf16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_bf16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp16_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp16_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp32_fp32_fp32_fp32.html">pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp32_fp32_fp32_fp32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_fwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_bwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_fwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_bwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd.html">pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_dmpnn_e2e_fwd.html">pylibcugraphops.operators.agg_dmpnn_e2e_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.agg_dmpnn_e2e_bwd.html">pylibcugraphops.operators.agg_dmpnn_e2e_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_fwd.html">pylibcugraphops.operators.update_efeat_e2e_concat_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_bwd.html">pylibcugraphops.operators.update_efeat_e2e_concat_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_fwd.html">pylibcugraphops.operators.update_efeat_e2e_sum_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_bwd.html">pylibcugraphops.operators.update_efeat_e2e_sum_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_fwd.html">pylibcugraphops.operators.update_efeat_e2e_concat_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_bwd.html">pylibcugraphops.operators.update_efeat_e2e_concat_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_fwd.html">pylibcugraphops.operators.update_efeat_e2e_sum_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_bwd.html">pylibcugraphops.operators.update_efeat_e2e_sum_bwd</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../cugraph-ops/python/dimenet.html">Dimenet operators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.radial_basis_fwd.html">pylibcugraphops.dimenet.radial_basis_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.radial_basis_bwd.html">pylibcugraphops.dimenet.radial_basis_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.radial_basis_bwd_bwd.html">pylibcugraphops.dimenet.radial_basis_bwd_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_fwd.html">pylibcugraphops.dimenet.agg_edge_to_edge_fwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd.html">pylibcugraphops.dimenet.agg_edge_to_edge_bwd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_grad.html">pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_grad</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_main.html">pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_main</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../cugraph-ops/python/pytorch.html">PyTorch Autograd Wrappers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.agg_concat_n2n.html">pylibcugraphops.pytorch.operators.agg_concat_n2n</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.mha_gat_n2n.html">pylibcugraphops.pytorch.operators.mha_gat_n2n</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.mha_gat_v2_n2n.html">pylibcugraphops.pytorch.operators.mha_gat_v2_n2n</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.agg_hg_basis_n2n_post.html">pylibcugraphops.pytorch.operators.agg_hg_basis_n2n_post</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.update_efeat_e2e.html">pylibcugraphops.pytorch.operators.update_efeat_e2e</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/ops/pylibcugraphops.pytorch.operators.update_efeat_e2e.html">pylibcugraphops.pytorch.operators.update_efeat_e2e</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../cugraph-ops/c_cpp/index.html">cugraph-ops C++ API Reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../wholegraph/index.html">WholeGraph API reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../wholegraph/libwholegraph/index.html">libwholegraph API doc</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../wholegraph/pylibwholegraph/index.html">pylibwholegraph API doc</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.initialize.init_torch_env.html">pylibwholegraph.torch.initialize.init_torch_env</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.initialize.init_torch_env_and_create_wm_comm.html">pylibwholegraph.torch.initialize.init_torch_env_and_create_wm_comm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.initialize.finalize.html">pylibwholegraph.torch.initialize.finalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.WholeMemoryCommunicator.html">pylibwholegraph.torch.comm.WholeMemoryCommunicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.set_world_info.html">pylibwholegraph.torch.comm.set_world_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.create_group_communicator.html">pylibwholegraph.torch.comm.create_group_communicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.destroy_communicator.html">pylibwholegraph.torch.comm.destroy_communicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.get_global_communicator.html">pylibwholegraph.torch.comm.get_global_communicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.get_local_node_communicator.html">pylibwholegraph.torch.comm.get_local_node_communicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.comm.get_local_device_communicator.html">pylibwholegraph.torch.comm.get_local_device_communicator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.tensor.WholeMemoryTensor.html">pylibwholegraph.torch.tensor.WholeMemoryTensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.tensor.create_wholememory_tensor.html">pylibwholegraph.torch.tensor.create_wholememory_tensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.tensor.create_wholememory_tensor_from_filelist.html">pylibwholegraph.torch.tensor.create_wholememory_tensor_from_filelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.tensor.destroy_wholememory_tensor.html">pylibwholegraph.torch.tensor.destroy_wholememory_tensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.WholeMemoryOptimizer.html">pylibwholegraph.torch.embedding.WholeMemoryOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.create_wholememory_optimizer.html">pylibwholegraph.torch.embedding.create_wholememory_optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.destroy_wholememory_optimizer.html">pylibwholegraph.torch.embedding.destroy_wholememory_optimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.WholeMemoryCachePolicy.html">pylibwholegraph.torch.embedding.WholeMemoryCachePolicy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.create_wholememory_cache_policy.html">pylibwholegraph.torch.embedding.create_wholememory_cache_policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.create_builtin_cache_policy.html">pylibwholegraph.torch.embedding.create_builtin_cache_policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.destroy_wholememory_cache_policy.html">pylibwholegraph.torch.embedding.destroy_wholememory_cache_policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbedding.html">pylibwholegraph.torch.embedding.WholeMemoryEmbedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.create_embedding.html">pylibwholegraph.torch.embedding.create_embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.create_embedding_from_filelist.html">pylibwholegraph.torch.embedding.create_embedding_from_filelist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.destroy_embedding.html">pylibwholegraph.torch.embedding.destroy_embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule.html">pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/wg/pylibwholegraph.torch.graph_structure.GraphStructure.html">pylibwholegraph.torch.graph_structure.GraphStructure</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Additional Graph Packages API Documentation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../service/index.html">cugraph-service API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../service/cugraph_service_client.html">cugraph-service-client API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service/cugraph_service_server.html">cugraph-service-server API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">cuGraph C API documentation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Community</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="community">
+<h1>Community<a class="headerlink" href="#community" title="Permalink to this heading">#</a></h1>
+<section id="triangle-counting">
+<h2>Triangle Counting<a class="headerlink" href="#triangle-counting" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422cugraph_triangle_countPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6bool_tPP31cugraph_triangle_count_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a8beb956d848525a5bb962f7054ad9882"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_triangle_count</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">start</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_triangle_count_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422cugraph_triangle_countPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6bool_tPP31cugraph_triangle_count_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Triangle Counting. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>start</strong> – <strong>[in]</strong> Device array of vertices we want to count triangles for. If NULL the entire set of vertices in the graph is processed </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Output from the triangle_count call </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="louvain">
+<h2>Louvain<a class="headerlink" href="#louvain" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415cugraph_louvainPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1abd9b34721dae5e97b1e3e9c077bf1763"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_louvain</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_level</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">threshold</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resolution</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415cugraph_louvainPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute Louvain. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>max_level</strong> – <strong>[in]</strong> Maximum level in hierarchy </p></li>
+<li><p><strong>threshold</strong> – <strong>[in]</strong> Threshold parameter, defines convergence at each level of hierarchy </p></li>
+<li><p><strong>resolution</strong> – <strong>[in]</strong> Resolution parameter (gamma) in modularity formula. This changes the size of the communities. Higher resolutions lead to more smaller communities, lower resolutions lead to fewer larger communities. </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Output from the Louvain call </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="leiden">
+<h2>Leiden<a class="headerlink" href="#leiden" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414cugraph_leidenPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a0488d84e5671d85f10b2465c016c2705"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_leiden</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_rng_state_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">rng_state</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_level</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resolution</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">theta</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414cugraph_leidenPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute Leiden. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>rng_state</strong> – <strong>[inout]</strong> State of the random number generator, updated with each call </p></li>
+<li><p><strong>max_level</strong> – <strong>[in]</strong> Maximum level in hierarchy </p></li>
+<li><p><strong>resolution</strong> – <strong>[in]</strong> Resolution parameter (gamma) in modularity formula. This changes the size of the communities. Higher resolutions lead to more smaller communities, lower resolutions lead to fewer larger communities. </p></li>
+<li><p><strong>theta</strong> – <strong>[in]</strong> (optional) The value of the parameter to scale modularity gain in Leiden refinement phase. It is used to compute the probability of joining a random leiden community. Called theta in the Leiden algorithm. </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Output from the Leiden call </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="ecg">
+<h2>ECG<a class="headerlink" href="#ecg" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411cugraph_ecgPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_td6size_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a50b0ca2fda8aacfd31392769d6d533a2"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_ecg</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_rng_state_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">rng_state</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_weight</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ensemble_size</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_level</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">threshold</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resolution</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411cugraph_ecgPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_td6size_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute ECG clustering. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>rng_state</strong> – <strong>[inout]</strong> State of the random number generator, updated with each call </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>min_weight</strong> – <strong>[in]</strong> Minimum edge weight in final graph </p></li>
+<li><p><strong>ensemble_size</strong> – <strong>[in]</strong> The number of Louvain iterations to run </p></li>
+<li><p><strong>max_level</strong> – <strong>[in]</strong> Maximum level in hierarchy for final Louvain </p></li>
+<li><p><strong>threshold</strong> – <strong>[in]</strong> Threshold parameter, defines convergence at each level of hierarchy for final Louvain </p></li>
+<li><p><strong>resolution</strong> – <strong>[in]</strong> Resolution parameter (gamma) in modularity formula. This changes the size of the communities. Higher resolutions lead to more smaller communities, lower resolutions lead to fewer larger communities. </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Output from the Louvain call </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="extract-egonet">
+<h2>Extract Egonet<a class="headerlink" href="#extract-egonet" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419cugraph_extract_egoPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_t6bool_tPP33cugraph_induced_subgraph_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a63fc98a97a16b404be103108a92dd676"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_extract_ego</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">source_vertices</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">radius</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_induced_subgraph_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419cugraph_extract_egoPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_t6bool_tPP33cugraph_induced_subgraph_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extract ego graphs. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>source_vertices</strong> – <strong>[in]</strong> Device array of vertices we want to extract egonets for. </p></li>
+<li><p><strong>radius</strong> – <strong>[in]</strong> The number of hops to go out from each source vertex </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Opaque object containing the extracted subgraph </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="balanced-cut">
+<h2>Balanced Cut<a class="headerlink" href="#balanced-cut" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431cugraph_balanced_cut_clusteringPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a8c7716c5c573e3c9589afde86f69bc53"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_balanced_cut_clustering</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_clusters</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_eigenvectors</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">evs_tolerance</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">evs_max_iterations</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">k_means_tolerance</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">k_means_max_iterations</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431cugraph_balanced_cut_clusteringPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Balanced cut clustering. </p>
+<p>NOTE: This currently wraps the legacy balanced cut clustering implementation and is only available in Single GPU implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>n_clusters</strong> – <strong>[in]</strong> The desired number of clusters </p></li>
+<li><p><strong>n_eigenvectors</strong> – <strong>[in]</strong> The number of eigenvectors to use </p></li>
+<li><p><strong>evs_tolerance</strong> – <strong>[in]</strong> The tolerance to use for the eigenvalue solver </p></li>
+<li><p><strong>evs_max_iterations</strong> – <strong>[in]</strong> The maximum number of iterations of the eigenvalue solver </p></li>
+<li><p><strong>k_means_tolerance</strong> – <strong>[in]</strong> The tolerance to use for the k-means solver </p></li>
+<li><p><strong>k_means_max_iterations</strong> – <strong>[in]</strong> The maximum number of iterations of the k-means solver </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Opaque object containing the clustering result </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="spectral-clustering-modularity-maximization">
+<h2>Spectral Clustering - Modularity Maximization<a class="headerlink" href="#spectral-clustering-modularity-maximization" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv440cugraph_spectral_modularity_maximizationPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a7b043ba3e8249749aae179834cbb2c17"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_spectral_modularity_maximization</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_clusters</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_eigenvectors</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">evs_tolerance</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">evs_max_iterations</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">k_means_tolerance</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">k_means_max_iterations</span></span>, <span class="n"><span class="pre">bool_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">do_expensive_check</span></span>, <span class="n"><span class="pre">cugraph_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv440cugraph_spectral_modularity_maximizationPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Spectral clustering. </p>
+<p>NOTE: This currently wraps the legacy spectral clustering implementation and is only available in Single GPU implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>n_clusters</strong> – <strong>[in]</strong> The desired number of clusters </p></li>
+<li><p><strong>n_eigenvectors</strong> – <strong>[in]</strong> The number of eigenvectors to use </p></li>
+<li><p><strong>evs_tolerance</strong> – <strong>[in]</strong> The tolerance to use for the eigenvalue solver </p></li>
+<li><p><strong>evs_max_iterations</strong> – <strong>[in]</strong> The maximum number of iterations of the eigenvalue solver </p></li>
+<li><p><strong>k_means_tolerance</strong> – <strong>[in]</strong> The tolerance to use for the k-means solver </p></li>
+<li><p><strong>k_means_max_iterations</strong> – <strong>[in]</strong> The maximum number of iterations of the k-means solver </p></li>
+<li><p><strong>do_expensive_check</strong> – <strong>[in]</strong> A flag to run expensive checks for input arguments (if set to true) </p></li>
+<li><p><strong>result</strong> – <strong>[out]</strong> Opaque object containing the clustering result </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv437cugraph_analyze_clustering_modularityPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1afac4eb321936c6459a633d16427c9b33"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_analyze_clustering_modularity</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_clusters</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">vertices</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">clusters</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">score</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv437cugraph_analyze_clustering_modularityPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute modularity of the specified clustering. </p>
+<p>NOTE: This currently wraps the legacy spectral modularity implementation and is only available in Single GPU implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>n_clusters</strong> – <strong>[in]</strong> The desired number of clusters </p></li>
+<li><p><strong>vertices</strong> – <strong>[in]</strong> Vertex ids from the clustering result </p></li>
+<li><p><strong>clusters</strong> – <strong>[in]</strong> Cluster ids from the clustering result </p></li>
+<li><p><strong>score</strong> – <strong>[out]</strong> The modularity score for this clustering </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="spectral-clustering-edge-cut">
+<h2>Spectral Clustering - Edge Cut<a class="headerlink" href="#spectral-clustering-edge-cut" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv435cugraph_analyze_clustering_edge_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1ad6d3adbcfb01aa5957729261da61c269"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_analyze_clustering_edge_cut</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_clusters</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">vertices</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">clusters</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">score</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv435cugraph_analyze_clustering_edge_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute edge cut of the specified clustering. </p>
+<p>NOTE: This currently wraps the legacy spectral edge cut implementation and is only available in Single GPU implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>n_clusters</strong> – <strong>[in]</strong> The desired number of clusters </p></li>
+<li><p><strong>vertices</strong> – <strong>[in]</strong> Vertex ids from the clustering result </p></li>
+<li><p><strong>clusters</strong> – <strong>[in]</strong> Cluster ids from the clustering result </p></li>
+<li><p><strong>score</strong> – <strong>[out]</strong> The edge cut score for this clustering </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv436cugraph_analyze_clustering_ratio_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">
+<span class="target" id="community__algorithms_8h_1a49e1efc466afedb41a2e6189b44f51ff"></span><span class="n"><span class="pre">cugraph_error_code_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_analyze_clustering_ratio_cut</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_resource_handle_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">handle</span></span>, <span class="n"><span class="pre">cugraph_graph_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">graph</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n_clusters</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">vertices</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">clusters</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">score</span></span>, <span class="n"><span class="pre">cugraph_error_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv436cugraph_analyze_clustering_ratio_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute ratio cut of the specified clustering. </p>
+<p>NOTE: This currently wraps the legacy spectral ratio cut implementation and is only available in Single GPU implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> – <strong>[in]</strong> Handle for accessing resources </p></li>
+<li><p><strong>graph</strong> – <strong>[in]</strong> Pointer to graph. NOTE: Graph might be modified if the storage needs to be transposed </p></li>
+<li><p><strong>n_clusters</strong> – <strong>[in]</strong> The desired number of clusters </p></li>
+<li><p><strong>vertices</strong> – <strong>[in]</strong> Vertex ids from the clustering result </p></li>
+<li><p><strong>clusters</strong> – <strong>[in]</strong> Cluster ids from the clustering result </p></li>
+<li><p><strong>score</strong> – <strong>[out]</strong> The ratio cut score for this clustering </p></li>
+<li><p><strong>error</strong> – <strong>[out]</strong> Pointer to an error object storing details of any error. Will be populated if error code is not CUGRAPH_SUCCESS </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>error code </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="community-support-functions">
+<h2>Community Support Functions<a class="headerlink" href="#community-support-functions" title="Permalink to this heading">#</a></h2>
+<blockquote>
+<div><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv442cugraph_triangle_count_result_get_verticesP31cugraph_triangle_count_result_t">
+<span class="target" id="group__community_1gad840c36332f4121a434353777f287644"></span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_triangle_count_result_get_vertices</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_triangle_count_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv442cugraph_triangle_count_result_get_verticesP31cugraph_triangle_count_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get triangle counting vertices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv440cugraph_triangle_count_result_get_countsP31cugraph_triangle_count_result_t">
+<span class="target" id="group__community_1ga8628743ba647dc9e2930654200636aa2"></span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_triangle_count_result_get_counts</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_triangle_count_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv440cugraph_triangle_count_result_get_countsP31cugraph_triangle_count_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get triangle counting counts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv434cugraph_triangle_count_result_freeP31cugraph_triangle_count_result_t">
+<span class="target" id="group__community_1gafbff5b19c284c567cb47f0eff180c807"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_triangle_count_result_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_triangle_count_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv434cugraph_triangle_count_result_freeP31cugraph_triangle_count_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Free a triangle count result. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> – <strong>[in]</strong> The result from a sampling algorithm </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv451cugraph_hierarchical_clustering_result_get_verticesP40cugraph_hierarchical_clustering_result_t">
+<span class="target" id="group__community_1ga9ea74b43f71b83c027d678d48c8b468f"></span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_get_vertices</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv451cugraph_hierarchical_clustering_result_get_verticesP40cugraph_hierarchical_clustering_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get hierarchical clustering vertices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv451cugraph_hierarchical_clustering_result_get_clustersP40cugraph_hierarchical_clustering_result_t">
+<span class="target" id="group__community_1ga6e0a70ee5f7a323dec6a82383885e8a3"></span><span class="n"><span class="pre">cugraph_type_erased_device_array_view_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_get_clusters</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv451cugraph_hierarchical_clustering_result_get_clustersP40cugraph_hierarchical_clustering_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get hierarchical clustering clusters. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv453cugraph_hierarchical_clustering_result_get_modularityP40cugraph_hierarchical_clustering_result_t">
+<span class="target" id="group__community_1gafeb10bbe094b6890c81051c5c335c0f0"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_get_modularity</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv453cugraph_hierarchical_clustering_result_get_modularityP40cugraph_hierarchical_clustering_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get modularity. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv443cugraph_hierarchical_clustering_result_freeP40cugraph_hierarchical_clustering_result_t">
+<span class="target" id="group__community_1ga2ea105ec256f4c51e7732edbd68818dc"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cugraph_hierarchical_clustering_result_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv443cugraph_hierarchical_clustering_result_freeP40cugraph_hierarchical_clustering_result_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Free a hierarchical clustering result. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> – <strong>[in]</strong> The result from a sampling algorithm </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div></blockquote>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="centrality.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Centrality</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="core.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Core</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#triangle-counting">Triangle Counting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#louvain">Louvain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#leiden">Leiden</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ecg">ECG</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-egonet">Extract Egonet</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#balanced-cut">Balanced Cut</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spectral-clustering-modularity-maximization">Spectral Clustering - Modularity Maximization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spectral-clustering-edge-cut">Spectral Clustering - Edge Cut</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#community-support-functions">Community Support Functions</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/api_docs/cugraph_c/community.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2019-2023, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

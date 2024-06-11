@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1wholememory__vma__data" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory::wholememory_vma_data</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory_1_1wholememory__vma__data_1a4194314a9f271ea7a94850c84927b942" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+        <definition>wholememory_handle_t wholememory::wholememory_vma_data::wholememory_handle</definition>
+        <argsstring></argsstring>
+        <name>wholememory_handle</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/memory_handle.cpp" line="211" column="24" bodyfile="src/wholememory/memory_handle.cpp" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1wholememory__vma__data_1a6460ce127ccf348631787f361117e9a2" prot="public" static="no" mutable="no">
+        <type>const void *</type>
+        <definition>const void* wholememory::wholememory_vma_data::start_ptr</definition>
+        <argsstring></argsstring>
+        <name>start_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/memory_handle.cpp" line="212" column="14" bodyfile="src/wholememory/memory_handle.cpp" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1wholememory__vma__data_1aa0b4cd50633b7db2b2202a90388ca27b" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t wholememory::wholememory_vma_data::mem_block_size</definition>
+        <argsstring></argsstring>
+        <name>mem_block_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/memory_handle.cpp" line="213" column="10" bodyfile="src/wholememory/memory_handle.cpp" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4">
+        <label>wholememory::wholememory_impl::partition_strategy</label>
+      </node>
+      <node id="6">
+        <label>wholememory::nccl_comms</label>
+        <link refid="classwholememory_1_1nccl__comms"/>
+      </node>
+      <node id="7">
+        <label>wholememory::wholememory_impl::alloc_strategy</label>
+      </node>
+      <node id="1">
+        <label>wholememory::wholememory_vma_data</label>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+wholememory_handle</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory_comm_</label>
+        <link refid="structwholememory__comm__"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>+raft_nccl_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>wholememory::wholememory_impl</label>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#rank_partition_strategy_</edgelabel>
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>#comm_</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>#handle_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#alloc_strategy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>wholememory_handle_</label>
+        <link refid="structwholememory__handle__"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+impl</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/memory_handle.cpp" line="210" column="1" bodyfile="src/wholememory/memory_handle.cpp" bodystart="210" bodyend="214"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1wholememory__vma__data_1aa0b4cd50633b7db2b2202a90388ca27b" prot="public" virt="non-virtual"><scope>wholememory::wholememory_vma_data</scope><name>mem_block_size</name></member>
+      <member refid="structwholememory_1_1wholememory__vma__data_1a6460ce127ccf348631787f361117e9a2" prot="public" virt="non-virtual"><scope>wholememory::wholememory_vma_data</scope><name>start_ptr</name></member>
+      <member refid="structwholememory_1_1wholememory__vma__data_1a4194314a9f271ea7a94850c84927b942" prot="public" virt="non-virtual"><scope>wholememory::wholememory_vma_data</scope><name>wholememory_handle</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1optimizer__state__t_1_1uncachable__state" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory::optimizer_state_t::uncachable_state</compoundname>
+    <includes refid="embedding__optimizer_8hpp" local="no">embedding_optimizer.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a398397eef1fa1261a033668edb538f97" prot="public" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string wholememory::optimizer_state_t::uncachable_state::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="70" column="17" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a1ea789b48f3af34c99ebd2d004b8edf0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int wholememory::optimizer_state_t::uncachable_state::dim</definition>
+        <argsstring></argsstring>
+        <name>dim</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="71" column="9" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a331bd58f9b44889e8c7dde790a5cb28f" prot="public" static="no" mutable="no">
+        <type><ref refid="tensor__description_8h_1aae60c79607c2908cefb0b93e06729e5c" kindref="member">wholememory_dtype_t</ref></type>
+        <definition>wholememory_dtype_t wholememory::optimizer_state_t::uncachable_state::dtype</definition>
+        <argsstring></argsstring>
+        <name>dtype</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="72" column="25" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a2b42b296a7ee550b5df4f27f7e7d9590" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory::optimizer_state_t::uncachable_state::global_raw_padded_tensor</definition>
+        <argsstring></argsstring>
+        <name>global_raw_padded_tensor</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="73" column="26" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1af4569f46734a0b51f09a3812e9227dc3" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory::optimizer_state_t::uncachable_state::global_raw_sub_tensor</definition>
+        <argsstring></argsstring>
+        <name>global_raw_sub_tensor</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="74" column="26" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1ab366c11cba17d4734945f92ae2536067" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory::optimizer_state_t::uncachable_state::local_tensor</definition>
+        <argsstring></argsstring>
+        <name>local_tensor</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding_optimizer.hpp" line="75" column="26" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="6">
+        <label>wholememory::wholememory_impl::partition_strategy</label>
+      </node>
+      <node id="8">
+        <label>wholememory::nccl_comms</label>
+        <link refid="classwholememory_1_1nccl__comms"/>
+      </node>
+      <node id="9">
+        <label>wholememory::wholememory_impl::alloc_strategy</label>
+      </node>
+      <node id="3">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+      <node id="2">
+        <label>wholememory_tensor_</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+tensor_description</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+wholememory_handle</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+root_tensor</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>wholememory::optimizer_state_t::uncachable_state</label>
+        <link refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+global_raw_padded_tensor</edgelabel>
+          <edgelabel>+global_raw_sub_tensor</edgelabel>
+          <edgelabel>+local_tensor</edgelabel>
+        </childnode>
+      </node>
+      <node id="7">
+        <label>wholememory_comm_</label>
+        <link refid="structwholememory__comm__"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>+raft_nccl_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory::wholememory_impl</label>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#rank_partition_strategy_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#comm_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#handle_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#alloc_strategy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory_handle_</label>
+        <link refid="structwholememory__handle__"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+impl</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/embedding_optimizer.hpp" line="69" column="3" bodyfile="src/wholememory/embedding_optimizer.hpp" bodystart="69" bodyend="76"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a1ea789b48f3af34c99ebd2d004b8edf0" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>dim</name></member>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a331bd58f9b44889e8c7dde790a5cb28f" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>dtype</name></member>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a2b42b296a7ee550b5df4f27f7e7d9590" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>global_raw_padded_tensor</name></member>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1af4569f46734a0b51f09a3812e9227dc3" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>global_raw_sub_tensor</name></member>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1ab366c11cba17d4734945f92ae2536067" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>local_tensor</name></member>
+      <member refid="structwholememory_1_1optimizer__state__t_1_1uncachable__state_1a398397eef1fa1261a033668edb538f97" prot="public" virt="non-virtual"><scope>wholememory::optimizer_state_t::uncachable_state</scope><name>name</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

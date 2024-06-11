@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_3dc2179a9afb1685c46085e2a2488ae1" kind="dir">
+    <compoundname>include/cugraph-ops/dimenet</compoundname>
+    <innerfile refid="agg__edge__to__edge_8hpp">agg_edge_to_edge.hpp</innerfile>
+    <innerfile refid="radial__basis_8hpp">radial_basis.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/cugraph-ops/dimenet/"/>
+  </compounddef>
+</doxygen>

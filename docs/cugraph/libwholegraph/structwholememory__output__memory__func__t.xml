@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__output__memory__func__t" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_output_memory_func_t</compoundname>
+    <includes refid="env__func__ptrs_8h" local="no">env_func_ptrs.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__output__memory__func__t_1ad4926a879ed7a1decc808dbbff5ab176" prot="public" static="no" mutable="no">
+        <type><ref refid="env__func__ptrs_8h_1a790ac6b8157cf0dfe03c092179b92b21" kindref="member">wholememory_malloc_func_t</ref></type>
+        <definition>wholememory_malloc_func_t wholememory_output_memory_func_t::malloc_fn</definition>
+        <argsstring></argsstring>
+        <name>malloc_fn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/env_func_ptrs.h" line="65" column="29" bodyfile="include/wholememory/env_func_ptrs.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__output__memory__func__t_1a4c502da23857b5a67d9ef1a51c3a2b97" prot="public" static="no" mutable="no">
+        <type><ref refid="env__func__ptrs_8h_1ad221b6e91d20f33659b7c54ef6a0241a" kindref="member">wholememory_free_func_t</ref></type>
+        <definition>wholememory_free_func_t wholememory_output_memory_func_t::free_fn</definition>
+        <argsstring></argsstring>
+        <name>free_fn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/env_func_ptrs.h" line="66" column="27" bodyfile="include/wholememory/env_func_ptrs.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__output__memory__func__t_1a656329759f633ae189519e709a7a1bf1" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* wholememory_output_memory_func_t::global_context</definition>
+        <argsstring></argsstring>
+        <name>global_context</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/env_func_ptrs.h" line="67" column="8" bodyfile="include/wholememory/env_func_ptrs.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory_output_memory_func_t</label>
+        <link refid="structwholememory__output__memory__func__t"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+malloc_fn</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/wholememory/env_func_ptrs.h" line="64" column="1" bodyfile="include/wholememory/env_func_ptrs.h" bodystart="64" bodyend="68"/>
+    <listofallmembers>
+      <member refid="structwholememory__output__memory__func__t_1a4c502da23857b5a67d9ef1a51c3a2b97" prot="public" virt="non-virtual"><scope>wholememory_output_memory_func_t</scope><name>free_fn</name></member>
+      <member refid="structwholememory__output__memory__func__t_1a656329759f633ae189519e709a7a1bf1" prot="public" virt="non-virtual"><scope>wholememory_output_memory_func_t</scope><name>global_context</name></member>
+      <member refid="structwholememory__output__memory__func__t_1ad4926a879ed7a1decc808dbbff5ab176" prot="public" virt="non-virtual"><scope>wholememory_output_memory_func_t</scope><name>malloc_fn</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

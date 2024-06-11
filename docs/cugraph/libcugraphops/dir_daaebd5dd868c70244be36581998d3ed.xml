@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_daaebd5dd868c70244be36581998d3ed" kind="dir">
+    <compoundname>include/cugraph-ops/graph</compoundname>
+    <innerfile refid="format_8hpp">format.hpp</innerfile>
+    <innerfile refid="max__vertex__degree_8hpp">max_vertex_degree.hpp</innerfile>
+    <innerfile refid="reverse__graph_8hpp">reverse_graph.hpp</innerfile>
+    <innerfile refid="sampling_8hpp">sampling.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/cugraph-ops/graph/"/>
+  </compounddef>
+</doxygen>

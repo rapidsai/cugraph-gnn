@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__gref__t" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_gref_t</compoundname>
+    <includes refid="global__reference_8h" local="no">global_reference.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__gref__t_1a65151d107cf74173ef7a1033a56ff28d" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* wholememory_gref_t::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>pointer to data for CONTINUOUS WholeMemory or pointer to data pointer array for CHUNKED WholeMemory </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="31" column="8" bodyfile="include/wholememory/global_reference.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__gref__t_1a3879641e4d5d4a12d26bd894ea45aedc" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t wholememory_gref_t::stride</definition>
+        <argsstring></argsstring>
+        <name>stride</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>must be 0 for CONTINUOUS WholeMemory or memory size in byte for each pointer </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="34" column="5" bodyfile="include/wholememory/global_reference.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Global reference of a WholeMemory object. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A global reference is for Continuous of Chunked WholeMemory Type, in these types, each rank can directly access all memory from all ranks. The global reference is used to do this direct access. </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory_gref_t</label>
+        <link refid="structwholememory__gref__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/wholememory/global_reference.h" line="30" column="1" bodyfile="include/wholememory/global_reference.h" bodystart="30" bodyend="35"/>
+    <listofallmembers>
+      <member refid="structwholememory__gref__t_1a65151d107cf74173ef7a1033a56ff28d" prot="public" virt="non-virtual"><scope>wholememory_gref_t</scope><name>pointer</name></member>
+      <member refid="structwholememory__gref__t_1a3879641e4d5d4a12d26bd894ea45aedc" prot="public" virt="non-virtual"><scope>wholememory_gref_t</scope><name>stride</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

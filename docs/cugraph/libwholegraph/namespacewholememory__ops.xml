@@ -1,0 +1,1635 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacewholememory__ops" kind="namespace" language="C++">
+    <compoundname>wholememory_ops</compoundname>
+    <innerclass refid="classwholememory__ops_1_1output__memory__handle" prot="public">wholememory_ops::output_memory_handle</innerclass>
+    <innerclass refid="structwholememory__ops_1_1one__wmt__hash" prot="public">wholememory_ops::one_wmt_hash</innerclass>
+    <innerclass refid="structwholememory__ops_1_1two__wmt__hash" prot="public">wholememory_ops::two_wmt_hash</innerclass>
+    <innerclass refid="structwholememory__ops_1_1three__wmt__hash" prot="public">wholememory_ops::three_wmt_hash</innerclass>
+    <innerclass refid="classwholememory__ops_1_1temp__memory__handle" prot="public">wholememory_ops::temp_memory_handle</innerclass>
+    <innerclass refid="classwholememory__ops_1_1wm__thrust__allocator" prot="public">wholememory_ops::wm_thrust_allocator</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespacewholememory__ops_1ab105e43b3996869fa5a168983930adba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::bucket_ids_for_ranks</definition>
+        <argsstring>(void *indices, wholememory_array_description_t indice_desc, int64_t *dev_rank_id_count_ptr, size_t embedding_entry_count_per_rank, int world_size, cudaDeviceProp *prop, cudaStream_t stream)</argsstring>
+        <name>bucket_ids_for_ranks</name>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>dev_rank_id_count_ptr</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>embedding_entry_count_per_rank</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>world_size</declname>
+        </param>
+        <param>
+          <type>cudaDeviceProp *</type>
+          <declname>prop</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/bucket_ids_func.h" line="23" column="26" declfile="src/wholememory_ops/functions/bucket_ids_func.h" declline="23" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1af8306f45d6627695390d5172818e5f53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::update_cache_direct_same_comm</definition>
+        <argsstring>(void *indices, wholememory_array_description_t indice_desc, wholememory_tensor_t wm_raw_memory_embedding, const wholememory::embedding_cache_local_data *cache_local_data, int cache_set_coverage, wholememory_env_func_t *p_env_fns, cudaStream_t stream)</argsstring>
+        <name>update_cache_direct_same_comm</name>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_raw_memory_embedding</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwholememory_1_1embedding__cache__local__data" kindref="compound">wholememory::embedding_cache_local_data</ref> *</type>
+          <declname>cache_local_data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Direct update cache in local rank, local tensor of wm_raw_memory_embedding is cached by cache_local_data, cache and raw embedding should have same communicator. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>indices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: global indices to update, should all in current rank, can have duplicated gids In normal use cases, indices are from alltoallv result </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>indice_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: tensor description of indices, may be gids after alltoallv. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_raw_memory_embedding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: the WholeMemory Tensor that is to be cached which stores all embeddings. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache_local_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: embedding_cache_local_data of wm_raw_memory_embedding </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache_set_coverage</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: cache set coverage </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: env fns </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: cudaStream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_cache_func.h" line="40" column="26" declfile="src/wholememory_ops/functions/embedding_cache_func.h" declline="40" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1aed86193156266cc303c63b7407f2cbbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::update_cache_different_comm</definition>
+        <argsstring>(void *indices, wholememory_array_description_t indice_desc, wholememory_tensor_t wm_raw_memory_embedding, wholememory_comm_t cache_comm, size_t embedding_entry_count_per_cache_rank, const wholememory::embedding_cache_local_data *cache_local_data, int cache_set_coverage, wholememory_env_func_t *p_env_fns, cudaStream_t stream)</argsstring>
+        <name>update_cache_different_comm</name>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_raw_memory_embedding</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory_8h_1a072bd5462591f49775a4a183e34b800d" kindref="member">wholememory_comm_t</ref></type>
+          <declname>cache_comm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>embedding_entry_count_per_cache_rank</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwholememory_1_1embedding__cache__local__data" kindref="compound">wholememory::embedding_cache_local_data</ref> *</type>
+          <declname>cache_local_data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Update cache in local rank, local tensor of wm_raw_memory_embedding is cached by cache_local_data, cache and raw embedding can have same communicator. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>indices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: global indices to update, should all in current rank, can have duplicated gids In normal use cases, indices are from alltoallv result </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>indice_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: tensor description of indices, may be gids after alltoallv. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_raw_memory_embedding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: the WholeMemory Tensor that is to be cached which stores all embeddings. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache_comm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: communicator of cache </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>embedding_entry_count_per_cache_rank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: embedding entries covered by each cache rank </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache_local_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: embedding_cache_local_data of wm_raw_memory_embedding </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache_set_coverage</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: cache set coverage </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: env fns </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: cudaStream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: wholememory_error_code_t </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_cache_func.h" line="65" column="26" declfile="src/wholememory_ops/functions/embedding_cache_func.h" declline="65" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1af58170ffeb8bbe957db42aa56fd8a3ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::writeback_cache_direct_same_comm</definition>
+        <argsstring>(wholememory_tensor_t wm_raw_memory_embedding, const wholememory::embedding_cache_local_data *cache_local_data, int cache_set_coverage, bool drop_all, cudaStream_t stream)</argsstring>
+        <name>writeback_cache_direct_same_comm</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>wm_raw_memory_embedding</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classwholememory_1_1embedding__cache__local__data" kindref="compound">wholememory::embedding_cache_local_data</ref> *</type>
+          <declname>cache_local_data</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>drop_all</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_cache_func.h" line="76" column="26" declfile="src/wholememory_ops/functions/embedding_cache_func.h" declline="76" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1af7a06117e81fdff3118b2ae4ac5424e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wholememory_ops::set_memory_to_float_value</definition>
+        <argsstring>(float *data_ptr, float value, size_t elt_count, cudaStream_t stream)</argsstring>
+        <name>set_memory_to_float_value</name>
+        <param>
+          <type>float *</type>
+          <declname>data_ptr</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>value</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elt_count</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_optimizer_func.h" line="25" column="6" declfile="src/wholememory_ops/functions/embedding_optimizer_func.h" declline="25" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a98bc7242d6c362e4156cc3dc7f94201d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::sgd_optimizer_step</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t grads, wholememory_tensor_t local_embedding, wholememory_tensor_t local_embedding_cache_tag, wholememory_tensor_t local_embedding_cache_data, int64_t local_entry_offset, int cache_set_coverage, float weight_decay, float lr, cudaStream_t stream)</argsstring>
+        <name>sgd_optimizer_step</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>grads</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_data</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>local_entry_offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>weight_decay</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>lr</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_optimizer_func.h" line="27" column="26" declfile="src/wholememory_ops/functions/embedding_optimizer_func.h" declline="27" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1ae25f21ab6faddae692bc0509ca088bdf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::lazy_adam_optimizer_step</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t grads, wholememory_tensor_t local_embedding, wholememory_tensor_t local_embedding_cache_tag, wholememory_tensor_t local_embedding_cache_data, wholememory_tensor_t per_element_local_state, wholememory_tensor_t per_element_local_cache_tag, wholememory_tensor_t per_element_local_cache_data, wholememory_tensor_t per_embedding_local_state, int64_t local_entry_offset, int cache_set_coverage, float weight_decay, float epsilon, float beta1, float beta2, bool adam_w, float lr, cudaStream_t stream)</argsstring>
+        <name>lazy_adam_optimizer_step</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>grads</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_data</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_state</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_data</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_embedding_local_state</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>local_entry_offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>weight_decay</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>epsilon</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>beta1</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>beta2</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>adam_w</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>lr</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_optimizer_func.h" line="38" column="26" declfile="src/wholememory_ops/functions/embedding_optimizer_func.h" declline="38" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a28db765d523d80ddc56b65096eab5843" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::ada_grad_optimizer_step</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t grads, wholememory_tensor_t local_embedding, wholememory_tensor_t local_embedding_cache_tag, wholememory_tensor_t local_embedding_cache_data, wholememory_tensor_t per_element_local_state, wholememory_tensor_t per_element_local_cache_tag, wholememory_tensor_t per_element_local_cache_data, int64_t local_entry_offset, int cache_set_coverage, float weight_decay, float epsilon, float lr, cudaStream_t stream)</argsstring>
+        <name>ada_grad_optimizer_step</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>grads</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_data</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_state</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_data</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>local_entry_offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>weight_decay</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>epsilon</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>lr</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_optimizer_func.h" line="57" column="26" declfile="src/wholememory_ops/functions/embedding_optimizer_func.h" declline="57" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a40af48c939cd0db073f70e2c1377c9c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::rms_prop_optimizer_step</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t grads, wholememory_tensor_t local_embedding, wholememory_tensor_t local_embedding_cache_tag, wholememory_tensor_t local_embedding_cache_data, wholememory_tensor_t per_element_local_state, wholememory_tensor_t per_element_local_cache_tag, wholememory_tensor_t per_element_local_cache_data, int64_t local_entry_offset, int cache_set_coverage, float weight_decay, float epsilon, float alpha, float lr, cudaStream_t stream)</argsstring>
+        <name>rms_prop_optimizer_step</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>grads</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>local_embedding_cache_data</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_state</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_tag</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>per_element_local_cache_data</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>local_entry_offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>weight_decay</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>epsilon</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>alpha</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>lr</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/embedding_optimizer_func.h" line="72" column="26" declfile="src/wholememory_ops/functions/embedding_optimizer_func.h" declline="72" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a5f101d730b0edd5493ab8acf8b546aba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::exchange_embeddings_nccl_func</definition>
+        <argsstring>(const void *dev_local_gather_buffer_ptr, const int64_t *host_send_to_rank_count_ptr, const int64_t *host_recv_from_rank_count_ptr, void *dev_embedding_recv_buffer_ptr, size_t embedding_size, wholememory_comm_t wm_comm, cudaStream_t stream)</argsstring>
+        <name>exchange_embeddings_nccl_func</name>
+        <param>
+          <type>const void *</type>
+          <declname>dev_local_gather_buffer_ptr</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>host_send_to_rank_count_ptr</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>host_recv_from_rank_count_ptr</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dev_embedding_recv_buffer_ptr</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>embedding_size</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory_8h_1a072bd5462591f49775a4a183e34b800d" kindref="member">wholememory_comm_t</ref></type>
+          <declname>wm_comm</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Exchange embeddings between ranks <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev_local_gather_buffer_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: local buffer to send </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host_send_to_rank_count_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: id count that current rank send to other ranks </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host_recv_from_rank_count_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: id count that current rank receive from each rank </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dev_embedding_recv_buffer_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: local buffer to receive embedding data </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>embedding_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: embedding size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_comm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: WholeMemory communicator </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: CUDA stream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: WHOLEMEMORY_SUCCESS on success, others on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/exchange_embeddings_nccl_func.h" line="37" column="26" declfile="src/wholememory_ops/functions/exchange_embeddings_nccl_func.h" declline="37" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1afe15b7200ed5d31620d6a2798b6be13f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t wholememory_ops::dedup_indice_and_gradients</definition>
+        <argsstring>(const void *indices, wholememory_array_description_t indice_desc, const float *grads, wholememory_matrix_description_t grads_desc, void *dedup_indice, float *dedup_grads, wholememory_env_func_t *p_env_fn, cudaStream_t stream)</argsstring>
+        <name>dedup_indice_and_gradients</name>
+        <param>
+          <type>const void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grads</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>grads_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dedup_indice</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>dedup_grads</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fn</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Dedup indice and gradients <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>indices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: indices </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>indice_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: array description of indice </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>grads</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: gradients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>grads_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: matrix description of gradients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dedup_indice</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: output indice </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dedup_grads</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: output gradients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: env_fns </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: CUDA stream to use </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: deduped indice count </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/exchange_embeddings_nccl_func.h" line="57" column="9" declfile="src/wholememory_ops/functions/exchange_embeddings_nccl_func.h" declline="57" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a8bdb62885a4d135fc3807f311483d28b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::bucket_and_exchange_ids_func</definition>
+        <argsstring>(void *indices, wholememory_array_description_t indice_desc, int64_t *host_recv_rank_id_count_ptr, int64_t *host_rank_id_count_ptr, temp_memory_handle *dev_recv_indices_buffer_handle, int64_t *dev_raw_indice_ptr, size_t embedding_entry_count_per_rank, wholememory_comm_t wm_comm, wm_thrust_allocator *p_thrust_allocator, wholememory_env_func_t *p_env_fns, cudaStream_t stream)</argsstring>
+        <name>bucket_and_exchange_ids_func</name>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>host_recv_rank_id_count_ptr</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>host_rank_id_count_ptr</declname>
+        </param>
+        <param>
+          <type><ref refid="classwholememory__ops_1_1temp__memory__handle" kindref="compound">temp_memory_handle</ref> *</type>
+          <declname>dev_recv_indices_buffer_handle</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>dev_raw_indice_ptr</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>embedding_entry_count_per_rank</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory_8h_1a072bd5462591f49775a4a183e34b800d" kindref="member">wholememory_comm_t</ref></type>
+          <declname>wm_comm</declname>
+        </param>
+        <param>
+          <type><ref refid="classwholememory__ops_1_1wm__thrust__allocator" kindref="compound">wm_thrust_allocator</ref> *</type>
+          <declname>p_thrust_allocator</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Bucket and exchange ids using collective communication</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>indices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to indices array </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>indice_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: indices array description, should have storage offset = 0, indice can be int32 or int64 </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host_recv_rank_id_count_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to int64_t array of received id count from each rank </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host_rank_id_count_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to int64_t array of id count to send to each rank. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dev_recv_indices_buffer_handle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: <ref refid="classwholememory__ops_1_1temp__memory__handle" kindref="compound">temp_memory_handle</ref> to create buffer for received indices. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dev_raw_indice_ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to allocated int64_t array to storage raw indices mapping of sort </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>embedding_entry_count_per_rank</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: entry count of embedding count per rank </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wm_comm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: WholeMemory Communicator </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_thrust_allocator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: thrust allocator </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p_env_fns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: EnvFns </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: CUDA stream to use. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: WHOLEMEMORY_SUCCESS on success, others on failure </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/exchange_ids_nccl_func.h" line="44" column="26" declfile="src/wholememory_ops/functions/exchange_ids_nccl_func.h" declline="44" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a5e409cec8ccb2bd151cec83523162e63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::gather_cached_func</definition>
+        <argsstring>(wholememory_gref_t padded_embedding_gref, wholememory_tensor_description_t *embedding_desc, wholememory_gref_t cached_embedding_gref, wholememory_tensor_description_t *cached_embedding_desc, wholememory_gref_t cache_line_tag_gref, void *indices, wholememory_tensor_description_t *indices_desc, void *output, wholememory_tensor_description_t *output_desc, int cache_set_coverage, int64_t cache_start_gid, int64_t raw_start_gid, cudaStream_t stream)</argsstring>
+        <name>gather_cached_func</name>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>padded_embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>embedding_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>cached_embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>cached_embedding_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>cache_line_tag_gref</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>cache_start_gid</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>raw_start_gid</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/gather_cached_func.h" line="26" column="26" declfile="src/wholememory_ops/functions/gather_cached_func.h" declline="26" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1aa7b9bdb0c7db4b55e08377761ca5fef7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::try_gather_cached_func</definition>
+        <argsstring>(wholememory_gref_t cached_embedding_gref, wholememory_tensor_description_t *cached_embedding_desc, wholememory_gref_t cache_line_tag_gref, void *indices, wholememory_tensor_description_t *indices_desc, void *hit_indices, void *miss_indices, void *output, wholememory_tensor_description_t *output_desc, int cache_set_coverage, int64_t cache_start_gid, cudaStream_t stream)</argsstring>
+        <name>try_gather_cached_func</name>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>cached_embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>cached_embedding_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>cache_line_tag_gref</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>hit_indices</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>miss_indices</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref> *</type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>cache_set_coverage</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>cache_start_gid</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/gather_cached_func.h" line="40" column="26" declfile="src/wholememory_ops/functions/gather_cached_func.h" declline="40" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a1d9de82fc6d6a7bca79f37bc7e9e86bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::gather_func</definition>
+        <argsstring>(wholememory_gref_t embedding_gref, wholememory_matrix_description_t embedding_desc, void *indices, wholememory_array_description_t indices_desc, void *output, wholememory_matrix_description_t output_desc, cudaStream_t stream, int gather_sms=-1)</argsstring>
+        <name>gather_func</name>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>embedding_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>gather_sms</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/gather_scatter_func.h" line="24" column="26" declfile="src/wholememory_ops/functions/gather_scatter_func.h" declline="24" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1aa0e4ddff9c6955811ef415634669284f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::gather_with_sorted_ids_func</definition>
+        <argsstring>(wholememory_gref_t embedding_gref, wholememory_matrix_description_t embedding_desc, void *indices, wholememory_array_description_t indices_desc, void *raw_indices, wholememory_array_description_t raw_indices_desc, void *output, wholememory_matrix_description_t output_desc, cudaStream_t stream, int gather_sms)</argsstring>
+        <name>gather_with_sorted_ids_func</name>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>embedding_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>raw_indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>raw_indices_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>gather_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/gather_scatter_func.h" line="33" column="26" declfile="src/wholememory_ops/functions/gather_scatter_func.h" declline="33" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a03d18dfd87eceaf6d0cc24e59886b1fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::scatter_func</definition>
+        <argsstring>(const void *input, wholememory_matrix_description_t input_desc, void *indices, wholememory_array_description_t indices_desc, wholememory_gref_t embedding_gref, wholememory_matrix_description_t embedding_desc, cudaStream_t stream, int scatter_sms=-1)</argsstring>
+        <name>scatter_func</name>
+        <param>
+          <type>const void *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>input_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>embedding_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>embedding_desc</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scatter_sms</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/gather_scatter_func.h" line="45" column="26" declfile="src/wholememory_ops/functions/gather_scatter_func.h" declline="45" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1ada37469d38a2cfba81c9887e386992e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::storage_index2wm_embedding_index</definition>
+        <argsstring>(wholememory_tensor_t indices, wholememory_tensor_t mapped_indices, wholememory_tensor_t allocated_embedding, int round_robin_size, int64_t stream_int)</argsstring>
+        <name>storage_index2wm_embedding_index</name>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>mapped_indices</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+          <declname>allocated_embedding</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>round_robin_size</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>stream_int</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/map_indices_func.h" line="23" column="26" declfile="src/wholememory_ops/functions/map_indices_func.h" declline="23" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a0beed2d02ff87c0be82497b4adab7e30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::sort_indices_func</definition>
+        <argsstring>(const void *indices_before_sort, wholememory_array_description_t indice_desc, void *indices_after_sort, void *raw_indices, wm_thrust_allocator *p_thrust_allocator, wholememory_env_func_t *p_env_fns, cudaStream_t stream)</argsstring>
+        <name>sort_indices_func</name>
+        <param>
+          <type>const void *</type>
+          <declname>indices_before_sort</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices_after_sort</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>raw_indices</declname>
+        </param>
+        <param>
+          <type><ref refid="classwholememory__ops_1_1wm__thrust__allocator" kindref="compound">wm_thrust_allocator</ref> *</type>
+          <declname>p_thrust_allocator</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/functions/sort_indices_func.h" line="26" column="26" declfile="src/wholememory_ops/functions/sort_indices_func.h" declline="26" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a994326570b26f0a86762e0051398347d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_gather_mapped</definition>
+        <argsstring>(wholememory_gref_t wholememory_gref, wholememory_matrix_description_t wholememory_desc, void *indices, wholememory_array_description_t indice_desc, void *output, wholememory_matrix_description_t output_desc, bool gather_with_sorted_ids, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int gather_sms)</argsstring>
+        <name>wholememory_gather_mapped</name>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>wholememory_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>gather_with_sorted_ids</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>gather_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/gather_op_impl.h" line="23" column="26" declfile="src/wholememory_ops/gather_op_impl.h" declline="23" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a51a5fd98cc211a0bcc412b002f5d6c36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_gather_nccl</definition>
+        <argsstring>(wholememory_handle_t wholememory_handle, wholememory_matrix_description_t wholememory_desc, void *indices, wholememory_array_description_t indice_desc, void *output, wholememory_matrix_description_t output_desc, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int gather_sms)</argsstring>
+        <name>wholememory_gather_nccl</name>
+        <param>
+          <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+          <declname>wholememory_handle</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>gather_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/gather_op_impl.h" line="35" column="26" declfile="src/wholememory_ops/gather_op_impl.h" declline="35" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1a91cfc7c053db7da9eb9cc5d9b6f277a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_gather_distributed</definition>
+        <argsstring>(wholememory_handle_t wholememory_handle, wholememory_matrix_description_t wholememory_desc, void *indices, wholememory_array_description_t indice_desc, void *output, wholememory_matrix_description_t output_desc, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int gather_sms)</argsstring>
+        <name>wholememory_gather_distributed</name>
+        <param>
+          <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+          <declname>wholememory_handle</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indice_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>output</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>output_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>gather_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/gather_op_impl.h" line="45" column="26" declfile="src/wholememory_ops/gather_op_impl.h" declline="45" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1ab60477fa4f5ec97f0c4fe5fe0badbf62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_scatter_mapped</definition>
+        <argsstring>(void *input, wholememory_matrix_description_t input_desc, void *indices, wholememory_array_description_t indices_desc, wholememory_gref_t wholememory_gref, wholememory_matrix_description_t wholememory_desc, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int scatter_sms)</argsstring>
+        <name>wholememory_scatter_mapped</name>
+        <param>
+          <type>void *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>input_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__gref__t" kindref="compound">wholememory_gref_t</ref></type>
+          <declname>wholememory_gref</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scatter_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/scatter_op_impl.h" line="23" column="26" declfile="src/wholememory_ops/scatter_op_impl.h" declline="23" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1ad1b3efed4ea96fdaff28af0b4b9a25a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_scatter_nccl</definition>
+        <argsstring>(void *input, wholememory_matrix_description_t input_desc, void *indices, wholememory_array_description_t indices_desc, wholememory_handle_t wholememory_handle, wholememory_matrix_description_t wholememory_desc, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int scatter_sms)</argsstring>
+        <name>wholememory_scatter_nccl</name>
+        <param>
+          <type>void *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>input_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+          <declname>wholememory_handle</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scatter_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/scatter_op_impl.h" line="34" column="26" declfile="src/wholememory_ops/scatter_op_impl.h" declline="34" declcolumn="26"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacewholememory__ops_1af56c162cf53e2b78c75c5b52103f2c3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="wholememory_8h_1a2ee1891c60edb29e6e88ee67c5f161a2" kindref="member">wholememory_error_code_t</ref></type>
+        <definition>wholememory_error_code_t wholememory_ops::wholememory_scatter_distributed</definition>
+        <argsstring>(void *input, wholememory_matrix_description_t input_desc, void *indices, wholememory_array_description_t indices_desc, wholememory_handle_t wholememory_handle, wholememory_matrix_description_t wholememory_desc, wholememory_env_func_t *p_env_fns, cudaStream_t stream, int scatter_sms)</argsstring>
+        <name>wholememory_scatter_distributed</name>
+        <param>
+          <type>void *</type>
+          <declname>input</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>input_desc</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>indices</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__array__description__t" kindref="compound">wholememory_array_description_t</ref></type>
+          <declname>indices_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="wholememory_8h_1a01ef3ce8ec989cb313a386a942e08e12" kindref="member">wholememory_handle_t</ref></type>
+          <declname>wholememory_handle</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__matrix__description__t" kindref="compound">wholememory_matrix_description_t</ref></type>
+          <declname>wholememory_desc</declname>
+        </param>
+        <param>
+          <type><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref> *</type>
+          <declname>p_env_fns</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scatter_sms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory_ops/scatter_op_impl.h" line="44" column="26" declfile="src/wholememory_ops/scatter_op_impl.h" declline="44" declcolumn="26"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/wholememory_ops/functions/bucket_ids_func.h" line="21" column="1"/>
+  </compounddef>
+</doxygen>

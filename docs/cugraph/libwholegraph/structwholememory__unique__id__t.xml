@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__unique__id__t" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_unique_id_t</compoundname>
+    <includes refid="wholememory_8h" local="no">wholememory.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__unique__id__t_1aabf081a994eadd9edceeed96183c449e" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char wholememory_unique_id_t::internal[WHOLEMEMORY_UNIQUE_ID_BYTES]</definition>
+        <argsstring>[WHOLEMEMORY_UNIQUE_ID_BYTES]</argsstring>
+        <name>internal</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/wholememory.h" line="122" column="8" bodyfile="include/wholememory/wholememory.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Unique ID for WholeMemory Communicators. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>An Opaque handle to WholeMemory Communicators, exposes as char array. Underlying implementation may be ncclUniqueId_t </para>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory_unique_id_t</label>
+        <link refid="structwholememory__unique__id__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/wholememory/wholememory.h" line="121" column="1" bodyfile="include/wholememory/wholememory.h" bodystart="121" bodyend="123"/>
+    <listofallmembers>
+      <member refid="structwholememory__unique__id__t_1aabf081a994eadd9edceeed96183c449e" prot="public" virt="non-virtual"><scope>wholememory_unique_id_t</scope><name>internal</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

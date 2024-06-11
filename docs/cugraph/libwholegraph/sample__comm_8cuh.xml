@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="sample__comm_8cuh" kind="file" language="C++">
+    <compoundname>sample_comm.cuh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2024,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">#pragma<sp/>once</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/device_reference.cuh&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/env_func_ptrs.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/global_reference.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/tensor_description.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">namespace<sp/>wholegraph_ops<sp/>{</highlight></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>IdType,<sp/>typename<sp/>LocalIdType,<sp/>typename<sp/>WMIdType,<sp/>typename<sp/>WMOffsetType&gt;</highlight></codeline>
+<codeline><highlight class="normal">__global__<sp/>void<sp/>sample_all_kernel(wholememory_gref_t<sp/>wm_csr_row_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_array_description_t<sp/>wm_csr_row_ptr_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_gref_t<sp/>wm_csr_col_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_array_description_t<sp/>wm_csr_col_ptr_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>IdType*<sp/>input_nodes,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>int<sp/>input_node_count,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>int*<sp/>output_sample_offset,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_array_description_t<sp/>output_sample_offset_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>WMIdType*<sp/>output_dest_node_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int*<sp/>output_center_localid_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t*<sp/>output_edge_gid_ptr)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>input_idx<sp/>=<sp/>blockIdx.x;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(input_idx<sp/>&gt;=<sp/>input_node_count)<sp/>return;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory::device_reference&lt;WMOffsetType&gt;<sp/>wm_csr_row_ptr_dev_ref(wm_csr_row_ptr);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory::device_reference&lt;WMIdType&gt;<sp/>wm_csr_col_ptr_ref(wm_csr_col_ptr);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IdType<sp/>nid<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>input_nodes[input_idx];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>start<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wm_csr_row_ptr_dev_ref[nid];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>end<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wm_csr_row_ptr_dev_ref[nid<sp/>+<sp/>1];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>neighbor_count<sp/>=<sp/>(int)(end<sp/>-<sp/>start);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(neighbor_count<sp/>&lt;=<sp/>0)<sp/>return;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>offset<sp/>=<sp/>output_sample_offset[input_idx];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>for<sp/>(int<sp/>sample_id<sp/>=<sp/>threadIdx.x;<sp/>sample_id<sp/>&lt;<sp/>neighbor_count;<sp/>sample_id<sp/>+=<sp/>blockDim.x)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>neighbor_idx<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>sample_id;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IdType<sp/>gid<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wm_csr_col_ptr_ref[start<sp/>+<sp/>neighbor_idx];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>output_dest_node_ptr[offset<sp/>+<sp/>sample_id]<sp/>=<sp/>gid;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(output_center_localid_ptr)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_center_localid_ptr[offset<sp/>+<sp/>sample_id]<sp/>=<sp/>(LocalIdType)input_idx;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(output_edge_gid_ptr)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_edge_gid_ptr[offset<sp/>+<sp/>sample_id]<sp/>=<sp/>(int64_t)(start<sp/>+<sp/>neighbor_idx);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">__device__<sp/>__forceinline__<sp/>int<sp/>log2_up_device(int<sp/>x)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(x<sp/>&lt;=<sp/>2)<sp/>return<sp/>x<sp/>-<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>32<sp/>-<sp/>__clz(x<sp/>-<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>IdType&gt;</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>ExpandWithOffsetFunc<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>IdType*<sp/>indptr;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IdType*<sp/>indptr_shift;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>length;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>__host__<sp/>__device__<sp/>auto<sp/>operator()(int64_t<sp/>tIdx)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>indptr_shift[tIdx]<sp/>=<sp/>indptr[tIdx<sp/>%<sp/>length]<sp/>+<sp/>tIdx<sp/>/<sp/>length;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>WMIdType,<sp/>typename<sp/>DegreeType&gt;</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>ReduceForDegrees<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WMIdType*<sp/>rowoffsets;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>DegreeType*<sp/>in_degree_ptr;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>length;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>__host__<sp/>__device__<sp/>auto<sp/>operator()(int64_t<sp/>tIdx)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>in_degree_ptr[tIdx]<sp/>=<sp/>rowoffsets[tIdx<sp/>+<sp/>length]<sp/>-<sp/>rowoffsets[tIdx];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>DegreeType&gt;</highlight></codeline>
+<codeline><highlight class="normal">struct<sp/>MinInDegreeFanout<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>max_sample_count;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>__host__<sp/>__device__<sp/>auto<sp/>operator()(DegreeType<sp/>degree)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>min(static_cast&lt;int&gt;(degree),<sp/>max_sample_count);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">}<sp/><sp/>//<sp/>namespace<sp/>wholegraph_ops</highlight></codeline>
+    </programlisting>
+    <location file="src/wholegraph_ops/sample_comm.cuh"/>
+  </compounddef>
+</doxygen>

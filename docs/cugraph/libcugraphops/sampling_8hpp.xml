@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="sampling_8hpp" kind="file" language="C++">
+    <compoundname>sampling.hpp</compoundname>
+    <includes refid="format_8hpp" local="no">cugraph-ops/graph/format.hpp</includes>
+    <includes local="no">cuda_runtime.h</includes>
+    <includes local="no">raft/random/rng_state.hpp</includes>
+    <includes local="no">rmm/device_uvector.hpp</includes>
+    <includes local="no">cstdint</includes>
+    <includes local="no">tuple</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>cstdint</label>
+      </node>
+      <node id="4">
+        <label>cuda_runtime.h</label>
+      </node>
+      <node id="2">
+        <label>cugraph-ops/graph/format.hpp</label>
+        <link refid="format_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>raft/random/rng_state.hpp</label>
+      </node>
+      <node id="7">
+        <label>tuple</label>
+      </node>
+      <node id="1">
+        <label>include/cugraph-ops/graph/sampling.hpp</label>
+        <link refid="sampling_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>rmm/device_uvector.hpp</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacecugraph">cugraph</innernamespace>
+    <innernamespace refid="namespacecugraph_1_1ops">cugraph::ops</innernamespace>
+    <innernamespace refid="namespacecugraph_1_1ops_1_1graph">cugraph::ops::graph</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2020-2023,<sp/>NVIDIA<sp/>CORPORATION.<sp/>All<sp/>rights<sp/>reserved.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>This<sp/>source<sp/>code<sp/>and/or<sp/>documentation<sp/>(&quot;Licensed<sp/>Deliverables&quot;)<sp/>are</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>subject<sp/>to<sp/>NVIDIA<sp/>intellectual<sp/>property<sp/>rights<sp/>under<sp/>U.S.<sp/>and</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>international<sp/>Copyright<sp/>laws.</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="format_8hpp" kindref="compound">cugraph-ops/graph/format.hpp</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cuda_runtime.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;raft/random/rng_state.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;rmm/device_uvector.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cstdint&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tuple&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacecugraph_1_1ops_1_1graph" kindref="compound">cugraph::ops::graph</ref><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref><sp/>:<sp/>uint8_t<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737a8817097fe2518aee1a11bac93f117a19" kindref="member">kReservoirAlgoR</ref>,</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737ab77d051c6ff51fea8a3d7e53b8f4e28c" kindref="member">kReservoirAlgoLST</ref>,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">};<sp/><sp/></highlight><highlight class="comment">//<sp/>enum<sp/>SamplingAlgoT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="namespacecugraph_1_1ops_1_1graph_1adab72f8f652dc5a2be7ba104ab6734ff" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1adab72f8f652dc5a2be7ba104ab6734ff" kindref="member">get_sampling_index</ref>(int32_t*<sp/>index,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t*<sp/>sizes,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>n_sizes,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>replace,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="62" refid="namespacecugraph_1_1ops_1_1graph_1a3317834e38470198c3541e498aaadaaa" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1adab72f8f652dc5a2be7ba104ab6734ff" kindref="member">get_sampling_index</ref>(int64_t*<sp/>index,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t*<sp/>sizes,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>n_sizes,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>replace,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="94" refid="namespacecugraph_1_1ops_1_1graph_1aad55fe36ea9d02441b38c9fa08b272f6" refkind="member"><highlight class="normal">std::tuple&lt;rmm::device_uvector&lt;int32_t&gt;,<sp/>rmm::device_uvector&lt;int32_t&gt;&gt;<sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1aad55fe36ea9d02441b38c9fa08b272f6" kindref="member">uniform_sample_coo</ref>(</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structcugraph_1_1ops_1_1graph_1_1csc" kindref="compound">csc_s32_t</ref>&amp;<sp/>graph,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t*<sp/>nodes,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/>int32_t<sp/>n_dst_nodes,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>int32_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref><sp/>type,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/>int32_t<sp/>max_val,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="103" refid="namespacecugraph_1_1ops_1_1graph_1a5e3b87628269e9db4aa8b9872c680196" refkind="member"><highlight class="normal">std::tuple&lt;rmm::device_uvector&lt;int64_t&gt;,<sp/>rmm::device_uvector&lt;int64_t&gt;&gt;<sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1aad55fe36ea9d02441b38c9fa08b272f6" kindref="member">uniform_sample_coo</ref>(</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structcugraph_1_1ops_1_1graph_1_1csc" kindref="compound">csc_s64_t</ref>&amp;<sp/>graph,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t*<sp/>nodes,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/>int64_t<sp/>n_dst_nodes,</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/>int64_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref><sp/>type,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>int64_t<sp/>max_val,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="112" refid="namespacecugraph_1_1ops_1_1graph_1ad2c68c4b7b13f8001563cf9daa018ccb" refkind="member"><highlight class="normal">std::tuple&lt;rmm::device_uvector&lt;int32_t&gt;,<sp/>rmm::device_uvector&lt;int32_t&gt;&gt;<sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1ad2c68c4b7b13f8001563cf9daa018ccb" kindref="member">uniform_sample_csc</ref>(</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structcugraph_1_1ops_1_1graph_1_1csc" kindref="compound">csc_s32_t</ref>&amp;<sp/>graph,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t*<sp/>nodes,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/>int32_t<sp/>n_dst_nodes,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/>int32_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref><sp/>type,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/>int32_t<sp/>max_val,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="121" refid="namespacecugraph_1_1ops_1_1graph_1a12a360e7cacbe428518594def921f2db" refkind="member"><highlight class="normal">std::tuple&lt;rmm::device_uvector&lt;int64_t&gt;,<sp/>rmm::device_uvector&lt;int64_t&gt;&gt;<sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1ad2c68c4b7b13f8001563cf9daa018ccb" kindref="member">uniform_sample_csc</ref>(</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/>raft::random::RngState&amp;<sp/>rng,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structcugraph_1_1ops_1_1graph_1_1csc" kindref="compound">csc_s64_t</ref>&amp;<sp/>graph,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t*<sp/>nodes,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>int64_t<sp/>n_dst_nodes,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>int64_t<sp/>sample_size,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref><sp/>type,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/>int64_t<sp/>max_val,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>cugraph::ops::graph</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/cugraph-ops/graph/sampling.hpp"/>
+  </compounddef>
+</doxygen>

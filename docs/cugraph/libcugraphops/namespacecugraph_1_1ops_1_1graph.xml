@@ -1,0 +1,769 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacecugraph_1_1ops_1_1graph" kind="namespace" language="C++">
+    <compoundname>cugraph::ops::graph</compoundname>
+    <innerclass refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc" prot="public">cugraph::ops::graph::bipartite_csc</innerclass>
+    <innerclass refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg" prot="public">cugraph::ops::graph::bipartite_csc_hg</innerclass>
+    <innerclass refid="structcugraph_1_1ops_1_1graph_1_1csc" prot="public">cugraph::ops::graph::csc</innerclass>
+    <innerclass refid="structcugraph_1_1ops_1_1graph_1_1csc__hg" prot="public">cugraph::ops::graph::csc_hg</innerclass>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a5da11ae14db6495ef071962c042a0194" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::max_vertex_degree</definition>
+        <argsstring>(int32_t *out, const csc_s32_t &amp;graph, cudaStream_t stream)</argsstring>
+        <name>max_vertex_degree</name>
+        <param>
+          <type>int32_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a2fd1a0edee7881f261af2ee65ac071b7" kindref="member">csc_s32_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Computes the max vertex degree of the input graph. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>will contain the max vertex degree [on device] [len = <computeroutput>1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">graph</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input graph whose max vertex degree needs to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream where to schedule work </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/max_vertex_degree.hpp" line="28" column="6" declfile="include/cugraph-ops/graph/max_vertex_degree.hpp" declline="28" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a01d8c154a101027ab84a4919eb868293" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::max_vertex_degree</definition>
+        <argsstring>(int64_t *out, const csc_s64_t &amp;graph, cudaStream_t stream)</argsstring>
+        <name>max_vertex_degree</name>
+        <param>
+          <type>int64_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a84fe5722093bed49c855f03710adecab" kindref="member">csc_s64_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/max_vertex_degree.hpp" line="29" column="6" declfile="include/cugraph-ops/graph/max_vertex_degree.hpp" declline="29" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1acbb497fa3b55db432fb32d7ef61b4a57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_reverse_graph</definition>
+        <argsstring>(bipartite_csc_s32_t &amp;graph, int32_t *node_counts, void *cub_workspace, size_t &amp;cub_workspace_size, const cuda::stream &amp;stream)</argsstring>
+        <name>get_reverse_graph</name>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1af8e6162958da009bf59d4f85e2297428" kindref="member">bipartite_csc_s32_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>node_counts</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cub_workspace</declname>
+        </param>
+        <param>
+          <type>size_t &amp;</type>
+          <declname>cub_workspace_size</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">cuda::stream</ref> &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Compute the reverse graph, given an existing CSC format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">graph</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the graph (in CSC format) which is already filled with valid <computeroutput>offsets</computeroutput> and <computeroutput>indices</computeroutput> and will be updated to contain <computeroutput>rev_offsets</computeroutput> and rev_indices` representing the reverse graph in CSR format. On input, we expect the <computeroutput>offsets</computeroutput> to hold counts for each input node already, which you can get from <computeroutput>renumber</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">node_counts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>scratch buffer for counting neighbors. [on device] [size = <computeroutput>graph.n_src_nodes</computeroutput>] Assumed to be allocated by the caller beforehand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">cub_workspace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>scratch buffer for cub. [on device] [size = <computeroutput>cub_workspace_size</computeroutput>] Pass a <computeroutput>nullptr</computeroutput> in order to get to know its size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">cub_workspace_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>workspace size in bytes. If <computeroutput>workspace</computeroutput> is a <computeroutput>nullptr</computeroutput>, then this will be computed and the caller is expected to allocate the workspace buffer of this size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream where to schedule work </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/reverse_graph.hpp" line="44" column="6" declfile="include/cugraph-ops/graph/reverse_graph.hpp" declline="44" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a2bc521db0b0a359dcad558bfbe544872" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_reverse_graph</definition>
+        <argsstring>(bipartite_csc_s64_t &amp;graph, int64_t *node_counts, void *cub_workspace, size_t &amp;cub_workspace_size, const cuda::stream &amp;stream)</argsstring>
+        <name>get_reverse_graph</name>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1af848b271e54eb7235a0ce419866e48d1" kindref="member">bipartite_csc_s64_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>node_counts</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cub_workspace</declname>
+        </param>
+        <param>
+          <type>size_t &amp;</type>
+          <declname>cub_workspace_size</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">cuda::stream</ref> &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/reverse_graph.hpp" line="49" column="6" declfile="include/cugraph-ops/graph/reverse_graph.hpp" declline="49" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1ae34029e7c8ef6c6cd6e5a6c6f2bf6264" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_reverse_graph</definition>
+        <argsstring>(csc_s32_t &amp;graph, int32_t *node_counts, void *cub_workspace, size_t &amp;cub_workspace_size, const cuda::stream &amp;stream)</argsstring>
+        <name>get_reverse_graph</name>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a2fd1a0edee7881f261af2ee65ac071b7" kindref="member">csc_s32_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>node_counts</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cub_workspace</declname>
+        </param>
+        <param>
+          <type>size_t &amp;</type>
+          <declname>cub_workspace_size</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">cuda::stream</ref> &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/reverse_graph.hpp" line="54" column="6" declfile="include/cugraph-ops/graph/reverse_graph.hpp" declline="54" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a96caa0eca8cffe50a507f401d0353c15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_reverse_graph</definition>
+        <argsstring>(csc_s64_t &amp;graph, int64_t *node_counts, void *cub_workspace, size_t &amp;cub_workspace_size, const cuda::stream &amp;stream)</argsstring>
+        <name>get_reverse_graph</name>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a84fe5722093bed49c855f03710adecab" kindref="member">csc_s64_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>node_counts</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cub_workspace</declname>
+        </param>
+        <param>
+          <type>size_t &amp;</type>
+          <declname>cub_workspace_size</declname>
+        </param>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">cuda::stream</ref> &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/reverse_graph.hpp" line="59" column="6" declfile="include/cugraph-ops/graph/reverse_graph.hpp" declline="59" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1adab72f8f652dc5a2be7ba104ab6734ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_sampling_index</definition>
+        <argsstring>(int32_t *index, raft::random::RngState &amp;rng, const int32_t *sizes, int32_t n_sizes, int32_t sample_size, bool replace, cudaStream_t stream)</argsstring>
+        <name>get_sampling_index</name>
+        <param>
+          <type>int32_t *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const int32_t *</type>
+          <declname>sizes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n_sizes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>replace</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Generate indexes given population sizes and a sample size, with or without replacement. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The (dense) index matrix. [on device] [dim = <computeroutput>n_sizes x sample_size</computeroutput>] In case <computeroutput>replace</computeroutput> is <computeroutput>false</computeroutput>, this may contain <computeroutput>ops::graph::INVALID_ID&lt;IdxT&gt;</computeroutput> if no index could be generated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="inout">rng</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RAFT RngState state object </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">sizes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input array of population sizes [on device] [len = <computeroutput>n_sizes</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">n_sizes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of sizes to sample from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">sample_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of indexes to be sampled per element in <computeroutput>sizes</computeroutput>. Assumed to be &lt;= 384 at the moment. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">replace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If <computeroutput>true</computeroutput>, sample with replacement, otherwise without replacement. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="55" column="6" declfile="include/cugraph-ops/graph/sampling.hpp" declline="55" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a3317834e38470198c3541e498aaadaaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::graph::get_sampling_index</definition>
+        <argsstring>(int64_t *index, raft::random::RngState &amp;rng, const int64_t *sizes, int64_t n_sizes, int32_t sample_size, bool replace, cudaStream_t stream)</argsstring>
+        <name>get_sampling_index</name>
+        <param>
+          <type>int64_t *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>sizes</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_sizes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>replace</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="62" column="6" declfile="include/cugraph-ops/graph/sampling.hpp" declline="62" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1aad55fe36ea9d02441b38c9fa08b272f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::tuple&lt; rmm::device_uvector&lt; int32_t &gt;, rmm::device_uvector&lt; int32_t &gt; &gt;</type>
+        <definition>std::tuple&lt;rmm::device_uvector&lt;int32_t&gt;, rmm::device_uvector&lt;int32_t&gt; &gt; cugraph::ops::graph::uniform_sample_coo</definition>
+        <argsstring>(raft::random::RngState &amp;rng, const csc_s32_t &amp;graph, const int32_t *nodes, int32_t n_dst_nodes, int32_t sample_size, SamplingAlgoT type, int32_t max_val, cudaStream_t stream)</argsstring>
+        <name>uniform_sample_coo</name>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a2fd1a0edee7881f261af2ee65ac071b7" kindref="member">csc_s32_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>const int32_t *</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n_dst_nodes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>max_val</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Uniform graph neighboorhood sampling technique. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>explicit self-loops in the input graph are always sampled (like any other edge)</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">rng</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RAFT RngState state object </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">graph</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input graph </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">nodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>list of node indices whose neighbors need to be sampled [on device] [len = <computeroutput>n_dst_nodes</computeroutput>]. If this is a <computeroutput>nullptr</computeroutput>, then all nodes neighborhood will be sampled. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">n_dst_nodes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of nodes to be sampled from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">sample_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>max number of nodes to be sampled per output node </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sampling algorithm type </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">max_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum node degree found in the graph. If not used by the underlying algo, pass a <computeroutput>0</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>tuple of device vectors representing CSR offsets and indices of the sub-sampled graph or COO source and destination indices </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="94" column="12" declfile="include/cugraph-ops/graph/sampling.hpp" declline="94" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a5e3b87628269e9db4aa8b9872c680196" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::tuple&lt; rmm::device_uvector&lt; int64_t &gt;, rmm::device_uvector&lt; int64_t &gt; &gt;</type>
+        <definition>std::tuple&lt;rmm::device_uvector&lt;int64_t&gt;, rmm::device_uvector&lt;int64_t&gt; &gt; cugraph::ops::graph::uniform_sample_coo</definition>
+        <argsstring>(raft::random::RngState &amp;rng, const csc_s64_t &amp;graph, const int64_t *nodes, int64_t n_dst_nodes, int64_t sample_size, SamplingAlgoT type, int64_t max_val, cudaStream_t stream)</argsstring>
+        <name>uniform_sample_coo</name>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a84fe5722093bed49c855f03710adecab" kindref="member">csc_s64_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_dst_nodes</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>max_val</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="103" column="12" declfile="include/cugraph-ops/graph/sampling.hpp" declline="103" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1ad2c68c4b7b13f8001563cf9daa018ccb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::tuple&lt; rmm::device_uvector&lt; int32_t &gt;, rmm::device_uvector&lt; int32_t &gt; &gt;</type>
+        <definition>std::tuple&lt;rmm::device_uvector&lt;int32_t&gt;, rmm::device_uvector&lt;int32_t&gt; &gt; cugraph::ops::graph::uniform_sample_csc</definition>
+        <argsstring>(raft::random::RngState &amp;rng, const csc_s32_t &amp;graph, const int32_t *nodes, int32_t n_dst_nodes, int32_t sample_size, SamplingAlgoT type, int32_t max_val, cudaStream_t stream)</argsstring>
+        <name>uniform_sample_csc</name>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a2fd1a0edee7881f261af2ee65ac071b7" kindref="member">csc_s32_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>const int32_t *</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n_dst_nodes</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>max_val</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="112" column="12" declfile="include/cugraph-ops/graph/sampling.hpp" declline="112" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1graph_1a12a360e7cacbe428518594def921f2db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::tuple&lt; rmm::device_uvector&lt; int64_t &gt;, rmm::device_uvector&lt; int64_t &gt; &gt;</type>
+        <definition>std::tuple&lt;rmm::device_uvector&lt;int64_t&gt;, rmm::device_uvector&lt;int64_t&gt; &gt; cugraph::ops::graph::uniform_sample_csc</definition>
+        <argsstring>(raft::random::RngState &amp;rng, const csc_s64_t &amp;graph, const int64_t *nodes, int64_t n_dst_nodes, int64_t sample_size, SamplingAlgoT type, int64_t max_val, cudaStream_t stream)</argsstring>
+        <name>uniform_sample_csc</name>
+        <param>
+          <type>raft::random::RngState &amp;</type>
+          <declname>rng</declname>
+        </param>
+        <param>
+          <type>const <ref refid="namespacecugraph_1_1ops_1a84fe5722093bed49c855f03710adecab" kindref="member">csc_s64_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_dst_nodes</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>sample_size</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" kindref="member">SamplingAlgoT</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>max_val</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="121" column="12" declfile="include/cugraph-ops/graph/sampling.hpp" declline="121" declcolumn="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737" prot="public" static="no" strong="yes">
+        <type>uint8_t</type>
+        <name>SamplingAlgoT</name>
+        <enumvalue id="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737a8817097fe2518aee1a11bac93f117a19" prot="public">
+          <name>kReservoirAlgoR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Reservoir sampling (Algo R) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="namespacecugraph_1_1ops_1_1graph_1abebc4ae5ce1a74201f49f9a49a7a3737ab77d051c6ff51fea8a3d7e53b8f4e28c" prot="public">
+          <name>kReservoirAlgoLST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Reservoir sampling (Algo L, single-threaded) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Different kinds of sampling algorithms. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/sampling.hpp" line="27" column="1" bodyfile="include/cugraph-ops/graph/sampling.hpp" bodystart="27" bodyend="32"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="namespacecugraph_1_1ops_1_1graph_1af642b2768f7e228f4c6e780acf46431a" prot="public" static="yes" constexpr="yes" mutable="no">
+        <templateparamlist>
+          <param>
+            <type>typename IdxT</type>
+          </param>
+        </templateparamlist>
+        <type>constexpr IdxT</type>
+        <definition>constexpr IdxT cugraph::ops::graph::INVALID_ID</definition>
+        <argsstring></argsstring>
+        <name>INVALID_ID</name>
+        <initializer>= IdxT{-1}</initializer>
+        <briefdescription>
+<para>constant to represent invalid node id. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>IdxT</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node index type</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>It is important that its bit representation has 1 set everywhere, no matter which index type is used </para>
+</simplesect>
+<simplesect kind="note"><para>As of now, we expect <computeroutput>IdxT</computeroutput> to be a signed integer type, although everything should work with unsigned types. In any case, we restrict the range of valid IDs to [0, 2^(sizeof(IdxT) * 8 - 1) - 2]. This reduced range is due to reserving the most significant bit for (potential) indicator variables in algos, as well as one additional value for the invalid ID. This comes naturally when using signed integer types since the range simply excludes all negative values as well as the maximal positive value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="32" column="23" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacecugraph_1_1ops_1_1graph_1a5ac83f018992ba6444656007afea2347" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr int32_t</type>
+        <definition>constexpr int32_t cugraph::ops::graph::DEFAULT_NODE_TYPE</definition>
+        <argsstring></argsstring>
+        <name>DEFAULT_NODE_TYPE</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>constant to represent default node type </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>We expect node and edge types to be representable with signed 32-bit integers, meaning that the valid range is [0, 2^31 - 1]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="40" column="26" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="namespacecugraph_1_1ops_1_1graph_1a097dec46bbfbb312c69e453938184329" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr int32_t</type>
+        <definition>constexpr int32_t cugraph::ops::graph::DEFAULT_EDGE_TYPE</definition>
+        <argsstring></argsstring>
+        <name>DEFAULT_EDGE_TYPE</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>constant to represent default edge type </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>Valid range: [0, 2^31 - 1] (see <computeroutput>DEFAULT_NODE_TYPE</computeroutput>) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="47" column="26" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/cugraph-ops/graph/format.hpp" line="14" column="1"/>
+  </compounddef>
+</doxygen>

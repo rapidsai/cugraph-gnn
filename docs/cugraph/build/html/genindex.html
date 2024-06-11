@@ -1,0 +1,1853 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; cugraph 24.08.00 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="https://docs.rapids.ai/assets/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/references.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script defer="defer" src="https://docs.rapids.ai/assets/js/custom.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cugraph 24.08.00 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="ms-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+            <li class="nav-item dropdown pst-header-nav-item">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.html#cugraph.experimental.PropertyGraph.__init__">__init__() (cugraph.experimental.PropertyGraph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertySelection.html#cugraph.experimental.PropertySelection.__init__">(cugraph.experimental.PropertySelection method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph/cugraph.Graph.html#cugraph.Graph.__init__">(cugraph.Graph method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph/cugraph.MultiGraph.html#cugraph.MultiGraph.__init__">(cugraph.MultiGraph method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.html#cugraph.structure.NumberMap.__init__">(cugraph.structure.NumberMap method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-dgl/cugraph_dgl.cugraph_storage.CuGraphStorage.html#cugraph_dgl.cugraph_storage.CuGraphStorage.__init__">(cugraph_dgl.cugraph_storage.CuGraphStorage method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.dask_graph_store.DaskGraphStore.html#cugraph_pyg.data.dask_graph_store.DaskGraphStore.__init__">(cugraph_pyg.data.dask_graph_store.DaskGraphStore method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.feature_store.TensorDictFeatureStore.html#cugraph_pyg.data.feature_store.TensorDictFeatureStore.__init__">(cugraph_pyg.data.feature_store.TensorDictFeatureStore method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.feature_store.WholeFeatureStore.html#cugraph_pyg.data.feature_store.WholeFeatureStore.__init__">(cugraph_pyg.data.feature_store.WholeFeatureStore method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.graph_store.GraphStore.html#cugraph_pyg.data.graph_store.GraphStore.__init__">(cugraph_pyg.data.graph_store.GraphStore method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.BulkSampleLoader.html#cugraph_pyg.loader.dask_node_loader.BulkSampleLoader.__init__">(cugraph_pyg.loader.dask_node_loader.BulkSampleLoader method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader.html#cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader.__init__">(cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.neighbor_loader.NeighborLoader.html#cugraph_pyg.loader.neighbor_loader.NeighborLoader.__init__">(cugraph_pyg.loader.neighbor_loader.NeighborLoader method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.node_loader.NodeLoader.html#cugraph_pyg.loader.node_loader.NodeLoader.__init__">(cugraph_pyg.loader.node_loader.NodeLoader method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.BaseSampler.html#cugraph_pyg.sampler.sampler.BaseSampler.__init__">(cugraph_pyg.sampler.sampler.BaseSampler method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.HomogeneousSampleReader.html#cugraph_pyg.sampler.sampler.HomogeneousSampleReader.__init__">(cugraph_pyg.sampler.sampler.HomogeneousSampleReader method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleIterator.html#cugraph_pyg.sampler.sampler.SampleIterator.__init__">(cugraph_pyg.sampler.sampler.SampleIterator method)</a>
+</li>
+        <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleReader.html#cugraph_pyg.sampler.sampler.SampleReader.__init__">(cugraph_pyg.sampler.sampler.SampleReader method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.WholeMemoryCommunicator.html#pylibwholegraph.torch.comm.WholeMemoryCommunicator.__init__">(pylibwholegraph.torch.comm.WholeMemoryCommunicator method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryCachePolicy.html#pylibwholegraph.torch.embedding.WholeMemoryCachePolicy.__init__">(pylibwholegraph.torch.embedding.WholeMemoryCachePolicy method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbedding.html#pylibwholegraph.torch.embedding.WholeMemoryEmbedding.__init__">(pylibwholegraph.torch.embedding.WholeMemoryEmbedding method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule.html#pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule.__init__">(pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryOptimizer.html#pylibwholegraph.torch.embedding.WholeMemoryOptimizer.__init__">(pylibwholegraph.torch.embedding.WholeMemoryOptimizer method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.graph_structure.GraphStructure.html#pylibwholegraph.torch.graph_structure.GraphStructure.__init__">(pylibwholegraph.torch.graph_structure.GraphStructure method)</a>
+</li>
+        <li><a href="api_docs/api/wg/pylibwholegraph.torch.tensor.WholeMemoryTensor.html#pylibwholegraph.torch.tensor.WholeMemoryTensor.__init__">(pylibwholegraph.torch.tensor.WholeMemoryTensor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.add_edge_data.html#cugraph.experimental.PropertyGraph.add_edge_data">add_edge_data() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.add_internal_vertex_id.html#cugraph.Graph.add_internal_vertex_id">add_internal_vertex_id() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.add_internal_vertex_id.html#cugraph.structure.NumberMap.add_internal_vertex_id">(cugraph.structure.NumberMap method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.add_nodes_from.html#cugraph.Graph.add_nodes_from">add_nodes_from() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.add_vertex_data.html#cugraph.experimental.PropertyGraph.add_vertex_data">add_vertex_data() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_e2n_bwd.html#pylibcugraphops.operators.agg_concat_e2n_bwd">agg_concat_e2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_e2n_fwd.html#pylibcugraphops.operators.agg_concat_e2n_fwd">agg_concat_e2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.pytorch.operators.agg_concat_n2n.html#pylibcugraphops.pytorch.operators.agg_concat_n2n">agg_concat_n2n() (in module pylibcugraphops.pytorch.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_n2n_bwd.html#pylibcugraphops.operators.agg_concat_n2n_bwd">agg_concat_n2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_n2n_e2n_bwd.html#pylibcugraphops.operators.agg_concat_n2n_e2n_bwd">agg_concat_n2n_e2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_n2n_e2n_fwd.html#pylibcugraphops.operators.agg_concat_n2n_e2n_fwd">agg_concat_n2n_e2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_n2n_fwd.html#pylibcugraphops.operators.agg_concat_n2n_fwd">agg_concat_n2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_weighted_n2n_bwd.html#pylibcugraphops.operators.agg_concat_weighted_n2n_bwd">agg_concat_weighted_n2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_concat_weighted_n2n_fwd.html#pylibcugraphops.operators.agg_concat_weighted_n2n_fwd">agg_concat_weighted_n2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_dmpnn_e2e_bwd.html#pylibcugraphops.operators.agg_dmpnn_e2e_bwd">agg_dmpnn_e2e_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_dmpnn_e2e_fwd.html#pylibcugraphops.operators.agg_dmpnn_e2e_fwd">agg_dmpnn_e2e_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd.html#pylibcugraphops.dimenet.agg_edge_to_edge_bwd">agg_edge_to_edge_bwd (in module pylibcugraphops.dimenet)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_grad.html#pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_grad">agg_edge_to_edge_bwd2_grad (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_main.html#pylibcugraphops.dimenet.agg_edge_to_edge_bwd2_main">agg_edge_to_edge_bwd2_main (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.agg_edge_to_edge_fwd.html#pylibcugraphops.dimenet.agg_edge_to_edge_fwd">agg_edge_to_edge_fwd (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.pytorch.operators.agg_hg_basis_n2n_post.html#pylibcugraphops.pytorch.operators.agg_hg_basis_n2n_post">agg_hg_basis_n2n_post() (in module pylibcugraphops.pytorch.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_hg_basis_n2n_post_bwd.html#pylibcugraphops.operators.agg_hg_basis_n2n_post_bwd">agg_hg_basis_n2n_post_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_hg_basis_n2n_post_fwd.html#pylibcugraphops.operators.agg_hg_basis_n2n_post_fwd">agg_hg_basis_n2n_post_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_e2n_bwd.html#pylibcugraphops.operators.agg_simple_e2n_bwd">agg_simple_e2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_e2n_fwd.html#pylibcugraphops.operators.agg_simple_e2n_fwd">agg_simple_e2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_n2n_bwd.html#pylibcugraphops.operators.agg_simple_n2n_bwd">agg_simple_n2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_n2n_e2n_bwd.html#pylibcugraphops.operators.agg_simple_n2n_e2n_bwd">agg_simple_n2n_e2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_n2n_e2n_fwd.html#pylibcugraphops.operators.agg_simple_n2n_e2n_fwd">agg_simple_n2n_e2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_simple_n2n_fwd.html#pylibcugraphops.operators.agg_simple_n2n_fwd">agg_simple_n2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_weighted_n2n_bwd.html#pylibcugraphops.operators.agg_weighted_n2n_bwd">agg_weighted_n2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.agg_weighted_n2n_fwd.html#pylibcugraphops.operators.agg_weighted_n2n_fwd">agg_weighted_n2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.analyzeClustering_edge_cut.html#cugraph.analyzeClustering_edge_cut">analyzeClustering_edge_cut() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.analyzeClustering_modularity.html#cugraph.analyzeClustering_modularity">analyzeClustering_modularity() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.analyzeClustering_ratio_cut.html#cugraph.analyzeClustering_ratio_cut">analyzeClustering_ratio_cut() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.annotate_dataframe.html#cugraph.experimental.PropertyGraph.annotate_dataframe">annotate_dataframe() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.BaseSampler.html#cugraph_pyg.sampler.sampler.BaseSampler">BaseSampler (class in cugraph_pyg.sampler.sampler)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.batched_ego_graphs.html#cugraph.batched_ego_graphs">batched_ego_graphs() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.centrality.betweenness_centrality.html#cugraph.centrality.betweenness_centrality">betweenness_centrality() (in module cugraph.centrality)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.bfs.html#cugraph.bfs">bfs() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.traversal.bfs.bfs.html#cugraph.dask.traversal.bfs.bfs">(in module cugraph.dask.traversal.bfs)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.bfs.html#pylibcugraph.bfs">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.bfs_edges.html#cugraph.bfs_edges">bfs_edges() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.BulkSampleLoader.html#cugraph_pyg.loader.dask_node_loader.BulkSampleLoader">BulkSampleLoader (class in cugraph_pyg.loader.dask_node_loader)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.clear.html#cugraph.Graph.clear">clear() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.compute_vals.html#cugraph.structure.NumberMap.compute_vals">compute_vals() (cugraph.structure.NumberMap static method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.compute_vals_types.html#cugraph.structure.NumberMap.compute_vals_types">compute_vals_types() (cugraph.structure.NumberMap static method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.connected_components.html#cugraph.connected_components">connected_components() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.core_number.html#cugraph.core_number">core_number() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.create_builtin_cache_policy.html#pylibwholegraph.torch.embedding.create_builtin_cache_policy">create_builtin_cache_policy() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.create_embedding.html#pylibwholegraph.torch.embedding.create_embedding">create_embedding() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.create_embedding_from_filelist.html#pylibwholegraph.torch.embedding.create_embedding_from_filelist">create_embedding_from_filelist() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.create_group_communicator.html#pylibwholegraph.torch.comm.create_group_communicator">create_group_communicator() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.create_wholememory_cache_policy.html#pylibwholegraph.torch.embedding.create_wholememory_cache_policy">create_wholememory_cache_policy() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.create_wholememory_optimizer.html#pylibwholegraph.torch.embedding.create_wholememory_optimizer">create_wholememory_optimizer() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.tensor.create_wholememory_tensor.html#pylibwholegraph.torch.tensor.create_wholememory_tensor">create_wholememory_tensor() (in module pylibwholegraph.torch.tensor)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.tensor.create_wholememory_tensor_from_filelist.html#pylibwholegraph.torch.tensor.create_wholememory_tensor_from_filelist">create_wholememory_tensor_from_filelist() (in module pylibwholegraph.torch.tensor)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv417csr_add_self_loop20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_tPv">csr_add_self_loop (C++ function)</a>
+</li>
+      <li>
+    cugraph.dask.centrality.betweenness_centrality
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.centrality.betweenness_centrality.html#module-cugraph.dask.centrality.betweenness_centrality">module</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv435cugraph_analyze_clustering_edge_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">cugraph_analyze_clustering_edge_cut (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv437cugraph_analyze_clustering_modularityPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">cugraph_analyze_clustering_modularity (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv436cugraph_analyze_clustering_ratio_cutPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPdPP15cugraph_error_t">cugraph_analyze_clustering_ratio_cut (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv431cugraph_balanced_cut_clusteringPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t">cugraph_balanced_cut_clustering (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv430cugraph_betweenness_centralityPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6bool_t6bool_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_betweenness_centrality (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv411cugraph_bfsPK25cugraph_resource_handle_tP15cugraph_graph_tP39cugraph_type_erased_device_array_view_t6bool_t6size_t6bool_t6bool_tPP22cugraph_paths_result_tPP15cugraph_error_t">cugraph_bfs (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv427cugraph_biased_random_walksPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_tPP28cugraph_random_walk_result_tPP15cugraph_error_t">cugraph_biased_random_walks (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv435cugraph_centrality_result_convergedP27cugraph_centrality_result_t">cugraph_centrality_result_converged (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv430cugraph_centrality_result_freeP27cugraph_centrality_result_t">cugraph_centrality_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv444cugraph_centrality_result_get_num_iterationsP27cugraph_centrality_result_t">cugraph_centrality_result_get_num_iterations (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv436cugraph_centrality_result_get_valuesP27cugraph_centrality_result_t">cugraph_centrality_result_get_values (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv438cugraph_centrality_result_get_verticesP27cugraph_centrality_result_t">cugraph_centrality_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv419cugraph_core_numberPK25cugraph_resource_handle_tP15cugraph_graph_t28cugraph_k_core_degree_type_t6bool_tPP21cugraph_core_result_tPP15cugraph_error_t">cugraph_core_number (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv426cugraph_core_result_createPK25cugraph_resource_handle_tP39cugraph_type_erased_device_array_view_tP39cugraph_type_erased_device_array_view_tPP21cugraph_core_result_tPP15cugraph_error_t">cugraph_core_result_create (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv424cugraph_core_result_freeP21cugraph_core_result_t">cugraph_core_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv436cugraph_core_result_get_core_numbersP21cugraph_core_result_t">cugraph_core_result_get_core_numbers (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv432cugraph_core_result_get_verticesP21cugraph_core_result_t">cugraph_core_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv411cugraph_ecgPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_td6size_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">cugraph_ecg (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv435cugraph_edge_betweenness_centralityPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6bool_t6bool_tPP32cugraph_edge_centrality_result_tPP15cugraph_error_t">cugraph_edge_betweenness_centrality (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv435cugraph_edge_centrality_result_freeP32cugraph_edge_centrality_result_t">cugraph_edge_centrality_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv447cugraph_edge_centrality_result_get_dst_verticesP32cugraph_edge_centrality_result_t">cugraph_edge_centrality_result_get_dst_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv443cugraph_edge_centrality_result_get_edge_idsP32cugraph_edge_centrality_result_t">cugraph_edge_centrality_result_get_edge_ids (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv447cugraph_edge_centrality_result_get_src_verticesP32cugraph_edge_centrality_result_t">cugraph_edge_centrality_result_get_src_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv441cugraph_edge_centrality_result_get_valuesP32cugraph_edge_centrality_result_t">cugraph_edge_centrality_result_get_values (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv430cugraph_eigenvector_centralityPK25cugraph_resource_handle_tP15cugraph_graph_td6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_eigenvector_centrality (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv419cugraph_extract_egoPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_t6bool_tPP33cugraph_induced_subgraph_result_tPP15cugraph_error_t">cugraph_extract_ego (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv421cugraph_extract_pathsPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK22cugraph_paths_result_tPK39cugraph_type_erased_device_array_view_tPP30cugraph_extract_paths_result_tPP15cugraph_error_t">cugraph_extract_paths (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv433cugraph_extract_paths_result_freeP30cugraph_extract_paths_result_t">cugraph_extract_paths_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv448cugraph_extract_paths_result_get_max_path_lengthP30cugraph_extract_paths_result_t">cugraph_extract_paths_result_get_max_path_length (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv438cugraph_extract_paths_result_get_pathsP30cugraph_extract_paths_result_t">cugraph_extract_paths_result_get_paths (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv443cugraph_hierarchical_clustering_result_freeP40cugraph_hierarchical_clustering_result_t">cugraph_hierarchical_clustering_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv451cugraph_hierarchical_clustering_result_get_clustersP40cugraph_hierarchical_clustering_result_t">cugraph_hierarchical_clustering_result_get_clusters (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv453cugraph_hierarchical_clustering_result_get_modularityP40cugraph_hierarchical_clustering_result_t">cugraph_hierarchical_clustering_result_get_modularity (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv451cugraph_hierarchical_clustering_result_get_verticesP40cugraph_hierarchical_clustering_result_t">cugraph_hierarchical_clustering_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv412cugraph_hitsPK25cugraph_resource_handle_tP15cugraph_graph_td6size_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_t6bool_t6bool_tPP21cugraph_hits_result_tPP15cugraph_error_t">cugraph_hits (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv424cugraph_hits_result_freeP21cugraph_hits_result_t">cugraph_hits_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv435cugraph_hits_result_get_authoritiesP21cugraph_hits_result_t">cugraph_hits_result_get_authorities (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv445cugraph_hits_result_get_hub_score_differencesP21cugraph_hits_result_t">cugraph_hits_result_get_hub_score_differences (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv428cugraph_hits_result_get_hubsP21cugraph_hits_result_t">cugraph_hits_result_get_hubs (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv444cugraph_hits_result_get_number_of_iterationsP21cugraph_hits_result_t">cugraph_hits_result_get_number_of_iterations (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv432cugraph_hits_result_get_verticesP21cugraph_hits_result_t">cugraph_hits_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv428cugraph_jaccard_coefficientsPK25cugraph_resource_handle_tP15cugraph_graph_tPK22cugraph_vertex_pairs_t6bool_t6bool_tPP27cugraph_similarity_result_tPP15cugraph_error_t">cugraph_jaccard_coefficients (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv414cugraph_k_corePK25cugraph_resource_handle_tP15cugraph_graph_t6size_t28cugraph_k_core_degree_type_tPK21cugraph_core_result_t6bool_tPP23cugraph_k_core_result_tPP15cugraph_error_t">cugraph_k_core (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv428cugraph_k_core_degree_type_t">cugraph_k_core_degree_type_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv4N28cugraph_k_core_degree_type_t21K_CORE_DEGREE_TYPE_INE">cugraph_k_core_degree_type_t::K_CORE_DEGREE_TYPE_IN (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv4N28cugraph_k_core_degree_type_t24K_CORE_DEGREE_TYPE_INOUTE">cugraph_k_core_degree_type_t::K_CORE_DEGREE_TYPE_INOUT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv4N28cugraph_k_core_degree_type_t22K_CORE_DEGREE_TYPE_OUTE">cugraph_k_core_degree_type_t::K_CORE_DEGREE_TYPE_OUT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv426cugraph_k_core_result_freeP23cugraph_k_core_result_t">cugraph_k_core_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv438cugraph_k_core_result_get_dst_verticesP23cugraph_k_core_result_t">cugraph_k_core_result_get_dst_vertices (C++ function)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv438cugraph_k_core_result_get_src_verticesP23cugraph_k_core_result_t">cugraph_k_core_result_get_src_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/core.html#_CPPv433cugraph_k_core_result_get_weightsP23cugraph_k_core_result_t">cugraph_k_core_result_get_weights (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv423cugraph_katz_centralityPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tddd6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_katz_centrality (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/labeling.html#_CPPv428cugraph_labeling_result_freeP25cugraph_labeling_result_t">cugraph_labeling_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/labeling.html#_CPPv434cugraph_labeling_result_get_labelsP25cugraph_labeling_result_t">cugraph_labeling_result_get_labels (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/labeling.html#_CPPv436cugraph_labeling_result_get_verticesP25cugraph_labeling_result_t">cugraph_labeling_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv414cugraph_leidenPK25cugraph_resource_handle_tP19cugraph_rng_state_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">cugraph_leiden (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv415cugraph_louvainPK25cugraph_resource_handle_tP15cugraph_graph_t6size_tdd6bool_tPP40cugraph_hierarchical_clustering_result_tPP15cugraph_error_t">cugraph_louvain (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv416cugraph_node2vecPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_t6bool_tddPP28cugraph_random_walk_result_tPP15cugraph_error_t">cugraph_node2vec (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv429cugraph_node2vec_random_walksPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_tddPP28cugraph_random_walk_result_tPP15cugraph_error_t">cugraph_node2vec_random_walks (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv428cugraph_overlap_coefficientsPK25cugraph_resource_handle_tP15cugraph_graph_tPK22cugraph_vertex_pairs_t6bool_t6bool_tPP27cugraph_similarity_result_tPP15cugraph_error_t">cugraph_overlap_coefficients (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv416cugraph_pagerankPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tdd6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_pagerank (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv437cugraph_pagerank_allow_nonconvergencePK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tdd6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_pagerank_allow_nonconvergence (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv425cugraph_paths_result_freeP22cugraph_paths_result_t">cugraph_paths_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv434cugraph_paths_result_get_distancesP22cugraph_paths_result_t">cugraph_paths_result_get_distances (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv437cugraph_paths_result_get_predecessorsP22cugraph_paths_result_t">cugraph_paths_result_get_predecessors (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv433cugraph_paths_result_get_verticesP22cugraph_paths_result_t">cugraph_paths_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv429cugraph_personalized_pagerankPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tdd6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_personalized_pagerank (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/centrality.html#_CPPv450cugraph_personalized_pagerank_allow_nonconvergencePK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tdd6size_t6bool_tPP27cugraph_centrality_result_tPP15cugraph_error_t">cugraph_personalized_pagerank_allow_nonconvergence (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv431cugraph_random_walk_result_freeP28cugraph_random_walk_result_t">cugraph_random_walk_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv446cugraph_random_walk_result_get_max_path_lengthP28cugraph_random_walk_result_t">cugraph_random_walk_result_get_max_path_length (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv441cugraph_random_walk_result_get_path_sizesP28cugraph_random_walk_result_t">cugraph_random_walk_result_get_path_sizes (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv436cugraph_random_walk_result_get_pathsP28cugraph_random_walk_result_t">cugraph_random_walk_result_get_paths (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv438cugraph_random_walk_result_get_weightsP28cugraph_random_walk_result_t">cugraph_random_walk_result_get_weights (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv426cugraph_sample_result_freeP23cugraph_sample_result_t">cugraph_sample_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv433cugraph_sample_result_get_edge_idPK23cugraph_sample_result_t">cugraph_sample_result_get_edge_id (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv435cugraph_sample_result_get_edge_typePK23cugraph_sample_result_t">cugraph_sample_result_get_edge_type (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv437cugraph_sample_result_get_edge_weightPK23cugraph_sample_result_t">cugraph_sample_result_get_edge_weight (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv429cugraph_sample_result_get_hopPK23cugraph_sample_result_t">cugraph_sample_result_get_hop (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv431cugraph_sample_result_get_indexPK23cugraph_sample_result_t">cugraph_sample_result_get_index (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv443cugraph_sample_result_get_label_hop_offsetsPK23cugraph_sample_result_t">cugraph_sample_result_get_label_hop_offsets (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv439cugraph_sample_result_get_major_offsetsPK23cugraph_sample_result_t">cugraph_sample_result_get_major_offsets (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv432cugraph_sample_result_get_majorsPK23cugraph_sample_result_t">cugraph_sample_result_get_majors (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv432cugraph_sample_result_get_minorsPK23cugraph_sample_result_t">cugraph_sample_result_get_minors (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv438cugraph_sample_result_get_renumber_mapPK23cugraph_sample_result_t">cugraph_sample_result_get_renumber_map (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv446cugraph_sample_result_get_renumber_map_offsetsPK23cugraph_sample_result_t">cugraph_sample_result_get_renumber_map_offsets (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv438cugraph_sample_result_get_start_labelsPK23cugraph_sample_result_t">cugraph_sample_result_get_start_labels (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv431cugraph_sampling_options_createPP26cugraph_sampling_options_tPP15cugraph_error_t">cugraph_sampling_options_create (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv429cugraph_sampling_options_freeP26cugraph_sampling_options_t">cugraph_sampling_options_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv437cugraph_sampling_set_compress_per_hopP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_compress_per_hop (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv437cugraph_sampling_set_compression_typeP26cugraph_sampling_options_t26cugraph_compression_type_t">cugraph_sampling_set_compression_type (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv435cugraph_sampling_set_dedupe_sourcesP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_dedupe_sources (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv443cugraph_sampling_set_prior_sources_behaviorP26cugraph_sampling_options_t32cugraph_prior_sources_behavior_t">cugraph_sampling_set_prior_sources_behavior (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv437cugraph_sampling_set_renumber_resultsP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_renumber_results (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv433cugraph_sampling_set_retain_seedsP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_retain_seeds (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv432cugraph_sampling_set_return_hopsP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_return_hops (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv437cugraph_sampling_set_with_replacementP26cugraph_sampling_options_t6bool_t">cugraph_sampling_set_with_replacement (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv430cugraph_select_random_verticesPK25cugraph_resource_handle_tPK15cugraph_graph_tP19cugraph_rng_state_t6size_tPP34cugraph_type_erased_device_array_tPP15cugraph_error_t">cugraph_select_random_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv430cugraph_similarity_result_freeP27cugraph_similarity_result_t">cugraph_similarity_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv440cugraph_similarity_result_get_similarityP27cugraph_similarity_result_t">cugraph_similarity_result_get_similarity (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv442cugraph_similarity_result_get_vertex_pairsP27cugraph_similarity_result_t">cugraph_similarity_result_get_vertex_pairs (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/similarity.html#_CPPv429cugraph_sorensen_coefficientsPK25cugraph_resource_handle_tP15cugraph_graph_tPK22cugraph_vertex_pairs_t6bool_t6bool_tPP27cugraph_similarity_result_tPP15cugraph_error_t">cugraph_sorensen_coefficients (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv440cugraph_spectral_modularity_maximizationPK25cugraph_resource_handle_tP15cugraph_graph_t6size_t6size_tdidi6bool_tPP27cugraph_clustering_result_tPP15cugraph_error_t">cugraph_spectral_modularity_maximization (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/traversal.html#_CPPv412cugraph_ssspPK25cugraph_resource_handle_tP15cugraph_graph_t6size_td6bool_t6bool_tPP22cugraph_paths_result_tPP15cugraph_error_t">cugraph_sssp (C++ function)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-dgl/cugraph_dgl.convert.cugraph_storage_from_heterograph.html#cugraph_dgl.convert.cugraph_storage_from_heterograph">cugraph_storage_from_heterograph() (in module cugraph_dgl.convert)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/labeling.html#_CPPv437cugraph_strongly_connected_componentsPK25cugraph_resource_handle_tP15cugraph_graph_t6bool_tPP25cugraph_labeling_result_tPP15cugraph_error_t">cugraph_strongly_connected_components (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv433cugraph_test_sample_result_createPK25cugraph_resource_handle_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPP23cugraph_sample_result_tPP15cugraph_error_t">cugraph_test_sample_result_create (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv454cugraph_test_uniform_neighborhood_sample_result_createPK25cugraph_resource_handle_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPP23cugraph_sample_result_tPP15cugraph_error_t">cugraph_test_uniform_neighborhood_sample_result_create (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv422cugraph_triangle_countPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6bool_tPP31cugraph_triangle_count_result_tPP15cugraph_error_t">cugraph_triangle_count (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv434cugraph_triangle_count_result_freeP31cugraph_triangle_count_result_t">cugraph_triangle_count_result_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv440cugraph_triangle_count_result_get_countsP31cugraph_triangle_count_result_t">cugraph_triangle_count_result_get_counts (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/community.html#_CPPv442cugraph_triangle_count_result_get_verticesP31cugraph_triangle_count_result_t">cugraph_triangle_count_result_get_vertices (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv431cugraph_uniform_neighbor_samplePK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK39cugraph_type_erased_device_array_view_tPK37cugraph_type_erased_host_array_view_tP19cugraph_rng_state_tPK26cugraph_sampling_options_t6bool_tPP23cugraph_sample_result_tPP15cugraph_error_t">cugraph_uniform_neighbor_sample (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/sampling.html#_CPPv428cugraph_uniform_random_walksPK25cugraph_resource_handle_tP15cugraph_graph_tPK39cugraph_type_erased_device_array_view_t6size_tPP28cugraph_random_walk_result_tPP15cugraph_error_t">cugraph_uniform_random_walks (C++ function)</a>
+</li>
+      <li><a href="api_docs/cugraph_c/labeling.html#_CPPv435cugraph_weakly_connected_componentsPK25cugraph_resource_handle_tP15cugraph_graph_t6bool_tPP25cugraph_labeling_result_tPP15cugraph_error_t">cugraph_weakly_connected_components (C++ function)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-dgl/cugraph_dgl.cugraph_storage.CuGraphStorage.html#cugraph_dgl.cugraph_storage.CuGraphStorage">CuGraphStorage (class in cugraph_dgl.cugraph_storage)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.dask_graph_store.DaskGraphStore.html#cugraph_pyg.data.dask_graph_store.DaskGraphStore">DaskGraphStore (class in cugraph_pyg.data.dask_graph_store)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader.html#cugraph_pyg.loader.dask_node_loader.DaskNeighborLoader">DaskNeighborLoader (class in cugraph_pyg.loader.dask_node_loader)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.degree.html#cugraph.structure.graph_implementation.simpleGraphImpl.degree">degree() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.centrality.degree_centrality.html#cugraph.centrality.degree_centrality">degree_centrality() (in module cugraph.centrality)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.degrees.html#cugraph.structure.graph_implementation.simpleGraphImpl.degrees">degrees() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.delete_adj_list.html#cugraph.structure.graph_implementation.simpleGraphImpl.delete_adj_list">delete_adj_list() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.delete_edge_list.html#cugraph.structure.graph_implementation.simpleGraphImpl.delete_edge_list">delete_edge_list() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.dense_hungarian.html#cugraph.dense_hungarian">dense_hungarian() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.destroy.html#cugraph.dask.comms.comms.destroy">destroy() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.destroy_communicator.html#pylibwholegraph.torch.comm.destroy_communicator">destroy_communicator() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.destroy_embedding.html#pylibwholegraph.torch.embedding.destroy_embedding">destroy_embedding() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.destroy_wholememory_cache_policy.html#pylibwholegraph.torch.embedding.destroy_wholememory_cache_policy">destroy_wholememory_cache_policy() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.destroy_wholememory_optimizer.html#pylibwholegraph.torch.embedding.destroy_wholememory_optimizer">destroy_wholememory_optimizer() (in module pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.tensor.destroy_wholememory_tensor.html#pylibwholegraph.torch.tensor.destroy_wholememory_tensor">destroy_wholememory_tensor() (in module pylibwholegraph.torch.tensor)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.ecg.html#cugraph.ecg">ecg() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.centrality.edge_betweenness_centrality.html#cugraph.centrality.edge_betweenness_centrality">edge_betweenness_centrality() (in module cugraph.centrality)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.edge_props_to_graph.html#cugraph.experimental.PropertyGraph.edge_props_to_graph">edge_props_to_graph() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.edges.html#cugraph.structure.graph_implementation.simpleGraphImpl.edges">edges() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.ego_graph.html#cugraph.ego_graph">ego_graph() (in module cugraph)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.centrality.eigenvector_centrality.html#cugraph.centrality.eigenvector_centrality">eigenvector_centrality() (in module cugraph.centrality)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.centrality.eigenvector_centrality.eigenvector_centrality.html#cugraph.dask.centrality.eigenvector_centrality.eigenvector_centrality">(in module cugraph.dask.centrality.eigenvector_centrality)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.eigenvector_centrality.html#pylibcugraph.eigenvector_centrality">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.enable_batch.html#cugraph.structure.graph_implementation.simpleGraphImpl.enable_batch">enable_batch() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.extract_subgraph.html#cugraph.experimental.PropertyGraph.extract_subgraph">extract_subgraph() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.filter_unreachable.html#cugraph.filter_unreachable">filter_unreachable() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.initialize.finalize.html#pylibwholegraph.torch.initialize.finalize">finalize() (in module pylibwholegraph.torch.initialize)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.force_atlas2.html#cugraph.force_atlas2">force_atlas2() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv421fork_get_device_countv">fork_get_device_count (C++ function)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.from_adjlist.html#cugraph.from_adjlist">from_adjlist() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_cudf_adjlist.html#cugraph.Graph.from_cudf_adjlist">from_cudf_adjlist() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_cudf_edgelist.html#cugraph.Graph.from_cudf_edgelist">from_cudf_edgelist() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.from_cudf_edgelist.html#cugraph.from_cudf_edgelist">(in module cugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_dask_cudf_edgelist.html#cugraph.Graph.from_dask_cudf_edgelist">from_dask_cudf_edgelist() (cugraph.Graph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.from_edgelist.html#cugraph.from_edgelist">from_edgelist() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.from_internal_vertex_id.html#cugraph.structure.NumberMap.from_internal_vertex_id">from_internal_vertex_id() (cugraph.structure.NumberMap method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_numpy_array.html#cugraph.Graph.from_numpy_array">from_numpy_array() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.from_numpy_array.html#cugraph.from_numpy_array">(in module cugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_numpy_matrix.html#cugraph.Graph.from_numpy_matrix">from_numpy_matrix() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.from_numpy_matrix.html#cugraph.from_numpy_matrix">(in module cugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_pandas_adjacency.html#cugraph.Graph.from_pandas_adjacency">from_pandas_adjacency() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.from_pandas_adjacency.html#cugraph.from_pandas_adjacency">(in module cugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.from_pandas_edgelist.html#cugraph.Graph.from_pandas_edgelist">from_pandas_edgelist() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.from_pandas_edgelist.html#cugraph.from_pandas_edgelist">(in module cugraph)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.generate_unused_column_name.html#cugraph.structure.NumberMap.generate_unused_column_name">generate_unused_column_name() (cugraph.structure.NumberMap static method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_2D_partition.html#cugraph.dask.comms.comms.get_2D_partition">get_2D_partition() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.common.read_utils.get_chunksize.html#cugraph.dask.common.read_utils.get_chunksize">get_chunksize() (in module cugraph.dask.common.read_utils)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_comms.html#cugraph.dask.comms.comms.get_comms">get_comms() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_default_handle.html#cugraph.dask.comms.comms.get_default_handle">get_default_handle() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.get_edge_data.html#cugraph.experimental.PropertyGraph.get_edge_data">get_edge_data() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.get_global_communicator.html#pylibwholegraph.torch.comm.get_global_communicator">get_global_communicator() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_handle.html#cugraph.dask.comms.comms.get_handle">get_handle() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.get_local_device_communicator.html#pylibwholegraph.torch.comm.get_local_device_communicator">get_local_device_communicator() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.get_local_node_communicator.html#pylibwholegraph.torch.comm.get_local_node_communicator">get_local_node_communicator() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.get_num_edges.html#cugraph.experimental.PropertyGraph.get_num_edges">get_num_edges() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.get_num_vertices.html#cugraph.experimental.PropertyGraph.get_num_vertices">get_num_vertices() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_session_id.html#cugraph.dask.comms.comms.get_session_id">get_session_id() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.get_two_hop_neighbors.html#cugraph.structure.graph_implementation.simpleGraphImpl.get_two_hop_neighbors">get_two_hop_neighbors() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.get_vertex_data.html#cugraph.experimental.PropertyGraph.get_vertex_data">get_vertex_data() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.get_vertices.html#cugraph.experimental.PropertyGraph.get_vertices">get_vertices() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_worker_id.html#cugraph.dask.comms.comms.get_worker_id">get_worker_id() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.get_workers.html#cugraph.dask.comms.comms.get_workers">get_workers() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.html#cugraph.Graph">Graph (class in cugraph)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv419graph_append_unique20wholememory_tensor_t20wholememory_tensor_tPv20wholememory_tensor_tP22wholememory_env_func_tPv">graph_append_unique (C++ function)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.graph_store.GraphStore.html#cugraph_pyg.data.graph_store.GraphStore">GraphStore (class in cugraph_pyg.data.graph_store)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.graph_structure.GraphStructure.html#pylibwholegraph.torch.graph_structure.GraphStructure">GraphStructure (class in pylibwholegraph.torch.graph_structure)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.has_duplicate_edges.html#cugraph.experimental.PropertyGraph.has_duplicate_edges">has_duplicate_edges() (cugraph.experimental.PropertyGraph class method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_edge.html#cugraph.structure.graph_implementation.simpleGraphImpl.has_edge">has_edge() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.has_isolated_vertices.html#cugraph.Graph.has_isolated_vertices">has_isolated_vertices() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_node.html#cugraph.structure.graph_implementation.simpleGraphImpl.has_node">has_node() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.has_self_loop.html#cugraph.structure.graph_implementation.simpleGraphImpl.has_self_loop">has_self_loop() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.hits.html#cugraph.hits">hits() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.link_analysis.hits.hits.html#cugraph.dask.link_analysis.hits.hits">(in module cugraph.dask.link_analysis.hits)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.hits.html#pylibcugraph.hits">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.HomogeneousSampleReader.html#cugraph_pyg.sampler.sampler.HomogeneousSampleReader">HomogeneousSampleReader (class in cugraph_pyg.sampler.sampler)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.hungarian.html#cugraph.hungarian">hungarian() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.hypergraph.html#cugraph.hypergraph">hypergraph() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.in_degree.html#cugraph.structure.graph_implementation.simpleGraphImpl.in_degree">in_degree() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.initialize.init_torch_env.html#pylibwholegraph.torch.initialize.init_torch_env">init_torch_env() (in module pylibwholegraph.torch.initialize)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.initialize.init_torch_env_and_create_wm_comm.html#pylibwholegraph.torch.initialize.init_torch_env_and_create_wm_comm">init_torch_env_and_create_wm_comm() (in module pylibwholegraph.torch.initialize)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.initialize.html#cugraph.dask.comms.comms.initialize">initialize() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.is_bipartite.html#cugraph.Graph.is_bipartite">is_bipartite() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.is_directed.html#cugraph.Graph.is_directed">is_directed() (cugraph.Graph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.dask.comms.comms.is_initialized.html#cugraph.dask.comms.comms.is_initialized">is_initialized() (in module cugraph.dask.comms.comms)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.is_multigraph.html#cugraph.experimental.PropertyGraph.is_multigraph">is_multigraph() (cugraph.experimental.PropertyGraph class method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.Graph.is_multigraph.html#cugraph.Graph.is_multigraph">(cugraph.Graph method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.is_multipartite.html#cugraph.Graph.is_multipartite">is_multipartite() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.is_renumbered.html#cugraph.Graph.is_renumbered">is_renumbered() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.is_weighted.html#cugraph.Graph.is_weighted">is_weighted() (cugraph.Graph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.jaccard.html#cugraph.jaccard">jaccard() (in module cugraph)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.jaccard_coefficient.html#cugraph.jaccard_coefficient">jaccard_coefficient() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.k_core.html#cugraph.k_core">k_core() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.k_truss.html#cugraph.k_truss">k_truss() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.centrality.katz_centrality.html#cugraph.centrality.katz_centrality">katz_centrality() (in module cugraph.centrality)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.centrality.katz_centrality.katz_centrality.html#cugraph.dask.centrality.katz_centrality.katz_centrality">(in module cugraph.dask.centrality.katz_centrality)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.katz_centrality.html#pylibcugraph.katz_centrality">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.ktruss_subgraph.html#cugraph.ktruss_subgraph">ktruss_subgraph() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.leiden.html#cugraph.leiden">leiden() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.lookup_internal_vertex_id.html#cugraph.Graph.lookup_internal_vertex_id">lookup_internal_vertex_id() (cugraph.Graph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.louvain.html#cugraph.louvain">louvain() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.community.louvain.louvain.html#cugraph.dask.community.louvain.louvain">(in module cugraph.dask.community.louvain)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/ops/pylibcugraphops.make_bipartite_csc.html#pylibcugraphops.make_bipartite_csc">make_bipartite_csc (in module pylibcugraphops)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.make_bipartite_csc_hg.html#pylibcugraphops.make_bipartite_csc_hg">make_bipartite_csc_hg (in module pylibcugraphops)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.make_csc.html#pylibcugraphops.make_csc">make_csc (in module pylibcugraphops)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.make_csc_hg.html#pylibcugraphops.make_csc_hg">make_csc_hg (in module pylibcugraphops)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.tree.minimum_spanning_tree.maximum_spanning_tree.html#cugraph.tree.minimum_spanning_tree.maximum_spanning_tree">maximum_spanning_tree() (in module cugraph.tree.minimum_spanning_tree)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.pytorch.operators.mha_gat_n2n.html#pylibcugraphops.pytorch.operators.mha_gat_n2n">mha_gat_n2n() (in module pylibcugraphops.pytorch.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_bf16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_bf16_fp32">mha_gat_n2n_bwd_bf16_bf16_bf16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_bf16_fp32_fp32">mha_gat_n2n_bwd_bf16_bf16_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_bf16_fp32_fp32_fp32">mha_gat_n2n_bwd_bf16_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp16_fp32">mha_gat_n2n_bwd_fp16_fp16_fp16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp16_fp32_fp32">mha_gat_n2n_bwd_fp16_fp16_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_fp16_fp32_fp32_fp32">mha_gat_n2n_bwd_fp16_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_bwd_fp32_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_bwd_fp32_fp32_fp32_fp32">mha_gat_n2n_bwd_fp32_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_bf16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_bf16_fp32">mha_gat_n2n_efeat_bwd_bf16_bf16_bf16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_bf16_fp32_fp32">mha_gat_n2n_efeat_bwd_bf16_bf16_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_bf16_fp32_fp32_fp32">mha_gat_n2n_efeat_bwd_bf16_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp16_fp32">mha_gat_n2n_efeat_bwd_fp16_fp16_fp16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp16_fp32_fp32">mha_gat_n2n_efeat_bwd_fp16_fp16_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp16_fp32_fp32_fp32">mha_gat_n2n_efeat_bwd_fp16_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp32_fp32_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_bwd_fp32_fp32_fp32_fp32">mha_gat_n2n_efeat_bwd_fp32_fp32_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_bf16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_bf16_fp32">mha_gat_n2n_efeat_fwd_bf16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp16_fp32">mha_gat_n2n_efeat_fwd_fp16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_efeat_fwd_fp32_fp32">mha_gat_n2n_efeat_fwd_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_bf16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_fwd_bf16_fp32">mha_gat_n2n_fwd_bf16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_fp16_fp32.html#pylibcugraphops.operators.mha_gat_n2n_fwd_fp16_fp32">mha_gat_n2n_fwd_fp16_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_n2n_fwd_fp32_fp32.html#pylibcugraphops.operators.mha_gat_n2n_fwd_fp32_fp32">mha_gat_n2n_fwd_fp32_fp32 (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.pytorch.operators.mha_gat_v2_n2n.html#pylibcugraphops.pytorch.operators.mha_gat_v2_n2n">mha_gat_v2_n2n() (in module pylibcugraphops.pytorch.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_bwd.html#pylibcugraphops.operators.mha_gat_v2_n2n_bwd">mha_gat_v2_n2n_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd.html#pylibcugraphops.operators.mha_gat_v2_n2n_efeat_bwd">mha_gat_v2_n2n_efeat_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd.html#pylibcugraphops.operators.mha_gat_v2_n2n_efeat_fwd">mha_gat_v2_n2n_efeat_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.mha_gat_v2_n2n_fwd.html#pylibcugraphops.operators.mha_gat_v2_n2n_fwd">mha_gat_v2_n2n_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.tree.minimum_spanning_tree.minimum_spanning_tree.html#cugraph.tree.minimum_spanning_tree.minimum_spanning_tree">minimum_spanning_tree() (in module cugraph.tree.minimum_spanning_tree)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.centrality.betweenness_centrality.html#module-cugraph.dask.centrality.betweenness_centrality">cugraph.dask.centrality.betweenness_centrality</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.MultiGraph.html#cugraph.MultiGraph">MultiGraph (class in cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.neighbor_loader.NeighborLoader.html#cugraph_pyg.loader.neighbor_loader.NeighborLoader">NeighborLoader (class in cugraph_pyg.loader.neighbor_loader)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.neighbors.html#cugraph.structure.graph_implementation.simpleGraphImpl.neighbors">neighbors() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.node2vec.html#cugraph.node2vec">node2vec() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/plc/pylibcugraph.node2vec.html#pylibcugraph.node2vec">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.loader.node_loader.NodeLoader.html#cugraph_pyg.loader.node_loader.NodeLoader">NodeLoader (class in cugraph_pyg.loader.node_loader)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.nodes.html#cugraph.structure.graph_implementation.simpleGraphImpl.nodes">nodes() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_edges.html#cugraph.structure.graph_implementation.simpleGraphImpl.number_of_edges">number_of_edges() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_nodes.html#cugraph.structure.graph_implementation.simpleGraphImpl.number_of_nodes">number_of_nodes() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.number_of_vertices.html#cugraph.structure.graph_implementation.simpleGraphImpl.number_of_vertices">number_of_vertices() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.html#cugraph.structure.NumberMap">NumberMap (class in cugraph.structure)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.out_degree.html#cugraph.structure.graph_implementation.simpleGraphImpl.out_degree">out_degree() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.overlap.html#cugraph.overlap">overlap() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.overlap_coefficient.html#cugraph.overlap_coefficient">overlap_coefficient() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.pagerank.html#cugraph.pagerank">pagerank() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.link_analysis.pagerank.pagerank.html#cugraph.dask.link_analysis.pagerank.pagerank">(in module cugraph.dask.link_analysis.pagerank)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.pagerank.html#pylibcugraph.pagerank">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.html#cugraph.experimental.PropertyGraph">PropertyGraph (class in cugraph.experimental)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertySelection.html#cugraph.experimental.PropertySelection">PropertySelection (class in cugraph.experimental)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.radial_basis_bwd.html#pylibcugraphops.dimenet.radial_basis_bwd">radial_basis_bwd (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.radial_basis_bwd_bwd.html#pylibcugraphops.dimenet.radial_basis_bwd_bwd">radial_basis_bwd_bwd (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.dimenet.radial_basis_fwd.html#pylibcugraphops.dimenet.radial_basis_fwd">radial_basis_fwd (in module pylibcugraphops.dimenet)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.random_walks.html#cugraph.random_walks">random_walks() (in module cugraph)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.renumber.html#cugraph.structure.NumberMap.renumber">renumber() (cugraph.structure.NumberMap static method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.renumber_and_segment.html#cugraph.structure.NumberMap.renumber_and_segment">renumber_and_segment() (cugraph.structure.NumberMap static method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.renumber_edges_by_type.html#cugraph.experimental.PropertyGraph.renumber_edges_by_type">renumber_edges_by_type() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.renumber_vertices_by_type.html#cugraph.experimental.PropertyGraph.renumber_vertices_by_type">renumber_vertices_by_type() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.generators.rmat.html#cugraph.generators.rmat">rmat() (in module cugraph.generators)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleIterator.html#cugraph_pyg.sampler.sampler.SampleIterator">SampleIterator (class in cugraph_pyg.sampler.sampler)</a>
+</li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.sampler.sampler.SampleReader.html#cugraph_pyg.sampler.sampler.SampleReader">SampleReader (class in cugraph_pyg.sampler.sampler)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.select_edges.html#cugraph.experimental.PropertyGraph.select_edges">select_edges() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.experimental.PropertyGraph.select_vertices.html#cugraph.experimental.PropertyGraph.select_vertices">select_vertices() (cugraph.experimental.PropertyGraph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.set_renumbered_col_names.html#cugraph.structure.NumberMap.set_renumbered_col_names">set_renumbered_col_names() (cugraph.structure.NumberMap method)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.set_world_info.html#pylibwholegraph.torch.comm.set_world_info">set_world_info() (in module pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.shortest_path.html#cugraph.shortest_path">shortest_path() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.shortest_path_length.html#cugraph.shortest_path_length">shortest_path_length() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.sorensen.html#cugraph.sorensen">sorensen() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.sorensen_coefficient.html#cugraph.sorensen_coefficient">sorensen_coefficient() (in module cugraph)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.spectralBalancedCutClustering.html#cugraph.spectralBalancedCutClustering">spectralBalancedCutClustering() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.spectralModularityMaximizationClustering.html#cugraph.spectralModularityMaximizationClustering">spectralModularityMaximizationClustering() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.sssp.html#cugraph.sssp">sssp() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.traversal.sssp.sssp.html#cugraph.dask.traversal.sssp.sssp">(in module cugraph.dask.traversal.sssp)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.sssp.html#pylibcugraph.sssp">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.strongly_connected_components.html#cugraph.strongly_connected_components">strongly_connected_components() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/plc/pylibcugraph.strongly_connected_components.html#pylibcugraph.strongly_connected_components">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph/cugraph.subgraph.html#cugraph.subgraph">subgraph() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.symmetrize.html#cugraph.symmetrize">symmetrize() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.symmetrize_ddf.html#cugraph.symmetrize_ddf">symmetrize_ddf() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.symmetrize_df.html#cugraph.symmetrize_df">symmetrize_df() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.feature_store.TensorDictFeatureStore.html#cugraph_pyg.data.feature_store.TensorDictFeatureStore">TensorDictFeatureStore (class in cugraph_pyg.data.feature_store)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.to_directed.html#cugraph.Graph.to_directed">to_directed() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.to_internal_vertex_id.html#cugraph.structure.NumberMap.to_internal_vertex_id">to_internal_vertex_id() (cugraph.structure.NumberMap method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.to_numpy_array.html#cugraph.to_numpy_array">to_numpy_array() (in module cugraph)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.to_numpy_matrix.html#cugraph.to_numpy_matrix">to_numpy_matrix() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.to_pandas_adjacency.html#cugraph.to_pandas_adjacency">to_pandas_adjacency() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.to_pandas_edgelist.html#cugraph.to_pandas_edgelist">to_pandas_edgelist() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.to_undirected.html#cugraph.Graph.to_undirected">to_undirected() (cugraph.Graph method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.triangle_count.html#cugraph.triangle_count">triangle_count() (in module cugraph)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.uniform_neighbor_sample.html#cugraph.uniform_neighbor_sample">uniform_neighbor_sample() (in module cugraph)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.Graph.unrenumber.html#cugraph.Graph.unrenumber">unrenumber() (cugraph.Graph method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.unrenumber.html#cugraph.structure.NumberMap.unrenumber">(cugraph.structure.NumberMap method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.pytorch.operators.update_efeat_e2e.html#pylibcugraphops.pytorch.operators.update_efeat_e2e">update_efeat_e2e() (in module pylibcugraphops.pytorch.operators)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_bwd.html#pylibcugraphops.operators.update_efeat_e2e_concat_bwd">update_efeat_e2e_concat_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.update_efeat_e2e_concat_fwd.html#pylibcugraphops.operators.update_efeat_e2e_concat_fwd">update_efeat_e2e_concat_fwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_bwd.html#pylibcugraphops.operators.update_efeat_e2e_sum_bwd">update_efeat_e2e_sum_bwd (in module pylibcugraphops.operators)</a>
+</li>
+      <li><a href="api_docs/api/ops/pylibcugraphops.operators.update_efeat_e2e_sum_fwd.html#pylibcugraphops.operators.update_efeat_e2e_sum_fwd">update_efeat_e2e_sum_fwd (in module pylibcugraphops.operators)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.vertex_column_size.html#cugraph.structure.graph_implementation.simpleGraphImpl.vertex_column_size">vertex_column_size() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.structure.NumberMap.vertex_column_size.html#cugraph.structure.NumberMap.vertex_column_size">(cugraph.structure.NumberMap method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_adj_list.html#cugraph.structure.graph_implementation.simpleGraphImpl.view_adj_list">view_adj_list() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_edge_list.html#cugraph.structure.graph_implementation.simpleGraphImpl.view_edge_list">view_edge_list() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+      <li><a href="api_docs/api/cugraph/cugraph.structure.graph_implementation.simpleGraphImpl.view_transposed_adj_list.html#cugraph.structure.graph_implementation.simpleGraphImpl.view_transposed_adj_list">view_transposed_adj_list() (cugraph.structure.graph_implementation.simpleGraphImpl method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/api/cugraph/cugraph.weakly_connected_components.html#cugraph.weakly_connected_components">weakly_connected_components() (in module cugraph)</a>
+
+      <ul>
+        <li><a href="api_docs/api/cugraph/cugraph.dask.components.connectivity.weakly_connected_components.html#cugraph.dask.components.connectivity.weakly_connected_components">(in module cugraph.dask.components.connectivity)</a>
+</li>
+        <li><a href="api_docs/api/plc/pylibcugraph.weakly_connected_components.html#pylibcugraph.weakly_connected_components">(in module pylibcugraph)</a>
+</li>
+      </ul></li>
+      <li><a href="api_docs/api/cugraph-pyg/cugraph_pyg.data.feature_store.WholeFeatureStore.html#cugraph_pyg.data.feature_store.WholeFeatureStore">WholeFeatureStore (class in cugraph_pyg.data.feature_store)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv452wholegraph_csr_unweighted_sample_without_replacement20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_ti20wholememory_tensor_tPvPvPvyP22wholememory_env_func_tPv">wholegraph_csr_unweighted_sample_without_replacement (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv450wholegraph_csr_weighted_sample_without_replacement20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_ti20wholememory_tensor_tPvPvPvyP22wholememory_env_func_tPv">wholegraph_csr_weighted_sample_without_replacement (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv425wholememory_access_type_t">wholememory_access_type_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_access_type_t19WHOLEMEMORY_AT_NONEE">wholememory_access_type_t::WHOLEMEMORY_AT_NONE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_access_type_t23WHOLEMEMORY_AT_READONLYE">wholememory_access_type_t::WHOLEMEMORY_AT_READONLY (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_access_type_t24WHOLEMEMORY_AT_READWRITEE">wholememory_access_type_t::WHOLEMEMORY_AT_READWRITE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv431wholememory_array_description_t">wholememory_array_description_t (C++ struct)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv418wholememory_comm_t">wholememory_comm_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_communicator_barrier18wholememory_comm_t">wholememory_communicator_barrier (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv433wholememory_communicator_get_rankPi18wholememory_comm_t">wholememory_communicator_get_rank (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv433wholememory_communicator_get_sizePi18wholememory_comm_t">wholememory_communicator_get_size (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv440wholememory_convert_tensor_desc_to_arrayP31wholememory_array_description_tP32wholememory_tensor_description_t">wholememory_convert_tensor_desc_to_array (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv441wholememory_convert_tensor_desc_to_matrixP32wholememory_matrix_description_tP32wholememory_tensor_description_t">wholememory_convert_tensor_desc_to_matrix (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv437wholememory_copy_array_desc_to_matrixP32wholememory_matrix_description_tP31wholememory_array_description_t">wholememory_copy_array_desc_to_matrix (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv437wholememory_copy_array_desc_to_tensorP32wholememory_tensor_description_tP31wholememory_array_description_t">wholememory_copy_array_desc_to_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv438wholememory_copy_matrix_desc_to_tensorP32wholememory_tensor_description_tP32wholememory_matrix_description_t">wholememory_copy_matrix_desc_to_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv429wholememory_create_array_desc7int64_t7int64_t19wholememory_dtype_t">wholememory_create_array_desc (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv431wholememory_create_communicatorP18wholememory_comm_t23wholememory_unique_id_tii">wholememory_create_communicator (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_create_embeddingP23wholememory_embedding_tP32wholememory_tensor_description_t18wholememory_comm_t25wholememory_memory_type_t29wholememory_memory_location_t33wholememory_embedding_optimizer_t36wholememory_embedding_cache_policy_tii">wholememory_create_embedding (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv441wholememory_create_embedding_cache_policyP36wholememory_embedding_cache_policy_t18wholememory_comm_t25wholememory_memory_type_t29wholememory_memory_location_t25wholememory_access_type_tf">wholememory_create_embedding_cache_policy (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv438wholememory_create_embedding_optimizerP33wholememory_embedding_optimizer_t28wholememory_optimizer_type_t">wholememory_create_embedding_optimizer (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv430wholememory_create_matrix_descAL2E_7int64_t7int64_t7int64_t19wholememory_dtype_t">wholememory_create_matrix_desc (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv425wholememory_create_tensorP20wholememory_tensor_tP32wholememory_tensor_description_t18wholememory_comm_t25wholememory_memory_type_t29wholememory_memory_location_t">wholememory_create_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_create_unique_idP23wholememory_unique_id_t">wholememory_create_unique_id (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_destroy_communicator18wholememory_comm_t">wholememory_destroy_communicator (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv429wholememory_destroy_embedding23wholememory_embedding_t">wholememory_destroy_embedding (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv442wholememory_destroy_embedding_cache_policy36wholememory_embedding_cache_policy_t">wholememory_destroy_embedding_cache_policy (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv439wholememory_destroy_embedding_optimizer33wholememory_embedding_optimizer_t">wholememory_destroy_embedding_optimizer (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv426wholememory_destroy_tensor20wholememory_tensor_t">wholememory_destroy_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv442wholememory_determine_entry_partition_planP6size_t6size_ti">wholememory_determine_entry_partition_plan (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_determine_partition_planP6size_t6size_t6size_ti">wholememory_determine_partition_plan (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv434wholememory_dtype_get_element_size19wholememory_dtype_t">wholememory_dtype_get_element_size (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_dtype_is_floating_number19wholememory_dtype_t">wholememory_dtype_is_floating_number (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv435wholememory_dtype_is_integer_number19wholememory_dtype_t">wholememory_dtype_is_integer_number (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv419wholememory_dtype_t">wholememory_dtype_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t19WHOLEMEMORY_DT_BF16E">wholememory_dtype_t::WHOLEMEMORY_DT_BF16 (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t20WHOLEMEMORY_DT_COUNTE">wholememory_dtype_t::WHOLEMEMORY_DT_COUNT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t21WHOLEMEMORY_DT_DOUBLEE">wholememory_dtype_t::WHOLEMEMORY_DT_DOUBLE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t20WHOLEMEMORY_DT_FLOATE">wholememory_dtype_t::WHOLEMEMORY_DT_FLOAT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t19WHOLEMEMORY_DT_HALFE">wholememory_dtype_t::WHOLEMEMORY_DT_HALF (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t18WHOLEMEMORY_DT_INTE">wholememory_dtype_t::WHOLEMEMORY_DT_INT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t20WHOLEMEMORY_DT_INT16E">wholememory_dtype_t::WHOLEMEMORY_DT_INT16 (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t20WHOLEMEMORY_DT_INT64E">wholememory_dtype_t::WHOLEMEMORY_DT_INT64 (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t19WHOLEMEMORY_DT_INT8E">wholememory_dtype_t::WHOLEMEMORY_DT_INT8 (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N19wholememory_dtype_t22WHOLEMEMORY_DT_UNKNOWNE">wholememory_dtype_t::WHOLEMEMORY_DT_UNKNOWN (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_embedding_cache_policy_t">wholememory_embedding_cache_policy_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_embedding_drop_all_cache23wholememory_embedding_t7int64_t">wholememory_embedding_drop_all_cache (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_embedding_gather23wholememory_embedding_t20wholememory_tensor_t20wholememory_tensor_tbP22wholememory_env_func_t7int64_t">wholememory_embedding_gather (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv443wholememory_embedding_gather_gradient_apply23wholememory_embedding_t20wholememory_tensor_t20wholememory_tensor_tbfP22wholememory_env_func_t7int64_t">wholememory_embedding_gather_gradient_apply (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv442wholememory_embedding_get_embedding_tensor23wholememory_embedding_t">wholememory_embedding_get_embedding_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv441wholememory_embedding_get_optimizer_state23wholememory_embedding_tPKc">wholememory_embedding_get_optimizer_state (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv447wholememory_embedding_get_optimizer_state_names23wholememory_embedding_t">wholememory_embedding_get_optimizer_state_names (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv433wholememory_embedding_optimizer_t">wholememory_embedding_optimizer_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv423wholememory_embedding_t">wholememory_embedding_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv437wholememory_embedding_writeback_cache23wholememory_embedding_t7int64_t">wholememory_embedding_writeback_cache (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv424wholememory_error_code_t">wholememory_error_code_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t31WHOLEMEMORY_COMMUNICATION_ERRORE">wholememory_error_code_t::WHOLEMEMORY_COMMUNICATION_ERROR (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t22WHOLEMEMORY_CUDA_ERRORE">wholememory_error_code_t::WHOLEMEMORY_CUDA_ERROR (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t25WHOLEMEMORY_INVALID_INPUTE">wholememory_error_code_t::WHOLEMEMORY_INVALID_INPUT (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t25WHOLEMEMORY_INVALID_VALUEE">wholememory_error_code_t::WHOLEMEMORY_INVALID_VALUE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t23WHOLEMEMORY_LOGIC_ERRORE">wholememory_error_code_t::WHOLEMEMORY_LOGIC_ERROR (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t27WHOLEMEMORY_NOT_IMPLEMENTEDE">wholememory_error_code_t::WHOLEMEMORY_NOT_IMPLEMENTED (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t25WHOLEMEMORY_NOT_SUPPORTEDE">wholememory_error_code_t::WHOLEMEMORY_NOT_SUPPORTED (C++ enumerator)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t25WHOLEMEMORY_OUT_OF_MEMORYE">wholememory_error_code_t::WHOLEMEMORY_OUT_OF_MEMORY (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t19WHOLEMEMORY_SUCCESSE">wholememory_error_code_t::WHOLEMEMORY_SUCCESS (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N24wholememory_error_code_t24WHOLEMEMORY_UNKNOW_ERRORE">wholememory_error_code_t::WHOLEMEMORY_UNKNOW_ERROR (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv420wholememory_finalizev">wholememory_finalize (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv416wholememory_free20wholememory_handle_t">wholememory_free (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv418wholememory_gather20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_tP22wholememory_env_func_tPvi">wholememory_gather (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_get_communicatorP18wholememory_comm_t20wholememory_handle_t">wholememory_get_communicator (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_get_data_granularity20wholememory_handle_t">wholememory_get_data_granularity (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv430wholememory_get_global_pointerPPv20wholememory_handle_t">wholememory_get_global_pointer (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_get_global_referenceP18wholememory_gref_t20wholememory_handle_t">wholememory_get_global_reference (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_get_local_memoryPPvP6size_tP6size_t20wholememory_handle_t">wholememory_get_local_memory (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv447wholememory_get_memory_element_count_from_arrayP31wholememory_array_description_t">wholememory_get_memory_element_count_from_array (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv448wholememory_get_memory_element_count_from_matrixP32wholememory_matrix_description_t">wholememory_get_memory_element_count_from_matrix (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv448wholememory_get_memory_element_count_from_tensorP32wholememory_tensor_description_t">wholememory_get_memory_element_count_from_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv431wholememory_get_memory_location20wholememory_handle_t">wholememory_get_memory_location (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv438wholememory_get_memory_size_from_arrayP31wholememory_array_description_t">wholememory_get_memory_size_from_array (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv439wholememory_get_memory_size_from_matrixP32wholememory_matrix_description_t">wholememory_get_memory_size_from_matrix (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv439wholememory_get_memory_size_from_tensorP32wholememory_tensor_description_t">wholememory_get_memory_size_from_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv427wholememory_get_memory_type20wholememory_handle_t">wholememory_get_memory_type (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv430wholememory_get_partition_planP6size_t20wholememory_handle_t">wholememory_get_partition_plan (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv427wholememory_get_rank_memoryPPvP6size_tP6size_ti20wholememory_handle_t">wholememory_get_rank_memory (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv426wholememory_get_total_size20wholememory_handle_t">wholememory_get_total_size (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv418wholememory_gref_t">wholememory_gref_t (C++ struct)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv420wholememory_handle_t">wholememory_handle_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv416wholememory_initj8LogLevel">wholememory_init (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv434wholememory_initialize_tensor_descP32wholememory_tensor_description_t">wholememory_initialize_tensor_desc (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv426wholememory_load_from_file20wholememory_handle_t6size_t6size_t6size_tPPKcii">wholememory_load_from_file (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv435wholememory_make_tensor_from_handleP20wholememory_tensor_t20wholememory_handle_tP32wholememory_tensor_description_t">wholememory_make_tensor_from_handle (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_make_tensor_from_pointerP20wholememory_tensor_tPvP32wholememory_tensor_description_t">wholememory_make_tensor_from_pointer (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv418wholememory_mallocP20wholememory_handle_t6size_t18wholememory_comm_t25wholememory_memory_type_t29wholememory_memory_location_t6size_t">wholememory_malloc (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_matrix_description_t">wholememory_matrix_description_t (C++ struct)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv429wholememory_memory_location_t">wholememory_memory_location_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N29wholememory_memory_location_t21WHOLEMEMORY_ML_DEVICEE">wholememory_memory_location_t::WHOLEMEMORY_ML_DEVICE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N29wholememory_memory_location_t19WHOLEMEMORY_ML_HOSTE">wholememory_memory_location_t::WHOLEMEMORY_ML_HOST (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N29wholememory_memory_location_t19WHOLEMEMORY_ML_NONEE">wholememory_memory_location_t::WHOLEMEMORY_ML_NONE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv425wholememory_memory_type_t">wholememory_memory_type_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_memory_type_t22WHOLEMEMORY_MT_CHUNKEDE">wholememory_memory_type_t::WHOLEMEMORY_MT_CHUNKED (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_memory_type_t25WHOLEMEMORY_MT_CONTINUOUSE">wholememory_memory_type_t::WHOLEMEMORY_MT_CONTINUOUS (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_memory_type_t26WHOLEMEMORY_MT_DISTRIBUTEDE">wholememory_memory_type_t::WHOLEMEMORY_MT_DISTRIBUTED (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N25wholememory_memory_type_t19WHOLEMEMORY_MT_NONEE">wholememory_memory_type_t::WHOLEMEMORY_MT_NONE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv435wholememory_optimizer_set_parameter33wholememory_embedding_optimizer_tPKcPv">wholememory_optimizer_set_parameter (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_optimizer_type_t">wholememory_optimizer_type_t (C++ enum)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N28wholememory_optimizer_type_t23WHOLEMEMORY_OPT_ADAGRADE">wholememory_optimizer_type_t::WHOLEMEMORY_OPT_ADAGRAD (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N28wholememory_optimizer_type_t25WHOLEMEMORY_OPT_LAZY_ADAME">wholememory_optimizer_type_t::WHOLEMEMORY_OPT_LAZY_ADAM (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N28wholememory_optimizer_type_t20WHOLEMEMORY_OPT_NONEE">wholememory_optimizer_type_t::WHOLEMEMORY_OPT_NONE (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N28wholememory_optimizer_type_t23WHOLEMEMORY_OPT_RMSPROPE">wholememory_optimizer_type_t::WHOLEMEMORY_OPT_RMSPROP (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv4N28wholememory_optimizer_type_t19WHOLEMEMORY_OPT_SGDE">wholememory_optimizer_type_t::WHOLEMEMORY_OPT_SGD (C++ enumerator)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv419wholememory_scatter20wholememory_tensor_t20wholememory_tensor_t20wholememory_tensor_tP22wholememory_env_func_tPvi">wholememory_scatter (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv425wholememory_store_to_file20wholememory_handle_t6size_t6size_t6size_tPKc">wholememory_store_to_file (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_tensor_description_t">wholememory_tensor_description_t (C++ struct)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv435wholememory_tensor_get_data_pointer20wholememory_tensor_t">wholememory_tensor_get_data_pointer (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv442wholememory_tensor_get_entry_per_partition20wholememory_tensor_t">wholememory_tensor_get_entry_per_partition (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv439wholememory_tensor_get_global_reference20wholememory_tensor_tP18wholememory_gref_t">wholememory_tensor_get_global_reference (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv436wholememory_tensor_get_memory_handle20wholememory_tensor_t">wholememory_tensor_get_memory_handle (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv427wholememory_tensor_get_root20wholememory_tensor_t">wholememory_tensor_get_root (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv432wholememory_tensor_get_subtensor20wholememory_tensor_tP7int64_tP7int64_tP20wholememory_tensor_t">wholememory_tensor_get_subtensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv441wholememory_tensor_get_tensor_description20wholememory_tensor_t">wholememory_tensor_get_tensor_description (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv429wholememory_tensor_has_handle20wholememory_tensor_t">wholememory_tensor_has_handle (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv435wholememory_tensor_map_local_tensor20wholememory_tensor_tP20wholememory_tensor_t">wholememory_tensor_map_local_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv420wholememory_tensor_t">wholememory_tensor_t (C++ type)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv423wholememory_unique_id_t">wholememory_unique_id_t (C++ struct)</a>
+</li>
+      <li><a href="api_docs/wholegraph/libwholegraph/index.html#_CPPv428wholememory_unsqueeze_tensorP32wholememory_tensor_description_ti">wholememory_unsqueeze_tensor (C++ function)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryCachePolicy.html#pylibwholegraph.torch.embedding.WholeMemoryCachePolicy">WholeMemoryCachePolicy (class in pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.comm.WholeMemoryCommunicator.html#pylibwholegraph.torch.comm.WholeMemoryCommunicator">WholeMemoryCommunicator (class in pylibwholegraph.torch.comm)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbedding.html#pylibwholegraph.torch.embedding.WholeMemoryEmbedding">WholeMemoryEmbedding (class in pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule.html#pylibwholegraph.torch.embedding.WholeMemoryEmbeddingModule">WholeMemoryEmbeddingModule (class in pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.embedding.WholeMemoryOptimizer.html#pylibwholegraph.torch.embedding.WholeMemoryOptimizer">WholeMemoryOptimizer (class in pylibwholegraph.torch.embedding)</a>
+</li>
+      <li><a href="api_docs/api/wg/pylibwholegraph.torch.tensor.WholeMemoryTensor.html#pylibwholegraph.torch.tensor.WholeMemoryTensor">WholeMemoryTensor (class in pylibwholegraph.torch.tensor)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2019-2023, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

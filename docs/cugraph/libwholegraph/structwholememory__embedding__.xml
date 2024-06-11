@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__embedding__" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_embedding_</compoundname>
+    <derivedcompoundref refid="classwholememory_1_1embedding__base" prot="public" virt="non-virtual">wholememory::embedding_base</derivedcompoundref>
+    <includes refid="embedding_8hpp" local="no">embedding.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__embedding___1a031161bc7b46f80203168e8ae2550200" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory_embedding_::allocated_embedding</definition>
+        <argsstring></argsstring>
+        <name>allocated_embedding</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.hpp" line="28" column="24" bodyfile="src/wholememory/embedding.hpp" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__embedding___1a0e101b543ac0ac833f91ab319022715f" prot="public" static="no" mutable="no">
+        <type><ref refid="wholememory__tensor_8h_1a27285cc111a63f4203830dcdef17e1d9" kindref="member">wholememory_tensor_t</ref></type>
+        <definition>wholememory_tensor_t wholememory_embedding_::user_embedding</definition>
+        <argsstring></argsstring>
+        <name>user_embedding</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.hpp" line="29" column="24" bodyfile="src/wholememory/embedding.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__embedding___1a6106fbe92781e1df2d11613428580c04" prot="public" static="no" mutable="no">
+        <type><ref refid="embedding_8h_1a67a8a8c30b88db9d9d505115cfe53d0d" kindref="member">wholememory_embedding_cache_policy_t</ref></type>
+        <definition>wholememory_embedding_cache_policy_t wholememory_embedding_::cache_policy</definition>
+        <argsstring></argsstring>
+        <name>cache_policy</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.hpp" line="30" column="40" bodyfile="src/wholememory/embedding.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__embedding___1a2133505171fd0e4bea9a567d1961ccaf" prot="public" static="no" mutable="no">
+        <type><ref refid="embedding_8h_1a35feb5c3fa89c1bed12e5c698499df19" kindref="member">wholememory_embedding_optimizer_t</ref></type>
+        <definition>wholememory_embedding_optimizer_t wholememory_embedding_::optimizer</definition>
+        <argsstring></argsstring>
+        <name>optimizer</name>
+        <initializer>= nullptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/embedding.hpp" line="31" column="37" bodyfile="src/wholememory/embedding.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>wholememory::device_cached_host_embedding</label>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory::noncached_embedding</label>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>wholememory_embedding_</label>
+        <link refid="structwholememory__embedding__"/>
+      </node>
+      <node id="2">
+        <label>wholememory::embedding_base</label>
+        <link refid="classwholememory_1_1embedding__base"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory::local_cached_global_readonly_embedding</label>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6">
+        <label>wholememory::wholememory_impl::partition_strategy</label>
+      </node>
+      <node id="8">
+        <label>wholememory::nccl_comms</label>
+        <link refid="classwholememory_1_1nccl__comms"/>
+      </node>
+      <node id="10">
+        <label>wholememory_embedding_cache_policy_</label>
+        <link refid="structwholememory__embedding__cache__policy__"/>
+        <childnode refid="7" relation="usage">
+          <edgelabel>+cache_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="9">
+        <label>wholememory::wholememory_impl::alloc_strategy</label>
+      </node>
+      <node id="3">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+      <node id="2">
+        <label>wholememory_tensor_</label>
+        <childnode refid="3" relation="usage">
+          <edgelabel>+tensor_description</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>+wholememory_handle</edgelabel>
+        </childnode>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+root_tensor</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>wholememory_embedding_</label>
+        <link refid="structwholememory__embedding__"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+allocated_embedding</edgelabel>
+          <edgelabel>+user_embedding</edgelabel>
+        </childnode>
+        <childnode refid="10" relation="usage">
+          <edgelabel>+cache_policy</edgelabel>
+        </childnode>
+        <childnode refid="11" relation="usage">
+          <edgelabel>+optimizer</edgelabel>
+        </childnode>
+      </node>
+      <node id="11">
+        <label>wholememory_embedding_optimizer_</label>
+        <link refid="structwholememory__embedding__optimizer__"/>
+      </node>
+      <node id="7">
+        <label>wholememory_comm_</label>
+        <link refid="structwholememory__comm__"/>
+        <childnode refid="8" relation="usage">
+          <edgelabel>+raft_nccl_comm</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory::wholememory_impl</label>
+        <childnode refid="6" relation="usage">
+          <edgelabel>#rank_partition_strategy_</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>#comm_</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>#handle_</edgelabel>
+        </childnode>
+        <childnode refid="9" relation="usage">
+          <edgelabel>#alloc_strategy_</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>wholememory_handle_</label>
+        <link refid="structwholememory__handle__"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>+impl</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/embedding.hpp" line="27" column="1" bodyfile="src/wholememory/embedding.hpp" bodystart="27" bodyend="32"/>
+    <listofallmembers>
+      <member refid="structwholememory__embedding___1a031161bc7b46f80203168e8ae2550200" prot="public" virt="non-virtual"><scope>wholememory_embedding_</scope><name>allocated_embedding</name></member>
+      <member refid="structwholememory__embedding___1a6106fbe92781e1df2d11613428580c04" prot="public" virt="non-virtual"><scope>wholememory_embedding_</scope><name>cache_policy</name></member>
+      <member refid="structwholememory__embedding___1a2133505171fd0e4bea9a567d1961ccaf" prot="public" virt="non-virtual"><scope>wholememory_embedding_</scope><name>optimizer</name></member>
+      <member refid="structwholememory__embedding___1a0e101b543ac0ac833f91ab319022715f" prot="public" virt="non-virtual"><scope>wholememory_embedding_</scope><name>user_embedding</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

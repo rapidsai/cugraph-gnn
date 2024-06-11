@@ -1,0 +1,639 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="error_8hpp" kind="file" language="C++">
+    <compoundname>error.hpp</compoundname>
+    <includes local="no">cstdlib</includes>
+    <includes local="no">raft/core/error.hpp</includes>
+    <includedby refid="cuda__macros_8hpp" local="yes">src/cuda_macros.hpp</includedby>
+    <includedby refid="append__unique_8cpp" local="yes">src/graph_ops/append_unique.cpp</includedby>
+    <includedby refid="csr__add__self__loop_8cpp" local="yes">src/graph_ops/csr_add_self_loop.cpp</includedby>
+    <includedby refid="logger_8hpp" local="yes">src/logger.hpp</includedby>
+    <includedby refid="unweighted__sample__without__replacement_8cpp" local="yes">src/wholegraph_ops/unweighted_sample_without_replacement.cpp</includedby>
+    <includedby refid="weighted__sample__without__replacement_8cpp" local="yes">src/wholegraph_ops/weighted_sample_without_replacement.cpp</includedby>
+    <includedby refid="embedding_8cpp" local="yes">src/wholememory/embedding.cpp</includedby>
+    <includedby refid="env__func__ptrs_8cpp" local="yes">src/wholememory/env_func_ptrs.cpp</includedby>
+    <includedby refid="file__io_8cpp" local="yes">src/wholememory/file_io.cpp</includedby>
+    <includedby refid="initialize_8cpp" local="yes">src/wholememory/initialize.cpp</includedby>
+    <includedby refid="memory__handle_8cpp" local="yes">src/wholememory/memory_handle.cpp</includedby>
+    <includedby refid="gather__op_8cpp" local="yes">src/wholememory_ops/gather_op.cpp</includedby>
+    <includedby refid="register_8hpp" local="yes">src/wholememory_ops/register.hpp</includedby>
+    <includedby refid="scatter__op_8cpp" local="yes">src/wholememory_ops/scatter_op.cpp</includedby>
+    <includedby refid="thrust__allocator_8cpp" local="yes">src/wholememory_ops/thrust_allocator.cpp</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>raft/core/error.hpp</label>
+      </node>
+      <node id="1">
+        <label>src/error.hpp</label>
+        <link refid="error_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cstdlib</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="29">
+        <label>src/wholememory_ops/scatter_op.cpp</label>
+        <link refid="scatter__op_8cpp"/>
+      </node>
+      <node id="23">
+        <label>src/logger.cpp</label>
+        <link refid="logger_8cpp"/>
+      </node>
+      <node id="21">
+        <label>src/graph_ops/csr_add_self_loop.cpp</label>
+        <link refid="csr__add__self__loop_8cpp"/>
+      </node>
+      <node id="7">
+        <label>src/wholememory/communicator.hpp</label>
+        <link refid="communicator_8hpp"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>src/wholememory/embedding_optimizer.cpp</label>
+        <link refid="embedding__optimizer_8cpp"/>
+      </node>
+      <node id="22">
+        <label>src/logger.hpp</label>
+        <link refid="logger_8hpp"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>src/wholememory_ops/gather_op.cpp</label>
+        <link refid="gather__op_8cpp"/>
+      </node>
+      <node id="18">
+        <label>src/wholememory/nccl_comms.cpp</label>
+        <link refid="nccl__comms_8cpp"/>
+      </node>
+      <node id="15">
+        <label>src/wholememory/embedding.cpp</label>
+        <link refid="embedding_8cpp"/>
+      </node>
+      <node id="1">
+        <label>src/error.hpp</label>
+        <link refid="error_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>src/wholememory/env_func_ptrs.cpp</label>
+        <link refid="env__func__ptrs_8cpp"/>
+      </node>
+      <node id="11">
+        <label>src/wholememory/memory_handle.cpp</label>
+        <link refid="memory__handle_8cpp"/>
+      </node>
+      <node id="27">
+        <label>src/wholememory/wholememory_tensor.cpp</label>
+        <link refid="wholememory__tensor_8cpp"/>
+      </node>
+      <node id="13">
+        <label>src/wholememory/embedding_cache.cpp</label>
+        <link refid="embedding__cache_8cpp"/>
+      </node>
+      <node id="24">
+        <label>src/parallel_utils.hpp</label>
+        <link refid="parallel__utils_8hpp"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>src/wholememory_ops/thrust_allocator.cpp</label>
+        <link refid="thrust__allocator_8cpp"/>
+      </node>
+      <node id="20">
+        <label>src/graph_ops/append_unique.cpp</label>
+        <link refid="append__unique_8cpp"/>
+      </node>
+      <node id="25">
+        <label>src/wholegraph_ops/unweighted_sample_without_replacement.cpp</label>
+        <link refid="unweighted__sample__without__replacement_8cpp"/>
+      </node>
+      <node id="8">
+        <label>src/nvshmem_plugins/nvshmem_wholememory_bootstrap.cpp</label>
+        <link refid="nvshmem__wholememory__bootstrap_8cpp"/>
+      </node>
+      <node id="2">
+        <label>src/cuda_macros.hpp</label>
+        <link refid="cuda__macros_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>src/wholememory/memory_handle.hpp</label>
+        <link refid="memory__handle_8hpp"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>src/wholememory/system_info.cpp</label>
+        <link refid="system__info_8cpp"/>
+      </node>
+      <node id="5">
+        <label>src/parallel_utils.cpp</label>
+        <link refid="parallel__utils_8cpp"/>
+      </node>
+      <node id="30">
+        <label>src/wholememory_ops/register.hpp</label>
+        <link refid="register_8hpp"/>
+      </node>
+      <node id="10">
+        <label>src/wholememory/initialize.cpp</label>
+        <link refid="initialize_8cpp"/>
+      </node>
+      <node id="26">
+        <label>src/wholegraph_ops/weighted_sample_without_replacement.cpp</label>
+        <link refid="weighted__sample__without__replacement_8cpp"/>
+      </node>
+      <node id="14">
+        <label>src/wholememory/wholememory.cpp</label>
+        <link refid="wholememory_8cpp"/>
+      </node>
+      <node id="9">
+        <label>src/wholememory/file_io.cpp</label>
+        <link refid="file__io_8cpp"/>
+      </node>
+      <node id="4">
+        <label>src/net_utils.cpp</label>
+        <link refid="net__utils_8cpp"/>
+      </node>
+      <node id="6">
+        <label>src/wholememory/communicator.cpp</label>
+        <link refid="communicator_8cpp"/>
+      </node>
+      <node id="3">
+        <label>src/cuda_macros.cpp</label>
+        <link refid="cuda__macros_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structwholememory_1_1logic__error" prot="public">wholememory::logic_error</innerclass>
+    <innernamespace refid="namespacewholememory">wholememory</innernamespace>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" prot="public" static="no">
+        <name>SET_WHOLEMEMORY_ERROR_MSG</name>
+        <param><defname>msg</defname></param>
+        <param><defname>location_prefix</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>  do {                                                                                           \
+    int const size1 = std::snprintf(nullptr, 0, &quot;%s&quot;, location_prefix);                          \
+    int const size2 = std::snprintf(nullptr, 0, &quot;file=%s line=%d: &quot;, __FILE__, __LINE__);        \
+    int const size3 = std::snprintf(nullptr, 0, fmt, ##__VA_ARGS__);                             \
+    if (size1 &lt; 0 || size2 &lt; 0 || size3 &lt; 0) {                                                   \
+      (void)printf(&quot;Error in snprintf, cannot handle raft exception.\n&quot;);                        \
+      (void)fflush(stdout);                                                                      \
+      <ref refid="communicator_8hpp_1a70b54559cae3920bb2713ca60f7bcb5c" kindref="member">abort</ref>();                                                                                   \
+    }                                                                                            \
+    auto size = size1 + size2 + size3 + 1; /* +1 for final &apos;\0&apos; */                               \
+    std::vector&lt;char&gt; buf(size);                                                                 \
+    (void)std::snprintf(buf.data(), size1 + 1 /* +1 for &apos;\0&apos; */, &quot;%s&quot;, location_prefix);         \
+    (void)std::snprintf(                                                                         \
+      buf.data() + size1, size2 + 1 /* +1 for &apos;\0&apos; */, &quot;file=%s line=%d: &quot;, __FILE__, __LINE__); \
+    (void)std::snprintf(                                                                         \
+      buf.data() + size1 + size2, size3 + 1 /* +1 for &apos;\0&apos; */, fmt, ##__VA_ARGS__);              \
+    msg += std::string(buf.data(), buf.data() + size - 1); /* -1 to remove final &apos;\0&apos; */         \
+  } while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Macro to append error message to first argument. This should only be called in contexts where it is OK to throw exceptions! </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="42" column="9" bodyfile="src/error.hpp" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1af59b2af87c5d45e0543be49eb5afe262" prot="public" static="no">
+        <name>WHOLEMEMORY_EXPECTS</name>
+        <param><defname>cond</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>  do {                                                                                     \
+    if (!(cond)) {                                                                         \
+      std::string error_msg{};                                                             \
+      <ref refid="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" kindref="member">SET_WHOLEMEMORY_ERROR_MSG</ref>(error_msg, &quot;WholeMemory failure at &quot;, fmt, ##__VA_ARGS__); \
+      throw <ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref>(error_msg);                                           \
+    }                                                                                      \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Macro for checking (pre-)conditions that throws an exception when a condition is false. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">cond</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expression that evaluates to true or false </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String literal description of the reason that cond is expected to be true with optinal format tags </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the condition evaluates to false. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="70" column="9" bodyfile="src/error.hpp" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1a0a6b9f1ea518c265ec96fadca0dfac4d" prot="public" static="no">
+        <name>WHOLEMEMORY_EXPECTS_NOTHROW</name>
+        <param><defname>cond</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>  do {                                                                                     \
+    if (!(cond)) {                                                                         \
+      std::string error_msg{};                                                             \
+      <ref refid="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" kindref="member">SET_WHOLEMEMORY_ERROR_MSG</ref>(error_msg, &quot;WholeMemory failure at &quot;, fmt, ##__VA_ARGS__); \
+      (void)printf(&quot;%s\n&quot;, error_msg.c_str());                                             \
+      (void)fflush(stdout);                                                                \
+      <ref refid="communicator_8hpp_1a70b54559cae3920bb2713ca60f7bcb5c" kindref="member">abort</ref>();                                                                             \
+    }                                                                                      \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Macro for checking (pre-)conditions that abort when a condition is false. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">cond</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expression that evaluates to true or false </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String literal description of the reason that cond is expected to be true with optinal format tags </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="86" column="9" bodyfile="src/error.hpp" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1a9d320c87271a2911015ef771bdf3a00e" prot="public" static="no">
+        <name>WHOLEMEMORY_FAIL</name>
+        <param><defname>fmt</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>  do {                                                                                   \
+    std::string error_msg{};                                                             \
+    <ref refid="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" kindref="member">SET_WHOLEMEMORY_ERROR_MSG</ref>(error_msg, &quot;WholeMemory failure at &quot;, fmt, ##__VA_ARGS__); \
+    throw <ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref>(error_msg);                                           \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Indicates that an erroneous code path has been taken. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String literal description of the reason that this code path is erroneous with optinal format tags </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>always</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>throws <ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref> </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="104" column="9" bodyfile="src/error.hpp" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" prot="public" static="no">
+        <name>WHOLEMEMORY_FAIL_NOTHROW</name>
+        <param><defname>fmt</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>  do {                                                                                   \
+    std::string error_msg{};                                                             \
+    <ref refid="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" kindref="member">SET_WHOLEMEMORY_ERROR_MSG</ref>(error_msg, &quot;WholeMemory failure at &quot;, fmt, ##__VA_ARGS__); \
+    (void)printf(&quot;%s\n&quot;, error_msg.c_str());                                             \
+    (void)fflush(stdout);                                                                \
+    <ref refid="communicator_8hpp_1a70b54559cae3920bb2713ca60f7bcb5c" kindref="member">abort</ref>();                                                                             \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Indicates that an erroneous code path has been taken. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String literal description of the reason that this code path is erroneous with optinal format tags, this macro will not throw exceptions but abort the process. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="117" column="9" bodyfile="src/error.hpp" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1af32f7e28d8982de1feb7cfa07a6c8794" prot="public" static="no">
+        <name>WHOLEMEMORY_CHECK</name>
+        <param><defname>X</defname></param>
+        <initializer>  do {                                                                                            \
+    if (!(X)) { <ref refid="error_8hpp_1a9d320c87271a2911015ef771bdf3a00e" kindref="member">WHOLEMEMORY_FAIL</ref>(&quot;File %s, line %d, %s check failed.&quot;, __FILE__, __LINE__, #X); } \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Indicates that an erroneous code path has been taken. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">X</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>boolean expression to check </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>always</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>throws <ref refid="structwholememory_1_1logic__error" kindref="compound">wholememory::logic_error</ref> </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="132" column="9" bodyfile="src/error.hpp" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="error_8hpp_1a7a4ea726195a00d76b63f8ad3ce56d47" prot="public" static="no">
+        <name>WHOLEMEMORY_CHECK_NOTHROW</name>
+        <param><defname>X</defname></param>
+        <initializer>  do {                                                                                        \
+    if (!(X)) {                                                                               \
+      <ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(&quot;File %s, line %d, %s check failed.&quot;, __FILE__, __LINE__, #X); \
+    }                                                                                         \
+  } while (0)</initializer>
+        <briefdescription>
+<para>Indicates that an erroneous code path has been taken. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">X</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>boolean expression to check </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/error.hpp" line="142" column="9" bodyfile="src/error.hpp" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cstdlib&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;raft/core/error.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewholememory" kindref="compound">wholememory</ref><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="structwholememory_1_1logic__error" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwholememory_1_1logic__error" kindref="compound">logic_error</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>raft::exception<sp/>{</highlight></codeline>
+<codeline lineno="32" refid="structwholememory_1_1logic__error_1a18c36ca7185c42793370e9bad8141bbf" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="structwholememory_1_1logic__error_1a18c36ca7185c42793370e9bad8141bbf" kindref="member">logic_error</ref>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">*<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>message)<sp/>:<sp/>raft::exception(message)<sp/>{}</highlight></codeline>
+<codeline lineno="33" refid="structwholememory_1_1logic__error_1abe01d0c7d5f3c8492d9855cd82ab0531" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/><ref refid="structwholememory_1_1logic__error_1abe01d0c7d5f3c8492d9855cd82ab0531" kindref="member">logic_error</ref>(std::string<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal">&amp;<sp/>message)<sp/>:<sp/>raft::exception(message)<sp/>{}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>wholememory</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="error_8hpp_1a33c6861f6bff7b4e32aba13aa0e6b01a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SET_WHOLEMEMORY_ERROR_MSG(msg,<sp/>location_prefix,<sp/>fmt,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>int<sp/>const<sp/>size1<sp/>=<sp/>std::snprintf(nullptr,<sp/>0,<sp/>&quot;%s&quot;</highlight><highlight class="normal">,<sp/>location_prefix);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>const<sp/>size2<sp/>=<sp/>std::snprintf(nullptr,<sp/>0,<sp/>&quot;file=%s<sp/>line=%d:<sp/>&quot;,<sp/>__FILE__,<sp/>__LINE__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>const<sp/>size3<sp/>=<sp/>std::snprintf(nullptr,<sp/>0,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(size1<sp/>&lt;<sp/>0<sp/>||<sp/>size2<sp/>&lt;<sp/>0<sp/>||<sp/>size3<sp/>&lt;<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(void)printf(&quot;Error<sp/>in<sp/>snprintf,<sp/>cannot<sp/>handle<sp/>raft<sp/>exception.\n&quot;);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(void)fflush(stdout);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>abort();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>auto<sp/>size<sp/>=<sp/>size1<sp/>+<sp/>size2<sp/>+<sp/>size3<sp/>+<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>+1<sp/>for<sp/>final<sp/>&apos;\0&apos;<sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>std::vector&lt;char&gt;<sp/>buf(size);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="54"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(void)std::snprintf(buf.data(),<sp/>size1<sp/>+<sp/>1<sp/></highlight><highlight class="comment">/*<sp/>+1<sp/>for<sp/>&apos;\0&apos;<sp/>*/</highlight><highlight class="preprocessor">,<sp/>&quot;%s&quot;</highlight><highlight class="normal">,<sp/>location_prefix);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)std::snprintf(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>buf.data()<sp/>+<sp/>size1,<sp/>size2<sp/>+<sp/>1<sp/></highlight><highlight class="comment">/*<sp/>+1<sp/>for<sp/>&apos;\0&apos;<sp/>*/</highlight><highlight class="preprocessor">,<sp/>&quot;file=%s<sp/>line=%d:<sp/>&quot;</highlight><highlight class="normal">,<sp/>__FILE__,<sp/>__LINE__);<sp/>\</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)std::snprintf(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>buf.data()<sp/>+<sp/>size1<sp/>+<sp/>size2,<sp/>size3<sp/>+<sp/>1<sp/></highlight><highlight class="comment">/*<sp/>+1<sp/>for<sp/>&apos;\0&apos;<sp/>*/</highlight><highlight class="preprocessor">,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>msg<sp/>+=<sp/>std::string(buf.data(),<sp/>buf.data()<sp/>+<sp/>size<sp/>-<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>-1<sp/>to<sp/>remove<sp/>final<sp/>&apos;\0&apos;<sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="error_8hpp_1af59b2af87c5d45e0543be49eb5afe262" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_EXPECTS(cond,<sp/>fmt,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>if<sp/>(!(cond))<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>error_msg{};<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>SET_WHOLEMEMORY_ERROR_MSG(error_msg,<sp/>&quot;WholeMemory<sp/>failure<sp/>at<sp/>&quot;</highlight><highlight class="normal">,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/>\</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>throw<sp/>wholememory::logic_error(error_msg);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="error_8hpp_1a0a6b9f1ea518c265ec96fadca0dfac4d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_EXPECTS_NOTHROW(cond,<sp/>fmt,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>if<sp/>(!(cond))<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>std::string<sp/>error_msg{};<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>SET_WHOLEMEMORY_ERROR_MSG(error_msg,<sp/>&quot;WholeMemory<sp/>failure<sp/>at<sp/>&quot;</highlight><highlight class="normal">,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/>\</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(void)printf(&quot;%s\n&quot;,<sp/>error_msg.c_str());<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>(void)fflush(stdout);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>abort();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="error_8hpp_1a9d320c87271a2911015ef771bdf3a00e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_FAIL(fmt,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>std::string<sp/>error_msg{};<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>SET_WHOLEMEMORY_ERROR_MSG(error_msg,<sp/>&quot;WholeMemory<sp/>failure<sp/>at<sp/>&quot;</highlight><highlight class="normal">,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>throw<sp/>wholememory::logic_error(error_msg);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_FAIL_NOTHROW(fmt,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>std::string<sp/>error_msg{};<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>SET_WHOLEMEMORY_ERROR_MSG(error_msg,<sp/>&quot;WholeMemory<sp/>failure<sp/>at<sp/>&quot;</highlight><highlight class="normal">,<sp/>fmt,<sp/>##__VA_ARGS__);<sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)printf(&quot;%s\n&quot;,<sp/>error_msg.c_str());<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)fflush(stdout);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>abort();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="error_8hpp_1af32f7e28d8982de1feb7cfa07a6c8794" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_CHECK(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>if<sp/>(!(X))<sp/>{<sp/>WHOLEMEMORY_FAIL(&quot;File<sp/>%s,<sp/>line<sp/>%d,<sp/>%s<sp/>check<sp/>failed.&quot;</highlight><highlight class="normal">,<sp/>__FILE__,<sp/>__LINE__,<sp/>#X);<sp/>}<sp/>\</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="error_8hpp_1a7a4ea726195a00d76b63f8ad3ce56d47" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>WHOLEMEMORY_CHECK_NOTHROW(X)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="143"><highlight class="preprocessor"><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="144"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>if<sp/>(!(X))<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="145"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>WHOLEMEMORY_FAIL_NOTHROW(&quot;File<sp/>%s,<sp/>line<sp/>%d,<sp/>%s<sp/>check<sp/>failed.&quot;</highlight><highlight class="normal">,<sp/>__FILE__,<sp/>__LINE__,<sp/>#X);<sp/>\</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/>}<sp/>while<sp/>(0)</highlight></codeline>
+    </programlisting>
+    <location file="src/error.hpp"/>
+  </compounddef>
+</doxygen>

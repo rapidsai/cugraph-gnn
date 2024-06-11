@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1host__info" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory::host_info</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory_1_1host__info_1a6d720bba9a5de5714acd7357883cf534" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char wholememory::host_info::host_name[HOST_NAME_MAX_LENGTH]</definition>
+        <argsstring>[HOST_NAME_MAX_LENGTH]</argsstring>
+        <name>host_name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/communicator.cpp" line="407" column="8" bodyfile="src/wholememory/communicator.cpp" bodystart="407" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1host__info_1a5f6ac6ec9518e6aa6ce3fdd3b5eed630" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char wholememory::host_info::boot_id[BOOT_ID_MAX_LENGTH]</definition>
+        <argsstring>[BOOT_ID_MAX_LENGTH]</argsstring>
+        <name>boot_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/communicator.cpp" line="408" column="8" bodyfile="src/wholememory/communicator.cpp" bodystart="408" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1host__info_1a6405d81d24457e0889ca6dfb82d32037" prot="public" static="no" mutable="no">
+        <type>dev_t</type>
+        <definition>dev_t wholememory::host_info::shm_dev</definition>
+        <argsstring></argsstring>
+        <name>shm_dev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/communicator.cpp" line="409" column="9" bodyfile="src/wholememory/communicator.cpp" bodystart="409" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structwholememory_1_1host__info_1a9ad4600cce4927128bd6464e0680ea46" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool wholememory::host_info::operator==</definition>
+        <argsstring>(const host_info &amp;rhs) const</argsstring>
+        <name>operator==</name>
+        <param>
+          <type>const host_info &amp;</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/communicator.cpp" line="410" column="8" bodyfile="src/wholememory/communicator.cpp" bodystart="410" bodyend="416"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory::host_info</label>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/communicator.cpp" line="406" column="1" bodyfile="src/wholememory/communicator.cpp" bodystart="406" bodyend="417"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1host__info_1a5f6ac6ec9518e6aa6ce3fdd3b5eed630" prot="public" virt="non-virtual"><scope>wholememory::host_info</scope><name>boot_id</name></member>
+      <member refid="structwholememory_1_1host__info_1a6d720bba9a5de5714acd7357883cf534" prot="public" virt="non-virtual"><scope>wholememory::host_info</scope><name>host_name</name></member>
+      <member refid="structwholememory_1_1host__info_1a9ad4600cce4927128bd6464e0680ea46" prot="public" virt="non-virtual"><scope>wholememory::host_info</scope><name>operator==</name></member>
+      <member refid="structwholememory_1_1host__info_1a6405d81d24457e0889ca6dfb82d32037" prot="public" virt="non-virtual"><scope>wholememory::host_info</scope><name>shm_dev</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

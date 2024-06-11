@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg" kind="struct" language="C++" prot="public">
+    <compoundname>cugraph::ops::graph::bipartite_csc_hg</compoundname>
+    <basecompoundref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc" prot="public" virt="non-virtual">cugraph::ops::graph::bipartite_csc&lt; EdgeIdxT, EdgeIdxT &gt;</basecompoundref>
+    <includes refid="format_8hpp" local="no">format.hpp</includes>
+    <templateparamlist>
+      <param>
+        <type>typename EdgeIdxT</type>
+      </param>
+      <param>
+        <type>typename NodeIdxT</type>
+        <defval>EdgeIdxT</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ad90cffd22f72167f05a69e9b5c5e83a4" prot="public" static="no">
+        <type>NodeIdxT</type>
+        <definition>using cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::nidx_t =  NodeIdxT</definition>
+        <argsstring></argsstring>
+        <name>nidx_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="161" column="3" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a5014976b22f782bedde2fc681f40cf07" prot="public" static="no">
+        <type>EdgeIdxT</type>
+        <definition>using cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::eidx_t =  EdgeIdxT</definition>
+        <argsstring></argsstring>
+        <name>eidx_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="162" column="3" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ae59511c690aac468cb195a550a14d944" prot="public" static="no">
+        <type><ref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc" kindref="compound">bipartite_csc</ref>&lt; EdgeIdxT, NodeIdxT &gt;</type>
+        <definition>using cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::base_t =  bipartite_csc&lt;EdgeIdxT, NodeIdxT&gt;</definition>
+        <argsstring></argsstring>
+        <name>base_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="163" column="3" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1afcf392b0dc61f838d4e48b41654daca5" prot="public" static="no" mutable="no">
+        <type>int32_t *</type>
+        <definition>int32_t* cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::src_node_types</definition>
+        <argsstring></argsstring>
+        <name>src_node_types</name>
+        <initializer>{nullptr}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>node types of each inpupt node in the graph (length <computeroutput>n_src_nodes</computeroutput>) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="185" column="11" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a44832751fe633372781702a7bd35800c" prot="public" static="no" mutable="no">
+        <type>int32_t *</type>
+        <definition>int32_t* cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::dst_node_types</definition>
+        <argsstring></argsstring>
+        <name>dst_node_types</name>
+        <initializer>{nullptr}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>node types of each output node in the graph (length <computeroutput>n_dst_nodes</computeroutput>) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="187" column="11" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1afe765c51352d5e7eac9ee017d410d92a" prot="public" static="no" mutable="no">
+        <type>int32_t *</type>
+        <definition>int32_t* cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::edge_types</definition>
+        <argsstring></argsstring>
+        <name>edge_types</name>
+        <initializer>{nullptr}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>edge types of each edge in the graph. It is of length <computeroutput>n_indices</computeroutput> and is expected to be ordered the same way as <computeroutput>indices</computeroutput> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="192" column="11" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="192" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a00f52dc2094c7c6c77be3aecde9bf010" prot="public" static="no" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::n_node_types</definition>
+        <argsstring></argsstring>
+        <name>n_node_types</name>
+        <initializer>{1}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>number of node types in this graph </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="195" column="11" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a97908981a0f459d5a2e6fee6368e2f80" prot="public" static="no" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::n_edge_types</definition>
+        <argsstring></argsstring>
+        <name>n_edge_types</name>
+        <initializer>{1}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>number of edge types in this graph </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="197" column="11" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ad633888bcabb45706cc7a574ddf9cb00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::bipartite_csc_hg</definition>
+        <argsstring>()=default</argsstring>
+        <name>bipartite_csc_hg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="165" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a9b4a1500fd482c7f703e50ef2f922590" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::~bipartite_csc_hg</definition>
+        <argsstring>() override=default</argsstring>
+        <name>~bipartite_csc_hg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="166" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a83fa739aec069d8d34566839e1c43eee" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::bipartite_csc_hg</definition>
+        <argsstring>(const base_t &amp;graph)</argsstring>
+        <name>bipartite_csc_hg</name>
+        <param>
+          <type>const <ref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ae59511c690aac468cb195a550a14d944" kindref="member">base_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="168" column="12" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="168" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a0935537c331a360e598e15e48adfeb6e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;::bipartite_csc_hg</definition>
+        <argsstring>(const base_t &amp;graph, int32_t _n_node_types, int32_t _n_edge_types, int32_t *_src_node_types, int32_t *_dst_node_types, int32_t *_edge_types)</argsstring>
+        <name>bipartite_csc_hg</name>
+        <param>
+          <type>const <ref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ae59511c690aac468cb195a550a14d944" kindref="member">base_t</ref> &amp;</type>
+          <declname>graph</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>_n_node_types</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>_n_edge_types</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>_src_node_types</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>_dst_node_types</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>_edge_types</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/graph/format.hpp" line="169" column="3" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="169" bodyend="182"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>CSC representation of a bipartite heterogeneous graph. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>EdgeIdxT</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>edge index type (signed type, see <computeroutput>INVALID_ID</computeroutput>) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NodeIdxT</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>node index type (signed type, see <computeroutput>INVALID_ID</computeroutput>)</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>See <computeroutput><ref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc" kindref="compound">bipartite_csc</ref></computeroutput> first. This struct adds information needed for heterogeneous graphs.</para>
+</simplesect>
+<simplesect kind="note"><para>Only integer node and edge types are supported as of now. </para>
+</simplesect>
+<simplesect kind="note"><para>By default, we expect the graph to be an in-graph. See <computeroutput><ref refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc" kindref="compound">bipartite_csc</ref></computeroutput>. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;</label>
+        <link refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cugraph::ops::graph::bipartite_csc&lt; EdgeIdxT, EdgeIdxT &gt;</label>
+        <link refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>cugraph::ops::graph::bipartite_csc_hg&lt; EdgeIdxT, NodeIdxT &gt;</label>
+        <link refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cugraph::ops::graph::bipartite_csc&lt; EdgeIdxT, EdgeIdxT &gt;</label>
+        <link refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/cugraph-ops/graph/format.hpp" line="160" column="1" bodyfile="include/cugraph-ops/graph/format.hpp" bodystart="160" bodyend="198"/>
+    <listofallmembers>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ae59511c690aac468cb195a550a14d944" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>base_t</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1ab69e75e810e6c8a973858bbe33e7ecda" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>bipartite_csc</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ad633888bcabb45706cc7a574ddf9cb00" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>bipartite_csc_hg</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a83fa739aec069d8d34566839e1c43eee" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>bipartite_csc_hg</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a0935537c331a360e598e15e48adfeb6e" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>bipartite_csc_hg</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a93e10c6ca65dd78760797982f55e237a" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>dst_max_in_degree</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a44832751fe633372781702a7bd35800c" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>dst_node_types</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1afe765c51352d5e7eac9ee017d410d92a" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>edge_types</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a5014976b22f782bedde2fc681f40cf07" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>eidx_t</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a566c378a014616f5c4c180283b2dceca" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>indices</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1acae4cc7b09bf5f00abdcc93c5d1f17f7" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>map_csc_to_coo</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a8088d54f9d63214d6873fcf71f2fe7ce" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>map_rev_to_coo</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a84ada7fee8adcb98cb500bf11ea43172" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>n_dst_nodes</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a97908981a0f459d5a2e6fee6368e2f80" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>n_edge_types</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1ad037efd8755b5244a6126b8de7baaf00" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>n_indices</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a00f52dc2094c7c6c77be3aecde9bf010" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>n_node_types</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1ac24ef40142a0d5ef101899187dffabb2" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>n_src_nodes</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1ad90cffd22f72167f05a69e9b5c5e83a4" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>nidx_t</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a72802c96495d28f575c5c0c6bae4c725" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>offsets</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a0de3988f82147ee86664d55a9580bbb6" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>rev_indices</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a0b5c775eeba9cb7c81f3f6a0022a0755" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>rev_offsets</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1afcf392b0dc61f838d4e48b41654daca5" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>src_node_types</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc_1a895c19fed988281437d6b5f96fbab8cc" prot="public" virt="virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>~bipartite_csc</name></member>
+      <member refid="structcugraph_1_1ops_1_1graph_1_1bipartite__csc__hg_1a9b4a1500fd482c7f703e50ef2f922590" prot="public" virt="non-virtual"><scope>cugraph::ops::graph::bipartite_csc_hg</scope><name>~bipartite_csc_hg</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

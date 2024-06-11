@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="integer__utils_8hpp" kind="file" language="C++">
+    <compoundname>integer_utils.hpp</compoundname>
+    <includes local="no">raft/util/integer_utils.hpp</includes>
+    <includedby refid="embedding_8cpp" local="yes">src/wholememory/embedding.cpp</includedby>
+    <includedby refid="embedding__cache_8cpp" local="yes">src/wholememory/embedding_cache.cpp</includedby>
+    <includedby refid="file__io_8cpp" local="yes">src/wholememory/file_io.cpp</includedby>
+    <includedby refid="memory__handle_8cpp" local="yes">src/wholememory/memory_handle.cpp</includedby>
+    <includedby refid="thrust__allocator_8cpp" local="yes">src/wholememory_ops/thrust_allocator.cpp</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>raft/util/integer_utils.hpp</label>
+      </node>
+      <node id="1">
+        <label>src/wholememory/integer_utils.hpp</label>
+        <link refid="integer__utils_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/wholememory/integer_utils.hpp</label>
+        <link refid="integer__utils_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/wholememory/embedding.cpp</label>
+        <link refid="embedding_8cpp"/>
+      </node>
+      <node id="5">
+        <label>src/wholememory/memory_handle.cpp</label>
+        <link refid="memory__handle_8cpp"/>
+      </node>
+      <node id="3">
+        <label>src/wholememory/embedding_cache.cpp</label>
+        <link refid="embedding__cache_8cpp"/>
+      </node>
+      <node id="6">
+        <label>src/wholememory_ops/thrust_allocator.cpp</label>
+        <link refid="thrust__allocator_8cpp"/>
+      </node>
+      <node id="4">
+        <label>src/wholememory/file_io.cpp</label>
+        <link refid="file__io_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innernamespace refid="namespacewholememory">wholememory</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;raft/util/integer_utils.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewholememory" kindref="compound">wholememory</ref><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>S&gt;</highlight></codeline>
+<codeline lineno="29" refid="namespacewholememory_1a8fbb38a2fa1db79c78e371e99a24c7e3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>S<sp/><ref refid="namespacewholememory_1a8fbb38a2fa1db79c78e371e99a24c7e3" kindref="member">round_up_unsafe</ref>(S<sp/>number_to_round,<sp/>S<sp/>modulus)<sp/>noexcept</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>remainder<sp/>=<sp/>number_to_round<sp/>%<sp/>modulus;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(remainder<sp/>==<sp/>0)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>number_to_round;<sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>rounded_up<sp/>=<sp/>number_to_round<sp/>-<sp/>remainder<sp/>+<sp/>modulus;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rounded_up;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>S,<sp/></highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>T&gt;</highlight></codeline>
+<codeline lineno="50" refid="namespacewholememory_1ab0592db84bab762b9a6368d410b282d7" refkind="member"><highlight class="normal">constexpr<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>S<sp/><ref refid="namespacewholememory_1ab0592db84bab762b9a6368d410b282d7" kindref="member">div_rounding_up_unsafe</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>S&amp;<sp/>dividend,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>T&amp;<sp/>divisor)<sp/>noexcept</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1ab0592db84bab762b9a6368d410b282d7" kindref="member">raft::div_rounding_up_unsafe</ref>(dividend,<sp/>divisor);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">template</highlight><highlight class="normal"><sp/>&lt;</highlight><highlight class="keyword">typename</highlight><highlight class="normal"><sp/>I&gt;</highlight></codeline>
+<codeline lineno="68" refid="namespacewholememory_1a178fd8744021de6aef14d89397725bb6" refkind="member"><highlight class="normal">constexpr<sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>I<sp/><ref refid="namespacewholememory_1a178fd8744021de6aef14d89397725bb6" kindref="member">div_rounding_up_safe</ref>(I<sp/>dividend,<sp/>I<sp/>divisor)<sp/>noexcept</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>raft::div_rounding_up_safe&lt;I&gt;(dividend,<sp/>divisor);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>wholememory</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory/integer_utils.hpp"/>
+  </compounddef>
+</doxygen>

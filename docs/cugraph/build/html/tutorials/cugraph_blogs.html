@@ -1,0 +1,741 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>cuGraph Blogs and Presentations &#8212; cugraph 24.08.00 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="https://docs.rapids.ai/assets/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/references.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script defer="defer" src="https://docs.rapids.ai/assets/js/custom.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/cugraph_blogs';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Commmunity Resources" href="community_resources.html" />
+    <link rel="prev" title="How To Guides" href="how_to_guides.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cugraph 24.08.00 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="ms-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+            <li class="nav-item dropdown pst-header-nav-item">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../installation/index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="how_to_guides.html">How To Guides</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">cuGraph Blogs and Presentations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community_resources.html">Commmunity Resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cugraph_notebooks.html">cuGraph Notebooks</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">cuGraph...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cugraph-blogs-and-presentations">
+<h1>cuGraph Blogs and Presentations<a class="headerlink" href="#cugraph-blogs-and-presentations" title="Permalink to this heading">#</a></h1>
+<p>The RAPIDS team blogs at <a class="reference external" href="https://medium.com/rapids-ai">https://medium.com/rapids-ai</a>, and many of
+these blog posts provide deeper dives into features from cuGraph.
+Here, we’ve selected just a few that are of particular interest to cuGraph users:</p>
+<section id="blogs-conferences">
+<h2>Blogs &amp; Conferences<a class="headerlink" href="#blogs-conferences" title="Permalink to this heading">#</a></h2>
+<section id="id1">
+<h3>2024<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<p>Coming Soon</p>
+</section>
+<section id="id2">
+<h3>2023<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/introduction-to-graph-neural-networks-with-cugraph-dgl-64c632e9cc52">Intro to Graph Neural Networks with cuGraph-DGL</a></p></li>
+<li><p><a class="reference external" href="https://forums.developer.nvidia.com/c/blogs-events/connect-with-experts/ama-cugraph/652?ncid=em-even-260150-vt33#cid=dev03_em-even_en-us">GTC 2023 Ask the Experts Q&amp;A</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/accelerating-networkx-on-nvidia-gpus-for-high-performance-graph-analytics/">Accelerating NetworkX on NVIDIA GPUs for High Performance Graph Analytics</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/introduction-to-graph-neural-networks-with-nvidia-cugraph-dgl/">Introduction to Graph Neural Networks with NVIDIA cuGraph-DGL</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/supercharge-graph-analytics-at-scale-with-gpu-cpu-fusion-for-100x-performance/">Supercharge Graph Analytics at Scale with GPU-CPU Fusion for 100x Performance</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id3">
+<h3>2022<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://www.nvidia.com/gtc/session-catalog/?search=cuGraph&amp;tab.scheduledorondemand=1583520458947001NJiE&amp;search=cuGraph#/session/1635793340204001n4p2">GTC: State of cuGraph  (video &amp; slides)</a></p></li>
+<li><p><a class="reference external" href="https://www.nvidia.com/gtc/session-catalog/?tab.scheduledorondemand=1583520458947001NJiE&amp;search=cuGraph#/session/1635797342151001A9kR">GTC: Scaling and Validating Louvain in cuGraph against Massive Graphs  (video &amp; slides)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rapidsai-community/event-notebooks/tree/main/KDD_2022">KDD Tutorial on Accelerated GNN Training with DGL/PyG and cuGraph</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id4">
+<h3>2021<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/on-demand/session/gtcspring21-s32418/">GTC 21 - State of RAPIDS cuGraph and what’s comming next</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id5">
+<h3>2020<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/status-of-rapids-cugraph-refactoring-code-and-rethinking-graphs-efe9956d5528">Status of RAPIDS cuGraph — Refactoring Code And Rethinking Graphs</a></p></li>
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/tackling-large-graphs-with-rapids-cugraph-and-unified-virtual-memory-b5b69a065d4">Tackling Large Graphs with RAPIDS cuGraph and CUDA Unified Memory on GPUs</a></p></li>
+<li><p><a class="reference external" href="https://t.co/6DEhyarVGa">RAPIDS cuGraph adds NetworkX and DiGraph Compatibility</a></p></li>
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/large-graph-visualization-with-rapids-cugraph-590d07edce33">Large Graph Visualization with RAPIDS cuGraph</a></p></li>
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/on-demand/session/gtcfall20-a21128/">GTC 20 Fall - cuGraph Goes Big</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id6">
+<h3>2019<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/rapids-cugraph-1ab2d9a39ec6">RAPIDS cuGraph</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/rapids-cugraph-the-vision-and-journey-to-version-1-0-and-beyond-88eff2ce3e76">RAPIDS cuGraph — The vision and journey to version 1.0 and beyond</a></p></li>
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/rapids-cugraph-multi-gpu-pagerank-363aed1a2503">RAPIDS cuGraph : multi-GPU PageRank</a></p></li>
+<li><p><a class="reference external" href="https://medium.com/rapids-ai/similarity-in-graphs-jaccard-versus-the-overlap-coefficient-610e083b877d">Similarity in graphs: Jaccard versus the Overlap Coefficient</a></p></li>
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/on-demand/session/gtcsiliconvalley2019-s9783/">GTC19 Spring - Accelerating Graph Algorithms with RAPIDS</a></p></li>
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/on-demand/session/gtcdc19-dc91231/">GTC19 Fall -  Multi-Node Multi-GPU Machine Learning and Graph Analytics with RAPIDS</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id7">
+<h3>2018<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/on-demand/session/gtcwashingtondc2018-dc8110/">GTC18 Fall - RAPIDS: Benchmarking Graph Analytics on the DGX-2</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+<section id="media">
+<h2>Media<a class="headerlink" href="#media" title="Permalink to this heading">#</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://www.zdnet.com/article/nvidia-rapids-cugraph-making-graph-analysis-ubiquitous/">Nvidia Rapids cuGraph: Making graph analysis ubiquitous</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=kAw7-IGH9N4">RAPIDS cuGraph – Accelerating all your Graph needs</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="academic-papers">
+<h2>Academic Papers<a class="headerlink" href="#academic-papers" title="Permalink to this heading">#</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Seunghwa Kang, Chuck Hastings, Joe Eaton, Brad Rees <a class="reference external" href="https://ieeexplore.ieee.org/abstract/document/10196665">cuGraph C++ primitives: vertex/edge-centric building blocks for parallel graph computing</a></p></li>
+<li><p>Alex Fender, Brad Rees, Joe Eaton (2022) <a class="reference external" href="https://books.google.com/books?hl=en&amp;lr=&amp;id=QspxEAAAQBAJ&amp;oi=fnd&amp;pg=PT8&amp;dq=book:%22Massive+Graph+Analytics%22&amp;ots=3HAGJ0njKO&amp;sig=8e4v0azmzA6LTQNUNgPw-uTLkoc#v=onepage&amp;q&amp;f=false">Massive Graph Analytics</a>  Bader, D. (Editor) CRC Press</p></li>
+<li><p>S Kang, A. Fender, J. Eaton, B. Rees:<cite>Computing PageRank Scores of Web Crawl Data Using DGX A100 Clusters</cite>. In IEEE HPEC, Sep. 2020</p></li>
+<li><p>Hricik, T., Bader, D., &amp; Green, O. (2020, September). <cite>Using RAPIDS AI to accelerate graph data science workflows</cite>. In 2020 IEEE High Performance Extreme Computing Conference (HPEC) (pp. 1-4). IEEE.</p></li>
+<li><p>Richardson, B., Rees, B., Drabas, T., Oldridge, E., Bader, D. A., &amp; Allen, R. (2020, August). Accelerating and Expanding End-to-End Data Science Workflows with DL/ML Interoperability Using RAPIDS. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery &amp; Data Mining (pp. 3503-3504).</p></li>
+<li><p>A Gondhalekar, P Sathre, W Feng <a class="reference external" href="https://sc23.supercomputing.org/proceedings/tech_poster/poster_files/rpost221s3-file3.pdf">Hybrid CPU-GPU Implementation of Edge-Connected Jaccard Similarity in Graph Datasets</a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="other-blogs">
+<h2>Other Blogs<a class="headerlink" href="#other-blogs" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://towardsdatascience.com/4-graph-algorithms-on-steroids-for-data-scientists-with-cugraph-43d784de8d0e">4 graph algorithms on steroids for data scientists with cugraph</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/where-should-i-walk-e66b26735de5">Where should I walk</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/where-really-are-the-parking-spots-ed6a1129035e">Where really are the parking spots?</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/accelerating-single-cell-genomic-analysis-using-rapids/">Accelerating Single Cell Genomic Analysis using RAPIDS</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/running-large-scale-graph-analytics-with-memgraph-and-nvidia-cugraph-algorithms/">Running Large-Scale Graph Analytics with Memgraph and NVIDIA cuGraph Algorithms</a></p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/blog/similarity-in-graphs-jaccard-versus-the-overlap-coefficient-2/">Dev Blog Repost: Similarity in Graphs: Jaccard Versus the Overlap Coefficient</a></p></li>
+</ul>
+</section>
+<section id="rapids-event-notebooks">
+<h2>RAPIDS Event Notebooks<a class="headerlink" href="#rapids-event-notebooks" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/rapidsai-community/event-notebooks/blob/main/KDD_2022/notebooks/NonGNN-Graph.ipynb">KDD 2022 Notebook that demonstates using cuDF for ETL/data cleaning and XGBoost for training a fraud predection model.</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rapidsai-community/event-notebooks/blob/8a9b660fada8186615a642b52b5ca78f20205838/SCIPY_2022/cugraph_presentation/SciPy_cuGraph_comparison.ipynb">SciPy 22 Notebook comparing cuGraph to NetworkX</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rapidsai-community/event-notebooks/tree/8a9b660fada8186615a642b52b5ca78f20205838/KDD_2020/notebooks">KDD 2020 Tutorial Notebooks - Accelerating and Expanding End-to-End Data Science Workflows with DL/ML Interoperability Using RAPIDS</a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="how_to_guides.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">How To Guides</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="community_resources.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Commmunity Resources</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#blogs-conferences">Blogs &amp; Conferences</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">2024</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">2023</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">2022</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">2021</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">2020</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">2019</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">2018</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#media">Media</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#academic-papers">Academic Papers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-blogs">Other Blogs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rapids-event-notebooks">RAPIDS Event Notebooks</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/cugraph_blogs.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2019-2023, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

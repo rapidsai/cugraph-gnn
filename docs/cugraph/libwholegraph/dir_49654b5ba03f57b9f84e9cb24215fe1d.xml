@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_49654b5ba03f57b9f84e9cb24215fe1d" kind="dir">
+    <compoundname>src/nvshmem_plugins</compoundname>
+    <innerfile refid="nvshmem__wholememory__bootstrap_8cpp">nvshmem_wholememory_bootstrap.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/nvshmem_plugins/"/>
+  </compounddef>
+</doxygen>

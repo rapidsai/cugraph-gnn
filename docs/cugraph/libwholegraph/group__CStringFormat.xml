@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="group__CStringFormat" kind="group">
+    <compoundname>CStringFormat</compoundname>
+    <title>Expand a C-style format string</title>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="group__CStringFormat_1ga4f5d8ab83984f560343bdffc037e393d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string wholememory::format</definition>
+        <argsstring>(const char *fmt, va_list &amp;vl)</argsstring>
+        <name>format</name>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>va_list &amp;</type>
+          <declname>vl</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/logger.hpp" line="49" column="20" bodyfile="src/logger.hpp" bodystart="49" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="group__CStringFormat_1ga199f31858eed3e5c749216f1377dc380" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string wholememory::format</definition>
+        <argsstring>(const char *fmt,...)</argsstring>
+        <name>format</name>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/logger.hpp" line="60" column="20" bodyfile="src/logger.hpp" bodystart="60" bodyend="67"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Expands C-style formatted string into std::string. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format string </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">vl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>respective values for each of format modifiers in the string</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the expanded <computeroutput>std::string</computeroutput> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

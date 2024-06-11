@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structcugraph_1_1ops_1_1mha__params" kind="struct" language="C++" prot="public">
+    <compoundname>cugraph::ops::mha_params</compoundname>
+    <includes refid="common_8hpp" local="no">common.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1mha__params_1ac9858f750968d40ec0ac7cafccca30b3" prot="public" static="no" mutable="no">
+        <type><ref refid="structcugraph_1_1ops_1_1activation__params" kindref="compound">activation_params</ref></type>
+        <definition>activation_params cugraph::ops::mha_params::activation</definition>
+        <argsstring></argsstring>
+        <name>activation</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/operators/common.hpp" line="45" column="21" bodyfile="include/cugraph-ops/operators/common.hpp" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1mha__params_1a58ffac965c06351391ad9341a30d2f76" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int cugraph::ops::mha_params::num_heads</definition>
+        <argsstring></argsstring>
+        <name>num_heads</name>
+        <initializer>{1}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/operators/common.hpp" line="46" column="7" bodyfile="include/cugraph-ops/operators/common.hpp" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcugraph_1_1ops_1_1mha__params_1af3d8c85a3d15d2e2ac74e98197eb8345" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool cugraph::ops::mha_params::concat_heads</definition>
+        <argsstring></argsstring>
+        <name>concat_heads</name>
+        <initializer>{true}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/operators/common.hpp" line="47" column="8" bodyfile="include/cugraph-ops/operators/common.hpp" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>cugraph::ops::activation_params</label>
+        <link refid="structcugraph_1_1ops_1_1activation__params"/>
+      </node>
+      <node id="1">
+        <label>cugraph::ops::mha_params</label>
+        <link refid="structcugraph_1_1ops_1_1mha__params"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+activation</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/cugraph-ops/operators/common.hpp" line="44" column="1" bodyfile="include/cugraph-ops/operators/common.hpp" bodystart="44" bodyend="48"/>
+    <listofallmembers>
+      <member refid="structcugraph_1_1ops_1_1mha__params_1ac9858f750968d40ec0ac7cafccca30b3" prot="public" virt="non-virtual"><scope>cugraph::ops::mha_params</scope><name>activation</name></member>
+      <member refid="structcugraph_1_1ops_1_1mha__params_1af3d8c85a3d15d2e2ac74e98197eb8345" prot="public" virt="non-virtual"><scope>cugraph::ops::mha_params</scope><name>concat_heads</name></member>
+      <member refid="structcugraph_1_1ops_1_1mha__params_1a58ffac965c06351391ad9341a30d2f76" prot="public" virt="non-virtual"><scope>cugraph::ops::mha_params</scope><name>num_heads</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

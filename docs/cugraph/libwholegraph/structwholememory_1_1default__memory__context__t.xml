@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1default__memory__context__t" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory::default_memory_context_t</compoundname>
+    <includes refid="env__func__ptrs_8hpp" local="no">env_func_ptrs.hpp</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory_1_1default__memory__context__t_1ae92c65f0188b35f5583c8ecfefbac35a" prot="public" static="no" mutable="no">
+        <type><ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref></type>
+        <definition>wholememory_tensor_description_t wholememory::default_memory_context_t::desc</definition>
+        <argsstring></argsstring>
+        <name>desc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/env_func_ptrs.hpp" line="23" column="36" bodyfile="src/wholememory/env_func_ptrs.hpp" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1default__memory__context__t_1a8c0cd297d29178bb00b7de03a60a1142" prot="public" static="no" mutable="no">
+        <type><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cff" kindref="member">wholememory_memory_allocation_type_t</ref></type>
+        <definition>wholememory_memory_allocation_type_t wholememory::default_memory_context_t::allocation_type</definition>
+        <argsstring></argsstring>
+        <name>allocation_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/env_func_ptrs.hpp" line="24" column="40" bodyfile="src/wholememory/env_func_ptrs.hpp" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory_1_1default__memory__context__t_1a6bd413d254b59bb6610b4c33ef94a712" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* wholememory::default_memory_context_t::ptr</definition>
+        <argsstring></argsstring>
+        <name>ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/env_func_ptrs.hpp" line="25" column="8" bodyfile="src/wholememory/env_func_ptrs.hpp" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory::default_memory_context_t</label>
+        <link refid="structwholememory_1_1default__memory__context__t"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>+desc</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>wholememory_tensor_description_t</label>
+        <link refid="structwholememory__tensor__description__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/env_func_ptrs.hpp" line="22" column="1" bodyfile="src/wholememory/env_func_ptrs.hpp" bodystart="22" bodyend="26"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1default__memory__context__t_1a8c0cd297d29178bb00b7de03a60a1142" prot="public" virt="non-virtual"><scope>wholememory::default_memory_context_t</scope><name>allocation_type</name></member>
+      <member refid="structwholememory_1_1default__memory__context__t_1ae92c65f0188b35f5583c8ecfefbac35a" prot="public" virt="non-virtual"><scope>wholememory::default_memory_context_t</scope><name>desc</name></member>
+      <member refid="structwholememory_1_1default__memory__context__t_1a6bd413d254b59bb6610b4c33ef94a712" prot="public" virt="non-virtual"><scope>wholememory::default_memory_context_t</scope><name>ptr</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

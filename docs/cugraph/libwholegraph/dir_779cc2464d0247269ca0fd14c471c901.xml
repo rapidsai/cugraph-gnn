@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_779cc2464d0247269ca0fd14c471c901" kind="dir">
+    <compoundname>src/wholememory</compoundname>
+    <innerfile refid="communicator_8cpp">communicator.cpp</innerfile>
+    <innerfile refid="communicator_8hpp">communicator.hpp</innerfile>
+    <innerfile refid="embedding_8cpp">embedding.cpp</innerfile>
+    <innerfile refid="embedding_8hpp">embedding.hpp</innerfile>
+    <innerfile refid="embedding__cache_8cpp">embedding_cache.cpp</innerfile>
+    <innerfile refid="embedding__cache_8hpp">embedding_cache.hpp</innerfile>
+    <innerfile refid="embedding__optimizer_8cpp">embedding_optimizer.cpp</innerfile>
+    <innerfile refid="embedding__optimizer_8hpp">embedding_optimizer.hpp</innerfile>
+    <innerfile refid="env__func__ptrs_8cpp">env_func_ptrs.cpp</innerfile>
+    <innerfile refid="env__func__ptrs_8hpp">env_func_ptrs.hpp</innerfile>
+    <innerfile refid="file__io_8cpp">file_io.cpp</innerfile>
+    <innerfile refid="file__io_8h">file_io.h</innerfile>
+    <innerfile refid="global__reference_8cpp">global_reference.cpp</innerfile>
+    <innerfile refid="initialize_8cpp">initialize.cpp</innerfile>
+    <innerfile refid="initialize_8hpp">initialize.hpp</innerfile>
+    <innerfile refid="integer__utils_8hpp">integer_utils.hpp</innerfile>
+    <innerfile refid="memory__handle_8cpp">memory_handle.cpp</innerfile>
+    <innerfile refid="memory__handle_8hpp">memory_handle.hpp</innerfile>
+    <innerfile refid="nccl__comms_8cpp">nccl_comms.cpp</innerfile>
+    <innerfile refid="nccl__comms_8hpp">nccl_comms.hpp</innerfile>
+    <innerfile refid="system__info_8cpp">system_info.cpp</innerfile>
+    <innerfile refid="system__info_8hpp">system_info.hpp</innerfile>
+    <innerfile refid="tensor__description_8cpp">tensor_description.cpp</innerfile>
+    <innerfile refid="wholememory_8cpp">wholememory.cpp</innerfile>
+    <innerfile refid="wholememory__tensor_8cpp">wholememory_tensor.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="src/wholememory/"/>
+  </compounddef>
+</doxygen>

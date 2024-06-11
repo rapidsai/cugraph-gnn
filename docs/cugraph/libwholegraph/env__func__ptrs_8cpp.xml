@@ -1,0 +1,589 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="env__func__ptrs_8cpp" kind="file" language="C++">
+    <compoundname>env_func_ptrs.cpp</compoundname>
+    <includes refid="env__func__ptrs_8hpp" local="no">wholememory/env_func_ptrs.hpp</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">mutex</includes>
+    <includes local="no">queue</includes>
+    <includes local="no">vector</includes>
+    <includes refid="cuda__macros_8hpp" local="yes">cuda_macros.hpp</includes>
+    <includes refid="error_8hpp" local="yes">error.hpp</includes>
+    <includes refid="initialize_8hpp" local="yes">initialize.hpp</includes>
+    <incdepgraph>
+      <node id="18">
+        <label>iomanip</label>
+      </node>
+      <node id="10">
+        <label>queue</label>
+      </node>
+      <node id="20">
+        <label>raft/core/error.hpp</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>stdlib.h</label>
+      </node>
+      <node id="23">
+        <label>wholememory/wholememory.h</label>
+        <link refid="wholememory_8h"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="25" relation="include">
+        </childnode>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>wholememory/env_func_ptrs.h</label>
+        <link refid="env__func__ptrs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>error.hpp</label>
+        <link refid="error_8hpp"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/wholememory/env_func_ptrs.cpp</label>
+        <link refid="env__func__ptrs_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>cstdio</label>
+      </node>
+      <node id="25">
+        <label>unistd.h</label>
+      </node>
+      <node id="11">
+        <label>vector</label>
+      </node>
+      <node id="22">
+        <label>initialize.hpp</label>
+        <link refid="initialize_8hpp"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>cstdlib</label>
+      </node>
+      <node id="19">
+        <label>iostream</label>
+      </node>
+      <node id="12">
+        <label>cuda_macros.hpp</label>
+        <link refid="cuda__macros_8hpp"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>wholememory/env_func_ptrs.hpp</label>
+        <link refid="env__func__ptrs_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>cuda.h</label>
+      </node>
+      <node id="9">
+        <label>mutex</label>
+      </node>
+      <node id="4">
+        <label>cuda_runtime_api.h</label>
+      </node>
+      <node id="14">
+        <label>chrono</label>
+      </node>
+      <node id="26">
+        <label>wholememory/global_reference.h</label>
+        <link refid="global__reference_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>wholememory/tensor_description.h</label>
+        <link refid="tensor__description_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>stdio.h</label>
+      </node>
+      <node id="17">
+        <label>execinfo.h</label>
+      </node>
+      <node id="8">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="classwholememory_1_1ChunkedMemoryPool" prot="public">wholememory::ChunkedMemoryPool</innerclass>
+    <innerclass refid="classwholememory_1_1DeviceChunkedMemoryPool" prot="public">wholememory::DeviceChunkedMemoryPool</innerclass>
+    <innerclass refid="classwholememory_1_1PinnedChunkedMemoryPool" prot="public">wholememory::PinnedChunkedMemoryPool</innerclass>
+    <innerclass refid="classwholememory_1_1HostChunkedMemoryPool" prot="public">wholememory::HostChunkedMemoryPool</innerclass>
+    <innerclass refid="classwholememory_1_1CachedAllocator" prot="public">wholememory::CachedAllocator</innerclass>
+    <innernamespace refid="namespacewholememory">wholememory</innernamespace>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="env__func__ptrs_8cpp_1ab0a39e858019908b61983a119cfaef84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>cudaDeviceProp *</type>
+        <definition>cudaDeviceProp* get_device_prop</definition>
+        <argsstring>(int dev_id)</argsstring>
+        <name>get_device_prop</name>
+        <param>
+          <type>int</type>
+          <declname>dev_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/env_func_ptrs.cpp" line="381" column="16" bodyfile="src/wholememory/env_func_ptrs.cpp" bodystart="381" bodyend="381"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="env__func__ptrs_8hpp" kindref="compound">wholememory/env_func_ptrs.hpp</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;mutex&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;queue&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cuda__macros_8hpp" kindref="compound">cuda_macros.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="error_8hpp" kindref="compound">error.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="initialize_8hpp" kindref="compound">initialize.hpp</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacewholememory" kindref="compound">wholememory</ref><sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1acf279522fb30c81b5b18dbfda4bb6600" kindref="member">default_create_memory_context_func</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">**<sp/>memory_context,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">new</highlight><highlight class="normal"><sp/>default_memory_context_t;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><ref refid="tensor__description_8h_1a98ad7a286797c238fa7974a32ac0c58a" kindref="member">wholememory_initialize_tensor_desc</ref>(&amp;default_memory_context-&gt;desc);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;allocation_type<sp/>=<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffad668833797760bc14cf0cfd19de9fb2b" kindref="member">WHOLEMEMORY_MA_NONE</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/>*memory_context<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>default_memory_context;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1a2bdc4741fa36325af29dccb86f6e7996" kindref="member">default_destroy_memory_context_func</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>memory_context,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">default_memory_context_t*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(memory_context);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal"><sp/>default_memory_context;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/><ref refid="namespacewholememory_1a0710b520cc82c9d80eb546dddd020f7e" kindref="member">default_malloc_func</ref>(<ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref>*<sp/>tensor_description,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cff" kindref="member">wholememory_memory_allocation_type_t</ref><sp/>memory_allocation_type,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>memory_context,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">default_memory_context_t*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(memory_context);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6a05bf42a1aa42657f7a6a9b66d43d4a" kindref="member">WHOLEMEMORY_MA_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>malloc(<ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description));</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{<sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;malloc<sp/>returned<sp/>nullptr.\n&quot;</highlight><highlight class="normal">);<sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6832f7b989ef69484f680690d2fa98fc" kindref="member">WHOLEMEMORY_MA_PINNED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaMallocHost(&amp;ptr,<sp/><ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description)));</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa90bc04801a32deee762185250c704760" kindref="member">WHOLEMEMORY_MA_DEVICE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaMalloc(&amp;ptr,<sp/><ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description)));</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;memory_allocation_type<sp/>incorrect.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(<ref refid="structwholememory_1_1cuda__error" kindref="compound">wholememory::cuda_error</ref>&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;cudaMalloc<sp/>failed,<sp/>%s.\n&quot;</highlight><highlight class="normal">,<sp/>wce.what());</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;desc<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>*tensor_description;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>ptr;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;allocation_type<sp/>=<sp/>memory_allocation_type;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1a156dc488b5c63d15b346d91262f0a8bd" kindref="member">default_free_func</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>memory_context,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">default_memory_context_t*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(memory_context);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>memory_allocation_type<sp/><sp/>=<sp/>default_memory_context-&gt;allocation_type;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6a05bf42a1aa42657f7a6a9b66d43d4a" kindref="member">WHOLEMEMORY_MA_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>free(default_memory_context-&gt;ptr);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6832f7b989ef69484f680690d2fa98fc" kindref="member">WHOLEMEMORY_MA_PINNED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaFreeHost(default_memory_context-&gt;ptr));</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa90bc04801a32deee762185250c704760" kindref="member">WHOLEMEMORY_MA_DEVICE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaFree(default_memory_context-&gt;ptr));</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;memory_allocation_type<sp/>incorrect.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><ref refid="tensor__description_8h_1a98ad7a286797c238fa7974a32ac0c58a" kindref="member">wholememory_initialize_tensor_desc</ref>(&amp;default_memory_context-&gt;desc);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;allocation_type<sp/>=<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffad668833797760bc14cf0cfd19de9fb2b" kindref="member">WHOLEMEMORY_MA_NONE</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref><sp/>default_env_func<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>.<ref refid="structwholememory__env__func__t_1a9aa656350e5280b16966ab0ddec27f9d" kindref="member">temporary_fns</ref><sp/>=</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structwholememory__temp__memory__func__t_1a0b6e0e8ab4e5b3cb544e0d3573cf2314" kindref="member">create_memory_context_fn</ref><sp/><sp/>=<sp/><ref refid="namespacewholememory_1acf279522fb30c81b5b18dbfda4bb6600" kindref="member">default_create_memory_context_func</ref>,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.destroy_memory_context_fn<sp/>=<sp/><ref refid="namespacewholememory_1a2bdc4741fa36325af29dccb86f6e7996" kindref="member">default_destroy_memory_context_func</ref>,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.malloc_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a0710b520cc82c9d80eb546dddd020f7e" kindref="member">default_malloc_func</ref>,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.free_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a156dc488b5c63d15b346d91262f0a8bd" kindref="member">default_free_func</ref>,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.global_context<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/>.output_fns<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>.malloc_fn<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a0710b520cc82c9d80eb546dddd020f7e" kindref="member">default_malloc_func</ref>,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>.free_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a156dc488b5c63d15b346d91262f0a8bd" kindref="member">default_free_func</ref>,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>.global_context<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/>}};</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/><ref refid="namespacewholememory_1a1e3287233c22d9454d415062410d7937" kindref="member">get_default_env_func</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;default_env_func;<sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">ChunkedMemoryPool<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/>ChunkedMemoryPool();</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/>~ChunkedMemoryPool();</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>CachedMalloc(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CachedFree(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>EmptyCache();</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>constexpr<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>kBucketCount<sp/>=<sp/>64;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/>std::vector&lt;std::unique_ptr&lt;std::mutex&gt;&gt;<sp/>mutexes_;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/>std::vector&lt;std::queue&lt;void*&gt;&gt;<sp/>sized_pool_;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>GetChunkIndex(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>power<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>shifted_size<sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(shifted_size)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>shifted_size<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>power++;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((size<sp/>&amp;<sp/>(size<sp/>-<sp/>1))<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>power<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>power;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">ChunkedMemoryPool::ChunkedMemoryPool()</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/>sized_pool_.resize(kBucketCount);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/>mutexes_.resize(kBucketCount);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>kBucketCount;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>mutexes_[i]<sp/>=<sp/>std::make_unique&lt;std::mutex&gt;();</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">ChunkedMemoryPool::~ChunkedMemoryPool()<sp/>{}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ChunkedMemoryPool::CachedMalloc(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunked_index<sp/>=<sp/>GetChunkIndex(size);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>mlock(*mutexes_[chunked_index]);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!sized_pool_[chunked_index].empty())<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr<sp/>=<sp/>sized_pool_[chunked_index].front();</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>sized_pool_[chunked_index].pop();</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>MallocFnImpl(1ULL<sp/>&lt;&lt;<sp/>chunked_index);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>ChunkedMemoryPool::CachedFree(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunked_index<sp/>=<sp/>GetChunkIndex(size);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>mlock(*mutexes_[chunked_index]);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/>sized_pool_[chunked_index].push(ptr);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>ChunkedMemoryPool::EmptyCache()</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>kBucketCount;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>std::unique_lock&lt;std::mutex&gt;<sp/>mlock(*mutexes_[i]);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!sized_pool_[i].empty())<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>FreeFnImpl(sized_pool_[i].front());</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>sized_pool_[i].pop();</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">DeviceChunkedMemoryPool<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>ChunkedMemoryPool<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">explicit</highlight><highlight class="normal"><sp/>DeviceChunkedMemoryPool(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_id);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/>~DeviceChunkedMemoryPool();</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_id_<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">DeviceChunkedMemoryPool::DeviceChunkedMemoryPool(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_id)<sp/>:<sp/>device_id_(device_id)<sp/>{}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">DeviceChunkedMemoryPool::~DeviceChunkedMemoryPool()<sp/>{}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>DeviceChunkedMemoryPool::MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>old_dev;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice(&amp;old_dev));</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaSetDevice(device_id_));</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaMalloc(&amp;ptr,<sp/>size));</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaSetDevice(old_dev));</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>DeviceChunkedMemoryPool::FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>old_dev;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice(&amp;old_dev));</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaSetDevice(device_id_));</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaFree(ptr));</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaSetDevice(old_dev));</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">PinnedChunkedMemoryPool<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>ChunkedMemoryPool<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/>PinnedChunkedMemoryPool()<sp/><sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/>~PinnedChunkedMemoryPool()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>PinnedChunkedMemoryPool::MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaMallocHost(&amp;ptr,<sp/>size));</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>PinnedChunkedMemoryPool::FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/>{<sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaFreeHost(ptr));<sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">HostChunkedMemoryPool<sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>ChunkedMemoryPool<sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/>HostChunkedMemoryPool()<sp/><sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/>~HostChunkedMemoryPool()<sp/>=<sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/></highlight><highlight class="keyword">override</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>HostChunkedMemoryPool::MallocFnImpl(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>malloc(size);<sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>HostChunkedMemoryPool::FreeFnImpl(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr)<sp/>{<sp/>free(ptr);<sp/>}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">CachedAllocator<sp/>{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocHost(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocDevice(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>MallocPinned(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeHost(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreeDevice(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>FreePinned(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>DropCaches();</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>CachedAllocator*<sp/>GetInst();</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/>CachedAllocator()</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>device_chunked_mem_pools_.resize(kMaxSupportedDeviceCount);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>kMaxSupportedDeviceCount;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>device_chunked_mem_pools_[i]<sp/>=<sp/>std::make_unique&lt;DeviceChunkedMemoryPool&gt;(i);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>pinned_chunked_mem_pool_<sp/>=<sp/>std::make_unique&lt;PinnedChunkedMemoryPool&gt;();</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>host_chunked_mem_pool_<sp/><sp/><sp/>=<sp/>std::make_unique&lt;HostChunkedMemoryPool&gt;();</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/>~CachedAllocator()<sp/>{}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/>CachedAllocator(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>CachedAllocator&amp;<sp/>ca)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>CachedAllocator&amp;<sp/>operator=(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>CachedAllocator&amp;<sp/>ca)<sp/>=<sp/></highlight><highlight class="keyword">delete</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>CachedAllocator<sp/>ca_inst_;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/>std::vector&lt;std::unique_ptr&lt;DeviceChunkedMemoryPool&gt;&gt;<sp/>device_chunked_mem_pools_;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/>std::unique_ptr&lt;PinnedChunkedMemoryPool&gt;<sp/>pinned_chunked_mem_pool_;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/>std::unique_ptr&lt;HostChunkedMemoryPool&gt;<sp/>host_chunked_mem_pool_;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>constexpr<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>kMaxSupportedDeviceCount<sp/>=<sp/>16;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal">CachedAllocator<sp/>CachedAllocator::ca_inst_;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">CachedAllocator*<sp/>CachedAllocator::GetInst()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;ca_inst_;<sp/>}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>CachedAllocator::MallocHost(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>host_chunked_mem_pool_-&gt;CachedMalloc(size);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CachedAllocator::FreeHost(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/>host_chunked_mem_pool_-&gt;CachedFree(ptr,<sp/>size);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>CachedAllocator::MallocDevice(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice(&amp;<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>));</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>device_chunked_mem_pools_[<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>]-&gt;CachedMalloc(size);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CachedAllocator::FreeDevice(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="280"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice(&amp;<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>));</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/>device_chunked_mem_pools_[<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>]-&gt;CachedFree(ptr,<sp/>size);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>CachedAllocator::MallocPinned(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="286"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pinned_chunked_mem_pool_-&gt;CachedMalloc(size);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CachedAllocator::FreePinned(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="290"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/>pinned_chunked_mem_pool_-&gt;CachedFree(ptr,<sp/>size);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CachedAllocator::DropCaches()</highlight></codeline>
+<codeline lineno="294"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>kMaxSupportedDeviceCount;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>device_chunked_mem_pools_[i]-&gt;EmptyCache();</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/>pinned_chunked_mem_pool_-&gt;EmptyCache();</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/>host_chunked_mem_pool_-&gt;EmptyCache();</highlight></codeline>
+<codeline lineno="300"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/><ref refid="namespacewholememory_1af3fb6a254c441306d3616d3f6432ee57" kindref="member">cached_malloc_func</ref>(<ref refid="structwholememory__tensor__description__t" kindref="compound">wholememory_tensor_description_t</ref>*<sp/>tensor_description,</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cff" kindref="member">wholememory_memory_allocation_type_t</ref><sp/>memory_allocation_type,</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>memory_context,</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="306"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">default_memory_context_t*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(memory_context);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/>CachedAllocator*<sp/>cached_inst<sp/>=<sp/>CachedAllocator::GetInst();</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>devid;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><ref refid="cuda__macros_8hpp_1a7d48b62f3df53ec1496f053529c79c52" kindref="member">WM_CUDA_CHECK</ref>(cudaGetDevice((&amp;devid)));</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6a05bf42a1aa42657f7a6a9b66d43d4a" kindref="member">WHOLEMEMORY_MA_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>cached_inst-&gt;MallocHost(<ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description));</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{<sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;cached<sp/>malloc<sp/>host<sp/>returned<sp/>nullptr.\n&quot;</highlight><highlight class="normal">);<sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6832f7b989ef69484f680690d2fa98fc" kindref="member">WHOLEMEMORY_MA_PINNED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>cached_inst-&gt;MallocPinned(<ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description));</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{<sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;cached<sp/>malloc<sp/>pinned<sp/>returned<sp/>nullptr.\n&quot;</highlight><highlight class="normal">);<sp/>}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa90bc04801a32deee762185250c704760" kindref="member">WHOLEMEMORY_MA_DEVICE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>cached_inst-&gt;MallocDevice(<ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(tensor_description));</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">)<sp/>{<sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;cached<sp/>malloc<sp/>device<sp/>returned<sp/>nullptr.\n&quot;</highlight><highlight class="normal">);<sp/>}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;memory_allocation_type<sp/>incorrect.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(<ref refid="structwholememory_1_1cuda__error" kindref="compound">wholememory::cuda_error</ref>&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;cudaMalloc<sp/>failed,<sp/>%s.\n&quot;</highlight><highlight class="normal">,<sp/>wce.what());</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;desc<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>*tensor_description;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>ptr;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;allocation_type<sp/>=<sp/>memory_allocation_type;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1a9a9b4acba0a60e5ccc739be187ecfcdd" kindref="member">cached_free_func</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/>memory_context,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*<sp/></highlight><highlight class="comment">/*global_context*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="335"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/>CachedAllocator*<sp/>cached_inst<sp/>=<sp/>CachedAllocator::GetInst();</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal">*<sp/>default_memory_context<sp/>=<sp/></highlight><highlight class="keyword">static_cast&lt;</highlight><highlight class="normal">default_memory_context_t*</highlight><highlight class="keyword">&gt;</highlight><highlight class="normal">(memory_context);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>memory_allocation_type<sp/><sp/>=<sp/>default_memory_context-&gt;allocation_type;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6a05bf42a1aa42657f7a6a9b66d43d4a" kindref="member">WHOLEMEMORY_MA_HOST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/>cached_inst-&gt;FreeHost(default_memory_context-&gt;ptr,</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(&amp;default_memory_context-&gt;desc));</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa6832f7b989ef69484f680690d2fa98fc" kindref="member">WHOLEMEMORY_MA_PINNED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/>cached_inst-&gt;FreePinned(default_memory_context-&gt;ptr,</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(&amp;default_memory_context-&gt;desc));</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memory_allocation_type<sp/>==<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffa90bc04801a32deee762185250c704760" kindref="member">WHOLEMEMORY_MA_DEVICE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/>cached_inst-&gt;FreeDevice(default_memory_context-&gt;ptr,</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="tensor__description_8h_1a1f9ecef913f2ca09c01cf5d0e87911aa" kindref="member">wholememory_get_memory_size_from_tensor</ref>(&amp;default_memory_context-&gt;desc));</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="error_8hpp_1a30cdbf2d058a1e5fada5dcccba3e75fa" kindref="member">WHOLEMEMORY_FAIL_NOTHROW</ref>(</highlight><highlight class="stringliteral">&quot;memory_allocation_type<sp/>incorrect.\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><ref refid="tensor__description_8h_1a98ad7a286797c238fa7974a32ac0c58a" kindref="member">wholememory_initialize_tensor_desc</ref>(&amp;default_memory_context-&gt;desc);</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/>default_memory_context-&gt;allocation_type<sp/>=<sp/><ref refid="env__func__ptrs_8h_1a220cfc9919630023b2df6131237a8cffad668833797760bc14cf0cfd19de9fb2b" kindref="member">WHOLEMEMORY_MA_NONE</ref>;</highlight></codeline>
+<codeline lineno="354"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref><sp/>cached_env_func<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/>.<ref refid="structwholememory__env__func__t_1a9aa656350e5280b16966ab0ddec27f9d" kindref="member">temporary_fns</ref><sp/>=</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structwholememory__temp__memory__func__t_1a0b6e0e8ab4e5b3cb544e0d3573cf2314" kindref="member">create_memory_context_fn</ref><sp/><sp/>=<sp/><ref refid="namespacewholememory_1acf279522fb30c81b5b18dbfda4bb6600" kindref="member">default_create_memory_context_func</ref>,</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.destroy_memory_context_fn<sp/>=<sp/><ref refid="namespacewholememory_1a2bdc4741fa36325af29dccb86f6e7996" kindref="member">default_destroy_memory_context_func</ref>,</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.malloc_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1af3fb6a254c441306d3616d3f6432ee57" kindref="member">cached_malloc_func</ref>,</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.free_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a9a9b4acba0a60e5ccc739be187ecfcdd" kindref="member">cached_free_func</ref>,</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>.global_context<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/>.output_fns<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/>.malloc_fn<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1af3fb6a254c441306d3616d3f6432ee57" kindref="member">cached_malloc_func</ref>,</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/>.free_fn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="namespacewholememory_1a9a9b4acba0a60e5ccc739be187ecfcdd" kindref="member">cached_free_func</ref>,</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/>.global_context<sp/>=<sp/></highlight><highlight class="keyword">nullptr</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/>}};</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><ref refid="structwholememory__env__func__t" kindref="compound">wholememory_env_func_t</ref>*<sp/><ref refid="namespacewholememory_1aac6ab45aa294c98f864c1a37f5c76858" kindref="member">get_cached_env_func</ref>()<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;cached_env_func;<sp/>}</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1aeee42e212661870a22da2d9323235b77" kindref="member">drop_cached_env_func_cache</ref>()<sp/>{<sp/>CachedAllocator::GetInst()-&gt;DropCaches();<sp/>}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>wholememory</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal">cudaDeviceProp*<sp/><ref refid="env__func__ptrs_8cpp_1ab0a39e858019908b61983a119cfaef84" kindref="member">get_device_prop</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="namespacewholememory_1ad389ed05d77a5e3e7eef6b4fb99ca833" kindref="member">wholememory::get_device_prop</ref>(<ref refid="communicator_8hpp_1afd6d033a7ec5b3799a7c6cb0fefd177f" kindref="member">dev_id</ref>);<sp/>}</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory/env_func_ptrs.cpp"/>
+  </compounddef>
+</doxygen>

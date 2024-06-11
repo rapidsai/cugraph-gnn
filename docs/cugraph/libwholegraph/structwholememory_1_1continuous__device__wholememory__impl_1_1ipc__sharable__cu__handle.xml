@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory_1_1continuous__device__wholememory__impl_1_1ipc__sharable__cu__handle" kind="struct" language="C++" prot="protected">
+    <compoundname>wholememory::continuous_device_wholememory_impl::ipc_sharable_cu_handle</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory_1_1continuous__device__wholememory__impl_1_1ipc__sharable__cu__handle_1a9d758e1d95cd1d2499255e1c61b04f24" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int wholememory::continuous_device_wholememory_impl::ipc_sharable_cu_handle::fd</definition>
+        <argsstring></argsstring>
+        <name>fd</name>
+        <initializer>= -1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/wholememory/memory_handle.cpp" line="659" column="9" bodyfile="src/wholememory/memory_handle.cpp" bodystart="659" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory::continuous_device_wholememory_impl::ipc_sharable_cu_handle</label>
+      </node>
+    </collaborationgraph>
+    <location file="src/wholememory/memory_handle.cpp" line="658" column="3" bodyfile="src/wholememory/memory_handle.cpp" bodystart="658" bodyend="660"/>
+    <listofallmembers>
+      <member refid="structwholememory_1_1continuous__device__wholememory__impl_1_1ipc__sharable__cu__handle_1a9d758e1d95cd1d2499255e1c61b04f24" prot="public" virt="non-virtual"><scope>wholememory::continuous_device_wholememory_impl::ipc_sharable_cu_handle</scope><name>fd</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

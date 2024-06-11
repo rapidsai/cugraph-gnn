@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="map__indices__func_8cu" kind="file" language="C++">
+    <compoundname>map_indices_func.cu</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2024,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;cuda_macros.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;error.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;logger.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;map_indices_func.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/integer_utils.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/register.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cuda_runtime.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">namespace<sp/>wholememory_ops<sp/>{</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>IndexT&gt;</highlight></codeline>
+<codeline><highlight class="normal">__global__<sp/>void<sp/>storage_idx2wm_emb_idx_kernel(IndexT*<sp/>indice,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>IndexT*<sp/>mapped_indice,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>indice_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>world_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>entry_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>round_robin_size)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>tid<sp/>=<sp/>threadIdx.x<sp/>+<sp/>blockIdx.x<sp/>*<sp/>blockDim.x;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>for<sp/>(int64_t<sp/>i<sp/>=<sp/>tid;<sp/>i<sp/>&lt;<sp/>indice_size;<sp/>i<sp/>+=<sp/>(blockDim.x<sp/>*<sp/>gridDim.x))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndexT<sp/>target_idx<sp/><sp/>=<sp/>indice[i];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndexT<sp/>table_idx<sp/><sp/><sp/>=<sp/>target_idx<sp/>/<sp/>round_robin_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndexT<sp/>table_off<sp/><sp/><sp/>=<sp/>target_idx<sp/>%<sp/>round_robin_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>rank_id<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>table_idx<sp/>%<sp/>world_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>rank_table_idx<sp/>=<sp/>table_idx<sp/>/<sp/>world_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>IndexT<sp/>wmidx<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>entry_per_rank<sp/>*<sp/>rank_id<sp/>+<sp/>round_robin_size<sp/>*<sp/>rank_table_idx<sp/>+<sp/>table_off;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>mapped_indice[i]<sp/><sp/><sp/>=<sp/>wmidx;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>IndexT&gt;</highlight></codeline>
+<codeline><highlight class="normal">void<sp/>storage_idx2wm_emb_idx_temp_fn(void*<sp/>indice_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*<sp/>mapped_indice_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>indice_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>world_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>entry_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>round_robin_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t<sp/>stream)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>block_size<sp/><sp/><sp/><sp/>=<sp/>256;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>block_num<sp/>=<sp/>(indice_size<sp/>+<sp/>block_size<sp/>-<sp/>1)<sp/>/<sp/>block_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(block_num<sp/>&gt;<sp/>1568)<sp/>block_num<sp/>=<sp/>1568;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndexT*<sp/>indice<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>static_cast&lt;IndexT*&gt;(indice_ptr);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>IndexT*<sp/>mapped_indice<sp/>=<sp/>static_cast&lt;IndexT*&gt;(mapped_indice_ptr);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>storage_idx2wm_emb_idx_kernel&lt;&lt;&lt;block_num,<sp/>block_size,<sp/>0,<sp/>stream&gt;&gt;&gt;(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>indice,<sp/>mapped_indice,<sp/>indice_size,<sp/>world_size,<sp/>entry_per_rank,<sp/>round_robin_size);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>WM_CUDA_CHECK(cudaStreamSynchronize(stream));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">REGISTER_DISPATCH_ONE_TYPE(storageidx2wmembidx,<sp/>storage_idx2wm_emb_idx_temp_fn,<sp/>SINT3264)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>storage_index2wm_embedding_index(wholememory_tensor_t<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_tensor_t<sp/>mapped_indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_tensor_t<sp/>allocated_embedding,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>round_robin_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>stream_int)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(round_robin_size<sp/>==<sp/>0)<sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>try<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>auto*<sp/>indice_desc<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wholememory_tensor_get_tensor_description(indices);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>void*<sp/>indice_ptr<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wholememory_tensor_get_data_pointer(indices);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>void*<sp/>mapped_indice_ptr<sp/>=<sp/>wholememory_tensor_get_data_pointer(mapped_indices);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>indice_size<sp/><sp/><sp/><sp/><sp/>=<sp/>indice_desc-&gt;sizes[0];</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>wholememory_comm_t<sp/>wm_comm;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>world_size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>auto*<sp/>handle<sp/>=<sp/>wholememory_tensor_get_memory_handle(allocated_embedding);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_RETURN_ON_FAIL(wholememory_get_communicator(&amp;wm_comm,<sp/>handle));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_RETURN_ON_FAIL(wholememory_communicator_get_size(&amp;world_size,<sp/>wm_comm));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>entry_per_rank<sp/>=<sp/>wholememory_tensor_get_entry_per_partition(allocated_embedding);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>DISPATCH_ONE_TYPE(indice_desc-&gt;dtype,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>storageidx2wmembidx,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>indice_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mapped_indice_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>indice_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>world_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>round_robin_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(cudaStream_t)stream_int);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK(cudaGetLastError());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/>catch<sp/>(wholememory::cuda_error&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;index<sp/>map<sp/>CUDA<sp/>LOGIC<sp/>Error<sp/>%s\n&quot;,<sp/>wce.what());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_CUDA_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">}<sp/><sp/>//<sp/>namespace<sp/>wholememory_ops</highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory_ops/functions/map_indices_func.cu"/>
+  </compounddef>
+</doxygen>

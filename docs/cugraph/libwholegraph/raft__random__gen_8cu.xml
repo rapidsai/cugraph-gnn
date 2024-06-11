@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="raft__random__gen_8cu" kind="file" language="C++">
+    <compoundname>raft_random_gen.cu</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2019-2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cmath&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/wholegraph_op.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;raft/random/rng_device.cuh&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;raft/random/rng_state.hpp&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;error.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;logger.hpp&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>generate_random_positive_int_cpu(int64_t<sp/>random_seed,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>subsequence,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_tensor_t<sp/>output)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto<sp/>output_tensor_desc<sp/>=<sp/>*wholememory_tensor_get_tensor_description(output);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_tensor_desc.dim<sp/>!=<sp/>1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;output<sp/>should<sp/>be<sp/>1D<sp/>tensor.&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_INVALID_INPUT;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_tensor_desc.dtype<sp/>!=<sp/>WHOLEMEMORY_DT_INT64<sp/>&amp;&amp;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>output_tensor_desc.dtype<sp/>!=<sp/>WHOLEMEMORY_DT_INT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;output<sp/>should<sp/>be<sp/>int64<sp/>or<sp/>int32<sp/>tensor.&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_INVALID_INPUT;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto*<sp/>output_ptr<sp/>=<sp/>wholememory_tensor_get_data_pointer(output);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::RngState<sp/>_rngstate(random_seed,<sp/>0,<sp/>raft::random::GeneratorType::GenPC);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::detail::DeviceState&lt;raft::random::detail::PCGenerator&gt;<sp/>rngstate(_rngstate);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::detail::PCGenerator<sp/>rng(rngstate,<sp/>(uint64_t)subsequence);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>for<sp/>(int64_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>output_tensor_desc.sizes[0];<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(output_tensor_desc.dtype<sp/>==<sp/>WHOLEMEMORY_DT_INT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::detail::UniformDistParams&lt;int32_t&gt;<sp/>params;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>params.start<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>params.end<sp/><sp/><sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>random_num;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::detail::custom_next(rng,<sp/>&amp;random_num,<sp/>params,<sp/>0,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>static_cast&lt;int*&gt;(output_ptr)[i]<sp/>=<sp/>random_num;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::detail::UniformDistParams&lt;int64_t&gt;<sp/>params;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>params.start<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>params.end<sp/><sp/><sp/>=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>random_num;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>raft::random::detail::custom_next(rng,<sp/>&amp;random_num,<sp/>params,<sp/>0,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>static_cast&lt;int64_t*&gt;(output_ptr)[i]<sp/>=<sp/>random_num;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>generate_exponential_distribution_negative_float_cpu(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int64_t<sp/>random_seed,<sp/>int64_t<sp/>subsequence,<sp/>wholememory_tensor_t<sp/>output)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto<sp/>output_tensor_desc<sp/>=<sp/>*wholememory_tensor_get_tensor_description(output);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_tensor_desc.dim<sp/>!=<sp/>1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;output<sp/>should<sp/>be<sp/>1D<sp/>tensor.&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_INVALID_INPUT;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>if<sp/>(output_tensor_desc.dtype<sp/>!=<sp/>WHOLEMEMORY_DT_FLOAT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;output<sp/>should<sp/>be<sp/>float.&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_INVALID_INPUT;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>auto*<sp/>output_ptr<sp/>=<sp/>wholememory_tensor_get_data_pointer(output);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::RngState<sp/>_rngstate(random_seed,<sp/>0,<sp/>raft::random::GeneratorType::GenPC);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::detail::DeviceState&lt;raft::random::detail::PCGenerator&gt;<sp/>rngstate(_rngstate);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>raft::random::detail::PCGenerator<sp/>rng(rngstate,<sp/>(uint64_t)subsequence);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>for<sp/>(int64_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>output_tensor_desc.sizes[0];<sp/>i++)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>float<sp/>u<sp/>=<sp/>0.0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>rng.next(u);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>u<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>-(0.5<sp/>+<sp/>0.5<sp/>*<sp/>u);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>random_num2<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>seed_count<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>-1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>do<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>rng.next(random_num2);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>seed_count++;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(!random_num2);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>auto<sp/>count_one<sp/>=<sp/>[](unsigned<sp/>long<sp/>long<sp/>num)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>c<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>while<sp/>(num)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>c++;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>64<sp/>-<sp/>c;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>one_bit<sp/>=<sp/>count_one(random_num2)<sp/>+<sp/>seed_count<sp/>*<sp/>64;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>u<sp/>*=<sp/>pow(2,<sp/>-one_bit);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>float<sp/>logk<sp/>=<sp/>(log1pf(u)<sp/>/<sp/>logf(2.0))<sp/>*<sp/>(1.0f<sp/>/<sp/>(float)weight);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>float<sp/>logk<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(log1p(u)<sp/>/<sp/>log(2.0));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>static_cast&lt;float*&gt;(output_ptr)[i]<sp/>=<sp/>logk;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/wholegraph_ops/raft_random_gen.cu"/>
+  </compounddef>
+</doxygen>

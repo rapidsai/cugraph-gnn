@@ -1,0 +1,334 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="nvshmem__template_8cuh" kind="file" language="C++">
+    <compoundname>nvshmem_template.cuh</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">#pragma<sp/>once</highlight></codeline>
+<codeline><highlight class="normal">#ifndef<sp/>__NVSHMEM_TEMPLATE__</highlight></codeline>
+<codeline><highlight class="normal">#define<sp/>__NVSHMEM_TEMPLATE__</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>WITH_NVSHMEM_SUPPORT</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;nvshmem.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;nvshmemx.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cstdint&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cuda_fp16.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">namespace<sp/>wholememory_ops<sp/>{</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>DataType&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>DataType<sp/>nvshmem_get(const<sp/>DataType*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>DataType{};</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int8_t<sp/>nvshmem_get&lt;int8_t&gt;(const<sp/>int8_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>char<sp/>ret<sp/>=<sp/>nvshmem_char_g(reinterpret_cast&lt;const<sp/>char*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>reinterpret_cast&lt;int8_t&amp;&gt;(ret);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>char<sp/>nvshmem_get&lt;char&gt;(const<sp/>char*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_char_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int16_t<sp/>nvshmem_get&lt;int16_t&gt;(const<sp/>int16_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int16_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int32_t<sp/>nvshmem_get&lt;int32_t&gt;(const<sp/>int32_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int32_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int64_t<sp/>nvshmem_get&lt;int64_t&gt;(const<sp/>int64_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int64_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>long<sp/>long<sp/>nvshmem_get&lt;long<sp/>long&gt;(const<sp/>long<sp/>long*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_longlong_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>uint8_t<sp/>nvshmem_get&lt;uint8_t&gt;(const<sp/>uint8_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint8_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>uint16_t<sp/>nvshmem_get&lt;uint16_t&gt;(const<sp/>uint16_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint16_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>uint32_t<sp/>nvshmem_get&lt;uint32_t&gt;(const<sp/>uint32_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint32_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>uint64_t<sp/>nvshmem_get&lt;uint64_t&gt;(const<sp/>uint64_t*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint64_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>unsigned<sp/>long<sp/>long<sp/>nvshmem_get&lt;unsigned<sp/>long<sp/>long&gt;(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>unsigned<sp/>long<sp/>long*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_ulonglong_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int2<sp/>nvshmem_get&lt;int2&gt;(const<sp/>int2*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int2<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.x<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.y<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source)<sp/>+<sp/>1,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>int4<sp/>nvshmem_get&lt;int4&gt;(const<sp/>int4*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int4<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.x<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.y<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source)<sp/>+<sp/>1,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.z<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source)<sp/>+<sp/>2,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.w<sp/>=<sp/>nvshmem_get&lt;int&gt;(reinterpret_cast&lt;const<sp/>int*&gt;(source)<sp/>+<sp/>3,<sp/>pe);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>half<sp/>nvshmem_get&lt;half&gt;(const<sp/>half*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int16_t<sp/>ret<sp/>=<sp/>nvshmem_int16_g(reinterpret_cast&lt;const<sp/>int16_t*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>reinterpret_cast&lt;half&amp;&gt;(ret);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>__nv_bfloat16<sp/>nvshmem_get&lt;__nv_bfloat16&gt;(const<sp/>__nv_bfloat16*<sp/>source,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int16_t<sp/>ret<sp/>=<sp/>nvshmem_int16_g(reinterpret_cast&lt;const<sp/>int16_t*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>reinterpret_cast&lt;__nv_bfloat16&amp;&gt;(ret);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>float<sp/>nvshmem_get&lt;float&gt;(const<sp/>float*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_float_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>double<sp/>nvshmem_get&lt;double&gt;(const<sp/>double*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_double_g(source,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>float2<sp/>nvshmem_get&lt;float2&gt;(const<sp/>float2*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>float2<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.x<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.y<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source)<sp/>+<sp/>1,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>float4<sp/>nvshmem_get&lt;float4&gt;(const<sp/>float4*<sp/>source,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>float4<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.x<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source),<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.y<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source)<sp/>+<sp/>1,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.z<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source)<sp/>+<sp/>2,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>ret.w<sp/>=<sp/>nvshmem_get&lt;float&gt;(reinterpret_cast&lt;const<sp/>float*&gt;(source)<sp/>+<sp/>3,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;typename<sp/>DataType&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put(DataType*<sp/>dest,<sp/>const<sp/>DataType<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return;</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int8_t&gt;(int8_t*<sp/>dest,<sp/>const<sp/>int8_t<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>char&amp;<sp/>val_char<sp/>=<sp/>reinterpret_cast&lt;const<sp/>char&amp;&gt;(val);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_char_p(reinterpret_cast&lt;char*&gt;(dest),<sp/>val_char,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;char&gt;(char*<sp/>dest,<sp/>const<sp/>char<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_char_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int16_t&gt;(int16_t*<sp/>dest,<sp/>const<sp/>int16_t<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int16_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int32_t&gt;(int32_t*<sp/>dest,<sp/>const<sp/>int32_t<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int32_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int64_t&gt;(int64_t*<sp/>dest,<sp/>const<sp/>int64_t<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int64_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;long<sp/>long&gt;(long<sp/>long*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>long<sp/>long<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_longlong_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;uint8_t&gt;(uint8_t*<sp/>dest,<sp/>const<sp/>uint8_t<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint8_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;uint16_t&gt;(uint16_t*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>uint16_t<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint16_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;uint32_t&gt;(uint32_t*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>uint32_t<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint32_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;uint64_t&gt;(uint64_t*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>uint64_t<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_uint64_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;unsigned<sp/>long<sp/>long&gt;(unsigned<sp/>long<sp/>long*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>unsigned<sp/>long<sp/>long<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_ulonglong_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int2&gt;(int2*<sp/>dest,<sp/>const<sp/>int2<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int*<sp/>dest_int<sp/>=<sp/>reinterpret_cast&lt;int*&gt;(dest);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int,<sp/>val.x,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int<sp/>+<sp/>1,<sp/>val.y,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;int4&gt;(int4*<sp/>dest,<sp/>const<sp/>int4<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int*<sp/>dest_int<sp/>=<sp/>reinterpret_cast&lt;int*&gt;(dest);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int,<sp/>val.x,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int<sp/>+<sp/>1,<sp/>val.y,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int<sp/>+<sp/>2,<sp/>val.z,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_int_p(dest_int<sp/>+<sp/>3,<sp/>val.w,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;half&gt;(half*<sp/>dest,<sp/>const<sp/>half<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>int16_t&amp;<sp/>val_int<sp/>=<sp/>reinterpret_cast&lt;const<sp/>int16_t&amp;&gt;(val);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int16_p(reinterpret_cast&lt;int16_t*&gt;(dest),<sp/>val_int,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;__nv_bfloat16&gt;(__nv_bfloat16*<sp/>dest,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>__nv_bfloat16<sp/>val,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>int16_t&amp;<sp/>val_int<sp/>=<sp/>reinterpret_cast&lt;const<sp/>int16_t&amp;&gt;(val);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_int16_p(reinterpret_cast&lt;int16_t*&gt;(dest),<sp/>val_int,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;float&gt;(float*<sp/>dest,<sp/>const<sp/>float<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_float_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;double&gt;(double*<sp/>dest,<sp/>const<sp/>double<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>nvshmem_double_p(dest,<sp/>val,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;float2&gt;(float2*<sp/>dest,<sp/>const<sp/>float2<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>float*<sp/>dest_float<sp/>=<sp/>reinterpret_cast&lt;float*&gt;(dest);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float,<sp/>val.x,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float<sp/>+<sp/>1,<sp/>val.y,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">template<sp/>&lt;&gt;</highlight></codeline>
+<codeline><highlight class="normal">__inline__<sp/>__device__<sp/>__host__<sp/>void<sp/>nvshmem_put&lt;float4&gt;(float4*<sp/>dest,<sp/>const<sp/>float4<sp/>val,<sp/>int<sp/>pe)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>float*<sp/>dest_float<sp/>=<sp/>reinterpret_cast&lt;float*&gt;(dest);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float,<sp/>val.x,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float<sp/>+<sp/>1,<sp/>val.y,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float<sp/>+<sp/>2,<sp/>val.z,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>nvshmem_float_p(dest_float<sp/>+<sp/>3,<sp/>val.w,<sp/>pe);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">}<sp/><sp/>//<sp/>namespace<sp/>wholememory_ops</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif<sp/><sp/>//<sp/>WITH_NVSHMEM_SUPPORT</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif<sp/><sp/>//<sp/>__NVSHMEM_TEMPLATE__</highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory_ops/functions/nvshmem_template.cuh"/>
+  </compounddef>
+</doxygen>

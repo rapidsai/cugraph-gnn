@@ -1,0 +1,1096 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacecugraph_1_1ops_1_1dimenet" kind="namespace" language="C++">
+    <compoundname>cugraph::ops::dimenet</compoundname>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1abf93bc5adbfc30df47b8e3e266aacf5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_fwd</definition>
+        <argsstring>(float *rbf, float *sbf_rad, const float *x, const float *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_fwd</name>
+        <param>
+          <type>float *</type>
+          <declname>rbf</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>sbf_rad</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Computes the forward pass for dimenet RBF features. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>N_RADIAL and N_SPHERICAL are constants for now (equal to 6 and 7 respectively).</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">rbf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the output rbf embeddings incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">sbf_rad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the output radial sbf embeddings incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL x N_SPHERICAL</computeroutput>] [dim = <computeroutput>n x N_RADIAL x N_SPHERICAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input distance vector per edge (including offsets) [on device] [dim = <computeroutput>n x 1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input frequencies [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of edges </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CUDA Stream context </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="36" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="36" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a66d0f7c05aefb4319e3520be57f16864" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_fwd</definition>
+        <argsstring>(double *rbf, double *sbf_rad, const double *x, const double *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_fwd</name>
+        <param>
+          <type>double *</type>
+          <declname>rbf</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>sbf_rad</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="38" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="38" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a103df49115043133e0916c78751ef88d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_bwd</definition>
+        <argsstring>(float *grad_x, float *grad_w, const float *grad_rbf, const float *grad_sbf_rad, const float *x, const float *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_bwd</name>
+        <param>
+          <type>float *</type>
+          <declname>grad_x</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_w</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Computes the backward pass for dimenet RBF features. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>N_RADIAL and N_SPHERICAL are constants for now (equal to 6 and 7 respectively).</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output gradient on distance [on device] [dim = <computeroutput>n x 1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output gradient on frequencies. [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">grad_rbf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on rbf features incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">grad_sbf_rad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on radial sbf features incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL x N_SPHERICAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input distance vector per edge (including offsets) [on device] [dim = <computeroutput>n x 1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input frequencies [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of edges </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CUDA Stream context </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="67" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="67" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a0fc9bc0850da7b08a3e46f5e58ab1c54" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_bwd</definition>
+        <argsstring>(double *grad_x, double *grad_w, const double *grad_rbf, const double *grad_sbf_rad, const double *x, const double *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_bwd</name>
+        <param>
+          <type>double *</type>
+          <declname>grad_x</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_w</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="75" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="75" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="user-defined">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1ade81c979774f0ab40db051e6db952e81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_bwd_bwd</definition>
+        <argsstring>(double *grad_grad_rbf, double *grad_grad_sbf_rad, double *grad_w, const double *grad_grad_x, const double *grad_grad_w, const double *grad_rbf, const double *grad_sbf_rad, const double *x, const double *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_bwd_bwd</name>
+        <param>
+          <type>double *</type>
+          <declname>grad_grad_rbf</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_w</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_x</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_w</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Computes the second backward pass for dimenet RBF features. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>N_RADIAL and N_SPHERICAL are constants for now (equal to 6 and 7 respectively).</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_grad_rbf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output gradient on grad_rbf [on device] [dim = <computeroutput>n x N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_grad_sbf_rad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output gradient on grad_sbf_rad [on device] [dim = `n x N_RADIAL x N_SPHERICAL] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output gradient on frequencies. [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_grad_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on grad_x [on device] [dim = <computeroutput>n x 1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">grad_grad_w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on grad_w. [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">grad_rbf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on rbf features incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">grad_sbf_rad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the input gradient on radial sbf features incl. envelope. [on device] [dim = <computeroutput>n x N_RADIAL x N_SPHERICAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input distance vector per edge (including offsets) [on device] [dim = <computeroutput>n x 1</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>input frequencies [on device] [dim = <computeroutput>N_RADIAL</computeroutput>] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of edges </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CUDA Stream context </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="117" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="117" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1afcd6df1007943d168599b61d77582be8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::radial_basis_bwd_bwd</definition>
+        <argsstring>(float *grad_grad_rbf, float *grad_grad_sbf_rad, float *grad_w, const float *grad_grad_x, const float *grad_grad_w, const float *grad_rbf, const float *grad_sbf_rad, const float *x, const float *w, int32_t n, cudaStream_t stream)</argsstring>
+        <name>radial_basis_bwd_bwd</name>
+        <param>
+          <type>float *</type>
+          <declname>grad_grad_rbf</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_w</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_w</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_sbf_rad</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/radial_basis.hpp" line="128" column="6" declfile="include/cugraph-ops/dimenet/radial_basis.hpp" declline="128" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1adcd0c3946b5bbcf88810320c0ee15dbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_fwd</definition>
+        <argsstring>(float *out, int64_t n_edges, const float *e_vec, const float *e_rbf, const float *e_in_ft, size_t dim_feat, const float *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *dst_offsets, const int64_t *dst_e_idx, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_fwd</name>
+        <param>
+          <type>float *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_offsets</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_e_idx</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="27" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="27" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a33f1e93250d21833f7aee3149e76f6cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_fwd</definition>
+        <argsstring>(double *out, int64_t n_edges, const double *e_vec, const double *e_rbf, const double *e_in_ft, size_t dim_feat, const double *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *dst_offsets, const int64_t *dst_e_idx, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_fwd</name>
+        <param>
+          <type>double *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_offsets</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_e_idx</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="40" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="40" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a8303eecbc47909e22b14248bdacdb304" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd</definition>
+        <argsstring>(float *grad_e_rbf, float *grad_e_in_ft, float *grad_sbf_weights, int64_t n_edges, const float *e_vec, const float *e_rbf, const float *e_in_ft, const float *grad_e_out_ft, size_t dim_feat, const float *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *src_offsets, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd</name>
+        <param>
+          <type>float *</type>
+          <declname>grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_sbf_weights</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>src_offsets</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="54" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="54" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a3a9dbd6bbea2a159cbf3395faf2923a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd</definition>
+        <argsstring>(double *grad_e_rbf, double *grad_e_in_ft, double *grad_sbf_weights, int64_t n_edges, const double *e_vec, const double *e_rbf, const double *e_in_ft, const double *grad_e_out_ft, size_t dim_feat, const double *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *src_offsets, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd</name>
+        <param>
+          <type>double *</type>
+          <declname>grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_sbf_weights</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>src_offsets</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="69" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="69" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1aff318365d1ce7ed6998424323609f7cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd2_grad</definition>
+        <argsstring>(float *grad_grad_e_out_ft, int64_t n_edges, const float *e_vec, const float *e_rbf, const float *grad_grad_e_rbf, const float *e_in_ft, const float *grad_grad_e_in_ft, size_t dim_feat, const float *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *dst_offsets, const int64_t *dst_e_idx, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd2_grad</name>
+        <param>
+          <type>float *</type>
+          <declname>grad_grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_offsets</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_e_idx</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="85" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="85" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a90f98890da69242393da5ab1a70fcadf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd2_grad</definition>
+        <argsstring>(double *grad_grad_e_out_ft, int64_t n_edges, const double *e_vec, const double *e_rbf, const double *grad_grad_e_rbf, const double *e_in_ft, const double *grad_grad_e_in_ft, size_t dim_feat, const double *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *dst_offsets, const int64_t *dst_e_idx, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd2_grad</name>
+        <param>
+          <type>double *</type>
+          <declname>grad_grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_offsets</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>dst_e_idx</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="100" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="100" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1a80cf526b97e4c4027400dd2d64817532" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd2_main</definition>
+        <argsstring>(float *grad_rbf_grad_e_in_ft, float *grad_e_in_ft_grad_e_rbf, float *grad_sbf_weights, int64_t n_edges, const float *e_vec, const float *e_rbf, const float *grad_grad_e_rbf, const float *e_in_ft, const float *grad_grad_e_in_ft, const float *grad_e_out_ft, size_t dim_feat, const float *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *src_offsets, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd2_main</name>
+        <param>
+          <type>float *</type>
+          <declname>grad_rbf_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_e_in_ft_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>float *</type>
+          <declname>grad_sbf_weights</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const float *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>src_offsets</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="116" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="116" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="namespacecugraph_1_1ops_1_1dimenet_1af9c890e31664a6c5b70bff8502205fb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::dimenet::agg_edge_to_edge_bwd2_main</definition>
+        <argsstring>(double *grad_rbf_grad_e_in_ft, double *grad_e_in_ft_grad_e_rbf, double *grad_sbf_weights, int64_t n_edges, const double *e_vec, const double *e_rbf, const double *grad_grad_e_rbf, const double *e_in_ft, const double *grad_grad_e_in_ft, const double *grad_e_out_ft, size_t dim_feat, const double *sbf_weights, size_t dim_w_mid, const int64_t *coo_idx, const int64_t *src_offsets, MMAOpT op, cudaStream_t stream)</argsstring>
+        <name>agg_edge_to_edge_bwd2_main</name>
+        <param>
+          <type>double *</type>
+          <declname>grad_rbf_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_e_in_ft_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>grad_sbf_weights</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>n_edges</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_vec</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_e_rbf</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>e_in_ft</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_grad_e_in_ft</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>grad_e_out_ft</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_feat</declname>
+        </param>
+        <param>
+          <type>const double *</type>
+          <declname>sbf_weights</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dim_w_mid</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>coo_idx</declname>
+        </param>
+        <param>
+          <type>const int64_t *</type>
+          <declname>src_offsets</declname>
+        </param>
+        <param>
+          <type><ref refid="namespacecugraph_1_1ops_1a69e2ddeb6f703ead1ec8ce22dcd64aa7" kindref="member">MMAOpT</ref></type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="133" column="6" declfile="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" declline="133" declcolumn="6"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/cugraph-ops/dimenet/agg_edge_to_edge.hpp" line="17" column="1"/>
+  </compounddef>
+</doxygen>

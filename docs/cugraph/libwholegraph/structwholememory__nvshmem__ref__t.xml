@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structwholememory__nvshmem__ref__t" kind="struct" language="C++" prot="public">
+    <compoundname>wholememory_nvshmem_ref_t</compoundname>
+    <includes refid="global__reference_8h" local="no">global_reference.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwholememory__nvshmem__ref__t_1af3b4fc0d4a0141c8b7761a30c660d858" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* wholememory_nvshmem_ref_t::pointer</definition>
+        <argsstring></argsstring>
+        <name>pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="45" column="8" bodyfile="include/wholememory/global_reference.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__nvshmem__ref__t_1ade42bfaeb9a78eae186d72f34c133fdc" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t wholememory_nvshmem_ref_t::stride</definition>
+        <argsstring></argsstring>
+        <name>stride</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="46" column="10" bodyfile="include/wholememory/global_reference.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__nvshmem__ref__t_1a9cbdb18d46fd7698680aeef104570015" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int wholememory_nvshmem_ref_t::world_rank</definition>
+        <argsstring></argsstring>
+        <name>world_rank</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="47" column="7" bodyfile="include/wholememory/global_reference.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwholememory__nvshmem__ref__t_1a2d4d2adaec3a5d3a6d20548323db7c60" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int wholememory_nvshmem_ref_t::world_size</definition>
+        <argsstring></argsstring>
+        <name>world_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/wholememory/global_reference.h" line="48" column="7" bodyfile="include/wholememory/global_reference.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>wholememory_nvshmem_ref_t</label>
+        <link refid="structwholememory__nvshmem__ref__t"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/wholememory/global_reference.h" line="44" column="1" bodyfile="include/wholememory/global_reference.h" bodystart="44" bodyend="49"/>
+    <listofallmembers>
+      <member refid="structwholememory__nvshmem__ref__t_1af3b4fc0d4a0141c8b7761a30c660d858" prot="public" virt="non-virtual"><scope>wholememory_nvshmem_ref_t</scope><name>pointer</name></member>
+      <member refid="structwholememory__nvshmem__ref__t_1ade42bfaeb9a78eae186d72f34c133fdc" prot="public" virt="non-virtual"><scope>wholememory_nvshmem_ref_t</scope><name>stride</name></member>
+      <member refid="structwholememory__nvshmem__ref__t_1a9cbdb18d46fd7698680aeef104570015" prot="public" virt="non-virtual"><scope>wholememory_nvshmem_ref_t</scope><name>world_rank</name></member>
+      <member refid="structwholememory__nvshmem__ref__t_1a2d4d2adaec3a5d3a6d20548323db7c60" prot="public" virt="non-virtual"><scope>wholememory_nvshmem_ref_t</scope><name>world_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

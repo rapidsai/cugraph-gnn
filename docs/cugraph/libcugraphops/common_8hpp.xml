@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="common_8hpp" kind="file" language="C++">
+    <compoundname>common.hpp</compoundname>
+    <includes refid="activation_8hpp" local="no">cugraph-ops/activation.hpp</includes>
+    <includes refid="format_8hpp" local="no">cugraph-ops/graph/format.hpp</includes>
+    <includes local="no">cstdint</includes>
+    <includedby refid="agg__concat_8hpp" local="no">include/cugraph-ops/operators/agg_concat.hpp</includedby>
+    <includedby refid="agg__concat__weighted_8hpp" local="no">include/cugraph-ops/operators/agg_concat_weighted.hpp</includedby>
+    <includedby refid="agg__dmpnn_8hpp" local="no">include/cugraph-ops/operators/agg_dmpnn.hpp</includedby>
+    <includedby refid="agg__hg__basis_8hpp" local="no">include/cugraph-ops/operators/agg_hg_basis.hpp</includedby>
+    <includedby refid="agg__simple_8hpp" local="no">include/cugraph-ops/operators/agg_simple.hpp</includedby>
+    <includedby refid="agg__weighted_8hpp" local="no">include/cugraph-ops/operators/agg_weighted.hpp</includedby>
+    <includedby refid="fused__tp_8hpp" local="no">include/cugraph-ops/operators/fused_tp.hpp</includedby>
+    <includedby refid="mace_8hpp" local="no">include/cugraph-ops/operators/mace.hpp</includedby>
+    <includedby refid="mha__gat_8hpp" local="no">include/cugraph-ops/operators/mha_gat.hpp</includedby>
+    <includedby refid="mha__gat__v2_8hpp" local="no">include/cugraph-ops/operators/mha_gat_v2.hpp</includedby>
+    <includedby refid="mha__simple_8hpp" local="no">include/cugraph-ops/operators/mha_simple.hpp</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>cstdint</label>
+      </node>
+      <node id="4">
+        <label>cugraph-ops/graph/format.hpp</label>
+        <link refid="format_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>cugraph-ops/activation.hpp</label>
+        <link refid="activation_8hpp"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>include/cugraph-ops/operators/common.hpp</label>
+        <link refid="common_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="6">
+        <label>include/cugraph-ops/operators/agg_simple.hpp</label>
+        <link refid="agg__simple_8hpp"/>
+      </node>
+      <node id="8">
+        <label>include/cugraph-ops/operators/fused_tp.hpp</label>
+        <link refid="fused__tp_8hpp"/>
+      </node>
+      <node id="5">
+        <label>include/cugraph-ops/operators/agg_hg_basis.hpp</label>
+        <link refid="agg__hg__basis_8hpp"/>
+      </node>
+      <node id="12">
+        <label>include/cugraph-ops/operators/mha_simple.hpp</label>
+        <link refid="mha__simple_8hpp"/>
+      </node>
+      <node id="7">
+        <label>include/cugraph-ops/operators/agg_weighted.hpp</label>
+        <link refid="agg__weighted_8hpp"/>
+      </node>
+      <node id="9">
+        <label>include/cugraph-ops/operators/mace.hpp</label>
+        <link refid="mace_8hpp"/>
+      </node>
+      <node id="4">
+        <label>include/cugraph-ops/operators/agg_dmpnn.hpp</label>
+        <link refid="agg__dmpnn_8hpp"/>
+      </node>
+      <node id="3">
+        <label>include/cugraph-ops/operators/agg_concat_weighted.hpp</label>
+        <link refid="agg__concat__weighted_8hpp"/>
+      </node>
+      <node id="11">
+        <label>include/cugraph-ops/operators/mha_gat_v2.hpp</label>
+        <link refid="mha__gat__v2_8hpp"/>
+      </node>
+      <node id="2">
+        <label>include/cugraph-ops/operators/agg_concat.hpp</label>
+        <link refid="agg__concat_8hpp"/>
+      </node>
+      <node id="1">
+        <label>include/cugraph-ops/operators/common.hpp</label>
+        <link refid="common_8hpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>include/cugraph-ops/operators/mha_gat.hpp</label>
+        <link refid="mha__gat_8hpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structcugraph_1_1ops_1_1mha__params" prot="public">cugraph::ops::mha_params</innerclass>
+    <innernamespace refid="namespacecugraph">cugraph</innernamespace>
+    <innernamespace refid="namespacecugraph_1_1ops">cugraph::ops</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2020-2024,<sp/>NVIDIA<sp/>CORPORATION.<sp/>All<sp/>rights<sp/>reserved.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>This<sp/>source<sp/>code<sp/>and/or<sp/>documentation<sp/>(&quot;Licensed<sp/>Deliverables&quot;)<sp/>are</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>subject<sp/>to<sp/>NVIDIA<sp/>intellectual<sp/>property<sp/>rights<sp/>under<sp/>U.S.<sp/>and</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>international<sp/>Copyright<sp/>laws.</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="activation_8hpp" kindref="compound">cugraph-ops/activation.hpp</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="format_8hpp" kindref="compound">cugraph-ops/graph/format.hpp</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cstdint&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacecugraph_1_1ops" kindref="compound">cugraph::ops</ref><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5fae" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5fae" kindref="member">AggOpT</ref><sp/>:<sp/>uint8_t<sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5faea843532fb63972abe47dfc8dab268bd83" kindref="member">kMean</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5faeaa1dc5fbfa16754d1e628d66381725617" kindref="member">kSum</ref>,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5faeaa0b1ac8aae6b1cfbbe89085c642b3b4b" kindref="member">kMax</ref>,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1adb264a5edbea947ae39898346ddc5faea8fbc2f6c44a6d70550df79903eb57d48" kindref="member">kMin</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">};<sp/><sp/></highlight><highlight class="comment">//<sp/>enum<sp/>class<sp/>AggOpT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>@brief<sp/>Type<sp/>of<sp/>implementation<sp/>of<sp/>agg_hg_basis<sp/>kernels</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="namespacecugraph_1_1ops_1a805e240044e5ec781d3d5102586df910" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1a805e240044e5ec781d3d5102586df910" kindref="member">AggHgImplementationT</ref><sp/>:<sp/>uint8_t<sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*<sp/>default<sp/>csc<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1a805e240044e5ec781d3d5102586df910ab481582f6feba4b5d4b6c8972cdf58e5" kindref="member">kDefaultT</ref>,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*<sp/>big<sp/>vertex<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1a805e240044e5ec781d3d5102586df910ad8a98e8906973eed23ef778342f78a90" kindref="member">kBigVertexImplementationT</ref>,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">/*<sp/>memory<sp/>efficient<sp/>big<sp/>vertex<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1a805e240044e5ec781d3d5102586df910a7ba089157ef53b491cf7004f55391384" kindref="member">kBigVertexLessMemoryImplementationT</ref></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">};<sp/><sp/></highlight><highlight class="comment">//<sp/>enum<sp/>class<sp/>AggHgImplementationT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structcugraph_1_1ops_1_1mha__params" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">__attribute__((aligned(16)))<sp/><ref refid="structcugraph_1_1ops_1_1mha__params" kindref="compound">mha_params</ref><sp/>{</highlight></codeline>
+<codeline lineno="45" refid="structcugraph_1_1ops_1_1mha__params_1ac9858f750968d40ec0ac7cafccca30b3" refkind="member"><highlight class="normal"><sp/><sp/><ref refid="structcugraph_1_1ops_1_1activation__params" kindref="compound">activation_params</ref><sp/><ref refid="structcugraph_1_1ops_1_1mha__params_1ac9858f750968d40ec0ac7cafccca30b3" kindref="member">activation</ref>;</highlight></codeline>
+<codeline lineno="46" refid="structcugraph_1_1ops_1_1mha__params_1a58ffac965c06351391ad9341a30d2f76" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num_heads{1};</highlight></codeline>
+<codeline lineno="47" refid="structcugraph_1_1ops_1_1mha__params_1af3d8c85a3d15d2e2ac74e98197eb8345" refkind="member"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>concat_heads{</highlight><highlight class="keyword">true</highlight><highlight class="normal">};</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="namespacecugraph_1_1ops_1a5ab76c165143bc949ea87942fa74d60b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">enum<sp/>class</highlight><highlight class="normal"><sp/><ref refid="namespacecugraph_1_1ops_1a5ab76c165143bc949ea87942fa74d60b" kindref="member">SyncT</ref><sp/>:<sp/>uint8_t<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1a5ab76c165143bc949ea87942fa74d60baf564c2bfece5a7928f8860f983c50098" kindref="member">kFalse</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><ref refid="namespacecugraph_1_1ops_1a5ab76c165143bc949ea87942fa74d60ba66e2fa9ba4f5420341b16f9d6365f428" kindref="member">kTrue</ref><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}<sp/><sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>cugraph::ops</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="include/cugraph-ops/operators/common.hpp"/>
+  </compounddef>
+</doxygen>

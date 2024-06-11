@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classcugraph_1_1ops_1_1cuda_1_1stream" kind="class" language="C++" prot="public">
+    <compoundname>cugraph::ops::cuda::stream</compoundname>
+    <includes refid="stream_8hpp" local="no">stream.hpp</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a3f9a4df7b13a9eee02efd3453e73e3ba" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool cugraph::ops::cuda::stream::is_owned_</definition>
+        <argsstring></argsstring>
+        <name>is_owned_</name>
+        <initializer>{false}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>whether the underlying cuda stream&apos;s lifetime is owned by this class </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="54" column="8" bodyfile="include/cugraph-ops/cuda/stream.hpp" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a4026f8de6d6dd027e06c385d17011a06" prot="private" static="no" mutable="no">
+        <type>cudaStream_t</type>
+        <definition>cudaStream_t cugraph::ops::cuda::stream::st_</definition>
+        <argsstring></argsstring>
+        <name>st_</name>
+        <initializer>{nullptr}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>the cuda stream </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="56" column="16" bodyfile="include/cugraph-ops/cuda/stream.hpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1aeaec8466ae3f156daf811c68ad0b521d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::cuda::stream::stream</definition>
+        <argsstring>()</argsstring>
+        <name>stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a new cuda stream and owns it&apos;s lifetime </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="21" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a6ac9efcc1a3e2bc450dd2f41ff92ffcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::cuda::stream::stream</definition>
+        <argsstring>(cudaStream_t st)</argsstring>
+        <name>stream</name>
+        <param>
+          <type>cudaStream_t</type>
+          <declname>st</declname>
+        </param>
+        <briefdescription>
+<para>This will just compose the cuda stream but not own it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>we don&apos;t mark this as explicit since we want to allow implicitly converting <computeroutput>nullptr</computeroutput> or any stream to a non-owned stream</para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">st</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="31" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a4a7a3a5c538a9bf7cbbe28ee1d37012f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::cuda::stream::stream</definition>
+        <argsstring>(const stream &amp;other)</argsstring>
+        <name>stream</name>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">stream</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+<para>This will just compose the cuda stream but not own it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">other</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cuda stream </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="38" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a24710805b4da913fea1b665994a3e250" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">stream</ref> &amp;</type>
+        <definition>stream&amp; cugraph::ops::cuda::stream::operator=</definition>
+        <argsstring>(const stream &amp;other)</argsstring>
+        <name>operator=</name>
+        <param>
+          <type>const <ref refid="classcugraph_1_1ops_1_1cuda_1_1stream" kindref="compound">stream</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>this destroys our stream if owned and composes other, but not own it </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="41" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1ab392daf463ec0f6bb62834352b8b2f76" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>cugraph::ops::cuda::stream::~stream</definition>
+        <argsstring>()</argsstring>
+        <name>~stream</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>destroy the stream if it is owned by this class </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="44" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1a2cb4fbfc3eb694855657db3b1d01b687" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cugraph::ops::cuda::stream::sync</definition>
+        <argsstring>()</argsstring>
+        <name>sync</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Synchronize on the underlying cuda stream </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="47" column="8"/>
+      </memberdef>
+      <memberdef kind="function" id="classcugraph_1_1ops_1_1cuda_1_1stream_1aa8ed9fc19873f4608e4b8b7a005ca308" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>cudaStream_t</type>
+        <definition>cudaStream_t cugraph::ops::cuda::stream::operator()</definition>
+        <argsstring>() const</argsstring>
+        <name>operator()</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>returns the underlying raw cuda stream </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/cugraph-ops/cuda/stream.hpp" line="50" column="16" bodyfile="include/cugraph-ops/cuda/stream.hpp" bodystart="50" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A simple wrapper class for <computeroutput>cudaStream_t</computeroutput> </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>cugraph::ops::cuda::stream</label>
+        <link refid="classcugraph_1_1ops_1_1cuda_1_1stream"/>
+      </node>
+    </collaborationgraph>
+    <location file="include/cugraph-ops/cuda/stream.hpp" line="18" column="1" bodyfile="include/cugraph-ops/cuda/stream.hpp" bodystart="18" bodyend="57"/>
+    <listofallmembers>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a3f9a4df7b13a9eee02efd3453e73e3ba" prot="private" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>is_owned_</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1aa8ed9fc19873f4608e4b8b7a005ca308" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>operator()</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a24710805b4da913fea1b665994a3e250" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>operator=</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a4026f8de6d6dd027e06c385d17011a06" prot="private" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>st_</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1aeaec8466ae3f156daf811c68ad0b521d" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>stream</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a6ac9efcc1a3e2bc450dd2f41ff92ffcc" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>stream</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a4a7a3a5c538a9bf7cbbe28ee1d37012f" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>stream</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1a2cb4fbfc3eb694855657db3b1d01b687" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>sync</name></member>
+      <member refid="classcugraph_1_1ops_1_1cuda_1_1stream_1ab392daf463ec0f6bb62834352b8b2f76" prot="public" virt="non-virtual"><scope>cugraph::ops::cuda::stream</scope><name>~stream</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

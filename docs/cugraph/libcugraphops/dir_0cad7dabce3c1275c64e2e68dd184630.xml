@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_0cad7dabce3c1275c64e2e68dd184630" kind="dir">
+    <compoundname>include/cugraph-ops</compoundname>
+    <innerdir refid="dir_09613768d976791019752dfd2aefa46b">include/cugraph-ops/cuda</innerdir>
+    <innerdir refid="dir_3dc2179a9afb1685c46085e2a2488ae1">include/cugraph-ops/dimenet</innerdir>
+    <innerdir refid="dir_daaebd5dd868c70244be36581998d3ed">include/cugraph-ops/graph</innerdir>
+    <innerdir refid="dir_264290c0b817ee1d8f6845fbde6841a8">include/cugraph-ops/operators</innerdir>
+    <innerdir refid="dir_17a2426338dc4a0fac062d9b2f054618">include/cugraph-ops/utils</innerdir>
+    <innerfile refid="activation_8hpp">activation.hpp</innerfile>
+    <innerfile refid="mma_8hpp">mma.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/cugraph-ops/"/>
+  </compounddef>
+</doxygen>

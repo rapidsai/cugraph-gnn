@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="gather__op__impl__nvshmem_8cu" kind="file" language="C++">
+    <compoundname>gather_op_impl_nvshmem.cu</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">/*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2023,<sp/>NVIDIA<sp/>CORPORATION.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Licensed<sp/>under<sp/>the<sp/>Apache<sp/>License,<sp/>Version<sp/>2.0<sp/>(the<sp/>&quot;License&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>you<sp/>may<sp/>not<sp/>use<sp/>this<sp/>file<sp/>except<sp/>in<sp/>compliance<sp/>with<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>You<sp/>may<sp/>obtain<sp/>a<sp/>copy<sp/>of<sp/>the<sp/>License<sp/>at</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/><sp/><sp/><sp/><sp/>http://www.apache.org/licenses/LICENSE-2.0</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Unless<sp/>required<sp/>by<sp/>applicable<sp/>law<sp/>or<sp/>agreed<sp/>to<sp/>in<sp/>writing,<sp/>software</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>distributed<sp/>under<sp/>the<sp/>License<sp/>is<sp/>distributed<sp/>on<sp/>an<sp/>&quot;AS<sp/>IS&quot;<sp/>BASIS,</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>WITHOUT<sp/>WARRANTIES<sp/>OR<sp/>CONDITIONS<sp/>OF<sp/>ANY<sp/>KIND,<sp/>either<sp/>express<sp/>or<sp/>implied.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>See<sp/>the<sp/>License<sp/>for<sp/>the<sp/>specific<sp/>language<sp/>governing<sp/>permissions<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>limitations<sp/>under<sp/>the<sp/>License.</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*/</highlight></codeline>
+<codeline><highlight class="normal">#ifdef<sp/>WITH_NVSHMEM_SUPPORT</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cstddef&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cstdint&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cuda_runtime_api.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/wholememory.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/env_func_ptrs.h&gt;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;logger.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/communicator.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/integer_utils.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/memory_handle.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/functions/bucket_ids_func.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/functions/exchange_embeddings_nccl_func.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/functions/exchange_ids_nccl_func.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/functions/gather_scatter_func.cuh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/functions/gather_scatter_func.h&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/device_reference.cuh&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory/global_reference.h&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/register.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/temp_memory_handle.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&quot;wholememory_ops/thrust_allocator.hpp&quot;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;cub/cub.cuh&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;nvshmem.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;nvshmemx.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;thrust/sequence.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;thrust/unique.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">#include<sp/>&lt;wholememory/tensor_description.h&gt;</highlight></codeline>
+<codeline><highlight class="normal">namespace<sp/>wholememory_ops<sp/>{</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>nvshmem_gather_floating_int32_func(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_comm_t<sp/>wm_comm,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_nvshmem_ref_t<sp/>embeding_nvshmem_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>embedding_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>void*<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_array_description_t<sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>temp_output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>embedding_entry_count_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>gather_sms);</highlight></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>nvshmem_gather_floating_int64_func(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_comm_t<sp/>wm_comm,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_nvshmem_ref_t<sp/>embeding_nvshmem_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>embedding_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>void*<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_array_description_t<sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>temp_output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>embedding_entry_count_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>gather_sms);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>nvshmem_gather_integer_int64_func(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_comm_t<sp/>wm_comm,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_nvshmem_ref_t<sp/>embeding_nvshmem_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>embedding_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>void*<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_array_description_t<sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>temp_output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>embedding_entry_count_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>gather_sms);</highlight></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>nvshmem_gather_integer_int32_func(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_comm_t<sp/>wm_comm,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_nvshmem_ref_t<sp/>embeding_nvshmem_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>embedding_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>const<sp/>void*<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_array_description_t<sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>temp_output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>size_t<sp/>embedding_entry_count_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>gather_sms);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">wholememory_error_code_t<sp/>wholememory_gather_nvshmem(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_handle_t<sp/>wholememory_handle,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>wholememory_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_array_description_t<sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>void*<sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_matrix_description_t<sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>wholememory_env_func_t*<sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>cudaStream_t<sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>int<sp/>gather_sms)</highlight></codeline>
+<codeline><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>try<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>embedding_is_float<sp/>=<sp/>wholememory_dtype_is_floating_number(wholememory_desc.dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_CHECK(embedding_is_float<sp/>||</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_dtype_is_integer_number(wholememory_desc.dtype));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>output_is_float<sp/>=<sp/>wholememory_dtype_is_floating_number(output_desc.dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_CHECK(output_is_float<sp/>||<sp/>wholememory_dtype_is_integer_number(output_desc.dtype));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_EXPECTS(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>embedding_is_float<sp/>==<sp/>output_is_float,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&quot;embedding<sp/>and<sp/>output<sp/>should<sp/>be<sp/>same<sp/>number<sp/>type,<sp/>e.g.<sp/>floating<sp/>number<sp/>or<sp/>integer<sp/>number.&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(indice_desc.size<sp/>==<sp/>0)<sp/>{<sp/>return<sp/>WHOLEMEMORY_SUCCESS;<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>embedding_size_per_rank;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_RETURN_ON_FAIL(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_get_partition_plan(&amp;embedding_size_per_rank,<sp/>wholememory_handle));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>element_size<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>wholememory_dtype_get_element_size(wholememory_desc.dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>embedding_entry_size<sp/>=<sp/>element_size<sp/>*<sp/>wholememory_desc.stride;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_EXPECTS_NOTHROW(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>embedding_size_per_rank<sp/>%<sp/>embedding_entry_size<sp/>==<sp/>0,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&quot;embedding_size_per_rank=%ld<sp/>is<sp/>not<sp/>multiple<sp/>of<sp/>embedding_entry_size=%ldx%ld&quot;,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>embedding_size_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>element_size,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_desc.stride);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>embedding_entry_count_per_rank<sp/>=<sp/>embedding_size_per_rank<sp/>/<sp/>embedding_entry_size;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>wholememory_comm_t<sp/>wm_comm;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_RETURN_ON_FAIL(wholememory_get_communicator(&amp;wm_comm,<sp/>wholememory_handle));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>wholememory_nvshmem_ref_t<sp/>embedding_nvshmem_ref;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_RETURN_ON_FAIL(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_get_nvshmem_reference(&amp;embedding_nvshmem_ref,<sp/>wholememory_handle));</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>temp_memory_handle<sp/>device_temp_output_handle(p_env_fns);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>temp_output_ele_size<sp/>=<sp/>wholememory_get_memory_element_count_from_matrix(&amp;output_desc);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>void*<sp/>temp_output_ptr<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>device_temp_output_handle.device_malloc(temp_output_ele_size,<sp/>wholememory_desc.dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size_t<sp/>temp_output_byte_size<sp/>=</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>temp_output_ele_size<sp/>*<sp/>wholememory_dtype_get_element_size(wholememory_desc.dtype);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>register</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(nvshmemx_buffer_register(temp_output_ptr,<sp/>temp_output_byte_size)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;nvshmemx_buffer_register<sp/>error<sp/>in<sp/>wholememory_gather_nvshmem&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>wholememory_error_code_t<sp/>(*p_nvshmem_gather_func)(wholememory_comm_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_nvshmem_ref_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_matrix_description_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>void*,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_array_description_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void*,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_matrix_description_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>size_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_env_func_t*,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cudaStream_t,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int)<sp/>=<sp/>nullptr;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(embedding_is_float)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(indice_desc.dtype<sp/>==<sp/>WHOLEMEMORY_DT_INT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_nvshmem_gather_func<sp/>=<sp/>nvshmem_gather_floating_int32_func;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_nvshmem_gather_func<sp/>=<sp/>nvshmem_gather_floating_int64_func;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(indice_desc.dtype<sp/>==<sp/>WHOLEMEMORY_DT_INT)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_nvshmem_gather_func<sp/>=<sp/>nvshmem_gather_integer_int32_func;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>else<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_nvshmem_gather_func<sp/>=<sp/>nvshmem_gather_integer_int64_func;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>auto<sp/>ret<sp/>=<sp/>p_nvshmem_gather_func(wm_comm,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>embedding_nvshmem_ref,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wholememory_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>indices,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>indice_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp_output_ptr,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>output_desc,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>embedding_entry_count_per_rank,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_env_fns,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gather_sms);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>//<sp/>ungistre</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK(cudaStreamSynchronize(stream));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(nvshmemx_buffer_unregister(temp_output_ptr)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;nvshmemx_buffer_unregister<sp/>error<sp/>in<sp/>wholememory_gather_nvshmem&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WM_CUDA_CHECK(cudaGetLastError());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>ret;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/>catch<sp/>(wholememory::cuda_error&amp;<sp/>wce)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;CUDA<sp/>logic<sp/>Error<sp/>%s\n&quot;,<sp/>wce.what());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_CUDA_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/>catch<sp/>(wholememory::logic_error&amp;<sp/>wle)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>WHOLEMEMORY_ERROR(&quot;LOGIC<sp/>Error<sp/>%s\n&quot;,<sp/>wle.what());</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_LOGIC_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}<sp/>catch<sp/>(...)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>return<sp/>WHOLEMEMORY_UNKNOW_ERROR;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>return<sp/>WHOLEMEMORY_SUCCESS;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">}<sp/><sp/>//<sp/>namespace<sp/>wholememory_ops</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#endif</highlight></codeline>
+    </programlisting>
+    <location file="src/wholememory_ops/gather_op_impl_nvshmem.cu"/>
+  </compounddef>
+</doxygen>

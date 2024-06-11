@@ -1,0 +1,829 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Building from Source &#8212; cugraph 24.08.00 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="https://docs.rapids.ai/assets/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/references.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script defer="defer" src="https://docs.rapids.ai/assets/js/custom.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'installation/source_build';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorials" href="../tutorials/index.html" />
+    <link rel="prev" title="Getting cuGraph Packages" href="getting_cugraph.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cugraph 24.08.00 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="ms-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+            <li class="nav-item dropdown pst-header-nav-item">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="../api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../basics/index.html">
+    Basics
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../nx_cugraph/index.html">
+    nxCugraph as a NetworkX Backend
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../tutorials/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../graph_support/index.html">
+    Graph Support
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../wholegraph/index.html">
+    WholeGraph
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../references/index.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../api_docs/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/rapidsai/cugraph" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/rapidsai" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Twitter</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="getting_cugraph.html">Getting cuGraph Packages</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Building from Source</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Installation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Building from Source</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="building-from-source">
+<h1>Building from Source<a class="headerlink" href="#building-from-source" title="Permalink to this heading">#</a></h1>
+<p>These instructions are tested on supported versions/distributions of Linux,
+CUDA, and Python - See <a class="reference external" href="https://rapids.ai/start.html">RAPIDS Getting Started</a>
+for the list of supported environments.  Other environments <em>might be</em>
+compatible, but are not currently tested.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">#</a></h2>
+<p><strong>Compilers:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gcc</span></code>           version 9.3+</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code>          version 11.5+</p></li>
+</ul>
+<p><strong>CUDA:</strong></p>
+<ul class="simple">
+<li><p>CUDA 11.2+</p></li>
+<li><p>NVIDIA driver 470.42.01 or newer</p></li>
+<li><p>NVIDIA GPU, Volta architecture or later, with <a class="reference external" href="https://developer.nvidia.com/cuda-gpus">compute capability</a> 7.0+</p></li>
+</ul>
+<p>Further details and download links for these prerequisites are available on the
+<a class="reference external" href="https://docs.rapids.ai/install#system-req">RAPIDS System Requirements page</a>.</p>
+</section>
+<section id="setting-up-the-development-environment">
+<h2>Setting up the development environment<a class="headerlink" href="#setting-up-the-development-environment" title="Permalink to this heading">#</a></h2>
+<section id="clone-the-repository">
+<h3>Clone the repository:<a class="headerlink" href="#clone-the-repository" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUGRAPH_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/cugraph
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rapidsai/cugraph.git<span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>
+</pre></div>
+</div>
+</section>
+<section id="create-the-conda-environment">
+<h3>Create the conda environment<a class="headerlink" href="#create-the-conda-environment" title="Permalink to this heading">#</a></h3>
+<p>Using conda is the easiest way to install both the build and runtime
+dependencies for cugraph. While it is possible to build and run cugraph without
+conda, the required packages occasionally change, making it difficult to
+document here. The best way to see the current dependencies needed for a build
+and run environment is to examine the list of packages in the <a class="reference external" href="https://github.com/rapidsai/cugraph/blob/main/conda/environments">conda
+environment YAML
+files</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for CUDA 11.x</span>
+conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cugraph_dev<span class="w"> </span>--file<span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/conda/environments/all_cuda-118_arch-x86_64.yaml
+
+<span class="c1"># for CUDA 12.x</span>
+conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>cugraph_dev<span class="w"> </span>--file<span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/conda/environments/all_cuda-12.2_arch-x86_64.yaml
+
+
+<span class="c1"># activate the environment</span>
+conda<span class="w"> </span>activate<span class="w"> </span>cugraph_dev
+
+<span class="c1"># to deactivate an environment</span>
+conda<span class="w"> </span>deactivate
+</pre></div>
+</div>
+<p>The environment can be updated as cugraph adds/removes/updates its dependencies. To do so, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for CUDA 11.x</span>
+conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>--name<span class="w"> </span>cugraph_dev<span class="w"> </span>--file<span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/conda/environments/all_cuda-118_arch-x86_64.yaml
+conda<span class="w"> </span>activate<span class="w"> </span>cugraph_dev
+
+<span class="c1"># for CUDA 12.x</span>
+conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>--name<span class="w"> </span>cugraph_dev<span class="w"> </span>--file<span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/conda/environments/all_cuda-122_arch-x86_64.yaml
+conda<span class="w"> </span>activate<span class="w"> </span>cugraph_dev
+</pre></div>
+</div>
+</section>
+<section id="build-and-install">
+<h3>Build and Install<a class="headerlink" href="#build-and-install" title="Permalink to this heading">#</a></h3>
+<section id="build-and-install-using-build-sh">
+<h4>Build and install using <code class="docutils literal notranslate"><span class="pre">build.sh</span></code><a class="headerlink" href="#build-and-install-using-build-sh" title="Permalink to this heading">#</a></h4>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">build.sh</span></code> script, located in the <code class="docutils literal notranslate"><span class="pre">$CUGRAPH_HOME</span></code> directory, is the
+recommended way to build and install the cugraph libraries. By default,
+<code class="docutils literal notranslate"><span class="pre">build.sh</span></code> will build and install a predefined set of targets
+(packages/libraries), but can also accept a list of targets to build.</p>
+<p>For example, to build only the cugraph C++ library (<code class="docutils literal notranslate"><span class="pre">libcugraph</span></code>) and the
+high-level python library (<code class="docutils literal notranslate"><span class="pre">cugraph</span></code>) without building the C++ test binaries,
+run this command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>
+$<span class="w"> </span>./build.sh<span class="w"> </span>libcugraph<span class="w"> </span>pylibcugraph<span class="w"> </span>cugraph<span class="w"> </span>--skip_cpp_tests
+</pre></div>
+</div>
+<p>There are several other options available on the build script for advanced
+users. Refer to the output of <code class="docutils literal notranslate"><span class="pre">--help</span></code> for details.</p>
+<p>Note that libraries will be installed to the location set in <code class="docutils literal notranslate"><span class="pre">$PREFIX</span></code> if set
+(i.e. <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PREFIX=/install/path</span></code>), otherwise to <code class="docutils literal notranslate"><span class="pre">$CONDA_PREFIX</span></code>.</p>
+</section>
+<section id="updating-the-raft-branch">
+<h4>Updating the RAFT branch<a class="headerlink" href="#updating-the-raft-branch" title="Permalink to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">libcugraph</span></code> uses the <a class="reference external" href="https://github.com/rapidsai/raft">RAFT</a> library and
+there are times when it might be desirable to build against a different RAFT
+branch, such as when working on new features that might span both RAFT and
+cuGraph.</p>
+<p>For local development, the <code class="docutils literal notranslate"><span class="pre">CPM_raft_SOURCE=&lt;path/to/raft/source&gt;</span></code> option can
+be passed to the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> command to enable <code class="docutils literal notranslate"><span class="pre">libcugraph</span></code> to use the local RAFT
+branch. The <code class="docutils literal notranslate"><span class="pre">build.sh</span></code> script calls <code class="docutils literal notranslate"><span class="pre">cmake</span></code> to build the C/C++ targets, but
+developers can call <code class="docutils literal notranslate"><span class="pre">cmake</span></code> directly in order to pass it options like those
+described here. Refer to the <code class="docutils literal notranslate"><span class="pre">build.sh</span></code> script to see how to call <code class="docutils literal notranslate"><span class="pre">cmake</span></code> and
+other commands directly.</p>
+<p>To have CI test a <code class="docutils literal notranslate"><span class="pre">cugraph</span></code> pull request against a different RAFT branch,
+modify the bottom of the <code class="docutils literal notranslate"><span class="pre">cpp/cmake/thirdparty/get_raft.cmake</span></code> file as follows:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="c"># Change pinned tag and fork here to test a commit in CI</span>
+<span class="c"># To use a different RAFT locally, set the CMake variable</span>
+<span class="c"># RPM_raft_SOURCE=/path/to/local/raft</span>
+<span class="nb">find_and_configure_raft</span><span class="p">(</span><span class="s">VERSION</span><span class="w">    </span><span class="o">${</span><span class="nv">CUGRAPH_MIN_VERSION_raft</span><span class="o">}</span>
+<span class="w">                        </span><span class="s">FORK</span><span class="w">       </span><span class="s">&lt;your_git_fork&gt;</span>
+<span class="w">                        </span><span class="s">PINNED_TAG</span><span class="w"> </span><span class="s">&lt;your_git_branch_or_tag&gt;</span>
+
+<span class="w">                        </span><span class="c"># When PINNED_TAG above doesn&#39;t match cugraph,</span>
+<span class="w">                        </span><span class="c"># force local raft clone in build directory</span>
+<span class="w">                        </span><span class="c"># even if it&#39;s already installed.</span>
+<span class="w">                        </span><span class="s">CLONE_ON_PIN</span><span class="w">     </span><span class="s">ON</span>
+<span class="w">                        </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the above change is pushed to a pull request, the continuous integration
+servers will use the specified RAFT branch to run the cuGraph tests. After the
+changes in the RAFT branch are merged to the release branch, remember to revert
+the <code class="docutils literal notranslate"><span class="pre">get_raft.cmake</span></code> file back to the original cuGraph branch.</p>
+</section>
+</section>
+</section>
+<section id="run-tests">
+<h2>Run tests<a class="headerlink" href="#run-tests" title="Permalink to this heading">#</a></h2>
+<p>If you already have the datasets:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">RAPIDS_DATASET_ROOT_DIR</span><span class="o">=</span>&lt;path_to_ccp_test_and_reference_data&gt;
+</pre></div>
+</div>
+<p>If you do not have the datasets:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/datasets
+<span class="nb">source</span><span class="w"> </span>get_test_data.sh<span class="w"> </span><span class="c1">#This takes about 10 minutes and downloads 1GB data (&gt;5 GB uncompressed)</span>
+</pre></div>
+</div>
+<p>Run either the C++ or the Python tests with datasets</p>
+<ul>
+<li><p><strong>Python tests with datasets</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>python-louvain<span class="w"> </span><span class="c1">#some tests require this package to run</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>
+<span class="nb">cd</span><span class="w"> </span>python
+pytest
+</pre></div>
+</div>
+</li>
+<li><p><strong>C++ stand alone tests</strong></p>
+<p>From the build directory :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the cugraph tests</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>
+<span class="nb">cd</span><span class="w"> </span>cpp/build
+gtests/GDFGRAPH_TEST<span class="w">		</span><span class="c1"># this is an executable file</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>C++ tests with larger datasets</strong></p>
+<p>Run the C++ tests on large input:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$CUGRAPH_HOME</span>/cpp/build
+<span class="c1">#test one particular analytics (eg. pagerank)</span>
+gtests/PAGERANK_TEST
+<span class="c1">#test everything</span>
+make<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Note: This conda installation only applies to Linux and Python versions 3.8/3.11.</p>
+<section id="optional-set-environment-variable-on-activation">
+<h3>(OPTIONAL) Set environment variable on activation<a class="headerlink" href="#optional-set-environment-variable-on-activation" title="Permalink to this heading">#</a></h3>
+<p>It is possible to configure the conda environment to set environment variables
+on activation. Providing instructions to set PATH to include the CUDA toolkit
+bin directory and LD_LIBRARY_PATH to include the CUDA lib64 directory will be
+helpful.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w">  </span>~/anaconda3/envs/cugraph_dev
+
+mkdir<span class="w"> </span>-p<span class="w"> </span>./etc/conda/activate.d
+mkdir<span class="w"> </span>-p<span class="w"> </span>./etc/conda/deactivate.d
+touch<span class="w"> </span>./etc/conda/activate.d/env_vars.sh
+touch<span class="w"> </span>./etc/conda/deactivate.d/env_vars.sh
+</pre></div>
+</div>
+<p>Next the env_vars.sh file needs to be edited</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vi<span class="w"> </span>./etc/conda/activate.d/env_vars.sh
+
+<span class="c1">#!/bin/bash</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-11.0/bin:<span class="nv">$PATH</span><span class="w"> </span><span class="c1"># or cuda-11.1 if using CUDA 11.1 and cuda-11.2 if using CUDA 11.2, respectively</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-11.0/lib64:<span class="nv">$LD_LIBRARY_PATH</span><span class="w"> </span><span class="c1"># or cuda-11.1 if using CUDA 11.1 and cuda-11.2 if using CUDA 11.2, respectively</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="o">./</span><span class="n">etc</span><span class="o">/</span><span class="n">conda</span><span class="o">/</span><span class="n">deactivate</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">env_vars</span><span class="o">.</span><span class="n">sh</span>
+
+<span class="c1">#!/bin/bash</span>
+<span class="n">unset</span> <span class="n">PATH</span>
+<span class="n">unset</span> <span class="n">LD_LIBRARY_PATH</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="creating-documentation">
+<h2>Creating documentation<a class="headerlink" href="#creating-documentation" title="Permalink to this heading">#</a></h2>
+<p>Python API documentation can be generated from <em>./docs/cugraph directory</em>. Or
+through using “./build.sh docs”</p>
+</section>
+<section id="attribution">
+<h2>Attribution<a class="headerlink" href="#attribution" title="Permalink to this heading">#</a></h2>
+<p>Portions adopted from https://github.com/pytorch/pytorch/blob/master/CONTRIBUTING.md</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="getting_cugraph.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Getting cuGraph Packages</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../tutorials/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Tutorials</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-development-environment">Setting up the development environment</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-the-repository">Clone the repository:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-conda-environment">Create the conda environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-and-install">Build and Install</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#build-and-install-using-build-sh">Build and install using <code class="docutils literal notranslate"><span class="pre">build.sh</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-raft-branch">Updating the RAFT branch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-tests">Run tests</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-set-environment-variable-on-activation">(OPTIONAL) Set environment variable on activation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-documentation">Creating documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attribution">Attribution</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/installation/source_build.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2019-2023, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
