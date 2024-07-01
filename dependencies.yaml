@@ -8,13 +8,13 @@ files:
     includes:
       - checks
       - common_build
-      - cpp_build
       - cuda
       - cuda_version
       - docs
       - python_build_wheel
       - python_build_cythonize
       - depends_on_rmm
+      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_dask_cudf
       - depends_on_pylibraft
@@ -22,15 +22,11 @@ files:
       - depends_on_pylibcugraphops
       - depends_on_pylibwholegraph
       - depends_on_cupy
-      - python_run_cugraph
-      - python_run_nx_cugraph
       - python_run_cugraph_dgl
       - python_run_cugraph_pyg
       - test_notebook
       - test_python_common
-      - test_python_cugraph
-      - test_python_pylibcugraph
-      - test_python_nx_cugraph
+
   checks:
     output: none
     includes:
@@ -55,104 +51,17 @@ files:
       - py_version
       - test_notebook
       - test_python_common
-      - test_python_cugraph
   test_python:
     output: none
     includes:
       - cuda_version
+      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pylibwholegraph
       - py_version
       - test_python_common
-      - test_python_cugraph
       - test_python_pylibcugraph
-  py_build_cugraph:
-    output: pyproject
-    pyproject_dir: python/cugraph
-    extras:
-      table: build-system
-    includes:
-      - common_build
-      - depends_on_rmm
-      - depends_on_pylibraft
-      - depends_on_pylibcugraph
-      - python_build_cythonize
-  py_run_cugraph:
-    output: pyproject
-    pyproject_dir: python/cugraph
-    extras:
-      table: project
-    includes:
-      - depends_on_rmm
-      - depends_on_cudf
-      - depends_on_dask_cudf
-      - depends_on_raft_dask
-      - depends_on_pylibcugraph
-      - depends_on_cupy
-      - python_run_cugraph
-  py_test_cugraph:
-    output: pyproject
-    pyproject_dir: python/cugraph
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - test_python_common
-      - test_python_cugraph
-      - depends_on_pylibwholegraph
-  py_build_pylibcugraph:
-    output: pyproject
-    pyproject_dir: python/pylibcugraph
-    extras:
-      table: build-system
-    includes:
-      - common_build
-      - depends_on_rmm
-      - depends_on_pylibraft
-      - python_build_cythonize
-  py_run_pylibcugraph:
-    output: pyproject
-    pyproject_dir: python/pylibcugraph
-    extras:
-      table: project
-    includes:
-      - depends_on_rmm
-      - depends_on_pylibraft
-  py_test_pylibcugraph:
-    output: pyproject
-    pyproject_dir: python/pylibcugraph
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - depends_on_cudf
-      - test_python_common
-      - test_python_pylibcugraph
-  py_build_nx_cugraph:
-    output: pyproject
-    pyproject_dir: python/nx-cugraph
-    extras:
-      table: build-system
-    includes:
-      - python_build_wheel
-  py_run_nx_cugraph:
-    output: pyproject
-    pyproject_dir: python/nx-cugraph
-    extras:
-      table: project
-    includes:
-      - depends_on_pylibcugraph
-      - depends_on_cupy
-      - python_run_nx_cugraph
-  py_test_nx_cugraph:
-    output: pyproject
-    pyproject_dir: python/nx-cugraph
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - test_python_common
-      - test_python_nx_cugraph
+ 
   py_build_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -201,69 +110,8 @@ files:
     includes:
       - test_python_common
       - depends_on_pylibwholegraph
-  py_build_cugraph_equivariant:
-    output: pyproject
-    pyproject_dir: python/cugraph-equivariant
-    extras:
-      table: build-system
-    includes:
-      - python_build_wheel
-  py_run_cugraph_equivariant:
-    output: pyproject
-    pyproject_dir: python/cugraph-equivariant
-    extras:
-      table: project
-    includes:
-      - depends_on_pylibcugraphops
-  py_test_cugraph_equivariant:
-    output: pyproject
-    pyproject_dir: python/cugraph-equivariant
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - test_python_common
-  py_build_cugraph_service_client:
-    output: pyproject
-    pyproject_dir: python/cugraph-service/client
-    extras:
-      table: build-system
-    includes:
-      - python_build_wheel
-  py_run_cugraph_service_client:
-    output: pyproject
-    pyproject_dir: python/cugraph-service/client
-    extras:
-      table: project
-    includes:
-      - python_run_cugraph_service_client
-  py_build_cugraph_service_server:
-    output: pyproject
-    pyproject_dir: python/cugraph-service/server
-    extras:
-      table: build-system
-    includes:
-      - python_build_wheel
-  py_run_cugraph_service_server:
-    output: pyproject
-    pyproject_dir: python/cugraph-service/server
-    extras:
-      table: project
-    includes:
-      - depends_on_rmm
-      - depends_on_cudf
-      - depends_on_dask_cudf
-      - depends_on_cupy
-      - python_run_cugraph_service_server
-  py_test_cugraph_service_server:
-    output: pyproject
-    pyproject_dir: python/cugraph-service/server
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - test_python_common
-      - test_python_cugraph
+  
+  
   cugraph_dgl_dev:
     matrix:
       cuda: ["11.8"]
@@ -271,6 +119,7 @@ files:
     conda_dir: python/cugraph-dgl/conda
     includes:
       - checks
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
       - cugraph_dgl_dev
       - test_python_common
@@ -281,6 +130,7 @@ files:
     conda_dir: python/cugraph-pyg/conda
     includes:
       - checks
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
       - cugraph_pyg_dev
       - test_python_common
@@ -351,45 +201,7 @@ dependencies:
         packages:
           - &cmake_ver cmake>=3.26.4
           - ninja
-  cpp_build:
-    common:
-      - output_types: [conda]
-        packages:
-          - c-compiler
-          - cxx-compiler
-          - libcudf==24.8.*
-          - libcugraphops==24.8.*
-          - libraft-headers==24.8.*
-          - libraft==24.8.*
-          - librmm==24.8.*
-          - openmpi # Required for building cpp-mgtests (multi-GPU tests)
-    specific:
-      - output_types: [conda]
-        matrices:
-          - matrix:
-              arch: x86_64
-            packages:
-              - gcc_linux-64=11.*
-          - matrix:
-              arch: aarch64
-            packages:
-              - gcc_linux-aarch64=11.*
-      - output_types: [conda]
-        matrices:
-          - matrix:
-              arch: x86_64
-              cuda: "11.8"
-            packages:
-              - nvcc_linux-64=11.8
-          - matrix:
-              arch: aarch64
-              cuda: "11.8"
-            packages:
-              - nvcc_linux-aarch64=11.8
-          - matrix:
-              cuda: "12.*"
-            packages:
-              - cuda-nvcc
+
   docs:
     common:
       - output_types: [conda]
@@ -442,39 +254,12 @@ dependencies:
       - output_types: [pyproject, requirements]
         packages:
           - scikit-build-core[pyproject]>=0.7.0
-  python_run_cugraph:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - &dask rapids-dask-dependency==24.8.*
-          - &dask_cuda dask-cuda==24.8.*
-          - &numba numba>=0.57
-          - &numpy numpy>=1.23,<2.0a0
-          - &ucx_py ucx-py==0.39.*
-      - output_types: conda
-        packages:
-          - aiohttp
-          - fsspec>=0.6.0
-          - requests
-          - nccl>=2.9.9
-          - ucx-proc=*=gpu
-      - output_types: pyproject
-        packages:
-            # cudf uses fsspec but is protocol independent. cugraph
-            # dataset APIs require [http] extras for use with cudf.
-          - fsspec[http]>=0.6.0
-  python_run_nx_cugraph:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - networkx>=3.0
-          - *numpy
   python_run_cugraph_dgl:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - *numba
-          - *numpy
+          - &numba numba>=0.57
+          - &numpy numpy>=1.23,<2.0a0
       - output_types: [pyproject]
         packages:
           - &cugraph cugraph==24.8.*
@@ -487,30 +272,6 @@ dependencies:
       - output_types: [pyproject]
         packages:
           - *cugraph
-  python_run_cugraph_service_client:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - &thrift thriftpy2
-  python_run_cugraph_service_server:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - *dask
-          - *dask_cuda
-          - *numba
-          - *numpy
-          - *thrift
-          - *ucx_py
-      - output_types: pyproject
-        packages:
-          - *cugraph
-          - cugraph-service-client==24.8.*
-  test_cpp:
-    common:
-      - output_types: conda
-        packages:
-          - *cmake_ver
   test_notebook:
     common:
       - output_types: [conda, requirements]
@@ -530,29 +291,6 @@ dependencies:
           - pytest-cov
           - pytest-xdist
           - scipy
-  test_python_cugraph:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - networkx>=2.5.1
-          - *numpy
-          - python-louvain
-          - scikit-learn>=0.23.1
-      - output_types: [conda]
-        packages:
-          - pylibwholegraph==24.8.*
-  test_python_pylibcugraph:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - *numpy
-  test_python_nx_cugraph:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - packaging>=21
-            # not needed by nx-cugraph tests, but is required for running networkx tests
-          - pytest-mpl
   cugraph_dgl_dev:
     common:
       - output_types: [conda]
@@ -612,6 +350,27 @@ dependencies:
             packages:
               - rmm-cu11==24.8.*
           - {matrix: null, packages: [*rmm_conda]}
+
+  depends_on_cugraph:
+    common:
+      - output_types: conda
+        packages:
+          - &cugraph_conda cugraph==24.8.*
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix: {cuda: "12.*"}
+            packages:
+              - cugraph-cu12==24.8.*
+          - matrix: {cuda: "11.*"}
+            packages:
+              - cugraph-cu11==24.8.*
+          - {matrix: null, packages: [*cugraph_conda]}
 
   depends_on_cudf:
     common:
