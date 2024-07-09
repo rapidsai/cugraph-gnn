@@ -61,7 +61,7 @@ files:
       - py_version
       - test_python_common
       - test_python_pylibcugraph
- 
+
   py_build_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -110,8 +110,8 @@ files:
     includes:
       - test_python_common
       - depends_on_pylibwholegraph
-  
-  
+
+
   cugraph_dgl_dev:
     matrix:
       cuda: ["11.8"]
@@ -199,7 +199,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - &cmake_ver cmake>=3.26.4
+          - &cmake_ver cmake>=3.26.4,!=3.30.0
           - ninja
 
   docs:

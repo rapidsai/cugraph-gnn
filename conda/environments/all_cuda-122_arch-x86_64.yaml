@@ -10,7 +10,7 @@ channels:
 - nvidia
 dependencies:
 - breathe
-- cmake>=3.26.4
+- cmake>=3.26.4,!=3.30.0
 - cuda-cudart-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
