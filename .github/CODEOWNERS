@@ -1,0 +1,25 @@
+# https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+# Order matters - match of highest importance goes last (last match wins)
+
+# doc code owners
+/img               @rapidsai/cugraph-doc-codeowners
+/readme_pages/     @rapidsai/cugraph-doc-codeowners
+
+# python code owners
+python/            @rapidsai/cugraph-python-codeowners
+mg_utils/          @rapidsai/cugraph-python-codeowners
+
+# CI code owners
+/.flake8                 @rapidsai/ci-codeowners
+/.github/                @rapidsai/ci-codeowners
+/ci/                     @rapidsai/ci-codeowners
+/.codecov.yml            @rapidsai/ci-codeowners
+/.pre-commit-config.yaml @rapidsai/ci-codeowners
+/print_env.sh            @rapidsai/ci-codeowners
+
+# packaging code owners
+/conda/            @rapidsai/packaging-codeowners
+/dependencies.yaml @rapidsai/packaging-codeowners
+/build.sh          @rapidsai/packaging-codeowners
+pyproject.toml     @rapidsai/packaging-codeowners
+VERSION            @rapidsai/packaging-codeowners

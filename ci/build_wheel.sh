@@ -21,9 +21,7 @@ PACKAGE_CUDA_SUFFIX="-${RAPIDS_PY_CUDA_SUFFIX}"
 
 # Patch project metadata files to include the CUDA version suffix and version override.
 version_package_name="$underscore_package_name"
-if [[ "${version_package_name}" = "nx_cugraph" ]]; then
-    version_package_name="_nx_cugraph"
-fi
+
 pyproject_file="${package_dir}/pyproject.toml"
 version_file="${package_dir}/${version_package_name}/_version.py"
 
@@ -59,12 +57,11 @@ cd "${package_dir}"
 python -m pip wheel . -w dist -vvv --no-deps --disable-pip-version-check
 
 # pure-python packages should be marked as pure, and not have auditwheel run on them.
-if [[ ${package_name} == "nx-cugraph" ]] || \
-   [[ ${package_name} == "cugraph-dgl" ]] || \
-   [[ ${package_name} == "cugraph-pyg" ]] || \
-   [[ ${package_name} == "cugraph-equivariant" ]]; then
+if [[ ${package_name} == "cugraph-dgl" ]] || \
+   [[ ${package_name} == "cugraph-pyg" ]]; then
     RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 dist
 else
+    # presumably WholeGraph when we add it
     mkdir -p final_dist
     python -m auditwheel repair -w final_dist dist/*
     RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 final_dist
