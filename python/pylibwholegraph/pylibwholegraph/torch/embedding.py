@@ -34,7 +34,8 @@ class WholeMemoryOptimizer(object):
     """
     Sparse Optimizer for WholeMemoryEmbedding.
     Many WholeMemoryEmbedding can share same WholeMemoryOptimizer
-    You should not create WholeMemoryOptimizer object directly, but use :func:`create_wholememory_optimizer` instead.
+    You should not create WholeMemoryOptimizer object directly,
+    but use :func:`create_wholememory_optimizer` instead.
     """
 
     def __init__(self, global_comm: WholeMemoryCommunicator):
@@ -45,7 +46,8 @@ class WholeMemoryOptimizer(object):
 
     def add_embedding(self, wm_embedding):
         """Add WholeMemory Embedding to this optimizer
-        NOTE: you don't need to call this method, it is automatic called when WholeMemory Optimizer is created.
+        NOTE: you don't need to call this method, it is automatic
+          called when WholeMemory Optimizer is created.
         :param wm_embedding: WholeMemory Embedding that use this optimizer
         :return: None
         """
@@ -89,7 +91,8 @@ def create_wholememory_cache_policy(
 ):
     """
     Create WholeMemoryCachePolicy
-    NOTE: in most cases, :func:`create_builtin_cache_policy` can support. This function is a more flexible interface
+    NOTE: in most cases, :func:`create_builtin_cache_policy`
+      can support. This function is a more flexible interface
     :param cache_comm: WholeMemory communicator of the cache
     :param memory_type: WholeMemory type of cache
     :param memory_location: WholeMemory location of cache
@@ -131,7 +134,8 @@ def create_builtin_cache_policy(
 ):
     r"""Create builtin cache policy
 
-    :param builtin_cache_type: supported types are none, local_device, local_node and all_devices
+    :param builtin_cache_type: supported types are none, local_device,
+      local_node and all_devices
     :param embedding_memory_type: WholeMemory type of raw embedding
     :param embedding_memory_location: WholeMemory location of raw embedding
     :param access_type: Access type needed
@@ -162,7 +166,8 @@ def create_builtin_cache_policy(
         and cache_memory_location != "cuda"
     ):
         raise ValueError(
-            f"cache_memory_location is {cache_memory_location}, should be empty or cpu, cuda"
+            f"cache_memory_location is {cache_memory_location}, "
+            "should be empty or cpu, cuda"
         )
     cache_memory_location = (
         "cuda" if cache_memory_location == "" else cache_memory_location
@@ -171,7 +176,8 @@ def create_builtin_cache_policy(
         if embedding_memory_location == "cuda":
             print(
                 "[WARNING] Seems you are using device cache for device memory, "
-                "this may consume more memory and have low performance than use none cache"
+                "this may consume more memory and have"
+                " low performance than use none cache"
             )
         cache_memory_type = (
             embedding_memory_type if cache_memory_type == "" else cache_memory_type
@@ -256,9 +262,7 @@ class WholeMemoryEmbedding(object):
 
         self.wmb_optimizer = None
 
-        self.dummy_input = torch.nn.Parameter(
-            torch.zeros(1), requires_grad=False
-        )
+        self.dummy_input = torch.nn.Parameter(torch.zeros(1), requires_grad=False)
         self.need_apply = False
         self.sparse_indices = []
         self.sparse_grads = []
@@ -310,14 +314,13 @@ class WholeMemoryEmbedding(object):
         return output_tensor
 
     def add_gradients(self, indice: torch.Tensor, grad_outputs: torch.Tensor):
-        # print(f'adding gradients sparse_indices={indice}, sparse_grads={grad_outputs}')
         self.sparse_indices.append(indice)
         self.sparse_grads.append(grad_outputs)
 
     def apply_gradients(self, lr: float):
         sparse_indices = torch.cat(self.sparse_indices)
         sparse_grads = torch.cat(self.sparse_grads)
-        # print(f'applying gradients sparse_indices={sparse_indices}, sparse_grads={sparse_grads}')
+
         wmb.EmbeddingGatherGradientApply(
             self.wmb_embedding,
             wrap_torch_tensor(sparse_indices),
@@ -397,7 +400,8 @@ def create_embedding(
     :param sizes: size of the embedding, must be 2D
     :param cache_policy: cache policy
     :param gather_sms: the number of SMs used in gather process
-    :param round_robin_size: continuous embedding size of a rank using round robin shard strategy
+    :param round_robin_size: continuous embedding size of a rank using
+      round robin shard strategy
     :return: WholeMemoryEmbedding
     """
     if cache_policy is None:
@@ -409,12 +413,14 @@ def create_embedding(
     tensor_desc.set_dtype(torch_dtype_to_wholememory_dtype(dtype))
     tensor_desc.set_shape(sizes)
     tensor_desc.set_stride([sizes[1], 1])
-    if memory_type == 'distributed':
+    if memory_type == "distributed":
         comm_backend = comm.distributed_backend
-        if comm_backend == 'nvshmem' and cache_policy is not None:
+        if comm_backend == "nvshmem" and cache_policy is not None:
             raise AssertionError
-        ("The caching feature is not supported yet when using NVSHMEM."
-         "Please consider disable it by passing cache_policy = None.")
+        (
+            "The caching feature is not supported yet when using NVSHMEM."
+            "Please consider disable it by passing cache_policy = None."
+        )
 
     wm_embedding = WholeMemoryEmbedding(
         wmb.create_embedding(
@@ -460,7 +466,8 @@ def create_embedding_from_filelist(
     :param last_dim_size: size of last dim
     :param cache_policy: cache policy
     :param gather_sms: the number of SMs used in gather process
-    :param round_robin_size: continuous embedding size of a rank using round robin shard strategy
+    :param round_robin_size: continuous embedding size of a rank
+      using round robin shard strategy
     :return:
     """
     if isinstance(filelist, str):
@@ -506,6 +513,7 @@ class WholeMemoryEmbeddingModule(torch.nn.Module):
     """
     torch.nn.Module wrapper of WholeMemoryEmbedding
     """
+
     def __init__(self, wm_embedding: WholeMemoryEmbedding):
         super().__init__()
         self.wm_embedding = wm_embedding
@@ -523,9 +531,11 @@ class WholeMemoryEmbeddingModule(torch.nn.Module):
         )
 
 
-def create_wholememory_optimizer(embeddings: Union[WholeMemoryEmbedding, List[WholeMemoryEmbedding]],
-                                 optimizer_type: str,
-                                 param_dict: dict):
+def create_wholememory_optimizer(
+    embeddings: Union[WholeMemoryEmbedding, List[WholeMemoryEmbedding]],
+    optimizer_type: str,
+    param_dict: dict,
+):
     """
     Create WholeMemoryOptimizer.
     :param embeddings: WholememoryEmbeddings to set the Optimizer

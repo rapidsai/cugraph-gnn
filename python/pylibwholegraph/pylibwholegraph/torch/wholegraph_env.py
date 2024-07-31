@@ -100,10 +100,10 @@ def torch_malloc_env_fn(
     memory_context: TorchMemoryContext,
     global_context: TorchEmptyGlobalContext,
 ) -> int:
-    # print('already in torch_malloc_env_fn', file=sys.stderr)
+
     pinned = False
     device = None
-    # print('torch_malloc_env_fn before config, type=%d' % (malloc_type.get_type(), ), file=sys.stderr)
+
     if malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatDevice:
         device = torch.device("cuda")
     elif malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatHost:
@@ -112,14 +112,14 @@ def torch_malloc_env_fn(
         assert malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatPinned
         device = torch.device("cpu")
         pinned = True
-    # print('torch_malloc_env_fn after config', file=sys.stderr)
+
     shape = tensor_desc.shape
-    # print('torch_malloc_env_fn after shape', file=sys.stderr)
+
     dtype = wholememory_dtype_to_torch_dtype(tensor_desc.dtype)
-    # print('torch_malloc_env_fn after dtype', file=sys.stderr)
+
     t = torch.empty(shape, dtype=dtype, device=device, pin_memory=pinned)
     memory_context.set_tensor(t)
-    # print('torch_malloc_env_fn done return=%ld' % (t.data_ptr(), ), file=sys.stderr)
+
     return t.data_ptr()
 
 

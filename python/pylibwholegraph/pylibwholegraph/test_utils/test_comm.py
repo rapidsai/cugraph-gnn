@@ -118,7 +118,12 @@ def host_sample_all_neighbors(
             output_dest_tensor[output_id + j] = host_csr_col_ptr[start + j]
             output_center_localid_tensor[output_id + j] = i
             output_edge_gid_tensor[output_id + j] = start + j
-    return output_sample_offset_tensor, output_dest_tensor, output_center_localid_tensor, output_edge_gid_tensor
+    return (
+        output_sample_offset_tensor,
+        output_dest_tensor,
+        output_center_localid_tensor,
+        output_edge_gid_tensor,
+    )
 
 
 def copy_host_1D_tensor_to_wholememory(

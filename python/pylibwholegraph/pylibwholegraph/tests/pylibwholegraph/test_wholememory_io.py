@@ -183,11 +183,13 @@ def test_wholememory_load(
 ):
     if embedding_stride < storage_offset + embedding_dim:
         pytest.skip(
-            "Skipping due to embedding_stride, embedding_dim and storage_offset configuration not valid."
+            "Skipping due to embedding_stride, embedding_dim and "
+            "storage_offset configuration not valid."
         )
     if round_robin_size != 0 and storage_offset != 0:
         pytest.skip(
-            "Skipping due to round_robin_size!=0 and storage offset !=0 , the configuration is not valid."
+            "Skipping due to round_robin_size!=0 and storage offset !=0 , "
+            "the configuration is not valid."
         )
     global gpu_count
     if not gpu_count:
@@ -329,7 +331,8 @@ def test_wholememory_store(
 ):
     if embedding_stride < storage_offset + embedding_dim:
         pytest.skip(
-            "Skipping due to embedding_stride, embedding_dim and storage_offset configuration not valid."
+            "Skipping due to embedding_stride, "
+            "embedding_dim and storage_offset configuration not valid."
         )
     file_name_prefix = "pytest_store_temp_file"
     store_routine_func_partial = partial(

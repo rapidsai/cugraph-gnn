@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -21,7 +21,8 @@ from . import wholegraph_ops
 class GraphStructure(object):
     r"""Graph structure storage
     Actually, it is the graph structure of one relation, represented in CSR format.
-    It contains CSR representation of Graph structure, and also attributes associated with nodes and edges.
+    It contains CSR representation of Graph structure, and also attributes associated
+    with nodes and edges.
     """
 
     def __init__(self):
@@ -81,14 +82,15 @@ class GraphStructure(object):
         *,
         random_seed: Union[int, None] = None,
         need_center_local_output: bool = False,
-        need_edge_output: bool = False
+        need_edge_output: bool = False,
     ):
         """
         Unweighted Sample without replacement on CSR graph structure
         :param center_nodes_tensor: center node ids
         :param max_sample_count: max sample count for each center node
         :param random_seed: random seed for the sampler
-        :param need_center_local_output: If True, output a tensor same length as sampled nodes but each element is the
+        :param need_center_local_output: If True, output a tensor same
+            length as sampled nodes but each element is the
             center node index in center_nodes_tensor.
         :param need_edge_output: If True, output the edge index of each sampled node
         :return: csr_row_ptr, sampled_nodes[, center_node_local_id, edge_index]
@@ -111,15 +113,17 @@ class GraphStructure(object):
         *,
         random_seed: Union[int, None] = None,
         need_center_local_output: bool = False,
-        need_edge_output: bool = False
+        need_edge_output: bool = False,
     ):
         """
-        Weighted Sample without replacement on CSR graph structure with edge weights attribute
+        Weighted Sample without replacement on CSR graph structure with
+          edge weights attribute
         :param weight_name: edge attribute name for weight
         :param center_nodes_tensor: center node ids
         :param max_sample_count: max sample count for each center node
         :param random_seed: random seed for the sampler
-        :param need_center_local_output: If True, output a tensor same length as sampled nodes but each element is the
+        :param need_center_local_output: If True, output a tensor same length
+            as sampled nodes but each element is the
             center node index in center_nodes_tensor.
         :param need_edge_output: If True, output the edge index of each sampled node
         :return: csr_row_ptr, sampled_nodes[, center_node_local_id, edge_index]
@@ -147,7 +151,8 @@ class GraphStructure(object):
         Multilayer sample without replacement
         :param node_ids: initial node ids
         :param max_neighbors: maximum neighbor for each layer
-        :param weight_name: edge attribute name for weight, if None, use unweighted sample
+        :param weight_name: edge attribute name for weight,
+          if None, use unweighted sample
         :return: target_gids, edge_indice, csr_row_ptr, csr_col_ind
         """
         hops = len(max_neighbors)

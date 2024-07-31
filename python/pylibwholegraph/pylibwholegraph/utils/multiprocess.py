@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,7 +19,8 @@ def multiprocess_run(world_size: int, func, inline_single_process=False):
     Run func in multiple process
     :param world_size: process count
     :param func: function to run
-    :param inline_single_process: when only one process, whether to use current process to run.
+    :param inline_single_process: when only one process,
+      whether to use current process to run.
     :return: None
     """
     assert world_size > 0

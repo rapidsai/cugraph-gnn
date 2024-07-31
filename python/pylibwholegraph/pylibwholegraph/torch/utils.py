@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -94,8 +94,8 @@ def str_to_wmb_wholememory_memory_type(str_wmb_type: str):
         return wmb.WholeMemoryMemoryType.MtDistributed
     else:
         raise ValueError(
-            "WholeMemory type %s not supported, should be (continuous, chunked, distributed)"
-            % (str_wmb_type,)
+            f"WholeMemory type {str_wmb_type} not supported,"
+            " should be (continuous, chunked, distributed)"
         )
 
 
@@ -112,8 +112,8 @@ def str_to_wmb_wholememory_log_level(str_log_level: str):
         return wmb.WholeMemoryLogLevel.LevTrace
     else:
         raise ValueError(
-            "WholeMemory log level %s not supported, shold be (error, warn, info, debug, trace)"
-            % (str_log_level,)
+            f"WholeMemory log level {str_log_level} not supported,"
+            " should be (error, warn, info, debug, trace)"
         )
 
 
@@ -136,8 +136,8 @@ def str_to_wmb_wholememory_access_type(str_wmb_access: str):
         return wmb.WholeMemoryAccessType.AtReadWrite
     else:
         raise ValueError(
-            "WholeMemory access %s not supported, should be (readonly, ro, readwrite, rw)"
-            % (str_wmb_access,)
+            f"WholeMemory access {str_wmb_access} not supported, "
+            "should be (readonly, ro, readwrite, rw)"
         )
 
 
@@ -152,8 +152,8 @@ def str_to_wmb_wholememory_optimizer_type(str_wmb_optimizer: str):
         return wmb.WholeMemoryOptimizerType.OptRmsProp
     else:
         raise ValueError(
-            "WholeMemory optimizer %s not supported, should be (sgd, adam, adagrad, rmsprop)"
-            % (str_wmb_optimizer,)
+            f"WholeMemory optimizer {str_wmb_optimizer} not"
+            " supported, should be (sgd, adam, adagrad, rmsprop)"
         )
 
 
@@ -164,19 +164,23 @@ def str_to_wmb_wholememory_distributed_backend_type(str_wmb_distributed_backend:
         return wmb.WholeMemoryDistributedBackend.DbNVSHMEM
     else:
         raise ValueError(
-            "WholeMemory str_wmb_distributed_backend %s not supported, should be (nccl, nvshmem)"
-            % (str_wmb_distributed_backend,)
+            "WholeMemory str_wmb_distributed_backend"
+            f" {str_wmb_distributed_backend} not supported,"
+            " should be (nccl, nvshmem)"
         )
 
 
-def wholememory_distributed_backend_type_to_str(distributed_backend: wmb.WholeMemoryDistributedBackend):
+def wholememory_distributed_backend_type_to_str(
+    distributed_backend: wmb.WholeMemoryDistributedBackend,
+):
     if distributed_backend == wmb.WholeMemoryDistributedBackend.DbNCCL:
         return "nccl"
     elif distributed_backend == wmb.WholeMemoryDistributedBackend.DbNVSHMEM:
         return "nvshmem"
     else:
         raise ValueError(
-            "WholeMemory distributed_backend  not supported, should be (DbNCCL, DbNVSHMEM)"
+            "WholeMemory distributed_backend"
+            " not supported, should be (DbNCCL, DbNVSHMEM)"
         )
 
 

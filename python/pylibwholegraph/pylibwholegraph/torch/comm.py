@@ -34,8 +34,10 @@ all_comm_local_size = 1
 
 
 def reset_communicators():
-    global all_comm_world_rank, all_comm_world_size, all_comm_local_rank, all_comm_local_size
-    global global_communicators, local_node_communicator, local_device_communicator, local_mnnvl_communicator
+    global all_comm_world_rank, all_comm_world_size
+    global all_comm_local_rank, all_comm_local_size
+    global global_communicators, local_node_communicator
+    global local_device_communicator, local_mnnvl_communicator
     global_communicators = {}
     local_node_communicator = None
     local_device_communicator = None
@@ -49,7 +51,8 @@ def reset_communicators():
 
 def set_world_info(world_rank: int, world_size: int, local_rank: int, local_size: int):
     """
-    Set the global world's information. This is used for create common used communicators, like local node communicator,
+    Set the global world's information. This is used for create common used
+    communicators, like local node communicator,
     global communicator, or local device communicator.
 
     :param world_rank: world rank of current process.
@@ -58,7 +61,8 @@ def set_world_info(world_rank: int, world_size: int, local_rank: int, local_size
     :param local_size: local size of each machine node
     :return: None
     """
-    global all_comm_world_rank, all_comm_world_size, all_comm_local_rank, all_comm_local_size
+    global all_comm_world_rank, all_comm_world_size
+    global all_comm_local_rank, all_comm_local_size
     all_comm_world_rank = world_rank
     all_comm_world_size = world_size
     all_comm_local_rank = local_rank
@@ -68,7 +72,8 @@ def set_world_info(world_rank: int, world_size: int, local_rank: int, local_size
 class WholeMemoryCommunicator(object):
     """
     WholeMemory Communicator.
-    You should not create object of this class directly, use create_group_communicator, get_global_communicator,
+    You should not create object of this class directly, use create_group_communicator,
+    get_global_communicator,
     get_local_node_communicator or get_local_device_communicator instead.
     """
 
@@ -85,7 +90,8 @@ class WholeMemoryCommunicator(object):
         return self.wmb_comm.get_size()
 
     def get_clique_info(self):
-        """Get info of clique where current process is located, a clique is made up of GPUs in same mnnvl domain.
+        """Get info of clique where current process is located, a clique is
+         made up of GPUs in same mnnvl domain.
         return:
         is_in_clique: is_in_clique >0 means the gpu belongs to  a mnnvl domain
         clique_first_rank; // the rank in the comm of first gpu in the clique ,
@@ -99,15 +105,18 @@ class WholeMemoryCommunicator(object):
     def barrier(self):
         """
         Barrier on WholeMemory Communicator.
-        This function will use internal communicator associated CUDA stream. And synchronized with host.
-        So if you have work in other CUDA stream, and expect that to be done before barrier, you may need to
+        This function will use internal communicator associated CUDA stream.
+        And synchronized with host.
+        So if you have work in other CUDA stream, and expect that to be done
+        before barrier, you may need to
         synchrionze that stream before calling this function.
         """
         return self.wmb_comm.barrier()
 
     def support_type_location(self, memory_type: str, memory_location: str):
         """
-        Return True if Communicator supports combination of memory_type and memory_location.
+        Return True if Communicator supports combination of memory_type
+        and memory_location.
         """
         wm_memory_type = str_to_wmb_wholememory_memory_type(memory_type)
         wm_location = str_to_wmb_wholememory_location(memory_location)
@@ -132,9 +141,12 @@ class WholeMemoryCommunicator(object):
 
 def create_group_communicator(group_size: int = -1, comm_stride: int = 1):
     """Create WholeMemory Communicator.
-    For example: 24 ranks with group_size = 4 and comm_stride = 2 will create following groups:
-    [0, 2, 4, 6], [1, 3, 5, 7], [8, 10, 12, 14], [9, 11, 13, 15], [16, 18, 20, 22], [17, 19, 21, 23]
-    :param group_size: Size of each group, -1 means to use all ranks in just one single group.
+    For example: 24 ranks with group_size = 4 and comm_stride = 2
+    will create following groups:
+    [0, 2, 4, 6], [1, 3, 5, 7], [8, 10, 12, 14],
+    [9, 11, 13, 15], [16, 18, 20, 22], [17, 19, 21, 23]
+    :param group_size: Size of each group, -1 means to use all ranks
+      in just one single group.
     :param comm_stride: Stride of each rank in each group
     :return: WholeMemoryCommunicator
     """
@@ -170,10 +182,13 @@ def create_group_communicator(group_size: int = -1, comm_stride: int = 1):
 
 def split_communicator(comm: WholeMemoryCommunicator, color: int, key: int = 0):
     """Split Communicator.
-    Creates a set of new communicators from an existing one. Ranks which pass the same color value will be part of the
+    Creates a set of new communicators from an existing one.
+    Ranks which pass the same color value will be part of the
     same group; color must be a non-negative value.
-    The value of key will determine the rank order, and the smaller key means the smaller rank in new communicator.
-    If keys are equal between ranks, then the rank in the original communicator will be used to order ranks.
+    The value of key will determine the rank order, and the
+    smaller key means the smaller rank in new communicator.
+    If keys are equal between ranks, then the rank in the
+    original communicator will be used to order ranks.
     """
     if not isinstance(color, int) or not isinstance(key, int):
         raise TypeError("color and key must be int")
@@ -199,7 +214,8 @@ def get_global_communicator(distributed_backend="nccl"):
     Get the global communicator of this job
     :return: WholeMemoryCommunicator that has all GPUs in it.
     """
-    global global_communicators, local_node_communicator, local_device_communicator, local_mnnvl_communicator
+    global global_communicators, local_node_communicator
+    global local_device_communicator, local_mnnvl_communicator
     global all_comm_local_size, all_comm_world_size
     if distributed_backend not in global_communicators:
         global_communicator = create_group_communicator()
@@ -223,7 +239,8 @@ def get_local_node_communicator():
     Get the local node communicator of this job
     :return: WholeMemoryCommunicator that has GPUs in the same node.
     """
-    global global_communicators, local_node_communicator, local_device_communicator, local_mnnvl_communicator
+    global global_communicators, local_node_communicator
+    global local_device_communicator, local_mnnvl_communicator
     global all_comm_local_size, all_comm_world_size
     if local_node_communicator is None:
         local_node_communicator = create_group_communicator(all_comm_local_size)
@@ -241,7 +258,8 @@ def get_local_device_communicator():
     Get the local device communicator of this job
     :return: WholeMemoryCommunicator that has only the GPU belonging to current process.
     """
-    global global_communicators, local_node_communicator, local_device_communicator, local_mnnvl_communicator
+    global global_communicators, local_node_communicator
+    global local_device_communicator, local_mnnvl_communicator
     global all_comm_local_size, all_comm_world_size
     if local_device_communicator is None:
         local_device_communicator = create_group_communicator(1)
@@ -256,7 +274,8 @@ def get_local_device_communicator():
 
 def get_local_mnnvl_communicator():
     """ """
-    global global_communicators, local_node_communicator, local_device_communicator, local_mnnvl_communicator
+    global global_communicators, local_node_communicator
+    global local_device_communicator, local_mnnvl_communicator
     global all_comm_local_size, all_comm_world_size
 
     if local_mnnvl_communicator is None:
@@ -271,7 +290,8 @@ def get_local_mnnvl_communicator():
         ) = g_communicator.get_clique_info()
         if not is_in_clique:
             raise RuntimeError(
-                "the gpu does not belong to any mnnvl domain,can not create local_mnnvl_communicator"
+                "the gpu does not belong to any mnnvl domain, "
+                "can not create local_mnnvl_communicator"
             )
 
         local_mnnvl_communicator = split_communicator(g_communicator, clique_id)

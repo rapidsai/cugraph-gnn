@@ -148,7 +148,8 @@ struct SingleCacheSetTestParam {
   void Print() const
   {
     std::cout << "Test Parameter for " << name << ":" << std::endl;
-    std::cout << "  " << "old_scale=" << cache_lfu_count_scale
+    std::cout << "  "
+              << "old_scale=" << cache_lfu_count_scale
               << ", cache_set_coverage=" << cache_set_coverage << ", start_gid=" << start_gid
               << ", to_update_id_count=" << to_update_id_count << std::endl;
     PrintVector(cache_tag_lids, "cache_tag_lids", 2);

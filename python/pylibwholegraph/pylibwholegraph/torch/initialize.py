@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,16 +15,33 @@ import os
 import torch
 import torch.utils.dlpack
 import pylibwholegraph.binding.wholememory_binding as wmb
-from .comm import set_world_info, get_global_communicator, get_local_node_communicator, reset_communicators
+from .comm import (
+    set_world_info,
+    get_global_communicator,
+    get_local_node_communicator,
+    reset_communicators,
+)
 from .utils import str_to_wmb_wholememory_log_level
 
 
-def init(world_rank: int, world_size: int, local_rank: int, local_size: int, wm_log_level="info"):
+def init(
+    world_rank: int,
+    world_size: int,
+    local_rank: int,
+    local_size: int,
+    wm_log_level="info",
+):
     wmb.init(0, str_to_wmb_wholememory_log_level(wm_log_level))
     set_world_info(world_rank, world_size, local_rank, local_size)
 
 
-def init_torch_env(world_rank: int, world_size: int, local_rank: int, local_size: int, wm_log_level="info"):
+def init_torch_env(
+    world_rank: int,
+    world_size: int,
+    local_rank: int,
+    local_size: int,
+    wm_log_level="info",
+):
     r"""Init WholeGraph environment for PyTorch.
     :param world_rank: world rank of current process
     :param world_size: world size of all processes
@@ -58,9 +75,10 @@ def init_torch_env_and_create_wm_comm(
     local_rank: int,
     local_size: int,
     distributed_backend_type="nccl",
-    wm_log_level="info"
+    wm_log_level="info",
 ):
-    r"""Init WholeGraph environment for PyTorch and create single communicator for all ranks.
+    r"""Init WholeGraph environment for PyTorch and create
+      single communicator for all ranks.
     :param world_rank: world rank of current process
     :param world_size: world size of all processes
     :param local_rank: local rank of current process
@@ -80,4 +98,5 @@ def finalize():
     """
     wmb.finalize()
     reset_communicators()
-    torch.distributed.destroy_process_group() if torch.distributed.is_initialized() else None
+    if torch.distributed.is_initialized():
+        torch.distributed.destroy_process_group()

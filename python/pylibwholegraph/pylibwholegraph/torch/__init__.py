@@ -43,7 +43,12 @@ from .embedding import (
 )
 from .embedding import WholeMemoryEmbeddingModule
 
-from .initialize import init, init_torch_env, init_torch_env_and_create_wm_comm, finalize
+from .initialize import (
+    init,
+    init_torch_env,
+    init_torch_env_and_create_wm_comm,
+    finalize,
+)
 
 from .tensor import (
     WholeMemoryTensor,

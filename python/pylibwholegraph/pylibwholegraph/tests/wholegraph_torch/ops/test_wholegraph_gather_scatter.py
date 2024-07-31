@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,7 +19,8 @@ import torch
 import pylibwholegraph.torch.wholememory_ops as wm_ops
 
 
-# PYTHONPATH=../:$PYTHONPATH python3 -m pytest ../tests/wholegraph_torch/ops/test_wholegraph_gather_scatter.py -s
+# PYTHONPATH=../:$PYTHONPATH python3 -m pytest \
+#   ../tests/wholegraph_torch/ops/test_wholegraph_gather_scatter.py -s
 
 
 def gen_int_embedding(indice_tensor, embedding_dim, output_type):
@@ -49,8 +50,10 @@ def scatter_gather_test_cast(
     world_rank = wm_comm.get_rank()
     world_size = wm_comm.get_size()
     print(
-        "Rank=%d testing scatter gather with embedding_count=%d, embedding_dim=%d, indice_count=%d, dt=%s, mt=%s, ml=%s"
-        % (world_rank, embedding_count, embedding_dim, indice_count, dt, mt, ml)
+        f"Rank={world_rank} testing scatter gather with "
+        f"embedding_count={embedding_count}, "
+        f"embedding_dim={embedding_dim}, "
+        f"indice_count={indice_count}, dt={dt}, mt={mt}, ml={ml}"
     )
     wm_embedding = wmb.create_wholememory_matrix(
         dt, embedding_count, embedding_dim, -1, wm_comm, mt, ml
@@ -61,7 +64,6 @@ def scatter_gather_test_cast(
     )
 
     embedding_to_scatter = gen_int_embedding(scatter_indice, embedding_dim, torch.float)
-    # print('\nscatter_indice=%s\nembedding_to_scatter=%s' % (scatter_indice, embedding_to_scatter))
 
     scatter_indice_cuda = scatter_indice.cuda()
     embedding_to_scatter_cuda = embedding_to_scatter.cuda()
@@ -156,9 +158,16 @@ def routine_func(world_rank: int, world_size: int):
         ]:
             if wm_comm.support_type_location(mt, ml):
                 scatter_gather_test_cast(
-                    wm_comm, dt, mt, ml, embedding_count, embedding_dim, indice_count, True
+                    wm_comm,
+                    dt,
+                    mt,
+                    ml,
+                    embedding_count,
+                    embedding_dim,
+                    indice_count,
+                    True,
                 )
-                # scatter_gather_test_cast(wm_comm, dt, mt, ml, embedding_count, embedding_dim, indice_count, False)
+
     wmb.finalize()
 
 

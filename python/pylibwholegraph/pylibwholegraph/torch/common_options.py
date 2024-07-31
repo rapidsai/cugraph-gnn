@@ -39,7 +39,10 @@ def add_training_options(argparser: ArgumentParser):
         "--cache-type",
         dest="cache_type",
         default="none",
-        help="Embedding cache type, should be: none, local_device, local_node or all_devices",
+        help=(
+            "Embedding cache type, should be: none, local_device"
+            ", local_node or all_devices"
+        ),
     )
     argparser.add_argument(
         "--cache-ratio",
@@ -53,7 +56,7 @@ def add_training_options(argparser: ArgumentParser):
         action="store_true",
         dest="use_cpp_ext",
         default=False,
-        help="Whether to use cpp extension for pytorch"
+        help="Whether to use cpp extension for pytorch",
     )
     argparser.add_argument(
         "--train-embedding",
@@ -72,7 +75,7 @@ def add_training_options(argparser: ArgumentParser):
         "--log-level",
         dest="log_level",
         default="info",
-        help="Logging level of wholegraph, should be: trace, debug, info, warn, error"
+        help="Logging level of wholegraph, should be: trace, debug, info, warn, error",
     )
 
 
@@ -103,8 +106,11 @@ def add_common_graph_options(argparser: ArgumentParser):
         type=int,
         dest="round_robin_size",
         default=0,
-        help="continuous embedding number for each rank whiling using round-robin sharding strategy, \
-                0 for not using round-robin shard strategy",
+        help=(
+            "continuous embedding number for each rank"
+            " whiling using round-robin sharding strategy, "
+            "0 for not using round-robin shard strategy"
+        ),
     )
 
 
@@ -129,7 +135,9 @@ def add_common_model_options(argparser: ArgumentParser):
         default="cugraph",
         help="framework type, valid values are: dgl, pyg, wg, cugraph",
     )
-    argparser.add_argument("--heads", type=int, dest="heads", default=4, help="num heads")
+    argparser.add_argument(
+        "--heads", type=int, dest="heads", default=4, help="num heads"
+    )
     argparser.add_argument(
         "-d", "--dropout", type=float, dest="dropout", default=0.5, help="dropout"
     )

@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -220,9 +220,7 @@ def distributed_launch_pytorch(
     main_func,
 ):
     global distributed_config
-    distributed_config.rank = int(
-        get_value_from_env(args.launch_env_name_world_rank)
-    )
+    distributed_config.rank = int(get_value_from_env(args.launch_env_name_world_rank))
     distributed_config.world_size = int(
         get_value_from_env(args.launch_env_name_world_size)
     )
@@ -271,9 +269,7 @@ def main_spawn_routine(local_rank, main_func, distributed_config_input):
 def distributed_launch_spawn(args, main_func):
     global distributed_config
     distributed_config.rank = int(
-        get_value_from_option_and_env(
-            args.rank, args.launch_env_name_world_rank, -1, 0
-        )
+        get_value_from_option_and_env(args.rank, args.launch_env_name_world_rank, -1, 0)
     )
     distributed_config.world_size = int(
         get_value_from_option_and_env(
@@ -320,17 +316,23 @@ def distributed_launch(args, main_func):
         distributed_launch_mpi(args, main_func)
     elif args.launch_agent == "pytorch":
         # use pytorch DDP to launch multiprocess
-        # when using pytorch DDP, assume two nodes with 8 GPU each, command is like:
-        # on node1: python -m torch.distributed.run --nproc_per_node=8 --nnodes=2 --node_rank=0 --master_addr=node1
+        # when using pytorch DDP,
+        # assume two nodes with 8 GPU each, command is like:
+        # on node1: python -m torch.distributed.run --nproc_per_node=8
+        #           --nnodes=2 --node_rank=0 --master_addr=node1
         #           --master_port=12335 [train_script.py] --launch_agent=pytorch
-        # on node2: python -m torch.distributed.run --nproc_per_node=8 --nnodes=2 --node_rank=1 --master_addr=node1
+        # on node2: python -m torch.distributed.run --nproc_per_node=8
+        #           --nnodes=2 --node_rank=1 --master_addr=node1
         #           --master_port=12335 [train_script.py] --launch_agent=pytorch
         distributed_launch_pytorch(args, main_func)
     else:
         # cluster scheduler
-        # when using spawn to create multiprocess for each node, assume two nodes with 8 GPU each, command is like:
-        # on node1: python [train_script.py] --launch_agent=spawn --master_addr=node1 --master_port=12335
+        # when using spawn to create multiprocess for each node,
+        # assume two nodes with 8 GPU each, command is like:
+        # on node1: python [train_script.py] --launch_agent=spawn
+        #           --master_addr=node1 --master_port=12335
         #           --local_size=8 --rank=0 --world_size=2
-        # on node2: python [train_script.py] --launch_agent=spawn --master_addr=node1 --master_port=12335
+        # on node2: python [train_script.py] --launch_agent=spawn
+        #           --master_addr=node1 --master_port=12335
         #           --local_size=8 --rank=1 --world_size=2
         distributed_launch_spawn(args, main_func)

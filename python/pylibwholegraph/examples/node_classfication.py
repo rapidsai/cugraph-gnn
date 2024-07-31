@@ -31,7 +31,11 @@ wgth.add_common_sampler_options(argparser)
 wgth.add_node_classfication_options(argparser)
 wgth.add_dataloader_options(argparser)
 argparser.add_argument(
-    "--fp16_embedding", action="store_true", dest="fp16_mbedding", default=False, help="Whether to use fp16 embedding"
+    "--fp16_embedding",
+    action="store_true",
+    dest="fp16_mbedding",
+    default=False,
+    help="Whether to use fp16 embedding",
 )
 args = argparser.parse_args()
 
@@ -131,7 +135,7 @@ def main_func():
         wgth.get_local_rank(),
         wgth.get_local_size(),
         args.distributed_backend_type,
-        args.log_level
+        args.log_level,
     )
 
     if args.use_cpp_ext:
@@ -146,7 +150,10 @@ def main_func():
     graph_structure_wholememory_location = "cuda"
 
     graph_comm = local_comm
-    if global_comm.get_size() != local_comm.get_size() and global_comm.support_type_location("continuous", "cuda"):
+    if (
+        global_comm.get_size() != local_comm.get_size()
+        and global_comm.support_type_location("continuous", "cuda")
+    ):
         print("Using global communicator for graph structure.")
         graph_comm = global_comm
         graph_structure_wholememory_type = "continuous"
@@ -187,7 +194,8 @@ def main_func():
         print(
             f"graph_structure: type={graph_structure_wholememory_type}, "
             f"location={graph_structure_wholememory_location}\n"
-            f"embedding: type={embedding_wholememory_type}, location={embedding_wholememory_location}, "
+            f"embedding: type={embedding_wholememory_type}, "
+            f"location={embedding_wholememory_location}, "
             f"cache_type={args.cache_type}, cache_ratio={args.cache_ratio}, "
             f"trainable={args.train_embedding}, "
             f"distributed-backend-type={args.distributed_backend_type}, "
@@ -225,7 +233,9 @@ def main_func():
             random_init=True,
             round_robin_size=args.round_robin_size,
         )
-        wm_optimizer = wgth.create_wholememory_optimizer(node_feat_wm_embedding, "adam", {})
+        wm_optimizer = wgth.create_wholememory_optimizer(
+            node_feat_wm_embedding, "adam", {}
+        )
     wgth.set_framework(args.framework)
     model = wgth.HomoGNNModel(graph_structure, node_feat_wm_embedding, args)
     model.cuda()

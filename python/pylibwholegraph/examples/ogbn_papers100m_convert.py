@@ -1,3 +1,16 @@
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import os
 import numpy as np
@@ -8,13 +21,13 @@ from ogb.nodeproppred import NodePropPredDataset
 
 def save_array(np_array, save_path, array_file_name):
     array_full_path = os.path.join(save_path, array_file_name)
-    with open(array_full_path, 'wb') as f:
+    with open(array_full_path, "wb") as f:
         np_array.tofile(f)
 
 
 def convert_papers100m_dataset(args):
     ogb_root = args.ogb_root_dir
-    dataset = NodePropPredDataset(name='ogbn-papers100M', root=ogb_root)
+    dataset = NodePropPredDataset(name="ogbn-papers100M", root=ogb_root)
     graph, label = dataset[0]
     split_idx = dataset.get_idx_split()
     train_idx, valid_idx, test_idx = (
@@ -41,13 +54,11 @@ def convert_papers100m_dataset(args):
         os.makedirs(args.convert_dir)
     print("saving idx and labels...")
     with open(
-        os.path.join(args.convert_dir, 'ogbn_papers100M_data_and_label.pkl'), "wb"
+        os.path.join(args.convert_dir, "ogbn_papers100M_data_and_label.pkl"), "wb"
     ) as f:
         pickle.dump(data_and_label, f)
     print("saving node feature...")
-    with open(
-            os.path.join(args.convert_dir, 'node_feat.bin'), "wb"
-    ) as f:
+    with open(os.path.join(args.convert_dir, "node_feat.bin"), "wb") as f:
         node_feat.tofile(f)
 
     print("converting graph to csr...")
@@ -61,26 +72,44 @@ def convert_papers100m_dataset(args):
     else:
         arg_graph_src = coo_src_ids
         arg_graph_dst = coo_dst_ids
-    values = np.arange(len(arg_graph_src), dtype='int64')
-    coo_graph = coo_matrix((values, (arg_graph_src, arg_graph_dst)), shape=(num_nodes, num_nodes))
+    values = np.arange(len(arg_graph_src), dtype="int64")
+    coo_graph = coo_matrix(
+        (values, (arg_graph_src, arg_graph_dst)), shape=(num_nodes, num_nodes)
+    )
     csr_graph = coo_graph.tocsr()
-    csr_row_ptr = csr_graph.indptr.astype(dtype='int64')
-    csr_col_ind = csr_graph.indices.astype(dtype='int32')
+    csr_row_ptr = csr_graph.indptr.astype(dtype="int64")
+    csr_col_ind = csr_graph.indices.astype(dtype="int32")
     print("saving csr graph...")
-    save_array(csr_row_ptr, args.convert_dir, 'homograph_csr_row_ptr')
-    save_array(csr_col_ind, args.convert_dir, 'homograph_csr_col_idx')
+    save_array(csr_row_ptr, args.convert_dir, "homograph_csr_row_ptr")
+    save_array(csr_col_ind, args.convert_dir, "homograph_csr_col_idx")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ogb_root_dir', type=str, default='dataset',
-                        help='root dir of containing ogb datasets')
-    parser.add_argument('--convert_dir', type=str, default='dataset_papers100m_converted',
-                        help='output dir containing converted datasets')
-    parser.add_argument('--node_feat_format', type=str, default='float32',
-                        choices=['float32', 'float16'],
-                        help='save format of node feature')
-    parser.add_argument('--add_reverse_edges', type=bool, default=True,
-                        help='whether to add reverse edges')
+    parser.add_argument(
+        "--ogb_root_dir",
+        type=str,
+        default="dataset",
+        help="root dir of containing ogb datasets",
+    )
+    parser.add_argument(
+        "--convert_dir",
+        type=str,
+        default="dataset_papers100m_converted",
+        help="output dir containing converted datasets",
+    )
+    parser.add_argument(
+        "--node_feat_format",
+        type=str,
+        default="float32",
+        choices=["float32", "float16"],
+        help="save format of node feature",
+    )
+    parser.add_argument(
+        "--add_reverse_edges",
+        type=bool,
+        default=True,
+        help="whether to add reverse edges",
+    )
     args = parser.parse_args()
     convert_papers100m_dataset(args)

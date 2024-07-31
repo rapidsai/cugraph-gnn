@@ -58,55 +58,56 @@ class WholeMemoryTensor(object):
             self.wmb_tensor.get_wholememory_handle().get_communicator()
         )
 
-    def gather(self,
-               indice: torch.Tensor,
-               *,
-               force_dtype: Union[torch.dtype, None] = None):
+    def gather(
+        self, indice: torch.Tensor, *, force_dtype: Union[torch.dtype, None] = None
+    ):
         assert indice.dim() == 1
         embedding_dim = self.shape[1]
         embedding_count = indice.shape[0]
         current_cuda_device = "cuda:%d" % (torch.cuda.current_device(),)
-        output_dtype = (
-            force_dtype if force_dtype is not None else self.dtype
-        )
+        output_dtype = force_dtype if force_dtype is not None else self.dtype
         output_tensor = torch.empty(
             [embedding_count, embedding_dim],
             device=current_cuda_device,
             dtype=output_dtype,
             requires_grad=False,
         )
-        wmb.wholememory_gather_op(self.wmb_tensor,
-                                  wrap_torch_tensor(indice),
-                                  wrap_torch_tensor(output_tensor),
-                                  get_wholegraph_env_fns(),
-                                  get_stream())
+        wmb.wholememory_gather_op(
+            self.wmb_tensor,
+            wrap_torch_tensor(indice),
+            wrap_torch_tensor(output_tensor),
+            get_wholegraph_env_fns(),
+            get_stream(),
+        )
         return output_tensor
 
-    def scatter(self,
-                input_tensor: torch.Tensor,
-                indice: torch.Tensor):
+    def scatter(self, input_tensor: torch.Tensor, indice: torch.Tensor):
         assert indice.dim() == 1
         assert input_tensor.dim() == 2
         assert indice.shape[0] == input_tensor.shape[0]
         assert input_tensor.shape[1] == self.shape[1]
-        wmb.wholememory_scatter_op(wrap_torch_tensor(input_tensor),
-                                   wrap_torch_tensor(indice),
-                                   self.wmb_tensor,
-                                   get_wholegraph_env_fns(),
-                                   get_stream())
+        wmb.wholememory_scatter_op(
+            wrap_torch_tensor(input_tensor),
+            wrap_torch_tensor(indice),
+            self.wmb_tensor,
+            get_wholegraph_env_fns(),
+            get_stream(),
+        )
 
     def get_sub_tensor(self, starts, ends):
         """
         Get sub tensor of WholeMemory Tensor
         :param starts: An array of the start indices of each dim
-        :param ends: An array of the end indices of each dim, -1 means to the last element
+        :param ends: An array of the end indices of each dim, -1 means
+          to the last element
         :return: WholeMemory Tensor
         """
         return WholeMemoryTensor(self.wmb_tensor.get_sub_tensor(starts, ends))
 
     def get_local_tensor(self, host_view: bool = False):
         """Get local tensor of WholeMemory Tensor
-        :param host_view: Get host view or not, if True, return host tensor, else return device tensor
+        :param host_view: Get host view or not, if True, return host tensor,
+          else return device tensor
         :return: Tuple of DLPack Tensor and element offset.
         """
         if host_view:
@@ -122,7 +123,8 @@ class WholeMemoryTensor(object):
 
     def get_global_tensor(self, host_view: bool = False):
         """Get global tensor of WholeMemory Tensor
-        :param host_view: Get host view or not, if True, return host tensor, else return device tensor
+        :param host_view: Get host view or not, if True, return host tensor,
+          else return device tensor
         :return: Tuple of DLPack Tensor and element offset (0 for global tensor).
         """
         if host_view:
@@ -138,7 +140,8 @@ class WholeMemoryTensor(object):
 
     def get_all_chunked_tensor(self, host_view: bool = False):
         """Get all chunked tensor of WholeMemory Tensor
-        :param host_view: Get host view or not, if True, return host tensor, else return device tensor
+        :param host_view: Get host view or not, if True, return host tensor,
+          else return device tensor
         :return: Tuple of DLPack Tensors and element offsets.
         """
         if host_view:
@@ -156,7 +159,8 @@ class WholeMemoryTensor(object):
         """
         Load WholeMemory Tensor from file lists
         :param filelist: file list to load from
-        :param round_robin_size: continuous embedding size of a rank using round robin shard strategy
+        :param round_robin_size: continuous embedding size of a rank
+          using round robin shard strategy
         :return: None
         """
         if isinstance(filelist, str):
@@ -178,7 +182,8 @@ class WholeMemoryTensor(object):
 
     def local_to_file(self, filename: str):
         """
-        Store local tensor of WholeMemory Tensor to file, all ranks should call this together with different filename
+        Store local tensor of WholeMemory Tensor to file, all ranks should
+          call this together with different filename
         :param filename: file name of local tensor file.
         :return: None
         """
@@ -255,7 +260,8 @@ def create_wholememory_tensor_from_filelist(
     :param memory_location: WholeMemory location, should be cpu or cuda
     :param filelist: list of binary files
     :param dtype: data type of the tensor
-    :param last_dim_size: 0 for create 1-D array, positive value for create matrix column size
+    :param last_dim_size: 0 for create 1-D array, positive value for
+      create matrix column size
     :param last_dim_strides: stride of last_dim, -1 for same as size of last dim.
     :return: WholeMemoryTensor
     """

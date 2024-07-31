@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023, NVIDIA CORPORATION.
+# Copyright (c) 2019-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -27,9 +27,12 @@ def append_unique(
     need_neighbor_raw_to_unique: bool = False,
 ):
     """
-    Append neighbor_node_tenosr to target_node_tensor, keep target_node_tensor unchanged and do unique
-    e.g. if target_node_tensor is [3, 11, 2, 10], neighbor_node_tensor is [4, 5, 2, 11, 6, 9, 10, 5],
-    output_unique_node may be [3, 11, 2, 10, 6, 4, 9, 5], order of 6, 4, 9, 5 may change.
+    Append neighbor_node_tenosr to target_node_tensor, keep target_node_tensor
+    unchanged and do unique
+    e.g. if target_node_tensor is [3, 11, 2, 10], neighbor_node_tensor is
+    [4, 5, 2, 11, 6, 9, 10, 5],
+    output_unique_node may be [3, 11, 2, 10, 6, 4, 9, 5], order of 6, 4, 9, 5
+    may change.
     neighbor_raw_to_unique_mapping will be [5, 7, 2, 1, 4, 6, 3, 7]
     :param target_node_tensor: target node tensor
     :param neighbor_node_tensor: neighbor node tensor
@@ -71,7 +74,8 @@ def add_csr_self_loop(
 ):
     """
     Add self loop to sampled CSR graph
-    NOTE: this function will not check if there is already self loop in the raw CSR graph.
+    NOTE: this function will not check if there is already self
+    loop in the raw CSR graph.
     :param csr_row_ptr_tensor: CSR row pointer tensor
     :param csr_col_ptr_tensor: CSR column index tensor
     :return: CSR graph added self loop
