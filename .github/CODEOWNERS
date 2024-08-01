@@ -6,8 +6,12 @@
 /readme_pages/     @rapidsai/cugraph-doc-codeowners
 
 # python code owners
-python/            @rapidsai/cugraph-python-codeowners
-mg_utils/          @rapidsai/cugraph-python-codeowners
+python/cugraph-dgl            @rapidsai/cugraph-gnn-python-codeowners
+python/cugraph-pyg            @rapidsai/cugraph-gnn-python-codeowners
+python/pylibwholegraph        @rapidsai/wholegraph-python-codeowners
+mg_utils/          @rapidsai/cugraph-gnn-python-codeowners
+cpp/               @rapidai/wholegraph-cpp-codeowners
+
 
 # CI code owners
 /.flake8                 @rapidsai/ci-codeowners
