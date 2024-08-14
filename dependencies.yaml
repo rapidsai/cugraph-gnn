@@ -308,7 +308,6 @@ dependencies:
           - pytorch::pytorch>=2.0
           - dgl>=1.1.0.cu*
           - &tensordict tensordict>=0.1.2
-
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
