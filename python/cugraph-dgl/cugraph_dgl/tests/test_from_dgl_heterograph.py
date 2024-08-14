@@ -20,7 +20,9 @@ except ModuleNotFoundError:
 from cugraph.utilities.utils import import_optional
 from .utils import (
     assert_same_edge_feats,
+    assert_same_edge_feats_daskapi,
     assert_same_node_feats,
+    assert_same_node_feats_daskapi,
     assert_same_num_edges_can_etypes,
     assert_same_num_edges_etypes,
     assert_same_num_nodes,
@@ -134,7 +136,7 @@ def create_heterograph4(idtype):
 
 
 @pytest.mark.parametrize("idxtype", [th.int32, th.int64])
-def test_heterograph_conversion_nodes(idxtype):
+def test_heterograph_conversion_nodes_daskapi(idxtype):
     graph_fs = [
         create_heterograph1,
         create_heterograph2,
@@ -144,6 +146,39 @@ def test_heterograph_conversion_nodes(idxtype):
     for graph_f in graph_fs:
         g = graph_f(idxtype)
         gs = cugraph_dgl.cugraph_storage_from_heterograph(g)
+
+        assert_same_num_nodes(gs, g)
+        assert_same_node_feats_daskapi(gs, g)
+
+
+@pytest.mark.parametrize("idxtype", [th.int32, th.int64])
+def test_heterograph_conversion_edges_daskapi(idxtype):
+    graph_fs = [
+        create_heterograph1,
+        create_heterograph2,
+        create_heterograph3,
+        create_heterograph4,
+    ]
+    for graph_f in graph_fs:
+        g = graph_f(idxtype)
+        gs = cugraph_dgl.cugraph_storage_from_heterograph(g)
+
+        assert_same_num_edges_can_etypes(gs, g)
+        assert_same_num_edges_etypes(gs, g)
+        assert_same_edge_feats_daskapi(gs, g)
+
+
+@pytest.mark.parametrize("idxtype", [th.int32, th.int64])
+def test_heterograph_conversion_nodes(idxtype):
+    graph_fs = [
+        create_heterograph1,
+        create_heterograph2,
+        create_heterograph3,
+        create_heterograph4,
+    ]
+    for graph_f in graph_fs:
+        g = graph_f(idxtype)
+        gs = cugraph_dgl.cugraph_dgl_graph_from_heterograph(g)
 
         assert_same_num_nodes(gs, g)
         assert_same_node_feats(gs, g)
@@ -159,7 +194,7 @@ def test_heterograph_conversion_edges(idxtype):
     ]
     for graph_f in graph_fs:
         g = graph_f(idxtype)
-        gs = cugraph_dgl.cugraph_storage_from_heterograph(g)
+        gs = cugraph_dgl.cugraph_dgl_graph_from_heterograph(g)
 
         assert_same_num_edges_can_etypes(gs, g)
         assert_same_num_edges_etypes(gs, g)

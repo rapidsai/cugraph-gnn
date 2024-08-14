@@ -51,7 +51,7 @@ def sample_cugraph_dgl_graphs(cugraph_gs, train_nid, fanouts):
     sampler = cugraph_dgl.dataloading.NeighborSampler(fanouts)
     tempdir_object = tempfile.TemporaryDirectory()
     sampling_output_dir = tempdir_object
-    dataloader = cugraph_dgl.dataloading.DataLoader(
+    dataloader = cugraph_dgl.dataloading.DaskDataLoader(
         cugraph_gs,
         train_nid,
         sampler,
