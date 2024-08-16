@@ -1,0 +1,26 @@
+c_compiler_version:
+  - 11
+
+cxx_compiler_version:
+  - 11
+
+cuda_compiler:
+  - cuda-nvcc
+
+cuda11_compiler:
+  - nvcc
+
+cmake_version:
+  - ">=3.26.4,!=3.30.0"
+
+doxygen_version:
+  - ">=1.8.11"
+
+nccl_version:
+  - ">=2.9.9"
+
+c_stdlib:
+  - sysroot
+
+c_stdlib_version:
+  - "2.17"

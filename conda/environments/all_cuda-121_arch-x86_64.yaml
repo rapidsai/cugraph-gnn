@@ -50,7 +50,7 @@ dependencies:
 - raft-dask==24.10.*
 - recommonmark
 - rmm==24.10.*
-- scikit-build-core>=0.7.0
+- scikit-build-core>=0.10.0
 - scipy
 - setuptools>=61.0.0
 - sphinx-copybutton
