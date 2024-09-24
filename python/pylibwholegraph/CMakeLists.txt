@@ -16,15 +16,15 @@
 
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 
-set(RAPIDS_VERSION "24.10")
-set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION}.00")
+include(../../rapids_config.cmake)
+set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION_MAJOR_MINOR}.00")
 
 include(FetchContent)
 
 FetchContent_Declare(
         rapids-cmake
         GIT_REPOSITORY https://github.com/rapidsai/rapids-cmake.git
-        GIT_TAG        origin/branch-${RAPIDS_VERSION}
+        GIT_TAG        origin/branch-${RAPIDS_VERSION_MAJOR_MINOR}
 )
 FetchContent_MakeAvailable(rapids-cmake)
 include(rapids-cmake)
@@ -113,7 +113,7 @@ include(../../cpp/cmake/thirdparty/get_raft.cmake)
 if (DEFINED ENV{LIBWHOLEGRAPH_DIR})
   set(wholegraph_ROOT "$ENV{LIBWHOLEGRAPH_DIR}")
 endif()
-find_package(wholegraph "${RAPIDS_VERSION}.0" EXACT)
+find_package(wholegraph "${RAPIDS_VERSION_MAJOR_MINOR}.0" EXACT)
 message("WholeGraph")
 if (WHOLEGRAPH_FOUND)
     message(STATUS "PYLIBWHOLEGRAPH: using pre-built wholegraph C++ package")

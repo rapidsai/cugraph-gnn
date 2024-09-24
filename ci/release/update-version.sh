@@ -84,5 +84,3 @@ for DEP in "${DEPENDENCIES[@]}"; do
 done
 
 sed_runner "s/\(PROJECT_NUMBER[[:space:]]*\)=.*/\1= ${NEXT_SHORT_TAG}/" cpp/Doxyfile
-sed_runner "s/set(RAPIDS_VERSION *\"[0-9.]*\")/set(RAPIDS_VERSION \"${NEXT_SHORT_TAG}\")/" cpp/CMakeLists.txt
-sed_runner "s/set(RAPIDS_VERSION *\"[0-9.]*\")/set(RAPIDS_VERSION \"${NEXT_SHORT_TAG}\")/" python/pylibwholegraph/CMakeLists.txt
