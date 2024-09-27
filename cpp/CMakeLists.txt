@@ -14,17 +14,18 @@
 # limitations under the License.
 #=============================================================================
 
-set(RAPIDS_VERSION "24.08")
-set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION}.00")
-
 cmake_minimum_required(VERSION 3.23.1 FATAL_ERROR)
+
+include(../rapids_config.cmake)
+
+set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION_MAJOR_MINOR}.00")
 
 include(FetchContent)
 
 FetchContent_Declare(
   rapids-cmake
   GIT_REPOSITORY https://github.com/rapidsai/rapids-cmake.git
-  GIT_TAG        origin/branch-${RAPIDS_VERSION}
+  GIT_TAG        origin/branch-${RAPIDS_VERSION_MAJOR_MINOR}
 )
 FetchContent_MakeAvailable(rapids-cmake)
 include(rapids-cmake)
