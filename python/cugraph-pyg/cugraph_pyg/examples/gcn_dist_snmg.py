@@ -28,12 +28,6 @@ from torch.nn.parallel import DistributedDataParallel
 
 import torch_geometric
 
-from cugraph.gnn import (
-    cugraph_comms_init,
-    cugraph_comms_shutdown,
-    cugraph_comms_create_unique_id,
-)
-
 # Allow computation on objects that are larger than GPU memory
 # https://docs.rapids.ai/api/cudf/stable/developer_guide/library_design/#spilling-to-host-memory
 os.environ["CUDF_SPILL"] = "1"
@@ -68,6 +62,8 @@ def init_pytorch_worker(rank, world_size, cugraph_id):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
+
+    from cugraph.gnn import cugraph_comms_init
 
     cugraph_comms_init(rank=rank, world_size=world_size, uid=cugraph_id, device=rank)
 
@@ -258,6 +254,8 @@ def run_train(
         print("Total Program Runtime (total_time) =", total_time, "seconds")
         print("total_time - prep_time =", total_time - prep_time, "seconds")
 
+    from cugraph.gnn import cugraph_comms_shutdown
+
     cugraph_comms_shutdown()
     dist.destroy_process_group()
 
@@ -313,6 +311,8 @@ if __name__ == "__main__":
         print("Using", world_size, "GPUs...")
 
         # Create the uid needed for cuGraph comms
+        from cugraph.gnn import cugraph_comms_create_unique_id
+
         cugraph_id = cugraph_comms_create_unique_id()
 
         with tempfile.TemporaryDirectory(dir=args.tempdir_root) as tempdir:
