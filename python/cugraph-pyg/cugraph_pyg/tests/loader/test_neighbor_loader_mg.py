@@ -166,7 +166,6 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     cugraph_comms_shutdown()
 
 
-@pytest.mark.skip(reason="deleteme")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
 def test_neighbor_loader_biased_mg():
