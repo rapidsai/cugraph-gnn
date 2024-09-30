@@ -27,22 +27,11 @@ from torch_geometric.nn import FastRGCNConv, GAE
 from torch.nn.parallel import DistributedDataParallel
 
 import torch_geometric
-import cugraph_pyg
-
-from cugraph.gnn import (
-    cugraph_comms_init,
-    cugraph_comms_create_unique_id,
-    cugraph_comms_shutdown,
-)
 
 from pylibwholegraph.torch.initialize import (
     init as wm_init,
     finalize as wm_finalize,
 )
-
-
-# Enable cudf spilling to save gpu memory
-from cugraph.testing.mg_utils import enable_spilling
 
 # Ensures that a CUDA context is not created on import of rapids.
 # Allows pytorch to create the context instead
@@ -58,6 +47,8 @@ def init_pytorch_worker(rank, world_size, uid):
     from rmm.allocators.cupy import rmm_cupy_allocator
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
+
+    from cugraph.gnn import cugraph_comms_init
 
     cugraph_comms_init(
         rank,
@@ -75,6 +66,8 @@ def init_pytorch_worker(rank, world_size, uid):
         rank=rank,
         world_size=world_size,
     )
+
+    from cugraph.testing.mg_utils import enable_spilling
 
     enable_spilling()
 
@@ -217,7 +210,9 @@ def run_train(rank, world_size, uid, model, data, meta, splits, args):
         ]
     )
 
-    train_loader = cugraph_pyg.loader.LinkNeighborLoader(
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    train_loader = LinkNeighborLoader(
         data,
         [args.fan_out] * args.num_layers,
         edge_label_index=eli,
@@ -272,6 +267,8 @@ def run_train(rank, world_size, uid, model, data, meta, splits, args):
     test("test", epoch, model, test_loader, num_steps=1024)
 
     wm_finalize()
+    from cugraph.gnn import cugraph_comms_shutdown
+
     cugraph_comms_shutdown()
 
 
@@ -310,6 +307,8 @@ if __name__ == "__main__":
         else:
             world_size = args.n_devices
         print("Using", world_size, "GPUs...")
+
+        from cugraph.gnn import cugraph_comms_create_unique_id
 
         uid = cugraph_comms_create_unique_id()
         torch.multiprocessing.spawn(

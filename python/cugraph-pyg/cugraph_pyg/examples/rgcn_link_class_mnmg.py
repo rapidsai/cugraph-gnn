@@ -27,22 +27,10 @@ from torch.nn.parallel import DistributedDataParallel
 
 from ogb.linkproppred import PygLinkPropPredDataset
 
-import cugraph_pyg
-
-from cugraph.gnn import (
-    cugraph_comms_init,
-    cugraph_comms_create_unique_id,
-    cugraph_comms_shutdown,
-)
-
 from pylibwholegraph.torch.initialize import (
     init as wm_init,
     finalize as wm_finalize,
 )
-
-
-# Enable cudf spilling to save gpu memory
-from cugraph.testing.mg_utils import enable_spilling
 
 # Ensures that a CUDA context is not created on import of rapids.
 # Allows pytorch to create the context instead
@@ -59,6 +47,8 @@ def init_pytorch_worker(global_rank, local_rank, world_size, uid):
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
 
+    from cugraph.gnn import cugraph_comms_init
+
     cugraph_comms_init(
         global_rank,
         world_size,
@@ -67,6 +57,8 @@ def init_pytorch_worker(global_rank, local_rank, world_size, uid):
     )
 
     wm_init(global_rank, world_size, local_rank, torch.cuda.device_count())
+
+    from cugraph.testing.mg_utils import enable_spilling
 
     enable_spilling()
 
@@ -171,7 +163,9 @@ def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, a
 
     eli = torch.stack([splits["train"]["head"], splits["train"]["tail"]])
 
-    train_loader = cugraph_pyg.loader.LinkNeighborLoader(
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    train_loader = LinkNeighborLoader(
         data,
         [args.fan_out] * args.num_layers,
         edge_label_index=eli,
@@ -222,6 +216,9 @@ def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, a
     test("test", epoch, model, test_loader, num_steps=1024)
 
     wm_finalize()
+
+    from cugraph.gnn import cugraph_comms_shutdown
+
     cugraph_comms_shutdown()
 
 
@@ -354,6 +351,8 @@ if __name__ == "__main__":
 
         # Create the uid needed for cuGraph comms
         if global_rank == 0:
+            from cugraph.gnn import cugraph_comms_create_unique_id
+
             cugraph_id = [cugraph_comms_create_unique_id()]
         else:
             cugraph_id = [None]

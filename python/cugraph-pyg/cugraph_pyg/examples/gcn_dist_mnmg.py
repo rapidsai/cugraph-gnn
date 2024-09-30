@@ -30,12 +30,6 @@ from torch.nn.parallel import DistributedDataParallel
 
 import torch_geometric
 
-from cugraph.gnn import (
-    cugraph_comms_init,
-    cugraph_comms_shutdown,
-    cugraph_comms_create_unique_id,
-)
-
 from pylibwholegraph.torch.initialize import (
     init as wm_init,
     finalize as wm_finalize,
@@ -71,6 +65,8 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     enable_spilling()
 
     torch.cuda.set_device(local_rank)
+
+    from cugraph.gnn import cugraph_comms_init
 
     cugraph_comms_init(
         rank=global_rank, world_size=world_size, uid=cugraph_id, device=local_rank
@@ -337,6 +333,9 @@ def run_train(
         print("total_time - prep_time =", total_time - prep_time, "seconds")
 
     wm_finalize()
+
+    from cugraph.gnn import cugraph_comms_shutdown
+
     cugraph_comms_shutdown()
 
 
@@ -373,6 +372,10 @@ if __name__ == "__main__":
 
         # Create the uid needed for cuGraph comms
         if global_rank == 0:
+            from cugraph.gnn import (
+                cugraph_comms_create_unique_id,
+            )
+
             cugraph_id = [cugraph_comms_create_unique_id()]
         else:
             cugraph_id = [None]
