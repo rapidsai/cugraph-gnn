@@ -53,10 +53,11 @@ def test_graph_make_homogeneous_graph(direction):
         graph.nodes() == torch.arange(num_nodes, dtype=torch.int64, device="cuda")
     ).all()
 
-    assert graph.nodes[None]["x"] is not None
-    assert (graph.nodes[None]["x"] == torch.as_tensor(node_x, device="cuda")).all()
+    emb = graph.nodes[None]["x"]
+    assert emb is not None
+    assert (emb() == torch.as_tensor(node_x, device="cuda")).all()
     assert (
-        graph.nodes[None]["num"]
+        graph.nodes[None]["num"]()
         == torch.arange(num_nodes, dtype=torch.int64, device="cuda")
     ).all()
 
@@ -64,7 +65,7 @@ def test_graph_make_homogeneous_graph(direction):
         graph.edges("eid", device="cuda")
         == torch.arange(len(df), dtype=torch.int64, device="cuda")
     ).all()
-    assert (graph.edges[None]["weight"] == torch.as_tensor(wgt, device="cuda")).all()
+    assert (graph.edges[None]["weight"]() == torch.as_tensor(wgt, device="cuda")).all()
 
     plc_expected_graph = pylibcugraph.SGGraph(
         pylibcugraph.ResourceHandle(),
@@ -215,3 +216,93 @@ def test_graph_make_heterogeneous_graph(direction):
         assert (
             dsts[eid] == int(sampling_output[dst_col][i]) - expected_offsets[etype][1]
         )
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(isinstance(dgl, MissingModule), reason="dgl not available")
+@pytest.mark.parametrize("direction", ["out", "in"])
+def test_graph_find(direction):
+    df = karate.get_edgelist()
+    df.src = df.src.astype("int64")
+    df.dst = df.dst.astype("int64")
+
+    graph = cugraph_dgl.Graph()
+    total_num_nodes = max(df.src.max(), df.dst.max()) + 1
+
+    num_nodes_group_1 = total_num_nodes // 2
+    num_nodes_group_2 = total_num_nodes - num_nodes_group_1
+
+    node_x_1 = np.random.random((num_nodes_group_1,))
+    node_x_2 = np.random.random((num_nodes_group_2,))
+
+    graph.add_nodes(num_nodes_group_1, {"x": node_x_1}, "type1")
+    graph.add_nodes(num_nodes_group_2, {"x": node_x_2}, "type2")
+
+    edges_11 = df[(df.src < num_nodes_group_1) & (df.dst < num_nodes_group_1)]
+    edges_12 = df[(df.src < num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
+    edges_21 = df[(df.src >= num_nodes_group_1) & (df.dst < num_nodes_group_1)]
+    edges_22 = df[(df.src >= num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
+
+    edges_12.dst -= num_nodes_group_1
+    edges_21.src -= num_nodes_group_1
+    edges_22.dst -= num_nodes_group_1
+    edges_22.src -= num_nodes_group_1
+
+    graph.add_edges(edges_11.src, edges_11.dst, etype=("type1", "e1", "type1"))
+    graph.add_edges(edges_12.src, edges_12.dst, etype=("type1", "e2", "type2"))
+    graph.add_edges(edges_21.src, edges_21.dst, etype=("type2", "e3", "type1"))
+    graph.add_edges(edges_22.src, edges_22.dst, etype=("type2", "e4", "type2"))
+
+    # force direction generation to make sure in case is tested
+    graph._graph(direction)
+
+    assert not graph.is_homogeneous
+    assert not graph.is_multi_gpu
+
+    srcs, dsts = graph.find_edges(
+        torch.as_tensor([0, len(edges_11) - 1, 999], dtype=torch.int64),
+        ("type1", "e1", "type1"),
+    )
+    assert (
+        srcs[[0, 1]] == torch.tensor([1, 6], device="cuda", dtype=torch.int64)
+    ).all()
+    assert (
+        dsts[[0, 1]] == torch.tensor([0, 16], device="cuda", dtype=torch.int64)
+    ).all()
+    assert srcs[2] < 0 and dsts[2] < 0
+
+    srcs, dsts = graph.find_edges(
+        torch.as_tensor([0, len(edges_12) - 1, 999], dtype=torch.int64),
+        ("type1", "e2", "type2"),
+    )
+    assert (
+        srcs[[0, 1]] == torch.tensor([0, 15], device="cuda", dtype=torch.int64)
+    ).all()
+    assert (
+        dsts[[0, 1]] == torch.tensor([0, 16], device="cuda", dtype=torch.int64)
+    ).all()
+    assert srcs[2] < 0 and dsts[2] < 0
+
+    srcs, dsts = graph.find_edges(
+        torch.as_tensor([0, len(edges_21) - 1, 999], dtype=torch.int64),
+        ("type2", "e3", "type1"),
+    )
+    assert (
+        srcs[[0, 1]] == torch.tensor([0, 16], device="cuda", dtype=torch.int64)
+    ).all()
+    assert (
+        dsts[[0, 1]] == torch.tensor([0, 15], device="cuda", dtype=torch.int64)
+    ).all()
+    assert srcs[2] < 0 and dsts[2] < 0
+
+    srcs, dsts = graph.find_edges(
+        torch.as_tensor([0, len(edges_22) - 1, 999], dtype=torch.int64),
+        ("type2", "e4", "type2"),
+    )
+    assert (
+        srcs[[0, 1]] == torch.tensor([15, 15], device="cuda", dtype=torch.int64)
+    ).all()
+    assert (
+        dsts[[0, 1]] == torch.tensor([1, 16], device="cuda", dtype=torch.int64)
+    ).all()
+    assert srcs[2] < 0 and dsts[2] < 0
