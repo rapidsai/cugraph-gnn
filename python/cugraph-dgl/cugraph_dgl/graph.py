@@ -106,6 +106,7 @@ class Graph:
 
         self.__graph = None
         self.__vertex_offsets = None
+        self.__edge_lookup_table = None
         self.__handle = None
         self.__is_multi_gpu = is_multi_gpu
 
@@ -127,6 +128,11 @@ class Graph:
     def is_multi_gpu(self):
         return self.__is_multi_gpu
 
+    def _clear_graph(self):
+        self.__graph = None
+        self.__edge_lookup_table = None
+        self.__vertex_offsets = None
+
     def to_canonical_etype(
         self, etype: Union[str, Tuple[str, str, str]]
     ) -> Tuple[str, str, str]:
@@ -145,6 +151,20 @@ class Graph:
                 return (src_type, rel_type, dst_type)
 
         raise ValueError("Unknown relation type " + etype)
+
+    def _to_numeric_etype(self, etype: Union[str, Tuple[str, str, str]]) -> int:
+        if etype is None:
+            if len(self.canonical_etypes) > 1:
+                raise ValueError("Edge type is required for heterogeneous graphs.")
+            return 0
+
+        etype = self.to_canonical_etype(etype)
+        return {
+            k: i
+            for i, k in enumerate(
+                sorted(self.__edge_indices.keys(leaves_only=True, include_nested=True))
+            )
+        }[etype]
 
     def add_nodes(
         self,
@@ -217,8 +237,7 @@ class Graph:
                     _cast_to_torch_tensor(feature_tensor), **self.__wg_kwargs
                 )
 
-        self.__graph = None
-        self.__vertex_offsets = None
+        self._clear_graph()
 
     def __check_node_ids(self, ntype: str, ids: TensorType):
         """
@@ -309,8 +328,7 @@ class Graph:
 
         self.__num_edges_dict[dgl_can_edge_type] = int(num_edges)
 
-        self.__graph = None
-        self.__vertex_offsets = None
+        self._clear_graph()
 
     def num_nodes(self, ntype: Optional[str] = None) -> int:
         """
@@ -537,7 +555,7 @@ class Graph:
                 self.__graph["direction"] != direction
                 or self.__graph["prob_attr"] != prob_attr
             ):
-                self.__graph = None
+                self._clear_graph()
 
         if self.__graph is None:
             src_col, dst_col = ("src", "dst") if direction == "out" else ("dst", "src")
@@ -620,9 +638,6 @@ class Graph:
             )
 
         try:
-            print(
-                u,
-            )
             return self.__ndata_storage[ntype, emb_name].fetch(
                 _cast_to_torch_tensor(u), "cuda"
             )
@@ -894,6 +909,38 @@ class Graph:
                     )
                 else:
                     raise ValueError(f"Invalid form {form}")
+
+    @property
+    def _edge_lookup_table(self):
+        if self.__edge_lookup_table is None:
+            self.__edge_lookup_table = pylibcugraph.EdgeIdLookupTable(
+                self._resource_handle,
+                self._graph("out") if self.__graph is None else self.__graph["graph"],
+            )
+
+        return self.__edge_lookup_table
+
+    def find_edges(
+        self, eid: "torch.Tensor", etype: Union[str, Tuple[str, str, str]] = None
+    ) -> Tuple["torch.Tensor", "torch.Tensor"]:
+        """
+        Looks up and returns the appropriate src/dst pairs given a sequence of edge
+        ids and an edge type.
+        """
+
+        # Have to properly de-offset the vertices based on edge type
+        etype = self.to_canonical_etype(etype)
+        num_edge_type = self._to_numeric_etype(etype)
+        out = self._edge_lookup_table.find(cupy.asarray(eid), num_edge_type)
+
+        src_name = "sources" if self.__graph["direction"] == "out" else "destinations"
+        dst_name = "destinations" if self.__graph["direction"] == "out" else "sources"
+        offsets = self._vertex_offsets
+
+        return (
+            torch.as_tensor(out[src_name], device="cuda") - offsets[etype[0]],
+            torch.as_tensor(out[dst_name], device="cuda") - offsets[etype[2]],
+        )
 
     @property
     def ndata(self) -> HeteroNodeDataView:
