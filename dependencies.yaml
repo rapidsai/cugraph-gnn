@@ -183,6 +183,10 @@ dependencies:
               cuda: "12.4"
             packages:
               - cuda-version=12.4
+          - matrix:
+              cuda: "12.5"
+            packages:
+              - cuda-version=12.5
   cuda:
     specific:
       - output_types: [conda]
