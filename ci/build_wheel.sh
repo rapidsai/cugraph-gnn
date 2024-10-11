@@ -54,7 +54,7 @@ fi
 
 cd "${package_dir}"
 
-WHEEL_BUILD_ARGS = "-m pip wheel . -w dist -vvv --no-deps --disable-pip-version-check"
+WHEEL_BUILD_ARGS="-m pip wheel . -w dist -vvv --no-deps --disable-pip-version-check"
 
 # pure-python packages should be marked as pure, and not have auditwheel run on them.
 if [[ ${package_name} == "cugraph-dgl" ]] || \
