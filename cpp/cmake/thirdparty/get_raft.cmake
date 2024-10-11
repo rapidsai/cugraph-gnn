@@ -14,8 +14,8 @@
 # limitations under the License.
 #=============================================================================
 
-set(WHOLEGRAPH_MIN_VERSION_raft "${RAPIDS_VERSION}.00")
-set(WHOLEGRAPH_BRANCH_VERSION_raft "${RAPIDS_VERSION}")
+set(WHOLEGRAPH_MIN_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}.00")
+set(WHOLEGRAPH_BRANCH_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}")
 
 function(find_and_configure_raft)
 
