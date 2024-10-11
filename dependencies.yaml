@@ -59,7 +59,6 @@ files:
       - depends_on_cudf
       - py_version
       - test_python_common
-      - test_python_pylibcugraph
 
   py_build_cugraph_dgl:
     output: pyproject
@@ -211,6 +210,7 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - ninja
+
       - output_types: [conda]
         packages:
           - &cmake_ver cmake>=3.26.4,!=3.30.0
