@@ -4,7 +4,6 @@
 set -eoxu pipefail
 
 package_name="cugraph-pyg"
-package_dir="python/cugraph-pyg"
 
 python_package_name=$(echo ${package_name}|sed 's/-/_/g')
 

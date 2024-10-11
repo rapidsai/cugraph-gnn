@@ -8,6 +8,8 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
 
+RAPIDS_VERSION="$(rapids-version)"
+
 rapids-logger "Generate Python testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
@@ -59,10 +61,10 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel conda-forge \
     --channel dglteam/label/th23_cu118 \
     --channel nvidia \
-    "pylibwholegraph=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "pylibcugraphops=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "cugraph=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "cugraph-dgl=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
+    "pylibwholegraph=${RAPIDS_VERSION}.*" \
+    "pylibcugraphops=${RAPIDS_VERSION}.*" \
+    "cugraph=${RAPIDS_VERSION}.*" \
+    "cugraph-dgl=${RAPIDS_VERSION}.*" \
     'pytorch::pytorch>=2.3,<2.4' \
     'cuda-version=11.8' \
     "ogb"
@@ -111,10 +113,10 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "pylibcugraphops=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "cugraph=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
-    "cugraph-pyg=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
+    "pylibwholegraph=${RAPIDS_VERSION}.*" \
+    "pylibcugraphops=${RAPIDS_VERSION}.*" \
+    "cugraph=${RAPIDS_VERSION}.*" \
+    "cugraph-pyg=${RAPIDS_VERSION}.*" \
     "pytorch::pytorch>=2.3,<2.4" \
     "ogb"
 
@@ -160,7 +162,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION_MAJOR_MINOR}.*" \
+    "pylibwholegraph=${RAPIDS_VERSION}.*" \
     "pytorch::pytorch>=2.3,<2.4" \
     "ogb"
 
