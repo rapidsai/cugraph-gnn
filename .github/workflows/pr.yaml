@@ -182,4 +182,3 @@ jobs:
         sccache -z;
         build-all --verbose -j$(nproc --ignore=1) -DBUILD_CUGRAPH_MG_TESTS=ON;
         sccache -s;
-
