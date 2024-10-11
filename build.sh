@@ -26,13 +26,17 @@ VALIDARGS="
    uninstall
    cugraph-pyg
    cugraph-dgl
-   docs
+   pylibwholegraph
+   libwholegraph
+   tests
+   benchmarks
    all
    -v
    -g
    -n
    --pydevelop
    --allgpuarch
+   --compile-cmd
    --clean
    -h
    --help
@@ -43,27 +47,36 @@ HELP="$0 [<target> ...] [<flag> ...]
    clean                      - remove all existing build artifacts and configuration (start over)
    uninstall                  - uninstall libcugraph and cugraph from a prior build/install (see also -n)
    cugraph-pyg                - build the cugraph-pyg Python package
-   cugraph-dgl                - build the cugraph-dgl extensions for DGL
-   docs                       - build the docs
+   cugraph-dgl                - build the cugraph-dgl Python package
+   pylibwholegraph            - build the pylibwholegraph Python package
+   libwholegraph              - build the libwholegraph library
+   test                       - build the C++ tests
+   benchmarks                 - build benchmarks.
    all                        - build everything
  and <flag> is:
-   -v                         - verbose build mode
-   -g                         - build for debug
-   -n                         - do not install after a successful build (does not affect Python packages)
-   --pydevelop                - install the Python packages in editable mode
-   --allgpuarch               - build for all supported GPU architectures
-   --clean                    - clean an individual target (note: to do a complete rebuild, use the clean target described above)
-   -h                         - print this text
+   -v                          - verbose build mode
+   -g                          - build for debug
+   -n                          - do not install after a successful build (does not affect Python packages)
+   --pydevelop                 - install the Python packages in editable mode
+   --allgpuarch                - build for all supported GPU architectures
+   --enable-nvshmem            - build with nvshmem support (beta).
+   --compile-cmd               - only output compile commands (invoke CMake without build)
+   --clean                     - clean an individual target (note: to do a complete rebuild, use the clean target described above)
+   -h                          - print this text
 
- default action (no args) is to build and install 'cugraph-pyg' then 'cugraph-dgl' then 'wholegraph' targets
+ default action (no args) is to build and install 'libwholegraph' then 'pylibwholegraph' then 'cugraph-pyg' then 'cugraph-dgl'
 
 "
 
 CUGRAPH_PYG_BUILD_DIR=${REPODIR}/python/cugraph-pyg/build
 CUGRAPH_DGL_BUILD_DIR=${REPODIR}/python/cugraph-dgl/build
+PYLIBWHOLEGRAPH_BUILD_DIR=${REPODIR}/python/pylibwholegraph/build
+LIBWHOLEGRAPH_BUILD_DIR=${REPODIR}/cpp/build
 
 BUILD_DIRS="${CUGRAPH_PYG_BUILD_DIR}
             ${CUGRAPH_DGL_BUILD_DIR}
+            ${PYLIBWHOLEGRAPH_BUILD_DIR}
+            ${LIBWHOLEGRAPH_BUILD_DIR}
 "
 
 # Set defaults for vars modified by flags to this script
@@ -131,14 +144,40 @@ fi
 if hasArg --pydevelop; then
     PYTHON_ARGS_FOR_INSTALL="${PYTHON_ARGS_FOR_INSTALL} -e"
 fi
+if hasArg --enable-nvshmem; then
+    BUILD_WITH_NVSHMEM=ON
+else
+    BUILD_WITH_NVSHMEM=OFF
+fi
+if hasArg tests; then
+    BUILD_TESTS=ON
+else
+    BUILD_TESTS=OFF
+fi
+if hasArg benchmarks; then
+    BUILD_BENCHMARKS=ON
+else
+    BUILD_BENCHMARKS=OFF
+fi
 
 # If clean or uninstall targets given, run them prior to any other steps
 if hasArg uninstall; then
-    # uninstall cugraph and pylibcugraph installed from a prior install
+    if [[ "$INSTALL_PREFIX" != "" ]]; then
+        rm -rf ${INSTALL_PREFIX}/include/wholememory
+        rm -f ${INSTALL_PREFIX}/lib/libwholegraph.so
+        rm -rf ${INSTALL_PREFIX}/lib/cmake/wholegraph
+    fi
+    # This may be redundant given the above, but can also be used in case
+    # there are other installed files outside of the locations above.
+    if [ -e ${LIBWHOLEGRAPH_BUILD_DIR}/install_manifest.txt ]; then
+        xargs rm -f < ${LIBWHOLEGRAPH_BUILD_DIR}/install_manifest.txt > /dev/null 2>&1
+    fi
+
+    # uninstall cugraph-dgl/cugraph-pyg/wholegraph installed from a prior install
     # FIXME: if multiple versions of these packages are installed, this only
     # removes the latest one and leaves the others installed. build.sh uninstall
     # can be run multiple times to remove all of them, but that is not obvious.
-    pip uninstall -y  cugraph-dgl cugraph-pyg
+    pip uninstall -y  cugraph-dgl cugraph-pyg pylibwholegraph libwholegraph
 fi
 
 if hasArg clean; then
@@ -164,6 +203,61 @@ if hasArg clean; then
 fi
 
 ################################################################################
+
+# Build and install the libwholegraph library
+if hasArg libwholegraph || buildDefault || hasArg all ; then
+
+    # set values based on flags
+    if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
+        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="${WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES:=NATIVE}"
+        echo "Building for the architecture of the GPU in the system..."
+    else
+        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="70-real;75-real;80-real;86-real;90"
+        echo "Building for *ALL* supported GPU architectures..."
+    fi
+
+    cmake -S ${REPODIR}/cpp -B ${LIBWHOLEGRAPH_BUILD_DIR} \
+          -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+          -DCMAKE_CUDA_ARCHITECTURES=${WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES} \
+          -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+          -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+          -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE \
+          -DBUILD_TESTS=${BUILD_TESTS} \
+          -DBUILD_WITH_NVSHMEM=${BUILD_WITH_NVSHMEM}
+
+    cd ${LIBWHOLEGRAPH_BUILD_DIR}
+
+    if ! hasArg --compile-cmd; then
+        ## Build and (optionally) install library + tests
+        cmake --build . -j${PARALLEL_LEVEL} ${INSTALL_TARGET} ${VERBOSE_FLAG}
+    fi
+fi
+
+# Build and install the pylibwholegraph Python package
+if hasArg pylibwholegraph || buildDefault || hasArg all; then
+    if hasArg --clean; then
+        cleanPythonDir ${REPODIR}/python/pylibwholegraph
+    fi
+
+    # setup.py and cmake reference an env var LIBWHOLEGRAPH_DIR to find the
+    # libwholegraph package (cmake).
+    # If not set by the user, set it to LIBWHOLEGRAPH_BUILD_DIR
+    LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR:=${LIBWHOLEGRAPH_BUILD_DIR}}
+    if ! hasArg --compile-cmd; then
+        cd ${REPODIR}/python/pylibwholegraph
+        env LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR} \
+        SKBUILD_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" python ${PYTHON_ARGS_FOR_INSTALL} \
+            --config-settings rapidsai.disable-cuda=true \
+            .
+
+    else
+        # just invoke cmake without going through scikit-build-core
+        env LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR} \
+        cmake -S ${REPODIR}/python/pylibwholegraph -B ${REPODIR}/python/pylibwholegraph/build \
+           -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    fi
+fi
+
 # Build and install the cugraph-pyg Python package
 if hasArg cugraph-pyg || buildDefault || hasArg all; then
     if hasArg --clean; then
@@ -173,48 +267,11 @@ if hasArg cugraph-pyg || buildDefault || hasArg all; then
     fi
 fi
 
-# Install the cugraph-dgl extensions for DGL
+# Build and install the cugraph-dgl Python package
 if hasArg cugraph-dgl || buildDefault ||hasArg all; then
     if hasArg --clean; then
         cleanPythonDir ${REPODIR}/python/cugraph-dgl
     else
         python ${PYTHON_ARGS_FOR_INSTALL} ${REPODIR}/python/cugraph-dgl
     fi
-fi
-
-# Build the docs
-if hasArg docs || hasArg all; then
-    if [ ! -d ${LIBCUGRAPH_BUILD_DIR} ]; then
-        mkdir -p ${LIBCUGRAPH_BUILD_DIR}
-        cd ${LIBCUGRAPH_BUILD_DIR}
-        cmake -B "${LIBCUGRAPH_BUILD_DIR}" -S "${REPODIR}/cpp" \
-              -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              ${CMAKE_GENERATOR_OPTION} \
-              ${CMAKE_VERBOSE_OPTION}
-    fi
-
-    for PROJECT in libcugraphops libwholegraph; do
-        XML_DIR="${REPODIR}/docs/cugraph/${PROJECT}"
-        rm -rf "${XML_DIR}"
-        mkdir -p "${XML_DIR}"
-        export XML_DIR_${PROJECT^^}="$XML_DIR"
-
-        echo "downloading xml for ${PROJECT} into ${XML_DIR}. Environment variable XML_DIR_${PROJECT^^} is set to ${XML_DIR}"
-        curl -O "https://d1664dvumjb44w.cloudfront.net/${PROJECT}/xml_tar/${RAPIDS_VERSION}/xml.tar.gz"
-        tar -xzf xml.tar.gz -C "${XML_DIR}"
-        rm "./xml.tar.gz"
-    done
-
-    cd ${LIBCUGRAPH_BUILD_DIR}
-    cmake --build "${LIBCUGRAPH_BUILD_DIR}" -j${PARALLEL_LEVEL} --target docs_cugraph ${VERBOSE_FLAG}
-
-    echo "making libcugraph doc dir"
-    rm -rf ${REPODIR}/docs/cugraph/libcugraph
-    mkdir -p ${REPODIR}/docs/cugraph/libcugraph
-
-    export XML_DIR_LIBCUGRAPH="${REPODIR}/cpp/doxygen/xml"
-
-    cd ${REPODIR}/docs/cugraph
-    make html
 fi
