@@ -20,11 +20,8 @@ files:
       - depends_on_pylibraft
       - depends_on_raft_dask
       - depends_on_pylibcugraphops
-      - depends_on_pylibwholegraph
       - depends_on_cupy
       - depends_on_pytorch
-      - depends_on_dgl
-      - depends_on_pyg
       - python_run_cugraph_dgl
       - python_run_cugraph_pyg
       - test_notebook
@@ -60,7 +57,6 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_pylibwholegraph
       - py_version
       - test_python_common
       - test_python_pylibcugraph
@@ -88,7 +84,6 @@ files:
       key: test
     includes:
       - test_python_common
-      - depends_on_pylibwholegraph
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -112,7 +107,6 @@ files:
       key: test
     includes:
       - test_python_common
-      - depends_on_pylibwholegraph
 
 
   cugraph_dgl_dev:
@@ -309,7 +303,7 @@ dependencies:
       - output_types: [conda]
         packages:
           - cugraph==24.12.*
-          - pytorch::pytorch>=2.0
+          - &pytorch_conda pytorch>=2.3,<2.4.0a0
           - dgl>=2.4.0.cu*
           - &tensordict tensordict>=0.1.2
   cugraph_pyg_dev:
@@ -317,7 +311,7 @@ dependencies:
       - output_types: [conda]
         packages:
           - cugraph==24.12.*
-          - pytorch::pytorch>=2.0
+          - *pytorch_conda
           - *tensordict
           - pytorch_geometric>=2.5,<2.6
 
@@ -325,7 +319,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch::pytorch>=2.0,<2.2.0a0
+          - *pytorch_conda
           - torchdata
           - pydantic
     specific:
@@ -342,7 +336,7 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - &pytorch_pip torch>=2.0,<2.2.0a0
+              - &pytorch_pip torch>=2.3,<2.4.0a0
               - *tensordict
           - matrix: {cuda: "11.*"}
             packages:
@@ -361,19 +355,238 @@ dependencies:
             packages:
               - pytorch-cuda=11.8
 
+  depends_on_rmm:
+    common:
+      - output_types: conda
+        packages:
+          - &rmm_unsuffixed rmm==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - rmm-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - rmm-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*rmm_unsuffixed]}
+
+  depends_on_cugraph:
+    common:
+      - output_types: conda
+        packages:
+          - &cugraph_unsuffixed cugraph==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - cugraph-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - cugraph-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*cugraph_unsuffixed]}
+
+  depends_on_cudf:
+    common:
+      - output_types: conda
+        packages:
+          - &cudf_unsuffixed cudf==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - cudf-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - cudf-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*cudf_unsuffixed]}
+
+  depends_on_dask_cudf:
+    common:
+      - output_types: conda
+        packages:
+          - &dask_cudf_unsuffixed dask-cudf==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - dask-cudf-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - dask-cudf-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*dask_cudf_unsuffixed]}
+
+  depends_on_pylibraft:
+    common:
+      - output_types: conda
+        packages:
+          - &pylibraft_unsuffixed pylibraft==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibraft-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibraft-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*pylibraft_unsuffixed]}
+
+  depends_on_raft_dask:
+    common:
+      - output_types: conda
+        packages:
+          - &raft_dask_unsuffixed raft-dask==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*raft_dask_unsuffixed]}
+
+  depends_on_pylibcugraph:
+    common:
+      - output_types: conda
+        packages:
+          - &pylibcugraph_unsuffixed pylibcugraph==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibcugraph-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibcugraph-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
+
+  depends_on_pylibcugraphops:
+    common:
+      - output_types: conda
+        packages:
+          - &pylibcugraphops_unsuffixed pylibcugraphops==24.12.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibcugraphops-cu12==24.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "11.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibcugraphops-cu11==24.12.*,>=0.0.0a0
+          - {matrix: null, packages: [*pylibcugraphops_unsuffixed]}
+
+  depends_on_cupy:
+    common:
+      - output_types: conda
+        packages:
+          - cupy>=12.0.0
+    # NOTE: This is intentionally not broken into groups by a 'cuda_suffixed' selector like
+    #       other packages with -cu{nn}x suffixes in this file.
+    #       All RAPIDS wheel builds (including in devcontainers) expect cupy to be suffixed.
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix: {cuda: "12.*"}
+            packages:
+              - cupy-cuda12x>=12.0.0
+          - matrix: {cuda: "11.*"}
+            packages: &cupy_packages_cu11
+              - cupy-cuda11x>=12.0.0
+          - {matrix: null, packages: *cupy_packages_cu11}
+
   depends_on_dgl:
     specific:
       - output_types: [conda]
         matrices:
           - matrix: {cuda: "12.1"}
             packages:
-              - "dglteam/label/th21_cu121::dgl"
+              - "dglteam/label/th23_cu121::dgl"
           - matrix: {cuda: "12.4"}
             packages:
-              - "dglteam/label/th21_cu124::dgl"
+              - "dglteam/label/th23_cu124::dgl"
           - matrix: {cuda: "11.*"}
             packages:
-              - "dglteam/label/th21_cu118::dgl"
+              - "dglteam/label/th23_cu118::dgl"
           - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl"]}
 
   depends_on_pyg:
@@ -412,222 +625,3 @@ dependencies:
             packages:
               - pylibwholegraph-cu11==24.12.*
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}
-
-  depends_on_rmm:
-    common:
-      - output_types: conda
-        packages:
-          - &rmm_unsuffixed rmm==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - rmm-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - rmm-cu11==24.12.*
-          - {matrix: null, packages: [*rmm_unsuffixed]}
-
-  depends_on_cugraph:
-    common:
-      - output_types: conda
-        packages:
-          - &cugraph_unsuffixed cugraph==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu11==24.12.*
-          - {matrix: null, packages: [*cugraph_unsuffixed]}
-
-  depends_on_cudf:
-    common:
-      - output_types: conda
-        packages:
-          - &cudf_unsuffixed cudf==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - cudf-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - cudf-cu11==24.12.*
-          - {matrix: null, packages: [*cudf_unsuffixed]}
-
-  depends_on_dask_cudf:
-    common:
-      - output_types: conda
-        packages:
-          - &dask_cudf_unsuffixed dask-cudf==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu11==24.12.*
-          - {matrix: null, packages: [*dask_cudf_unsuffixed]}
-
-  depends_on_pylibraft:
-    common:
-      - output_types: conda
-        packages:
-          - &pylibraft_unsuffixed pylibraft==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibraft-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibraft-cu11==24.12.*
-          - {matrix: null, packages: [*pylibraft_unsuffixed]}
-
-  depends_on_raft_dask:
-    common:
-      - output_types: conda
-        packages:
-          - &raft_dask_unsuffixed raft-dask==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - raft-dask-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - raft-dask-cu11==24.12.*
-          - {matrix: null, packages: [*raft_dask_unsuffixed]}
-
-  depends_on_pylibcugraph:
-    common:
-      - output_types: conda
-        packages:
-          - &pylibcugraph_unsuffixed pylibcugraph==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibcugraph-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibcugraph-cu11==24.12.*
-          - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
-
-  depends_on_pylibcugraphops:
-    common:
-      - output_types: conda
-        packages:
-          - &pylibcugraphops_unsuffixed pylibcugraphops==24.12.*
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibcugraphops-cu12==24.12.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibcugraphops-cu11==24.12.*
-          - {matrix: null, packages: [*pylibcugraphops_unsuffixed]}
-
-  depends_on_cupy:
-    common:
-      - output_types: conda
-        packages:
-          - cupy>=12.0.0
-    # NOTE: This is intentionally not broken into groups by a 'cuda_suffixed' selector like
-    #       other packages with -cu{nn}x suffixes in this file.
-    #       All RAPIDS wheel builds (including in devcontainers) expect cupy to be suffixed.
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-              - cupy-cuda12x>=12.0.0
-          - matrix: {cuda: "11.*"}
-            packages: &cupy_packages_cu11
-              - cupy-cuda11x>=12.0.0
-          - {matrix: null, packages: *cupy_packages_cu11}
