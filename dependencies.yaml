@@ -3,7 +3,7 @@ files:
   all:
     output: [conda]
     matrix:
-      cuda: ["11.8", "12.1"]
+      cuda: ["11.8", "12.1", "12.4"]
       arch: [x86_64]
     includes:
       - checks
@@ -185,6 +185,10 @@ dependencies:
               cuda: "12.2"
             packages:
               - cuda-version=12.2
+          - matrix:
+              cuda: "12.4"
+            packages:
+              - cuda-version=12.4
   cuda:
     specific:
       - output_types: [conda]
@@ -306,7 +310,7 @@ dependencies:
         packages:
           - cugraph==24.12.*
           - pytorch::pytorch>=2.0
-          - dgl>=1.1.0.cu*
+          - dgl>=2.4.0.cu*
           - &tensordict tensordict>=0.1.2
   cugraph_pyg_dev:
     common:
@@ -315,7 +319,7 @@ dependencies:
           - cugraph==24.12.*
           - pytorch::pytorch>=2.0
           - *tensordict
-          - pyg>=2.5,<2.6
+          - pytorch_geometric>=2.5,<2.6
 
   depends_on_pytorch:
     common:
@@ -347,9 +351,12 @@ dependencies:
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {cuda: "12.1"}
             packages:
               - pytorch-cuda=12.1
+          - matrix: {cuda: "12.4"}
+            packages:
+              - pytorch-cuda=12.4
           - matrix: {cuda: "11.*"}
             packages:
               - pytorch-cuda=11.8
@@ -358,9 +365,12 @@ dependencies:
     specific:
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {cuda: "12.1"}
             packages:
               - "dglteam/label/th21_cu121::dgl"
+          - matrix: {cuda: "12.4"}
+            packages:
+              - "dglteam/label/th21_cu124::dgl"
           - matrix: {cuda: "11.*"}
             packages:
               - "dglteam/label/th21_cu118::dgl"

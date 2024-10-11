@@ -9,7 +9,7 @@ channels:
 - nvidia
 dependencies:
 - cugraph==24.12.*
-- dgl>=1.1.0.cu*
+- dgl>=2.4.0.cu*
 - dglteam/label/th21_cu118::dgl
 - pandas
 - pre-commit
