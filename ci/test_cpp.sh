@@ -8,6 +8,8 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
 
+RAPIDS_VERSION="$(rapids-version)"
+
 rapids-logger "Generate C++ testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
@@ -30,7 +32,9 @@ rapids-print-env
 
 rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
-    libcugraph libcugraph_etl libcugraph-tests
+    "libcugraph=${RAPIDS_VERSION}" \
+    "libcugraph_etl=${RAPIDS_VERSION}" \
+    "libcugraph-tests=${RAPIDS_VERSION}"
 
 rapids-logger "Check GPU usage"
 nvidia-smi

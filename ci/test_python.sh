@@ -8,6 +8,8 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
 
+RAPIDS_VERSION="$(rapids-version)"
+
 rapids-logger "Generate Python testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
@@ -34,12 +36,12 @@ rapids-print-env
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \
   --channel "${PYTHON_CHANNEL}" \
-  libcugraph \
-  pylibcugraph \
-  cugraph \
-  nx-cugraph \
-  cugraph-service-server \
-  cugraph-service-client
+  "libcugraph=${RAPIDS_VERSION}" \
+  "pylibcugraph=${RAPIDS_VERSION}" \
+  "cugraph=${RAPIDS_VERSION}" \
+  "nx-cugraph=${RAPIDS_VERSION}" \
+  "cugraph-service-server=${RAPIDS_VERSION}" \
+  "cugraph-service-client=${RAPIDS_VERSION}"
 
 rapids-logger "Check GPU usage"
 nvidia-smi

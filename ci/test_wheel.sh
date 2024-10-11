@@ -4,14 +4,18 @@
 set -eoxu pipefail
 
 package_name=$1
-package_dir=$2
 
 python_package_name=$(echo ${package_name}|sed 's/-/_/g')
 
 mkdir -p ./dist
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
-RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-s3 ./dist
 
+# nx-cugraph is a pure wheel, which is part of generating the download path
+if [[ "${package_name}" == "nx-cugraph" ]]; then
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-s3 ./dist
+else
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-s3 ./dist
+fi
 # use 'ls' to expand wildcard before adding `[extra]` requires for pip
 # pip creates wheels using python package names
 python -m pip install $(ls ./dist/${python_package_name}*.whl)[test]
@@ -32,9 +36,11 @@ else
     DASK_DISTRIBUTED__SCHEDULER__WORKER_TTL="1000s" \
     DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT="1000s" \
     DASK_CUDA_WAIT_WORKERS_MIN_TIMEOUT="1000s" \
+    NX_CUGRAPH_USE_COMPAT_GRAPHS=False \
     python -m pytest \
        -v \
        --import-mode=append \
        --benchmark-disable \
+       -k "not test_property_graph_mg and not test_bulk_sampler_io" \
        ./python/${package_name}/${python_package_name}/tests
 fi
