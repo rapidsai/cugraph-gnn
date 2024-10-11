@@ -204,10 +204,20 @@ dependencies:
               - cuda-nvtx
   common_build:
     common:
-      - output_types: [conda, pyproject]
+      - output_types: [requirements, pyproject]
+        packages:
+          - ninja
+      - output_types: [conda]
         packages:
           - &cmake_ver cmake>=3.26.4,!=3.30.0
-          - ninja
+          - cudnn=8.8
+          - c-compiler
+          - cxx-compiler
+          - libraft-headers==24.12.*,>=0.0.0a0
+          - librmm==24.12.*,>=0.0.0a0
+          - nanobind>=0.2.0
+          - &cython cython>=3.0.0
+          - &nccl nccl>=2.19
 
   docs:
     common:
@@ -254,7 +264,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - cython>=3.0.0
+          - *cython
       - output_types: conda
         packages:
           - scikit-build-core>=0.10.0
@@ -288,6 +298,12 @@ dependencies:
       - output_types: [conda]
         packages:
           - wget
+  test_cpp:
+    common:
+      - output_types: conda
+        packages:
+          - *cmake_ver
+          - *nccl
   test_python_common:
     common:
       - output_types: [conda, pyproject]
