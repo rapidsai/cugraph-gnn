@@ -18,8 +18,8 @@ if [[ "${CUDA_VERSION}" == "11.8.0" ]]; then
   PYTORCH_URL="https://download.pytorch.org/whl/cu118"
   PYG_URL="https://data.pyg.org/whl/torch-2.3.0+cu118.html"
 else
-  PYTORCH_URL="https://download.pytorch.org/whl/cu121"
-  PYG_URL="https://data.pyg.org/whl/torch-2.3.0+cu121.html"
+  PYTORCH_URL="https://download.pytorch.org/whl/cu124"
+  PYG_URL="https://data.pyg.org/whl/torch-2.3.0+cu124.html"
 fi
 
 # echo to expand wildcard before adding `[extra]` requires for pip
