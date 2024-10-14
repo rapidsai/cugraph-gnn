@@ -26,6 +26,7 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
+mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
 pushd "${RAPIDS_DATASET_ROOT_DIR}"
 ./get_test_data.sh --benchmark
 popd
