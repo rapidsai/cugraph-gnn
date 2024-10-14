@@ -27,7 +27,8 @@ rapids-retry python -m pip install \
     $(echo ./dist/pylibwholegraph*.whl) \
     pytest \
     pytest-forked \
-    numpy
+    numpy \
+    'torch>=2.3.0,<2.4'
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests
