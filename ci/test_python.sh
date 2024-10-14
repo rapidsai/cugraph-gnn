@@ -86,7 +86,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   # Reactivate the test environment back
   set +u
   conda deactivate
-  conda activate test
   set -u
 else
   rapids-logger "skipping cugraph_dgl pytest on ARM64"
@@ -99,15 +98,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   set +u
   conda activate test_cugraph_pyg
   set -u
-
-  # TODO re-enable logic once CUDA 12 is testable
-  #if [[ "${RAPIDS_CUDA_VERSION}" == "11.8.0" ]]; then
-  CONDA_CUDA_VERSION="11.8"
-  PYG_URL="https://data.pyg.org/whl/torch-2.1.0+cu118.html"
-  #else
-  #  CONDA_CUDA_VERSION="12.1"
-  #  PYG_URL="https://data.pyg.org/whl/torch-2.1.0+cu121.html"
-  #fi
 
   # Will automatically install built dependencies of cuGraph-PyG
   rapids-mamba-retry install \
@@ -137,7 +127,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   # Reactivate the test environment back
   set +u
   conda deactivate
-  conda activate test
   set -u
 else
   rapids-logger "skipping cugraph_pyg pytest on ARM64"
@@ -150,13 +139,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   set +u
   conda activate test_pylibwholegraph
   set -u
-
-  # TODO re-enable logic once CUDA 12 is testable
-  #if [[ "${RAPIDS_CUDA_VERSION}" == "11.8.0" ]]; then
-  CONDA_CUDA_VERSION="11.8"
-  #else
-  #  CONDA_CUDA_VERSION="12.1"
-  #fi
 
   # Will automatically install built dependencies of pylibwholegraph
   rapids-mamba-retry install \
@@ -172,18 +154,17 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "Check GPU usage"
   nvidia-smi
 
-  rapids-logger "pytest cugraph_pyg (single GPU)"
-  ./ci/run_cugraph_pyg_pytests.sh \
-    --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
+  rapids-logger "pytest pylibwholegraph (single GPU)"
+  ./ci/run_pylibwholegraph_pytests.sh \
+    --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
     --cov-config=../../.coveragerc \
     --cov=cugraph_pyg \
-    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
+    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
     --cov-report=term
 
   # Reactivate the test environment back
   set +u
   conda deactivate
-  conda activate test
   set -u
 else
   rapids-logger "skipping cugraph_pyg pytest on ARM64"
