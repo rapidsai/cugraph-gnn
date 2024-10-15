@@ -59,13 +59,13 @@ files:
       - depends_on_cudf
       - py_version
       - test_python_common
-
   py_build_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
     extras:
       table: build-system
     includes:
+      - python_build_rapids
       - python_build_wheel
   py_run_cugraph_dgl:
     output: pyproject
@@ -83,12 +83,15 @@ files:
       key: test
     includes:
       - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_pytorch
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
     extras:
       table: build-system
     includes:
+      - python_build_rapids
       - python_build_wheel
   py_run_cugraph_pyg:
     output: pyproject
@@ -106,6 +109,8 @@ files:
       key: test
     includes:
       - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_pytorch
 
 
   cugraph_dgl_dev:
@@ -258,6 +263,11 @@ dependencies:
           - matrix:
             packages:
               - python>=3.10,<3.13
+  python_build_rapids:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - rapids-build-backend>=0.3.1,<0.4.0.dev0
   python_build_wheel:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -281,9 +291,9 @@ dependencies:
         packages:
           - &numba numba>=0.57
           - &numpy numpy>=1.23,<3.0a0
-      - output_types: [pyproject]
+      - output_types: [pyproject, requirements]
         packages:
-          - &cugraph cugraph==24.12.*
+          - &cugraph cugraph==24.12.*,>=0.0.0a0
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
@@ -323,7 +333,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*
+          - &cugraph_unsuffixed cugraph==24.12.*,>=0.0.0a0
           - &pytorch_conda pytorch>=2.3,<2.4.0a0
           - dgl>=2.4.0.cu*
           - &tensordict tensordict>=0.1.2
@@ -331,7 +341,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*
+          - *cugraph_unsuffixed
           - *pytorch_conda
           - *tensordict
           - pytorch_geometric>=2.5,<2.6
@@ -405,7 +415,7 @@ dependencies:
     common:
       - output_types: conda
         packages:
-          - &cugraph_unsuffixed cugraph==24.12.*,>=0.0.0a0
+          - *cugraph_unsuffixed
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -626,7 +636,7 @@ dependencies:
     common:
       - output_types: conda
         packages:
-          - &pylibwholegraph_unsuffixed pylibwholegraph==24.12.*
+          - &pylibwholegraph_unsuffixed pylibwholegraph==24.12.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -639,10 +649,10 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - pylibwholegraph-cu12==24.12.*
+              - pylibwholegraph-cu12==24.12.*,>=0.0.0a0
           - matrix:
               cuda: "11.*"
               cuda_suffixed: "true"
             packages:
-              - pylibwholegraph-cu11==24.12.*
+              - pylibwholegraph-cu11==24.12.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}

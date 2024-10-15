@@ -37,6 +37,7 @@ test = [
     "pytest",
     "pytest-benchmark",
     "pytest-cov",
+    "pytest-forked",
     "pytest-xdist",
     "scipy",
     "tensordict>=0.1.2",
