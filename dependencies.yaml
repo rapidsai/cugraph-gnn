@@ -26,7 +26,6 @@ files:
       - python_run_cugraph_pyg
       - test_notebook
       - test_python_common
-
   checks:
     output: none
     includes:
@@ -48,6 +47,7 @@ files:
     output: none
     includes:
       - cuda_version
+      - depends_on_pytorch
       - py_version
       - test_notebook
       - test_python_common
@@ -57,6 +57,7 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
+      - depends_on_pytorch
       - py_version
       - test_python_common
   py_build_cugraph_dgl:
