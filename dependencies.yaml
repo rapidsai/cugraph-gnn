@@ -316,6 +316,7 @@ dependencies:
           - pytest
           - pytest-benchmark
           - pytest-cov
+          - pytest-forked
           - pytest-xdist
           - scipy
   cugraph_dgl_dev:

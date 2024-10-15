@@ -47,6 +47,7 @@ dependencies:
 - pytest
 - pytest-benchmark
 - pytest-cov
+- pytest-forked
 - pytest-xdist
 - pytorch-cuda=12.4
 - pytorch>=2.3,<2.4.0a0
