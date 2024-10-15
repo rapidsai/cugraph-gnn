@@ -304,6 +304,7 @@ dependencies:
       - output_types: [conda, requirements]
         packages:
           - ipython
+          - nbconvert>=7.16
           - notebook>=0.5.0
       - output_types: [conda]
         packages:
