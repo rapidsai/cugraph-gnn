@@ -12,7 +12,7 @@ RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-
 PKG_CUDA_VER="$(echo ${CUDA_VERSION} | cut -d '.' -f1,2 | tr -d '.')"
 PKG_CUDA_VER_MAJOR=${PKG_CUDA_VER:0:2}
 if [[ "${PKG_CUDA_VER_MAJOR}" == "12" ]]; then
-  INDEX_URL="https://download.pytorch.org/whl/cu124"
+  INDEX_URL="https://download.pytorch.org/whl/cu121"
 else
   INDEX_URL="https://download.pytorch.org/whl/cu${PKG_CUDA_VER}"
 fi

@@ -75,6 +75,7 @@ files:
       table: project
     includes:
       - python_run_cugraph_dgl
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
   py_test_cugraph_dgl:
     output: pyproject
@@ -101,6 +102,7 @@ files:
       table: project
     includes:
       - python_run_cugraph_pyg
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
   py_test_cugraph_pyg:
     output: pyproject
@@ -216,7 +218,6 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - ninja
-
       - output_types: [conda]
         packages:
           - &cmake_ver cmake>=3.26.4,!=3.30.0
@@ -292,18 +293,12 @@ dependencies:
         packages:
           - &numba numba>=0.57
           - &numpy numpy>=1.23,<3.0a0
-      - output_types: [pyproject, requirements]
-        packages:
-          - &cugraph cugraph==24.12.*,>=0.0.0a0
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
         packages:
           - *numba
           - *numpy
-      - output_types: [pyproject]
-        packages:
-          - *cugraph
   test_notebook:
     common:
       - output_types: [conda, requirements]
@@ -334,7 +329,6 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - &cugraph_unsuffixed cugraph==24.12.*,>=0.0.0a0
           - &pytorch_conda pytorch>=2.3,<2.4.0a0
           - dgl>=2.4.0.cu*
           - &tensordict tensordict>=0.1.2
@@ -342,7 +336,6 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - *cugraph_unsuffixed
           - *pytorch_conda
           - *tensordict
           - pytorch_geometric>=2.5,<2.6
@@ -405,7 +398,7 @@ dependencies:
     common:
       - output_types: conda
         packages:
-          - *cugraph_unsuffixed
+          - &cugraph_unsuffixed cugraph==24.12.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
