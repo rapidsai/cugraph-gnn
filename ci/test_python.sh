@@ -62,10 +62,10 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel conda-forge \
     --channel dglteam/label/th23_cu118 \
     --channel nvidia \
-    "pylibwholegraph=${RAPIDS_VERSION}.*" \
-    "pylibcugraphops=${RAPIDS_VERSION}.*" \
-    "cugraph=${RAPIDS_VERSION}.*" \
-    "cugraph-dgl=${RAPIDS_VERSION}.*" \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "pylibcugraphops=${RAPIDS_VERSION}" \
+    "cugraph=${RAPIDS_VERSION}" \
+    "cugraph-dgl=${RAPIDS_VERSION}" \
     'pytorch::pytorch>=2.3,<2.4' \
     'cuda-version=11.8' \
     "ogb"
@@ -104,10 +104,10 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION}.*" \
-    "pylibcugraphops=${RAPIDS_VERSION}.*" \
-    "cugraph=${RAPIDS_VERSION}.*" \
-    "cugraph-pyg=${RAPIDS_VERSION}.*" \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "pylibcugraphops=${RAPIDS_VERSION}" \
+    "cugraph=${RAPIDS_VERSION}" \
+    "cugraph-pyg=${RAPIDS_VERSION}" \
     "pytorch::pytorch>=2.3,<2.4" \
     "ogb"
 
@@ -145,7 +145,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION}.*" \
+    'mkl<2024.1.0' \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
     "pytorch::pytorch>=2.3,<2.4" \
     "ogb"
 
