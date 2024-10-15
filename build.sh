@@ -84,7 +84,7 @@ VERBOSE_FLAG=""
 BUILD_TYPE=Release
 INSTALL_TARGET="--target install"
 BUILD_ALL_GPU_ARCH=0
-PYTHON_ARGS_FOR_INSTALL="-m pip install --no-build-isolation --no-deps"
+PYTHON_ARGS_FOR_INSTALL="-m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true"
 
 # Set defaults for vars that may not have been defined externally
 #  FIXME: if PREFIX is not set, check CONDA_PREFIX, but there is no fallback
@@ -247,9 +247,7 @@ if hasArg pylibwholegraph || buildDefault || hasArg all; then
         cd ${REPODIR}/python/pylibwholegraph
         env LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR} \
         SKBUILD_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" python ${PYTHON_ARGS_FOR_INSTALL} \
-            --config-settings rapidsai.disable-cuda=true \
             .
-
     else
         # just invoke cmake without going through scikit-build-core
         env LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR} \
