@@ -18,7 +18,6 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch-cuda=11.8
 - pytorch>=2.3,<2.4.0a0
 - pytorch_geometric>=2.5,<2.6
 - scipy

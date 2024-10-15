@@ -20,7 +20,6 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch-cuda=11.8
 - pytorch>=2.3,<2.4.0a0
 - scipy
 - tensordict>=0.1.2

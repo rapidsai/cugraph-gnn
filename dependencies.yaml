@@ -375,17 +375,6 @@ dependencies:
               - *pytorch_pip
               - *tensordict
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
-      - output_types: [conda]
-        matrices:
-          - matrix: {cuda: "12.1"}
-            packages:
-              - pytorch-cuda=12.1
-          - matrix: {cuda: "12.4"}
-            packages:
-              - pytorch-cuda=12.4
-          - matrix: {cuda: "11.*"}
-            packages:
-              - pytorch-cuda=11.8
 
   depends_on_rmm:
     common:
