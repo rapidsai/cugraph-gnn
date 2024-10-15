@@ -27,7 +27,6 @@ for package_name in pylibcugraph cugraph cugraph-pyg cugraph-dgl; do
   underscore_package_name=$(echo "${package_name}" | tr "-" "_")
   sed -i "/^__git_commit__/ s/= .*/= \"${git_commit}\"/g" "${package_dir}/${package_name}/${underscore_package_name}/_version.py"
 done
-sed -i "/^__git_commit__/ s/= .*/= \"${git_commit}\"/g" "${package_dir}/nx-cugraph/_nx_cugraph/_version.py"
 
 # TODO: Remove `--no-test` flags once importing on a CPU
 # node works correctly
@@ -41,16 +40,6 @@ rapids-conda-retry mambabuild \
   --channel "${CPP_CHANNEL}" \
   --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
   conda/recipes/cugraph
-
-# NOTE: nothing in nx-cugraph is CUDA-specific, but it is built on each CUDA
-# platform to ensure it is included in each set of artifacts, since test
-# scripts only install from one set of artifacts based on the CUDA version used
-# for the test run.
-rapids-conda-retry mambabuild \
-  --no-test \
-  --channel "${CPP_CHANNEL}" \
-  --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
-  conda/recipes/nx-cugraph
 
 # NOTE: nothing in the cugraph-service packages are CUDA-specific, but they are
 # built on each CUDA platform to ensure they are included in each set of
