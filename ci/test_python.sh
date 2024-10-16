@@ -108,8 +108,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     "pylibcugraphops=${RAPIDS_VERSION}" \
     "cugraph=${RAPIDS_VERSION}" \
     "cugraph-pyg=${RAPIDS_VERSION}" \
-    "pytorch::pytorch>=2.3,<2.4" \
-    "ogb"
+    'pytorch::pytorch>=2.3,<2.4' \
+    'ogb'
 
   rapids-print-env
 
@@ -147,8 +147,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel pytorch \
     'mkl<2024.1.0' \
     "pylibwholegraph=${RAPIDS_VERSION}" \
-    "pytorch::pytorch>=2.3,<2.4" \
-    "ogb"
+    'pytorch::pytorch>=2.3,<2.4' \
+    'ogb'
 
   rapids-print-env
 

@@ -4,6 +4,6 @@
 set -euo pipefail
 
 # Support invoking run_cugraph_dgl_pytests.sh outside the script directory
-cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-dgl/tests
+cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-dgl/cugraph_dgl
 
 pytest --cache-clear --ignore=mg "$@" .

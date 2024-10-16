@@ -33,4 +33,4 @@ python -m pip install \
     'dgl==2.4.0' \
     'torch>=2.3.0,<2.4'
 
-python -m pytest python/cugraph-dgl/tests
+python -m pytest python/cugraph-dgl/cugraph_dgl/tests
