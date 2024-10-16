@@ -23,6 +23,7 @@ echo "${version}" > VERSION
 rapids-logger "Begin py build"
 
 package_dir="python"
+
 for package_name in pylibwholegraph cugraph-pyg cugraph-dgl; do
   underscore_package_name=$(echo "${package_name}" | tr "-" "_")
   sed -i "/^__git_commit__/ s/= .*/= \"${git_commit}\"/g" "${package_dir}/${package_name}/${underscore_package_name}/_version.py"
