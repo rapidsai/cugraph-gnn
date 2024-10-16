@@ -3,6 +3,8 @@ files:
   all:
     output: [conda]
     matrix:
+      # CUDA versions match PyTorch releases, not RAPIDS
+      # ref: https://pytorch.org/get-started/locally/
       cuda: ["11.8", "12.1", "12.4"]
       arch: [x86_64]
     includes:
