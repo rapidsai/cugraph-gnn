@@ -23,33 +23,31 @@ echo "${version}" > VERSION
 rapids-logger "Begin py build"
 
 package_dir="python"
-for package_name in cugraph-pyg cugraph-dgl; do
+
+for package_name in pylibwholegraph cugraph-pyg cugraph-dgl; do
   underscore_package_name=$(echo "${package_name}" | tr "-" "_")
   sed -i "/^__git_commit__/ s/= .*/= \"${git_commit}\"/g" "${package_dir}/${package_name}/${underscore_package_name}/_version.py"
 done
 
+# TODO: Remove `--no-test` flags once importing on a CPU
+# node works correctly
+rapids-conda-retry mambabuild \
+  --no-test \
+  --channel "${CPP_CHANNEL}" \
+  conda/recipes/pylibwholegraph
+
 RAPIDS_CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 
-if [[ ${RAPIDS_CUDA_MAJOR} == "11" ]]; then
-  # Only CUDA 11 is supported right now due to PyTorch requirement.
-  rapids-conda-retry mambabuild \
-    --no-test \
-    --channel "${CPP_CHANNEL}" \
-    --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
-    --channel pyg \
-    --channel pytorch \
-    --channel pytorch-nightly \
-    conda/recipes/cugraph-pyg
+rapids-conda-retry mambabuild \
+  --no-test \
+  --channel "${CPP_CHANNEL}" \
+  --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
+  conda/recipes/cugraph-pyg
 
-  # Only CUDA 11 is supported right now due to PyTorch requirement.
-  rapids-conda-retry mambabuild \
-    --no-test \
-    --channel "${CPP_CHANNEL}" \
-    --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
-    --channel dglteam \
-    --channel pytorch \
-    --channel pytorch-nightly \
-    conda/recipes/cugraph-dgl
-fi
+rapids-conda-retry mambabuild \
+  --no-test \
+  --channel "${CPP_CHANNEL}" \
+  --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
+  conda/recipes/cugraph-dgl
 
 rapids-upload-conda-to-s3 python

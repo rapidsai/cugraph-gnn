@@ -5,6 +5,8 @@ set -Eeuo pipefail
 
 . /opt/conda/etc/profile.d/conda.sh
 
+RAPIDS_VERSION="$(rapids-version)"
+
 rapids-logger "Generate notebook testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
@@ -27,7 +29,9 @@ PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \
   --channel "${PYTHON_CHANNEL}" \
-  libcugraph pylibcugraph cugraph
+  "libcugraph=${RAPIDS_VERSION}" \
+  "pylibcugraph=${RAPIDS_VERSION}" \
+  "cugraph=${RAPIDS_VERSION}"
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
 NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"
