@@ -405,7 +405,7 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - &pytorch_pip torch>=2.0,,<2.4.0a0
+              - &pytorch_pip torch>=2.0,<2.4.0a0
               - *tensordict
           - matrix: {cuda: "11.*"}
             packages:
