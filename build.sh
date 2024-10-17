@@ -28,6 +28,7 @@ VALIDARGS="
    cugraph-dgl
    pylibwholegraph
    libwholegraph
+   tests
    docs
    all
    -v
@@ -48,6 +49,7 @@ HELP="$0 [<target> ...] [<flag> ...]
    cugraph-dgl                - build the cugraph-dgl extensions for DGL
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
+   test                       - build the C++ tests
    docs                       - build the docs
    all                        - build everything
  and <flag> is:
@@ -140,13 +142,30 @@ if hasArg --pydevelop; then
     PYTHON_ARGS_FOR_INSTALL="${PYTHON_ARGS_FOR_INSTALL} -e"
 fi
 
+if hasArg tests; then
+    BUILD_TESTS=ON
+else
+    BUILD_TESTS=OFF
+fi
+
 # If clean or uninstall targets given, run them prior to any other steps
 if hasArg uninstall; then
-    # uninstall cugraph and pylibcugraph installed from a prior install
+    if [[ "$INSTALL_PREFIX" != "" ]]; then
+        rm -rf ${INSTALL_PREFIX}/include/wholememory
+        rm -f ${INSTALL_PREFIX}/lib/libwholegraph.so
+        rm -rf ${INSTALL_PREFIX}/lib/cmake/wholegraph
+    fi
+    # This may be redundant given the above, but can also be used in case
+    # there are other installed files outside of the locations above.
+    if [ -e ${LIBWHOLEGRAPH_BUILD_DIR}/install_manifest.txt ]; then
+        xargs rm -f < ${LIBWHOLEGRAPH_BUILD_DIR}/install_manifest.txt > /dev/null 2>&1
+    fi
+
+    # uninstall cugraph-dgl/cugraph-pyg/wholegraph installed from a prior install
     # FIXME: if multiple versions of these packages are installed, this only
     # removes the latest one and leaves the others installed. build.sh uninstall
     # can be run multiple times to remove all of them, but that is not obvious.
-    pip uninstall -y  cugraph-dgl cugraph-pyg
+    pip uninstall -y  cugraph-dgl cugraph-pyg pylibwholegraph libwholegraph
 fi
 
 if hasArg clean; then
