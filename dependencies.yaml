@@ -64,9 +64,9 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pylibwholegraph
+      - depends_on_pytorch
       - py_version
       - test_python_common
-      - test_python_pylibcugraph
 
   py_build_pylibwholegraph:
     output: pyproject

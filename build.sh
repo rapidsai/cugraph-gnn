@@ -49,7 +49,7 @@ HELP="$0 [<target> ...] [<flag> ...]
    cugraph-dgl                - build the cugraph-dgl extensions for DGL
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
-   test                       - build the C++ tests
+   tests                      - build the C++ tests
    docs                       - build the docs
    all                        - build everything
  and <flag> is:
