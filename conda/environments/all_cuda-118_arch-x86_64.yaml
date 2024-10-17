@@ -43,7 +43,7 @@ dependencies:
 - pytest-forked
 - pytest-xdist
 - pytorch-cuda=11.8
-- pytorch::pytorch>=2.0,<2.2.0a0
+- pytorch::pytorch>=2.0,<2.4.0a0
 - raft-dask==24.12.*,>=0.0.0a0
 - recommonmark
 - rmm==24.12.*,>=0.0.0a0

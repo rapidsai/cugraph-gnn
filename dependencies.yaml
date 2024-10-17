@@ -388,7 +388,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch::pytorch>=2.0,<2.2.0a0
+          - pytorch::pytorch>=2.0,<2.4.0a0
           - torchdata
           - pydantic
     specific:
