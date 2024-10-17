@@ -67,6 +67,38 @@ files:
       - test_python_common
       - test_python_pylibcugraph
 
+  py_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: build-system
+    includes:
+      - rapids_build_skbuild
+  py_rapids_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: tool.rapids-build-backend
+      key: requires
+    includes:
+      - python_build_wheel
+  py_run_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project
+    includes:
+      - python_run_pylibwholegraph
+  py_test_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project.optional-dependencies
+      key: test
+    includes:
+      - test_python_common
+      - depends_on_pytorch
+
   py_build_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -260,8 +292,9 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - setuptools>=61.0.0
-          - wheel
+          - cmake>=3.26.4,!=3.30.0
+          - cython>=3.0.0
+          - ninja
   python_build_cythonize:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -273,12 +306,17 @@ dependencies:
       - output_types: [pyproject, requirements]
         packages:
           - scikit-build-core[pyproject]>=0.10.0
+  python_run_pylibwholegraph:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - &numpy numpy>=1.23,<3.0a0
   python_run_cugraph_dgl:
     common:
       - output_types: [conda, pyproject]
         packages:
           - &numba numba>=0.57
-          - &numpy numpy>=1.23,<3.0a0
+          - *numpy
       - output_types: [pyproject]
         packages:
           - &cugraph cugraph==24.12.*,>=0.0.0a0
@@ -291,6 +329,17 @@ dependencies:
       - output_types: [pyproject]
         packages:
           - *cugraph
+  rapids_build_skbuild:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - rapids-build-backend>=0.3.0,<0.4.0.dev0
+      - output_types: conda
+        packages:
+          - scikit-build-core>=0.10.0
+      - output_types: [requirements, pyproject]
+        packages:
+          - scikit-build-core[pyproject]>=0.10.0
   test_notebook:
     common:
       - output_types: [conda, requirements]
@@ -308,6 +357,7 @@ dependencies:
           - pytest
           - pytest-benchmark
           - pytest-cov
+          - pytest-forked
           - pytest-xdist
           - scipy
   cugraph_dgl_dev:
@@ -348,7 +398,7 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - &pytorch_pip torch>=2.0,<2.2.0a0
+              - &pytorch_pip torch>=2.0,,<2.4.0a0
               - *tensordict
           - matrix: {cuda: "11.*"}
             packages:
