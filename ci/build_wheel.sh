@@ -37,7 +37,8 @@ python -m pip wheel \
     -w dist \
     -v \
     --no-deps \
-    --disable-pip-version-check
+    --disable-pip-version-check \
+    .
 
 sccache --show-adv-stats
 
