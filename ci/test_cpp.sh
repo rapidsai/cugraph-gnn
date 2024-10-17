@@ -30,9 +30,9 @@ mkdir -p "${RAPIDS_TESTS_DIR}"
 rapids-print-env
 
 rapids-mamba-retry install \
-  --channel "${CPP_CHANNEL}" \
-  "libwholegraph=${RAPIDS_VERSION}" \
-  "libwholegraph-tests=${RAPIDS_VERSION}"
+    --channel "${CPP_CHANNEL}" \
+    "libwholegraph=${RAPIDS_VERSION}" \
+    "libwholegraph-tests=${RAPIDS_VERSION}"
 
 rapids-logger "Check GPU usage"
 nvidia-smi
