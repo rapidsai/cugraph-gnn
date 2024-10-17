@@ -29,6 +29,7 @@ files:
       - depends_on_pyg
       - python_run_cugraph_dgl
       - python_run_cugraph_pyg
+      - test_cpp
       - test_notebook
       - test_python_common
 
@@ -340,6 +341,12 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - scikit-build-core[pyproject]>=0.10.0
+  test_cpp:
+    common:
+      - output_types: conda
+        packages:
+          - *cmake_ver
+          - nccl>=2.19
   test_notebook:
     common:
       - output_types: [conda, requirements]
