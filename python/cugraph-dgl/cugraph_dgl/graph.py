@@ -931,7 +931,9 @@ class Graph:
         # Have to properly de-offset the vertices based on edge type
         etype = self.to_canonical_etype(etype)
         num_edge_type = self._to_numeric_etype(etype)
-        out = self._edge_lookup_table.find(cupy.asarray(eid), num_edge_type)
+        out = self._edge_lookup_table.lookup_vertex_ids(
+            cupy.asarray(eid), num_edge_type
+        )
 
         src_name = "sources" if self.__graph["direction"] == "out" else "destinations"
         dst_name = "destinations" if self.__graph["direction"] == "out" else "sources"
