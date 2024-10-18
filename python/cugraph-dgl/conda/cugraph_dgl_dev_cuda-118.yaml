@@ -8,13 +8,13 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cugraph==24.10.*
+- cugraph==24.12.*,>=0.0.0a0
 - dgl>=1.1.0.cu*
 - dglteam/label/th21_cu118::dgl
 - pandas
 - pre-commit
 - pydantic
-- pylibcugraphops==24.10.*
+- pylibcugraphops==24.12.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov
