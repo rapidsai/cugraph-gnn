@@ -983,27 +983,57 @@ class Graph:
 
         if len(self.ntypes) == 1:
             vertices = torch.arange(self.num_nodes())
+            src_vertex_offset = 0
+            dst_vertex_offset = 0
+            src_bias = cupy.ones(len(vertices), dtype="float32")
+            dst_bias = src_bias
         else:
             can_edge_type = self.to_canonical_etype(etype)
+            src_vertex_offset = self._vertex_offsets[can_edge_type[0]]
+            dst_vertex_offset = self._vertex_offsets[can_edge_type[2]]
+
             # Limit sampled vertices to those of the given edge type.
-            vertices = torch.concat(
-                [
-                    torch.arange(
-                        self._vertex_offsets[can_edge_type[0]],
-                        self._vertex_offsets[can_edge_type[0]]
-                        + self.num_nodes(can_edge_type[0]),
-                        dtype=torch.int64,
-                        device="cuda",
-                    ),
-                    torch.arange(
-                        self._vertex_offsets[can_edge_type[2]],
-                        self._vertex_offsets[can_edge_type[2]]
-                        + self.num_nodes(can_edge_type[2]),
-                        dtype=torch.int64,
-                        device="cuda",
-                    ),
-                ]
-            )
+            if can_edge_type[0] == can_edge_type[2]:
+                vertices = torch.arange(
+                    src_vertex_offset,
+                    src_vertex_offset + self.num_nodes(can_edge_type[0]),
+                    dtype=torch.int64,
+                    device="cuda",
+                )
+                src_bias = cupy.ones(self.num_nodes(can_edge_type[0]), dtype="float32")
+                dst_bias = src_bias
+
+            else:
+                vertices = torch.concat(
+                    [
+                        torch.arange(
+                            src_vertex_offset,
+                            src_vertex_offset + self.num_nodes(can_edge_type[0]),
+                            dtype=torch.int64,
+                            device="cuda",
+                        ),
+                        torch.arange(
+                            dst_vertex_offset,
+                            dst_vertex_offset + self.num_nodes(can_edge_type[2]),
+                            dtype=torch.int64,
+                            device="cuda",
+                        ),
+                    ]
+                )
+
+                src_bias = cupy.concatenate(
+                    [
+                        cupy.ones(self.num_nodes(can_edge_type[0]), dtype="float32"),
+                        cupy.zeros(self.num_nodes(can_edge_type[2]), dtype="float32"),
+                    ]
+                )
+
+                dst_bias = cupy.concatenate(
+                    [
+                        cupy.zeros(self.num_nodes(can_edge_type[0]), dtype="float32"),
+                        cupy.ones(self.num_nodes(can_edge_type[2]), dtype="float32"),
+                    ]
+                )
 
         if self.is_multi_gpu:
             rank = torch.distributed.get_rank()
@@ -1020,19 +1050,20 @@ class Graph:
             num_samples_global = num_samples
 
         graph = (
-            self.__graph
-            if self.__graph["direction"] == "out"
-            else self._graph("out", self.__graph["prob_attr"])
+            self.__graph["graph"]
+            if self.__graph is not None and self.__graph["direction"] == "out"
+            else self._graph(
+                "out", None if self.__graph is None else self.__graph["prob_attr"]
+            )
         )
-        bias = cupy.ones(len(vertices), dtype="float32")
 
         result_dict = pylibcugraph.negative_sampling(
             self._resource_handle,
             graph,
             num_samples_global,
             vertices=cupy.asarray(vertices),
-            src_bias=bias,
-            dst_bias=bias,
+            src_bias=src_bias,
+            dst_bias=dst_bias,
             remove_duplicates=True,
             remove_false_negatives=True,
             exact_number_of_samples=True,
@@ -1041,10 +1072,14 @@ class Graph:
 
         # TODO remove this workaround once the C API is updated to take a local number
         # of negatives (rapidsai/cugraph#4672)
-        src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_samples]
-        dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[
-            :num_samples
-        ]
+        src_neg = (
+            torch.as_tensor(result_dict["sources"], device="cuda")[:num_samples]
+            - src_vertex_offset
+        )
+        dst_neg = (
+            torch.as_tensor(result_dict["destinations"], device="cuda")[:num_samples]
+            - dst_vertex_offset
+        )
 
         if exclude_self_loops:
             f = src_neg != dst_neg

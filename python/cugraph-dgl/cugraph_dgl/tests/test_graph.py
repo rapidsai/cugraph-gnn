@@ -99,44 +99,18 @@ def test_graph_make_homogeneous_graph(direction):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(isinstance(dgl, MissingModule), reason="dgl not available")
 @pytest.mark.parametrize("direction", ["out", "in"])
-def test_graph_make_heterogeneous_graph(direction):
-    df = karate.get_edgelist()
-    df.src = df.src.astype("int64")
-    df.dst = df.dst.astype("int64")
-
-    graph = cugraph_dgl.Graph()
-    total_num_nodes = max(df.src.max(), df.dst.max()) + 1
-
-    num_nodes_group_1 = total_num_nodes // 2
-    num_nodes_group_2 = total_num_nodes - num_nodes_group_1
-
-    node_x_1 = np.random.random((num_nodes_group_1,))
-    node_x_2 = np.random.random((num_nodes_group_2,))
-
-    graph.add_nodes(num_nodes_group_1, {"x": node_x_1}, "type1")
-    graph.add_nodes(num_nodes_group_2, {"x": node_x_2}, "type2")
-
-    edges_11 = df[(df.src < num_nodes_group_1) & (df.dst < num_nodes_group_1)]
-    edges_12 = df[(df.src < num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
-    edges_21 = df[(df.src >= num_nodes_group_1) & (df.dst < num_nodes_group_1)]
-    edges_22 = df[(df.src >= num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
-
-    edges_12.dst -= num_nodes_group_1
-    edges_21.src -= num_nodes_group_1
-    edges_22.dst -= num_nodes_group_1
-    edges_22.src -= num_nodes_group_1
-
-    graph.add_edges(edges_11.src, edges_11.dst, etype=("type1", "e1", "type1"))
-    graph.add_edges(edges_12.src, edges_12.dst, etype=("type1", "e2", "type2"))
-    graph.add_edges(edges_21.src, edges_21.dst, etype=("type2", "e3", "type1"))
-    graph.add_edges(edges_22.src, edges_22.dst, etype=("type2", "e4", "type2"))
+def test_graph_make_heterogeneous_graph(direction, karate_bipartite):
+    graph, edges, (num_nodes_group_1, num_nodes_group_2) = karate_bipartite
 
     assert not graph.is_homogeneous
     assert not graph.is_multi_gpu
 
     # Verify graph.nodes()
     assert (
-        graph.nodes() == torch.arange(total_num_nodes, dtype=torch.int64, device="cuda")
+        graph.nodes()
+        == torch.arange(
+            num_nodes_group_1 + num_nodes_group_2, dtype=torch.int64, device="cuda"
+        )
     ).all()
     assert (
         graph.nodes("type1")
@@ -150,19 +124,27 @@ def test_graph_make_heterogeneous_graph(direction):
     # Verify graph.edges()
     assert (
         graph.edges("eid", etype=("type1", "e1", "type1"))
-        == torch.arange(len(edges_11), dtype=torch.int64, device="cuda")
+        == torch.arange(
+            len(edges["type1", "e1", "type1"]), dtype=torch.int64, device="cuda"
+        )
     ).all()
     assert (
         graph.edges("eid", etype=("type1", "e2", "type2"))
-        == torch.arange(len(edges_12), dtype=torch.int64, device="cuda")
+        == torch.arange(
+            len(edges["type1", "e2", "type2"]), dtype=torch.int64, device="cuda"
+        )
     ).all()
     assert (
         graph.edges("eid", etype=("type2", "e3", "type1"))
-        == torch.arange(len(edges_21), dtype=torch.int64, device="cuda")
+        == torch.arange(
+            len(edges["type2", "e3", "type1"]), dtype=torch.int64, device="cuda"
+        )
     ).all()
     assert (
         graph.edges("eid", etype=("type2", "e4", "type2"))
-        == torch.arange(len(edges_22), dtype=torch.int64, device="cuda")
+        == torch.arange(
+            len(edges["type2", "e4", "type2"]), dtype=torch.int64, device="cuda"
+        )
     ).all()
 
     # Use sampling call to check graph creation
@@ -172,7 +154,7 @@ def test_graph_make_heterogeneous_graph(direction):
     sampling_output = pylibcugraph.uniform_neighbor_sample(
         pylibcugraph.ResourceHandle(),
         plc_graph,
-        start_list=cupy.arange(total_num_nodes, dtype="int64"),
+        start_list=cupy.arange(num_nodes_group_1 + num_nodes_group_2, dtype="int64"),
         h_fan_out=np.array([1, 1], dtype="int32"),
         with_replacement=False,
         do_expensive_check=True,
@@ -221,37 +203,8 @@ def test_graph_make_heterogeneous_graph(direction):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(isinstance(dgl, MissingModule), reason="dgl not available")
 @pytest.mark.parametrize("direction", ["out", "in"])
-def test_graph_find(direction):
-    df = karate.get_edgelist()
-    df.src = df.src.astype("int64")
-    df.dst = df.dst.astype("int64")
-
-    graph = cugraph_dgl.Graph()
-    total_num_nodes = max(df.src.max(), df.dst.max()) + 1
-
-    num_nodes_group_1 = total_num_nodes // 2
-    num_nodes_group_2 = total_num_nodes - num_nodes_group_1
-
-    node_x_1 = np.random.random((num_nodes_group_1,))
-    node_x_2 = np.random.random((num_nodes_group_2,))
-
-    graph.add_nodes(num_nodes_group_1, {"x": node_x_1}, "type1")
-    graph.add_nodes(num_nodes_group_2, {"x": node_x_2}, "type2")
-
-    edges_11 = df[(df.src < num_nodes_group_1) & (df.dst < num_nodes_group_1)]
-    edges_12 = df[(df.src < num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
-    edges_21 = df[(df.src >= num_nodes_group_1) & (df.dst < num_nodes_group_1)]
-    edges_22 = df[(df.src >= num_nodes_group_1) & (df.dst >= num_nodes_group_1)]
-
-    edges_12.dst -= num_nodes_group_1
-    edges_21.src -= num_nodes_group_1
-    edges_22.dst -= num_nodes_group_1
-    edges_22.src -= num_nodes_group_1
-
-    graph.add_edges(edges_11.src, edges_11.dst, etype=("type1", "e1", "type1"))
-    graph.add_edges(edges_12.src, edges_12.dst, etype=("type1", "e2", "type2"))
-    graph.add_edges(edges_21.src, edges_21.dst, etype=("type2", "e3", "type1"))
-    graph.add_edges(edges_22.src, edges_22.dst, etype=("type2", "e4", "type2"))
+def test_graph_find(direction, karate_bipartite):
+    graph, edges, _ = karate_bipartite
 
     # force direction generation to make sure in case is tested
     graph._graph(direction)
@@ -260,7 +213,9 @@ def test_graph_find(direction):
     assert not graph.is_multi_gpu
 
     srcs, dsts = graph.find_edges(
-        torch.as_tensor([0, len(edges_11) - 1, 999], dtype=torch.int64),
+        torch.as_tensor(
+            [0, len(edges["type1", "e1", "type1"]) - 1, 999], dtype=torch.int64
+        ),
         ("type1", "e1", "type1"),
     )
     assert (
@@ -272,7 +227,9 @@ def test_graph_find(direction):
     assert srcs[2] < 0 and dsts[2] < 0
 
     srcs, dsts = graph.find_edges(
-        torch.as_tensor([0, len(edges_12) - 1, 999], dtype=torch.int64),
+        torch.as_tensor(
+            [0, len(edges["type1", "e2", "type2"]) - 1, 999], dtype=torch.int64
+        ),
         ("type1", "e2", "type2"),
     )
     assert (
@@ -284,7 +241,9 @@ def test_graph_find(direction):
     assert srcs[2] < 0 and dsts[2] < 0
 
     srcs, dsts = graph.find_edges(
-        torch.as_tensor([0, len(edges_21) - 1, 999], dtype=torch.int64),
+        torch.as_tensor(
+            [0, len(edges["type2", "e3", "type1"]) - 1, 999], dtype=torch.int64
+        ),
         ("type2", "e3", "type1"),
     )
     assert (
@@ -296,7 +255,9 @@ def test_graph_find(direction):
     assert srcs[2] < 0 and dsts[2] < 0
 
     srcs, dsts = graph.find_edges(
-        torch.as_tensor([0, len(edges_22) - 1, 999], dtype=torch.int64),
+        torch.as_tensor(
+            [0, len(edges["type2", "e4", "type2"]) - 1, 999], dtype=torch.int64
+        ),
         ("type2", "e4", "type2"),
     )
     assert (
@@ -306,3 +267,37 @@ def test_graph_find(direction):
         dsts[[0, 1]] == torch.tensor([1, 16], device="cuda", dtype=torch.int64)
     ).all()
     assert srcs[2] < 0 and dsts[2] < 0
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(isinstance(dgl, MissingModule), reason="dgl not available")
+@pytest.mark.parametrize("exclude_self_loops", [True, False])
+@pytest.mark.parametrize("num_samples", [2, 11])
+def test_graph_uniform_negative_sample(
+    karate_bipartite, exclude_self_loops, num_samples
+):
+    graph, edges, _ = karate_bipartite
+
+    for etype in graph.canonical_etypes:
+        src_neg, dst_neg = graph.global_uniform_negative_sampling(
+            num_samples,
+            exclude_self_loops=exclude_self_loops,
+            etype=etype,
+        )
+
+        assert len(src_neg) == len(dst_neg)
+        assert len(src_neg) <= num_samples
+
+        assert (src_neg >= 0).all()
+        assert (dst_neg >= 0).all()
+
+        assert (src_neg < graph.num_nodes(etype[0])).all()
+        assert (dst_neg < graph.num_nodes(etype[2])).all()
+
+        if exclude_self_loops:
+            assert (src_neg == dst_neg).sum() == 0
+
+        for i in range(len(src_neg)):
+            s = int(src_neg[i])
+            d = int(dst_neg[i])
+            assert ((edges[etype].src == s) & (edges[etype].dst == d)).sum() == 0

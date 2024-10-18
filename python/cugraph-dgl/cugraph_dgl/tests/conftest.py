@@ -15,11 +15,16 @@ import pytest
 
 import dgl
 import torch
+import numpy as np
+
+import cugraph_dgl
 
 from cugraph.testing.mg_utils import (
     start_dask_client,
     stop_dask_client,
 )
+
+from cugraph.datasets import karate
 
 
 @pytest.fixture(scope="module")
@@ -66,3 +71,66 @@ def dgl_graph_1():
     src = torch.tensor([0, 1, 0, 2, 3, 0, 4, 0, 5, 0, 6, 7, 0, 8, 9])
     dst = torch.tensor([1, 9, 2, 9, 9, 4, 9, 5, 9, 6, 9, 9, 8, 9, 0])
     return dgl.graph((src, dst))
+
+
+def create_karate_bipartite(multi_gpu: bool = False):
+    df = karate.get_edgelist()
+    df.src = df.src.astype("int64")
+    df.dst = df.dst.astype("int64")
+
+    graph = cugraph_dgl.Graph(is_multi_gpu=multi_gpu)
+    total_num_nodes = max(df.src.max(), df.dst.max()) + 1
+
+    num_nodes_group_1 = total_num_nodes // 2
+    num_nodes_group_2 = total_num_nodes - num_nodes_group_1
+
+    node_x_1 = np.random.random((num_nodes_group_1,))
+    node_x_2 = np.random.random((num_nodes_group_2,))
+
+    graph.add_nodes(num_nodes_group_1, {"x": node_x_1}, "type1")
+    graph.add_nodes(num_nodes_group_2, {"x": node_x_2}, "type2")
+
+    edges = {}
+    edges["type1", "e1", "type1"] = df[
+        (df.src < num_nodes_group_1) & (df.dst < num_nodes_group_1)
+    ]
+    edges["type1", "e2", "type2"] = df[
+        (df.src < num_nodes_group_1) & (df.dst >= num_nodes_group_1)
+    ]
+    edges["type2", "e3", "type1"] = df[
+        (df.src >= num_nodes_group_1) & (df.dst < num_nodes_group_1)
+    ]
+    edges["type2", "e4", "type2"] = df[
+        (df.src >= num_nodes_group_1) & (df.dst >= num_nodes_group_1)
+    ]
+
+    edges["type1", "e2", "type2"].dst -= num_nodes_group_1
+    edges["type2", "e3", "type1"].src -= num_nodes_group_1
+    edges["type2", "e4", "type2"].dst -= num_nodes_group_1
+    edges["type2", "e4", "type2"].src -= num_nodes_group_1
+
+    if multi_gpu:
+        rank = torch.distributed.get_rank()
+        world_size = torch.distributed.get_world_size()
+
+        edges_local = {
+            etype: edf.iloc[np.array_split(np.arange(edf), world_size)[rank]]
+            for etype, edf in edges
+        }
+    else:
+        edges_local = edges
+
+    for etype, edf in edges_local.items():
+        graph.add_edges(edf.src, edf.dst, etype=etype)
+
+    return graph, edges, (num_nodes_group_1, num_nodes_group_2)
+
+
+@pytest.fixture
+def karate_bipartite():
+    return create_karate_bipartite(False)
+
+
+@pytest.fixture
+def karate_bipartite_mg():
+    return create_karate_bipartite(True)
