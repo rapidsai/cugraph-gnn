@@ -484,6 +484,11 @@ class BaseSampler:
     ]:
         src = index.row
         dst = index.col
+
+        if index.input_type is not None:
+            src += self.__graph_store._vertex_offsets[index.input_type[0]]
+            dst += self.__graph_store._vertex_offsets[index.input_type[1]]
+
         input_id = index.input_id
         neg_batch_size = 0
         if neg_sampling:
