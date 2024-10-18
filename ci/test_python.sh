@@ -55,7 +55,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   ./ci/run_pylibwholegraph_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
     --cov-config=../../.coveragerc \
-    --cov=cugraph_pyg \
+    --cov=pylibwholegraph \
     --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
     --cov-report=term
 

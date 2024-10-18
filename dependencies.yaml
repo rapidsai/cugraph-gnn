@@ -98,7 +98,6 @@ files:
       key: test
     includes:
       - test_python_common
-      - depends_on_pytorch
 
   py_build_cugraph_dgl:
     output: pyproject
