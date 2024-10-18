@@ -39,18 +39,26 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   # ensure that we get the 'pylibwholegraph' built from this repo's CI,
   # not the packages published from the 'wholegraph' repo
   #
-  # TODO: remove this once all development on wholegraph moves
-  # to the cugraph-gnn repo
+  # TODO: remove this and once all development on wholegraph moves
+  # to the cugraph-gnn repo (and maybe the old 24.12 nightlies are marked broken)
   conda config --set channel_priority strict
 
   # Will automatically install built dependencies of pylibwholegraph
   rapids-mamba-retry install \
+    --override-channels \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
+    --channel rapidsai-nightly \
+    --channel rapidsai \
+    --channel dask/label/dev \
+    --channel pyg \
+    --channel conda-forge \
+    --channel nvidia \
     'mkl<2024.1.0' \
     "pylibwholegraph=${RAPIDS_VERSION}" \
     'pytorch::pytorch>=2.3,<2.4' \
+    'pytest-forked' \
     'ogb'
 
   rapids-print-env
