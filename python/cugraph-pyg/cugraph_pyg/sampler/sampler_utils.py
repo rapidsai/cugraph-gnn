@@ -462,7 +462,7 @@ def neg_sample(
     if graph_store.is_multi_gpu:
         num_neg_global = torch.tensor([num_neg], device="cuda")
         torch.distributed.all_reduce(num_neg_global, op=torch.distributed.ReduceOp.SUM)
-        num_neg = int(num_neg_global)
+        num_neg_global = int(num_neg_global)
     else:
         num_neg_global = num_neg
 

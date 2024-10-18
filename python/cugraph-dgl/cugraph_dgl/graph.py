@@ -944,6 +944,114 @@ class Graph:
             torch.as_tensor(out[dst_name], device="cuda") - offsets[etype[2]],
         )
 
+    def global_uniform_negative_sampling(
+        self,
+        num_samples: int,
+        exclude_self_loops: bool = True,
+        replace: bool = False,
+        etype: Optional[Union[str, Tuple[str, str, str]]] = None,
+        redundancy: Optional[float] = None,
+    ):
+        """
+        Performs negative sampling, which constructs a set of source and destination
+        pairs that do not exist in this graph.
+
+        Parameters
+        ----------
+        num_samples: int
+            Target number of negative edges to generate.  May generate less depending
+            on whether the existing set of edges allows for it.
+        exclude_self_loops: bool
+            Whether to drop edges where the source and destination is the same.
+            Defaults to True.
+        replace: bool
+            Whether to sample with replacement.  Sampling with replacement is not
+            supported by the cuGraph-DGL generator.  Defaults to False.
+        etype: str or tuple[str, str, str] (Optional)
+            The edge type to generate negative edges for.  Optional if there is
+            only one edge type in the graph.
+        redundancy: float (Optional)
+            Not supported by the cuGraph-DGL generator.
+        """
+
+        if redundancy:
+            warnings.warn("The 'redudancy' parameter is ignored by cuGraph-DGL.")
+        if replace:
+            raise NotImplementedError(
+                "Negative sampling with replacement is not supported by cuGraph-DGL."
+            )
+
+        if len(self.ntypes) == 1:
+            vertices = torch.arange(self.num_nodes())
+        else:
+            can_edge_type = self.to_canonical_etype(etype)
+            # Limit sampled vertices to those of the given edge type.
+            vertices = torch.concat(
+                [
+                    torch.arange(
+                        self._vertex_offsets[can_edge_type[0]],
+                        self._vertex_offsets[can_edge_type[0]]
+                        + self.num_nodes(can_edge_type[0]),
+                        dtype=torch.int64,
+                        device="cuda",
+                    ),
+                    torch.arange(
+                        self._vertex_offsets[can_edge_type[2]],
+                        self._vertex_offsets[can_edge_type[2]]
+                        + self.num_nodes(can_edge_type[2]),
+                        dtype=torch.int64,
+                        device="cuda",
+                    ),
+                ]
+            )
+
+        if self.is_multi_gpu:
+            rank = torch.distributed.get_rank()
+            world_size = torch.distributed.get_world_size()
+
+            num_samples_global = torch.tensor([num_samples], device="cuda")
+            torch.distributed.all_reduce(
+                num_samples_global, op=torch.distributed.ReduceOp.SUM
+            )
+            num_samples_global = int(num_samples_global)
+
+            vertices = torch.tensor_split(vertices, world_size)[rank]
+        else:
+            num_samples_global = num_samples
+
+        graph = (
+            self.__graph
+            if self.__graph["direction"] == "out"
+            else self._graph("out", self.__graph["prob_attr"])
+        )
+        bias = cupy.ones(len(vertices), dtype="float32")
+
+        result_dict = pylibcugraph.negative_sampling(
+            self._resource_handle,
+            graph,
+            num_samples_global,
+            vertices=cupy.asarray(vertices),
+            src_bias=bias,
+            dst_bias=bias,
+            remove_duplicates=True,
+            remove_false_negatives=True,
+            exact_number_of_samples=True,
+            do_expensive_check=False,
+        )
+
+        # TODO remove this workaround once the C API is updated to take a local number
+        # of negatives (rapidsai/cugraph#4672)
+        src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_samples]
+        dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[
+            :num_samples
+        ]
+
+        if exclude_self_loops:
+            f = src_neg != dst_neg
+            return src_neg[f], dst_neg[f]
+        else:
+            return src_neg, dst_neg
+
     @property
     def ndata(self) -> HeteroNodeDataView:
         """
