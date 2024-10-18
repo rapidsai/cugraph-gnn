@@ -32,6 +32,9 @@ files:
       - test_cpp
       - test_notebook
       - test_python_common
+      - test_python_cugraph_dgl
+      - test_python_cugraph_pyg
+      - test_python_pylibwholegraph
 
   checks:
     output: none
@@ -98,6 +101,7 @@ files:
       key: test
     includes:
       - test_python_common
+      - test_python_pylibwholegraph
 
   py_build_cugraph_dgl:
     output: pyproject
@@ -122,6 +126,7 @@ files:
       key: test
     includes:
       - test_python_common
+      - test_python_cugraph_dgl
       - depends_on_pylibwholegraph
   py_build_cugraph_pyg:
     output: pyproject
@@ -146,6 +151,7 @@ files:
       key: test
     includes:
       - test_python_common
+      - test_python_cugraph_pyg
       - depends_on_pylibwholegraph
 
 
@@ -162,6 +168,7 @@ files:
       - depends_on_pytorch
       - cugraph_dgl_dev
       - test_python_common
+      - test_python_cugraph_dgl
   cugraph_pyg_dev:
     matrix:
       cuda: ["11.8"]
@@ -174,6 +181,7 @@ files:
       - depends_on_pytorch
       - cugraph_pyg_dev
       - test_python_common
+      - test_python_cugraph_pyg
 channels:
   - rapidsai
   - rapidsai-nightly
@@ -359,12 +367,25 @@ dependencies:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - pandas
           - pytest
           - pytest-benchmark
           - pytest-cov
-          - pytest-forked
           - pytest-xdist
+  test_python_cugraph_dgl:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - &pandas pandas
+  test_python_cugraph_pyg:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - *pandas
+  test_python_pylibwholegraph:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - pytest-forked
           - scipy
   cugraph_dgl_dev:
     common:
