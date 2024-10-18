@@ -36,6 +36,13 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_pylibwholegraph
   set -u
 
+  # ensure that we get the 'pylibwholegraph' built from this repo's CI,
+  # not the packages published from the 'wholegraph' repo
+  #
+  # TODO: remove this once all development on wholegraph moves
+  # to the cugraph-gnn repo
+  conda config --set channel_priority strict
+
   # Will automatically install built dependencies of pylibwholegraph
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
