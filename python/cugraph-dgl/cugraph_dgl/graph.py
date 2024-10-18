@@ -1046,6 +1046,13 @@ class Graph:
             num_samples_global = int(num_samples_global)
 
             vertices = torch.tensor_split(vertices, world_size)[rank]
+
+            src_bias = cupy.array_split(src_bias, world_size)[rank]
+            dst_bias = (
+                src_bias
+                if can_edge_type[0] == can_edge_type[2]
+                else cupy.array_split(dst_bias, world_size)[rank]
+            )
         else:
             num_samples_global = num_samples
 

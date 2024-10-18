@@ -87,6 +87,13 @@ def create_karate_bipartite(multi_gpu: bool = False):
     node_x_1 = np.random.random((num_nodes_group_1,))
     node_x_2 = np.random.random((num_nodes_group_2,))
 
+    if multi_gpu:
+        rank = torch.distributed.get_rank()
+        world_size = torch.distributed.get_world_size()
+
+        node_x_1 = np.array_split(node_x_1, world_size)[rank]
+        node_x_2 = np.array_split(node_x_2, world_size)[rank]
+
     graph.add_nodes(num_nodes_group_1, {"x": node_x_1}, "type1")
     graph.add_nodes(num_nodes_group_2, {"x": node_x_2}, "type2")
 
@@ -114,8 +121,8 @@ def create_karate_bipartite(multi_gpu: bool = False):
         world_size = torch.distributed.get_world_size()
 
         edges_local = {
-            etype: edf.iloc[np.array_split(np.arange(edf), world_size)[rank]]
-            for etype, edf in edges
+            etype: edf.iloc[np.array_split(np.arange(len(edf)), world_size)[rank]]
+            for etype, edf in edges.items()
         }
     else:
         edges_local = edges
@@ -129,8 +136,3 @@ def create_karate_bipartite(multi_gpu: bool = False):
 @pytest.fixture
 def karate_bipartite():
     return create_karate_bipartite(False)
-
-
-@pytest.fixture
-def karate_bipartite_mg():
-    return create_karate_bipartite(True)
