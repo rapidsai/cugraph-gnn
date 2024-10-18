@@ -36,7 +36,6 @@ dependencies:
 - pyg::pyg
 - pylibcugraphops==24.12.*,>=0.0.0a0
 - pylibraft==24.12.*,>=0.0.0a0
-- pylibwholegraph==24.12.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov

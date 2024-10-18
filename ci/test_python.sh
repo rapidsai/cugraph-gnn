@@ -10,15 +10,16 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 RAPIDS_VERSION="$(rapids-version)"
 
+rapids-logger "Downloading artifacts from previous jobs"
+CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
+PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+
 rapids-logger "Generate Python testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
   --file-key test_python \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
-
-rapids-logger "Downloading artifacts from previous jobs"
-CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
-PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" \
+| tee env.yaml
 
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
@@ -36,25 +37,11 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_pylibwholegraph
   set -u
 
-  # ensure that we get the 'pylibwholegraph' built from this repo's CI,
-  # not the packages published from the 'wholegraph' repo
-  #
-  # TODO: remove this and once all development on wholegraph moves
-  # to the cugraph-gnn repo (and maybe the old 24.12 nightlies are marked broken)
-  conda config --set channel_priority strict
-
   # Will automatically install built dependencies of pylibwholegraph
   rapids-mamba-retry install \
-    --override-channels \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    --channel rapidsai-nightly \
-    --channel rapidsai \
-    --channel dask/label/dev \
-    --channel pyg \
-    --channel conda-forge \
-    --channel nvidia \
     'mkl<2024.1.0' \
     "pylibwholegraph=${RAPIDS_VERSION}" \
     'pytorch::pytorch>=2.3,<2.4' \
