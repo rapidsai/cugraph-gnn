@@ -126,7 +126,6 @@ def run_test_graph_make_homogeneous_graph_mg(rank, uid, world_size, direction):
     torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="bleh")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
@@ -293,7 +292,6 @@ def run_test_graph_make_heterogeneous_graph_mg(rank, uid, world_size, direction)
     torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="bleh")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
@@ -451,7 +449,6 @@ def run_test_graph_find_simple_mg(rank, world_size, uid, direction):
     torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="bleh")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(isinstance(dgl, MissingModule), reason="dgl not available")
 @pytest.mark.parametrize("direction", ["out", "in"])
