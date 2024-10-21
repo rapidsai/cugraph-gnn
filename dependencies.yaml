@@ -114,8 +114,9 @@ files:
     extras:
       table: project
     includes:
-      - python_run_cugraph_dgl
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
+      - python_run_cugraph_dgl
   py_test_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -139,8 +140,9 @@ files:
     extras:
       table: project
     includes:
-      - python_run_cugraph_pyg
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
+      - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -323,18 +325,12 @@ dependencies:
         packages:
           - &numba numba>=0.57
           - *numpy
-      - output_types: [pyproject]
-        packages:
-          - &cugraph cugraph==24.12.*,>=0.0.0a0
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
         packages:
           - *numba
           - *numpy
-      - output_types: [pyproject]
-        packages:
-          - *cugraph
   rapids_build_skbuild:
     common:
       - output_types: [conda, requirements, pyproject]
@@ -389,16 +385,12 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*,>=0.0.0a0
-          - pytorch::pytorch>=2.0
           - dgl>=1.1.0.cu*
           - &tensordict tensordict>=0.1.2
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*,>=0.0.0a0
-          - pytorch::pytorch>=2.0
           - *tensordict
           - pyg>=2.5,<2.6
 
