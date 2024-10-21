@@ -25,15 +25,13 @@ RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
   --channel "${CPP_CHANNEL}" \
   conda/recipes/pylibwholegraph
 
-RAPIDS_CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
-
-rapids-conda-retry mambabuild \
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
   --no-test \
   --channel "${CPP_CHANNEL}" \
   --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
   conda/recipes/cugraph-pyg
 
-rapids-conda-retry mambabuild \
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
   --no-test \
   --channel "${CPP_CHANNEL}" \
   --channel "${RAPIDS_CONDA_BLD_OUTPUT_DIR}" \
