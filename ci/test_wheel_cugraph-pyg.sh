@@ -24,6 +24,7 @@ fi
 # echo to expand wildcard before adding `[extra]` requires for pip
 python -m pip install \
     -v \
+    --index-url "${PYTORCH_URL}" \
     --find-links "${PYG_URL}" \
     "$(echo ./local-deps/pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}*.whl)" \
     "$(echo ./dist/cugraph_pyg_${RAPIDS_PY_CUDA_SUFFIX}*.whl)[test]" \
@@ -32,12 +33,6 @@ python -m pip install \
     'torch-geometric>=2.5,<2.6' \
     'torch_scatter' \
     'torch_sparse'
-
-# install torch separately, to be sure we get a CUDA build
-python -m pip install \
-  --index-url "${PYTORCH_URL}" \
-  -v \
-  'torch>=2.0,<2.4.0a0'
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"

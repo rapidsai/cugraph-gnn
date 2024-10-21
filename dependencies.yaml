@@ -150,8 +150,9 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - test_python_common
       - depends_on_pylibwholegraph
+      - depends_on_pytorch
+      - test_python_common
 
   cugraph_dgl_dev:
     matrix:
