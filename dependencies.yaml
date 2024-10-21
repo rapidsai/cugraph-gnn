@@ -387,7 +387,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch::pytorch>=2.0,<2.4.0a0
+          - pytorch::pytorch>=2.3,<2.4.0a0
           - torchdata
           - pydantic
     specific:
@@ -404,7 +404,7 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - &pytorch_pip torch>=2.0,<2.4.0a0
+              - &pytorch_pip torch>=2.3,<2.4.0a0
               - *tensordict
           - matrix: {cuda: "11.*"}
             packages:
@@ -426,11 +426,11 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - "dglteam/label/th23_cu121::dgl"
+              - "dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"
           - matrix: {cuda: "11.*"}
             packages:
-              - "dglteam/label/th23_cu118::dgl"
-          - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl"]}
+              - "dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*"
+          - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"]}
 
   depends_on_pyg:
     common:
