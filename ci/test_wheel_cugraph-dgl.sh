@@ -26,11 +26,15 @@ DGL_URL="https://data.dgl.ai/wheels/torch-2.3/cu${PYTORCH_CUDA_VER}/repo.html"
 # echo to expand wildcard before adding `[extra]` requires for pip
 python -m pip install \
     -v \
-    --extra-index-url "${PYTORCH_URL}" \
     --find-links "${DGL_URL}" \
     "$(echo ./local-deps/pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}*.whl)" \
     "$(echo ./dist/cugraph_dgl_${RAPIDS_PY_CUDA_SUFFIX}*.whl)[test]" \
-    'dgl==2.4.0' \
-    'torch>=2.3.0,<2.4'
+    'dgl==2.4.0'
+
+# install torch separately, to be sure we get a CUDA build
+python -m pip install \
+  --index-url "${PYTORCH_URL}" \
+  -v \
+  'torch>=2.0,<2.4.0a0'
 
 python -m pytest python/cugraph-dgl/cugraph_dgl/tests

@@ -13,7 +13,6 @@ files:
       - cuda
       - cuda_version
       - docs
-      - python_build_wheel
       - python_build_cythonize
       - depends_on_rmm
       - depends_on_cugraph
@@ -28,6 +27,8 @@ files:
       - depends_on_pyg
       - python_run_cugraph_dgl
       - python_run_cugraph_pyg
+      - rapids_build_setuptools
+      - rapids_build_skbuild
       - test_cpp
       - test_notebook
       - test_python_common
@@ -83,7 +84,8 @@ files:
       table: tool.rapids-build-backend
       key: requires
     includes:
-      - python_build_wheel
+      - common_build
+      - python_build_cythonize
   py_run_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -107,7 +109,7 @@ files:
     extras:
       table: build-system
     includes:
-      - python_build_wheel
+      - rapids_build_setuptools
   py_run_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -133,7 +135,7 @@ files:
     extras:
       table: build-system
     includes:
-      - python_build_wheel
+      - rapids_build_setuptools
   py_run_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -296,24 +298,11 @@ dependencies:
           - matrix:
             packages:
               - python>=3.10,<3.13
-  python_build_wheel:
-    common:
-      - output_types: [conda, pyproject, requirements]
-        packages:
-          - cmake>=3.26.4,!=3.30.0
-          - cython>=3.0.0
-          - ninja
   python_build_cythonize:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
           - cython>=3.0.0
-      - output_types: conda
-        packages:
-          - scikit-build-core>=0.10.0
-      - output_types: [pyproject, requirements]
-        packages:
-          - scikit-build-core[pyproject]>=0.10.0
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -335,13 +324,20 @@ dependencies:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
-          - rapids-build-backend>=0.3.0,<0.4.0.dev0
+          - &rapids_build_backend rapids-build-backend>=0.3.0,<0.4.0.dev0
       - output_types: conda
         packages:
           - scikit-build-core>=0.10.0
       - output_types: [requirements, pyproject]
         packages:
           - scikit-build-core[pyproject]>=0.10.0
+  rapids_build_setuptools:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - *rapids_build_backend
+          - setuptools>=61.0.0
+          - wheel
   test_cpp:
     common:
       - output_types: conda
