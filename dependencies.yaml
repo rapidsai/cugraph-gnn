@@ -142,6 +142,7 @@ files:
     includes:
       - depends_on_cugraph
       - depends_on_pylibcugraphops
+      - depends_on_pyg
       - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
@@ -153,6 +154,7 @@ files:
       - depends_on_pylibwholegraph
       - depends_on_pytorch
       - test_python_common
+      - test_python_cugraph_pyg
 
   cugraph_dgl_dev:
     matrix:
@@ -175,6 +177,7 @@ files:
     includes:
       - checks
       - depends_on_cugraph
+      - depends_on_pyg
       - depends_on_pylibcugraphops
       - depends_on_pytorch
       - cugraph_pyg_dev
@@ -183,7 +186,6 @@ channels:
   - rapidsai
   - rapidsai-nightly
   - dask/label/dev
-  - pyg
   - conda-forge
   - nvidia
 dependencies:
@@ -357,6 +359,12 @@ dependencies:
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
+  test_python_cugraph_pyg:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - ogb
+          - torch-geometric>=2.5,<2.6
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -374,7 +382,6 @@ dependencies:
       - output_types: [conda]
         packages:
           - *tensordict
-          - pyg>=2.5,<2.6
 
   depends_on_pytorch:
     common:
@@ -426,16 +433,10 @@ dependencies:
           - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl"]}
 
   depends_on_pyg:
-    specific:
-      - output_types: [conda]
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-              - "pyg::pyg"
-          - matrix: {cuda: "11.*"}
-            packages:
-              - "pyg::pyg"
-          - {matrix: null, packages: ["pyg::pyg"]}
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - pytorch_geometric>=2.5,<2.6
 
   depends_on_pylibwholegraph:
     common:
