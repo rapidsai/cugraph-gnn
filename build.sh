@@ -50,7 +50,7 @@ HELP="$0 [<target> ...] [<flag> ...]
    cugraph-dgl                - build the cugraph-dgl Python package
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
-   test                       - build the C++ tests
+   tests                      - build the C++ tests
    benchmarks                 - build benchmarks.
    all                        - build everything
  and <flag> is:
@@ -158,6 +158,12 @@ if hasArg benchmarks; then
     BUILD_BENCHMARKS=ON
 else
     BUILD_BENCHMARKS=OFF
+fi
+
+if hasArg tests; then
+    BUILD_TESTS=ON
+else
+    BUILD_TESTS=OFF
 fi
 
 # If clean or uninstall targets given, run them prior to any other steps

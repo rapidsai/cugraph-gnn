@@ -18,9 +18,8 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch>=2.3,<2.4.0a0
+- pytorch::pytorch>=2.3,<2.4.0a0
 - pytorch_geometric>=2.5,<2.6
-- scipy
 - tensordict>=0.1.2
 - torchdata
 name: cugraph_pyg_dev_cuda-118

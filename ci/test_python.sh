@@ -10,15 +10,18 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 RAPIDS_VERSION="$(rapids-version)"
 
+rapids-logger "Downloading artifacts from previous jobs"
+CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
+PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+
 rapids-logger "Generate Python testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
   --file-key test_python \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
-
-rapids-logger "Downloading artifacts from previous jobs"
-CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
-PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
+  --prepend-channel "${CPP_CHANNEL}" \
+  --prepend-channel "${PYTHON_CHANNEL}" \
+| tee env.yaml
 
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
@@ -34,7 +37,6 @@ popd
 EXITCODE=0
 trap "EXITCODE=1" ERR
 set +e
-
 
 # Test runs that include tests that use dask require
 # --import-mode=append. Those tests start a LocalCUDACluster that inherits
@@ -148,6 +150,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     'mkl<2024.1.0' \
     "pylibwholegraph=${RAPIDS_VERSION}" \
     'pytorch::pytorch>=2.3,<2.4' \
+    'pytest-forked' \
     'ogb'
 
   rapids-print-env
@@ -159,7 +162,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   ./ci/run_pylibwholegraph_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
     --cov-config=../../.coveragerc \
-    --cov=cugraph_pyg \
+    --cov=pylibwholegraph \
     --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
     --cov-report=term
 
@@ -168,9 +171,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda deactivate
   set -u
 else
-  rapids-logger "skipping cugraph_pyg pytest on ARM64"
+  rapids-logger "skipping pylibwholegraph pytest on ARM64"
 fi
-
 
 rapids-logger "Test script exiting with value: $EXITCODE"
 exit ${EXITCODE}
