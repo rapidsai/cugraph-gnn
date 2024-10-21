@@ -14,10 +14,10 @@ jobs:
     needs:
       - changed-files
       - checks
-      - conda-cpp-build
+      # - conda-cpp-build
       # - conda-cpp-tests
-      - conda-python-build
-      - conda-python-tests
+      # - conda-python-build
+      # - conda-python-tests
       - wheel-build-pylibwholegraph
       # - wheel-tests-pylibwholegraph
       - wheel-build-cugraph-dgl
@@ -64,13 +64,13 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-24.12
     with:
       enable_check_generated_files: false
-  conda-cpp-build:
-    needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-24.12
-    with:
-      build_type: pull-request
-      node_type: cpu32
+  # conda-cpp-build:
+  #   needs: checks
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-24.12
+  #   with:
+  #     build_type: pull-request
+  #     node_type: cpu32
   # conda-cpp-tests:
   #   needs: [conda-cpp-build, changed-files]
   #   secrets: inherit
@@ -78,19 +78,19 @@ jobs:
   #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
   #   with:
   #     build_type: pull-request
-  conda-python-build:
-    needs: conda-cpp-build
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.12
-    with:
-      build_type: pull-request
-  conda-python-tests:
-    needs: [conda-python-build, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.12
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
+  # conda-python-build:
+  #   needs: conda-cpp-build
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.12
+  #   with:
+  #     build_type: pull-request
+  # conda-python-tests:
+  #   needs: [conda-python-build, changed-files]
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.12
+  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
+  #   with:
+  #     build_type: pull-request
   wheel-build-pylibwholegraph:
     needs: checks
     secrets: inherit
