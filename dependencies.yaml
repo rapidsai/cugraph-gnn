@@ -151,6 +151,7 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
+      - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pytorch
       - test_python_common
@@ -364,7 +365,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - ogb
-          - torch-geometric>=2.5,<2.6
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -434,9 +434,12 @@ dependencies:
 
   depends_on_pyg:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda]
         packages:
           - pytorch_geometric>=2.5,<2.6
+      - output_types: [pyproject, requirements]
+        packages:
+          - torch-geometric>=2.5,<2.6
 
   depends_on_pylibwholegraph:
     common:
