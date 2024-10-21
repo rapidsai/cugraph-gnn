@@ -29,7 +29,6 @@ VALIDARGS="
    pylibwholegraph
    libwholegraph
    tests
-   docs
    all
    -v
    -g
@@ -50,7 +49,6 @@ HELP="$0 [<target> ...] [<flag> ...]
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
    tests                      - build the C++ tests
-   docs                       - build the docs
    all                        - build everything
  and <flag> is:
    -v                         - verbose build mode
@@ -259,41 +257,4 @@ if hasArg cugraph-dgl || buildDefault ||hasArg all; then
     else
         python ${PYTHON_ARGS_FOR_INSTALL} ${REPODIR}/python/cugraph-dgl
     fi
-fi
-
-# Build the docs
-if hasArg docs || hasArg all; then
-    if [ ! -d ${LIBCUGRAPH_BUILD_DIR} ]; then
-        mkdir -p ${LIBCUGRAPH_BUILD_DIR}
-        cd ${LIBCUGRAPH_BUILD_DIR}
-        cmake -B "${LIBCUGRAPH_BUILD_DIR}" -S "${REPODIR}/cpp" \
-              -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              ${CMAKE_GENERATOR_OPTION} \
-              ${CMAKE_VERBOSE_OPTION}
-    fi
-
-    for PROJECT in libcugraphops libwholegraph; do
-        XML_DIR="${REPODIR}/docs/cugraph/${PROJECT}"
-        rm -rf "${XML_DIR}"
-        mkdir -p "${XML_DIR}"
-        export XML_DIR_${PROJECT^^}="$XML_DIR"
-
-        echo "downloading xml for ${PROJECT} into ${XML_DIR}. Environment variable XML_DIR_${PROJECT^^} is set to ${XML_DIR}"
-        curl -O "https://d1664dvumjb44w.cloudfront.net/${PROJECT}/xml_tar/${RAPIDS_VERSION}/xml.tar.gz"
-        tar -xzf xml.tar.gz -C "${XML_DIR}"
-        rm "./xml.tar.gz"
-    done
-
-    cd ${LIBCUGRAPH_BUILD_DIR}
-    cmake --build "${LIBCUGRAPH_BUILD_DIR}" -j${PARALLEL_LEVEL} --target docs_cugraph ${VERBOSE_FLAG}
-
-    echo "making libcugraph doc dir"
-    rm -rf ${REPODIR}/docs/cugraph/libcugraph
-    mkdir -p ${REPODIR}/docs/cugraph/libcugraph
-
-    export XML_DIR_LIBCUGRAPH="${REPODIR}/cpp/doxygen/xml"
-
-    cd ${REPODIR}/docs/cugraph
-    make html
 fi
