@@ -25,13 +25,8 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 rapids-logger "Installing Packages"
 rapids-retry python -m pip install \
     --extra-index-url ${INDEX_URL} \
-    "$(echo ./dist/pylibwholegraph*.whl)[test]"
-
-# install torch separately, to be sure we get a CUDA build
-python -m pip install \
-  --index-url "${INDEX_URL}" \
-  -v \
-  'torch>=2.0,<2.4.0a0'
+    "$(echo ./dist/pylibwholegraph*.whl)[test]" \
+    'torch>=2.0,<2.4.0a0'
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests
