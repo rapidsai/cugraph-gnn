@@ -60,7 +60,7 @@ for nb in $*; do
     echo --------------------------------------------------------------------------------
     echo STARTING: ${NBNAME}
     echo --------------------------------------------------------------------------------
-    jupyter nbconvert --to script ${NBFILENAME} --output ${NBTMPDIR}/${NBNAME}-test
+    jupyter nbconvert --to python ${NBFILENAME} --output ${NBTMPDIR}/${NBNAME}-test
     echo "${MAGIC_OVERRIDE_CODE}" > ${NBTMPDIR}/tmpfile
     cat ${NBTESTSCRIPT} >> ${NBTMPDIR}/tmpfile
     mv ${NBTMPDIR}/tmpfile ${NBTESTSCRIPT}

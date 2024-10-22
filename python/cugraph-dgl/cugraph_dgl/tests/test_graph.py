@@ -53,10 +53,11 @@ def test_graph_make_homogeneous_graph(direction):
         graph.nodes() == torch.arange(num_nodes, dtype=torch.int64, device="cuda")
     ).all()
 
-    assert graph.nodes[None]["x"] is not None
-    assert (graph.nodes[None]["x"] == torch.as_tensor(node_x, device="cuda")).all()
+    emb = graph.nodes[None]["x"]
+    assert emb is not None
+    assert (emb() == torch.as_tensor(node_x, device="cuda")).all()
     assert (
-        graph.nodes[None]["num"]
+        graph.nodes[None]["num"]()
         == torch.arange(num_nodes, dtype=torch.int64, device="cuda")
     ).all()
 
@@ -64,7 +65,7 @@ def test_graph_make_homogeneous_graph(direction):
         graph.edges("eid", device="cuda")
         == torch.arange(len(df), dtype=torch.int64, device="cuda")
     ).all()
-    assert (graph.edges[None]["weight"] == torch.as_tensor(wgt, device="cuda")).all()
+    assert (graph.edges[None]["weight"]() == torch.as_tensor(wgt, device="cuda")).all()
 
     plc_expected_graph = pylibcugraph.SGGraph(
         pylibcugraph.ResourceHandle(),
