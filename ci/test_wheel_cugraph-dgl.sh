@@ -33,4 +33,7 @@ python -m pip install \
     'dgl==2.4.0' \
     'torch>=2.0,<2.4.0a0'
 
+# RAPIDS_DATASET_ROOT_DIR is used by test scripts
+export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
+
 python -m pytest python/cugraph-dgl/cugraph_dgl/tests
