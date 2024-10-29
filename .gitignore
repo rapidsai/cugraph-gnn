@@ -70,7 +70,6 @@ cpp/thirdparty/googletest/
 *.iws
 
 ## Datasets
-dataset/
 datasets/
 !datasets/cyber.csv
 !datasets/get_test_data.sh

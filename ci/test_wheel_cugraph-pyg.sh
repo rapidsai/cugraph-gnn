@@ -32,9 +32,6 @@ python -m pip install \
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 
-# Used to skip certain examples in CI due to memory limitations
-export CI_RUN=1
-
 rapids-logger "pytest cugraph-pyg (single GPU)"
 pushd python/cugraph-pyg/cugraph_pyg
 python -m pytest \

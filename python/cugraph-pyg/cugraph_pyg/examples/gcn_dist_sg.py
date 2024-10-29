@@ -156,7 +156,7 @@ def parse_args():
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--fan_out", type=int, default=30)
     parser.add_argument("--tempdir_root", type=str, default=None)
-    parser.add_argument("--dataset_root", type=str, default="dataset")
+    parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--dataset", type=str, default="ogbn-products")
     parser.add_argument("--in_memory", action="store_true", default=False)
     parser.add_argument("--seeds_per_call", type=int, default=-1)
@@ -173,7 +173,7 @@ if __name__ == "__main__":
         args.dataset, args.dataset_root
     )
 
-    if "CI_RUN" in os.environ and os.environ["CI_RUN"] == "1":
+    if os.getenv("CI", "false").lower() == "true":
         warnings.warn("Pruning test dataset for CI run.")
         split_idx["test"] = split_idx["test"][:1000]
 
