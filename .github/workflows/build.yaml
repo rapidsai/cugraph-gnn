@@ -45,7 +45,6 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
   wheel-build-cugraph-dgl:
-    needs: wheel-publish-pylibwholegraph
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
     with:
@@ -55,7 +54,6 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/build_wheel_cugraph-dgl.sh
   wheel-build-cugraph-pyg:
-    needs: wheel-publish-pylibwholegraph
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
     with:
