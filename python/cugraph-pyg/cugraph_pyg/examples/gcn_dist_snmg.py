@@ -261,7 +261,7 @@ def run_train(
 
 
 if __name__ == "__main__":
-    if "CI_RUN" in os.environ and os.environ["CI_RUN"] == "1":
+    if os.getenv("CI", "false").lower() == "true":
         warnings.warn("Skipping SMNG example in CI due to memory limit")
     else:
         parser = argparse.ArgumentParser()
@@ -272,7 +272,7 @@ if __name__ == "__main__":
         parser.add_argument("--batch_size", type=int, default=1024)
         parser.add_argument("--fan_out", type=int, default=30)
         parser.add_argument("--tempdir_root", type=str, default=None)
-        parser.add_argument("--dataset_root", type=str, default="dataset")
+        parser.add_argument("--dataset_root", type=str, default="datasets")
         parser.add_argument("--dataset", type=str, default="ogbn-products")
         parser.add_argument("--in_memory", action="store_true", default=False)
         parser.add_argument("--seeds_per_call", type=int, default=-1)

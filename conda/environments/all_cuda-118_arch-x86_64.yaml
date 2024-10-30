@@ -4,7 +4,6 @@ channels:
 - rapidsai
 - rapidsai-nightly
 - dask/label/dev
-- pyg
 - conda-forge
 - nvidia
 dependencies:
@@ -18,7 +17,7 @@ dependencies:
 - cupy>=12.0.0
 - cython>=3.0.0
 - dask-cudf==24.12.*,>=0.0.0a0
-- dglteam/label/th21_cu118::dgl
+- dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
 - doxygen
 - graphviz
 - ipython
@@ -33,7 +32,6 @@ dependencies:
 - pre-commit
 - pydantic
 - pydata-sphinx-theme
-- pyg::pyg
 - pylibcugraphops==24.12.*,>=0.0.0a0
 - pylibraft==24.12.*,>=0.0.0a0
 - pytest
@@ -42,16 +40,20 @@ dependencies:
 - pytest-forked
 - pytest-xdist
 - pytorch-cuda=11.8
-- pytorch::pytorch>=2.0,<2.4.0a0
+- pytorch::pytorch>=2.3,<2.4.0a0
+- pytorch_geometric>=2.5,<2.6
 - raft-dask==24.12.*,>=0.0.0a0
+- rapids-build-backend>=0.3.0,<0.4.0.dev0
 - recommonmark
 - rmm==24.12.*,>=0.0.0a0
 - scikit-build-core>=0.10.0
 - scipy
+- setuptools>=61.0.0
 - sphinx-copybutton
 - sphinx-markdown-tables
 - sphinx<6
 - sphinxcontrib-websupport
 - torchdata
 - wget
+- wheel
 name: all_cuda-118_arch-x86_64

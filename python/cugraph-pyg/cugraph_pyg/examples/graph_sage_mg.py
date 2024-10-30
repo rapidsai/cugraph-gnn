@@ -178,7 +178,7 @@ def train(
     else:
         if download_event.wait(timeout=1000):
             print(f"Rank {rank} loading dataset")
-            dataset = NodePropPredDataset(name="ogbn-mag")
+            dataset = NodePropPredDataset(name="ogbn-mag", root="datasets")
             data = dataset[0]
             print(f"Rank {rank} loaded dataset successfully")
 

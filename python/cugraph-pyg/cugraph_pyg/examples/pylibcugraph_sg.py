@@ -57,7 +57,7 @@ def calc_degree(edgelist):
 
 
 def main():
-    dataset = NodePropPredDataset("ogbn-products")
+    dataset = NodePropPredDataset("ogbn-products", root="datasets")
     el = dataset[0][0]["edge_index"].astype("int64")
     calc_degree(el)
 

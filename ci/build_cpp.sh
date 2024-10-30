@@ -17,6 +17,10 @@ version=$(rapids-generate-version)
 
 rapids-logger "Begin cpp build"
 
+sccache --zero-stats
+
 RAPIDS_PACKAGE_VERSION=${version} rapids-conda-retry mambabuild conda/recipes/libwholegraph
+
+sccache --show-adv-stats
 
 rapids-upload-conda-to-s3 cpp

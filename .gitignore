@@ -70,9 +70,10 @@ cpp/thirdparty/googletest/
 *.iws
 
 ## Datasets
-datasets/*
+datasets/
 !datasets/cyber.csv
 !datasets/get_test_data.sh
+!datasets/karate.csv
 !datasets/karate-data.csv
 !datasets/karate_undirected.csv
 !datasets/karate-disjoint.csv

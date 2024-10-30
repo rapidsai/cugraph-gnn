@@ -348,7 +348,7 @@ def parse_args():
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--fan_out", type=int, default=30)
     parser.add_argument("--tempdir_root", type=str, default=None)
-    parser.add_argument("--dataset_root", type=str, default="dataset")
+    parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--dataset", type=str, default="ogbn-products")
     parser.add_argument("--skip_partition", action="store_true")
     parser.add_argument("--wg_mem_type", type=str, default="distributed")
