@@ -349,6 +349,7 @@ dependencies:
           - ipython
           - nbconvert
           - notebook>=0.5.0
+          - ogb
   test_python_common:
     common:
       - output_types: [conda, pyproject]
