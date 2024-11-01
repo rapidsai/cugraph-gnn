@@ -29,12 +29,14 @@ VALIDARGS="
    pylibwholegraph
    libwholegraph
    tests
+   benchmarks
    all
    -v
    -g
    -n
    --pydevelop
    --allgpuarch
+   --compile-cmd
    --clean
    -h
    --help
@@ -49,6 +51,7 @@ HELP="$0 [<target> ...] [<flag> ...]
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
    tests                      - build the C++ tests
+   benchmarks                 - build benchmarks
    all                        - build everything
  and <flag> is:
    -v                         - verbose build mode
@@ -56,6 +59,8 @@ HELP="$0 [<target> ...] [<flag> ...]
    -n                         - do not install after a successful build (does not affect Python packages)
    --pydevelop                - install the Python packages in editable mode
    --allgpuarch               - build for all supported GPU architectures
+   --enable-nvshmem            - build with nvshmem support (beta).
+   --compile-cmd               - only output compile commands (invoke CMake without build)
    --clean                    - clean an individual target (note: to do a complete rebuild, use the clean target described above)
    -h                         - print this text
 
@@ -140,11 +145,22 @@ if hasArg --pydevelop; then
     PYTHON_ARGS_FOR_INSTALL="${PYTHON_ARGS_FOR_INSTALL} -e"
 fi
 
+if hasArg --enable-nvshmem; then
+    BUILD_WITH_NVSHMEM=ON
+else
+    BUILD_WITH_NVSHMEM=OFF
+fi
 if hasArg tests; then
     BUILD_TESTS=ON
 else
     BUILD_TESTS=OFF
 fi
+if hasArg benchmarks; then
+    BUILD_BENCHMARKS=ON
+else
+    BUILD_BENCHMARKS=OFF
+fi
+
 
 # If clean or uninstall targets given, run them prior to any other steps
 if hasArg uninstall; then
@@ -250,7 +266,7 @@ if hasArg cugraph-pyg || buildDefault || hasArg all; then
     fi
 fi
 
-# Install the cugraph-dgl extensions for DGL
+# Build and install the cugraph-dgl Python package
 if hasArg cugraph-dgl || buildDefault ||hasArg all; then
     if hasArg --clean; then
         cleanPythonDir ${REPODIR}/python/cugraph-dgl
