@@ -29,6 +29,7 @@ PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \
   --channel "${PYTHON_CHANNEL}" \
+  --channel dglteam/label/th23_cu118 \
   "cugraph-dgl=${RAPIDS_VERSION}"
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
