@@ -15,7 +15,7 @@ __pycache__
 DartConfiguration.tcl
 .DS_Store
 rmm_log.txt
-.ruff_cache
+.ruff_cache/
 
 # Unit test / coverage reports
 htmlcov/

@@ -38,8 +38,6 @@ NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"
 EXITCODE=0
 trap "EXITCODE=1" ERR
 
-
-pushd notebooks
 TOPLEVEL_NB_FOLDERS="$(find . -name "*.ipynb" | cut -d'/' -f2 | sort -u)"
 set +e
 # Always run nbtest in all TOPLEVEL_NB_FOLDERS, set EXITCODE to failure

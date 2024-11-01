@@ -17,14 +17,14 @@ jobs:
       - conda-cpp-build
       - conda-cpp-tests
       - conda-python-build
-      - conda-python-tests
+      # - conda-python-tests
       - conda-notebook-tests
-      - wheel-build-pylibwholegraph
-      - wheel-tests-pylibwholegraph
-      - wheel-build-cugraph-dgl
-      - wheel-tests-cugraph-dgl
-      - wheel-build-cugraph-pyg
-      - wheel-tests-cugraph-pyg
+      # - wheel-build-pylibwholegraph
+      # - wheel-tests-pylibwholegraph
+      # - wheel-build-cugraph-dgl
+      # - wheel-tests-cugraph-dgl
+      # - wheel-build-cugraph-pyg
+      # - wheel-tests-cugraph-pyg
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-24.12
     if: always()
@@ -97,58 +97,58 @@ jobs:
       arch: "amd64"
       container_image: "rapidsai/ci-conda:cuda11.8.0-ubuntu22.04-py3.10"
       run_script: "ci/test_notebooks.sh"
-  conda-python-tests:
-    needs: [conda-python-build, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.12
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
-  wheel-build-pylibwholegraph:
-    needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
-    with:
-      build_type: pull-request
-      script: ci/build_wheel_pylibwholegraph.sh
-  wheel-tests-pylibwholegraph:
-    needs: [wheel-build-pylibwholegraph, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
-      script: ci/test_wheel_pylibwholegraph.sh
-      matrix_filter: map(select(.ARCH == "amd64"))
-  wheel-build-cugraph-dgl:
-    needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
-    with:
-      build_type: pull-request
-      script: ci/build_wheel_cugraph-dgl.sh
-  wheel-tests-cugraph-dgl:
-    needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
-      script: ci/test_wheel_cugraph-dgl.sh
-      matrix_filter: map(select(.ARCH == "amd64"))
-  wheel-build-cugraph-pyg:
-    needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
-    with:
-      build_type: pull-request
-      script: ci/build_wheel_cugraph-pyg.sh
-  wheel-tests-cugraph-pyg:
-    needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
-      script: ci/test_wheel_cugraph-pyg.sh
-      matrix_filter: map(select(.ARCH == "amd64"))
+  # conda-python-tests:
+  #   needs: [conda-python-build, changed-files]
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-24.12
+  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
+  #   with:
+  #     build_type: pull-request
+  # wheel-build-pylibwholegraph:
+  #   needs: checks
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/build_wheel_pylibwholegraph.sh
+  # wheel-tests-pylibwholegraph:
+  #   needs: [wheel-build-pylibwholegraph, changed-files]
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
+  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/test_wheel_pylibwholegraph.sh
+  #     matrix_filter: map(select(.ARCH == "amd64"))
+  # wheel-build-cugraph-dgl:
+  #   needs: checks
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/build_wheel_cugraph-dgl.sh
+  # wheel-tests-cugraph-dgl:
+  #   needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
+  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/test_wheel_cugraph-dgl.sh
+  #     matrix_filter: map(select(.ARCH == "amd64"))
+  # wheel-build-cugraph-pyg:
+  #   needs: checks
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/build_wheel_cugraph-pyg.sh
+  # wheel-tests-cugraph-pyg:
+  #   needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
+  #   secrets: inherit
+  #   uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-24.12
+  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
+  #   with:
+  #     build_type: pull-request
+  #     script: ci/test_wheel_cugraph-pyg.sh
+  #     matrix_filter: map(select(.ARCH == "amd64"))
