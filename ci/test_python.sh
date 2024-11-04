@@ -57,6 +57,13 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_cugraph_dgl
   set -u
 
+  if [[ "${RAPIDS_CUDA_VERSION%%.*}" == "11" ]]; then
+    DGL_CHANNEL="dglteam/label/th23_cu118"
+  else
+    DGL_CHANNEL="dglteam/label/th23_cu121"
+  fi
+
+
   # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
   #       from the 'cugraph-gnn' repo and stop publishing them from
   #       the 'cugraph' / 'wholegraph' repos
@@ -65,7 +72,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
     --channel conda-forge \
-    --channel dglteam/label/th23_cu118 \
+    --channel "${DGL_CHANNEL}" \
     --channel nvidia \
     "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
     "cugraph-dgl=${RAPIDS_VERSION},>=24.12.00a1000" \
