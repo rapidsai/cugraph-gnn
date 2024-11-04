@@ -5,6 +5,10 @@ set -Eeuo pipefail
 
 . /opt/conda/etc/profile.d/conda.sh
 
+# strict channel priority ensures that the packages in built in CI are foound,
+# not cugraph-dgl nightlies produced from the 'cugraph' repo
+conda config --set channel_priority strict
+
 RAPIDS_VERSION="$(rapids-version)"
 
 rapids-logger "Generate notebook testing dependencies"
@@ -25,10 +29,6 @@ rapids-print-env
 rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
-
-# strict channel priority ensures that the packages in built in CI are foound,
-# not cugraph-dgl nightlies produced from the 'cugraph' repo
-conda config --set channel_priority strict
 
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \

@@ -8,6 +8,10 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
 
+# strict channel priority ensures that the packages in built in CI are foound,
+# not cugraph-dgl nightlies produced from the 'cugraph' repo
+conda config --set channel_priority strict
+
 RAPIDS_VERSION="$(rapids-version)"
 
 rapids-logger "Downloading artifacts from previous jobs"
