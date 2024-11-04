@@ -13,7 +13,11 @@ export CMAKE_GENERATOR=Ninja
 
 rapids-print-env
 
-version=$(rapids-generate-version)
+# TODO: revert this once we start publishing nightly packages
+#       from the 'cugraph-gnn' repo and stop publishing them from
+#       the 'cugraph' / 'wholegraph' repos
+#version=$(rapids-generate-version)
+version="24.12.00a1000"
 
 rapids-logger "Begin cpp build"
 
