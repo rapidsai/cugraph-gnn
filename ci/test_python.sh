@@ -69,7 +69,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     "cugraph=${RAPIDS_VERSION}" \
     "cugraph-dgl=${RAPIDS_VERSION}" \
     'pytorch::pytorch>=2.3,<2.4' \
-    'cuda-version=11.8' \
     "ogb"
 
   rapids-print-env
