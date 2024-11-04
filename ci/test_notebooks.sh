@@ -26,11 +26,14 @@ rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
+# TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
+#       from the 'cugraph-gnn' repo and stop publishing them from
+#       the 'cugraph' / 'wholegraph' repos
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \
   --channel "${PYTHON_CHANNEL}" \
   --channel dglteam/label/th23_cu118 \
-  "cugraph-dgl=${RAPIDS_VERSION}"
+  "cugraph-dgl=${RAPIDS_VERSION},>=24.12.00a1000"
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
 NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"

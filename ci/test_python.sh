@@ -57,6 +57,9 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_cugraph_dgl
   set -u
 
+  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
+  #       from the 'cugraph-gnn' repo and stop publishing them from
+  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
@@ -64,10 +67,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel conda-forge \
     --channel dglteam/label/th23_cu118 \
     --channel nvidia \
-    "pylibwholegraph=${RAPIDS_VERSION}" \
-    "pylibcugraphops=${RAPIDS_VERSION}" \
-    "cugraph=${RAPIDS_VERSION}" \
-    "cugraph-dgl=${RAPIDS_VERSION}" \
+    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
+    "cugraph-dgl=${RAPIDS_VERSION},>=24.12.00a1000" \
     'pytorch::pytorch>=2.3,<2.4' \
     "ogb"
 
@@ -100,15 +101,15 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_cugraph_pyg
   set -u
 
-  # Will automatically install built dependencies of cuGraph-PyG
+  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
+  #       from the 'cugraph-gnn' repo and stop publishing them from
+  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION}" \
-    "pylibcugraphops=${RAPIDS_VERSION}" \
-    "cugraph=${RAPIDS_VERSION}" \
-    "cugraph-pyg=${RAPIDS_VERSION}" \
+    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
+    "cugraph-pyg=${RAPIDS_VERSION},>=24.12.00a1000" \
     'pytorch::pytorch>=2.3,<2.4' \
     'ogb'
 
@@ -141,13 +142,15 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_pylibwholegraph
   set -u
 
-  # Will automatically install built dependencies of pylibwholegraph
+  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
+  #       from the 'cugraph-gnn' repo and stop publishing them from
+  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
     'mkl<2024.1.0' \
-    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
     'pytorch::pytorch>=2.3,<2.4' \
     'pytest-forked' \
     'ogb'
