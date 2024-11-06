@@ -209,6 +209,7 @@ def create_wholememory_tensor(
     sizes: List[int],
     dtype: torch.dtype,
     strides: List[int],
+    tensor_entry_partition: Union[List[int], None] = None,
 ):
     """
     Create empty WholeMemory Tensor. Now only support dim = 1 or 2
@@ -218,6 +219,10 @@ def create_wholememory_tensor(
     :param sizes: size of the tensor
     :param dtype: data type of the tensor
     :param strides: strides of the tensor
+    :param tensor_entry_partition: rank partition based on entry;
+      tensor_entry_partition[i] determines the entry count of rank
+      i and shoud be a positive integer; the sum of tensor_entry_partition
+      should equal to total entry count; entries will be equally partitioned if None
     :return: Allocated WholeMemoryTensor
     """
     dim = len(sizes)
@@ -240,7 +245,9 @@ def create_wholememory_tensor(
     wm_location = str_to_wmb_wholememory_location(memory_location)
 
     return WholeMemoryTensor(
-        wmb.create_wholememory_tensor(td, comm.wmb_comm, wm_memory_type, wm_location)
+        wmb.create_wholememory_tensor(
+            td, comm.wmb_comm, wm_memory_type, wm_location, tensor_entry_partition
+        )
     )
 
 
@@ -252,6 +259,7 @@ def create_wholememory_tensor_from_filelist(
     dtype: torch.dtype,
     last_dim_size: int = 0,
     last_dim_strides: int = -1,
+    tensor_entry_partition: Union[List[int], None] = None,
 ):
     """
     Create WholeMemory Tensor from list of binary files.
@@ -263,6 +271,10 @@ def create_wholememory_tensor_from_filelist(
     :param last_dim_size: 0 for create 1-D array, positive value for
       create matrix column size
     :param last_dim_strides: stride of last_dim, -1 for same as size of last dim.
+    :param tensor_entry_partition: rank partition based on entry;
+      tensor_entry_partition[i] determines the entry count of rank
+      i and shoud be a positive integer; the sum of tensor_entry_partition
+      should equal to total entry count; entries will be equally partitioned if None
     :return: WholeMemoryTensor
     """
     if isinstance(filelist, str):
@@ -290,7 +302,13 @@ def create_wholememory_tensor_from_filelist(
         sizes = [total_entry_count, last_dim_size]
         strides = [last_dim_strides, 1]
     wm_tensor = create_wholememory_tensor(
-        comm, memory_type, memory_location, sizes, dtype, strides
+        comm,
+        memory_type,
+        memory_location,
+        sizes,
+        dtype,
+        strides,
+        tensor_entry_partition,
     )
     wm_tensor.from_filelist(filelist)
     return wm_tensor
