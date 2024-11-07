@@ -15,16 +15,16 @@ jobs:
       - changed-files
       - checks
       - conda-cpp-build
-      # - conda-cpp-tests
+      - conda-cpp-tests
       - conda-python-build
       - conda-python-tests
       - conda-notebook-tests
-      # - wheel-build-pylibwholegraph
-      # - wheel-tests-pylibwholegraph
-      # - wheel-build-cugraph-dgl
-      # - wheel-tests-cugraph-dgl
-      # - wheel-build-cugraph-pyg
-      # - wheel-tests-cugraph-pyg
+      - wheel-build-pylibwholegraph
+      - wheel-tests-pylibwholegraph
+      - wheel-build-cugraph-dgl
+      - wheel-tests-cugraph-dgl
+      - wheel-build-cugraph-pyg
+      - wheel-tests-cugraph-pyg
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-24.12
     if: always()
@@ -73,13 +73,13 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-24.12
     with:
       build_type: pull-request
-  # conda-cpp-tests:
-  #   needs: [conda-cpp-build, changed-files]
-  #   secrets: inherit
-  #   uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-24.12
-  #   if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
-  #   with:
-  #     build_type: pull-request
+  conda-cpp-tests:
+    needs: [conda-cpp-build, changed-files]
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-24.12
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
+    with:
+      build_type: pull-request
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -95,7 +95,7 @@ jobs:
       build_type: pull-request
       node_type: "gpu-v100-latest-1"
       arch: "amd64"
-      container_image: "rapidsai/ci-conda:cuda11.8.0-ubuntu22.04-py3.10"
+      container_image: "rapidsai/ci-conda:cuda11.8.0-ubuntu22.04-py3.12"
       run_script: "ci/test_notebooks.sh"
   conda-python-tests:
     needs: [conda-python-build, changed-files]
