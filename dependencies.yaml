@@ -55,15 +55,16 @@ files:
     output: none
     includes:
       - cuda_version
+      - depends_on_pytorch
       - py_version
       - test_notebook
-      - test_python_common
   test_python:
     output: none
     includes:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
+      - depends_on_dgl
       - depends_on_pytorch
       - py_version
       - test_python_common
@@ -348,10 +349,9 @@ dependencies:
       - output_types: [conda, requirements]
         packages:
           - ipython
+          - nbconvert
           - notebook>=0.5.0
-      - output_types: [conda]
-        packages:
-          - wget
+          - ogb
   test_python_common:
     common:
       - output_types: [conda, pyproject]

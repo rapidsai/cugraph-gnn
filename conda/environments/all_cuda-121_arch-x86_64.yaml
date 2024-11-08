@@ -26,6 +26,7 @@ dependencies:
 - libcurand-dev
 - libcusolver-dev
 - libcusparse-dev
+- nbconvert
 - nbsphinx
 - nccl>=2.19
 - ninja
@@ -33,6 +34,7 @@ dependencies:
 - numba>=0.57
 - numpy>=1.23,<3.0a0
 - numpydoc
+- ogb
 - pandas
 - pre-commit
 - pydantic
@@ -59,6 +61,5 @@ dependencies:
 - sphinx<6
 - sphinxcontrib-websupport
 - torchdata
-- wget
 - wheel
 name: all_cuda-121_arch-x86_64
