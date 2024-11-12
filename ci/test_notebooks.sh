@@ -5,6 +5,8 @@ set -Eeuo pipefail
 
 . /opt/conda/etc/profile.d/conda.sh
 
+RAPIDS_VERSION="$(rapids-version)"
+
 rapids-logger "Generate notebook testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
@@ -24,18 +26,20 @@ rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
+# TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
+#       from the 'cugraph-gnn' repo and stop publishing them from
+#       the 'cugraph' / 'wholegraph' repos
 rapids-mamba-retry install \
   --channel "${CPP_CHANNEL}" \
   --channel "${PYTHON_CHANNEL}" \
-  libcugraph pylibcugraph cugraph
+  --channel dglteam/label/th23_cu118 \
+  "cugraph-dgl=${RAPIDS_VERSION},>=24.12.00a1000"
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
 NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"
 EXITCODE=0
 trap "EXITCODE=1" ERR
 
-
-pushd notebooks
 TOPLEVEL_NB_FOLDERS="$(find . -name "*.ipynb" | cut -d'/' -f2 | sort -u)"
 set +e
 # Always run nbtest in all TOPLEVEL_NB_FOLDERS, set EXITCODE to failure
