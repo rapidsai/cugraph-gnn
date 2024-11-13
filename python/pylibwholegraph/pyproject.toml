@@ -74,3 +74,11 @@ wheel.packages = ["pylibwholegraph"]
 provider = "scikit_build_core.metadata.regex"
 input = "pylibwholegraph/VERSION"
 regex = "(?P<value>.*)"
+
+[tool.pydistcheck]
+select = [
+    "distro-too-large-compressed",
+]
+
+# detect when package size grows significantly
+max_allowed_size_compressed = '350M'

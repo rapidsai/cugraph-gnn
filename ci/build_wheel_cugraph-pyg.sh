@@ -3,4 +3,7 @@
 
 set -euo pipefail
 
-./ci/build_wheel.sh cugraph-pyg python/cugraph-pyg
+package_dir="python/cugraph-pyg"
+
+./ci/build_wheel.sh cugraph-pyg ${package_dir}
+./ci/validate_wheel.sh ${package_dir} dist
