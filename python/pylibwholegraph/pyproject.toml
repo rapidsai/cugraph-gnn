@@ -23,6 +23,7 @@ requires = [
 name = "pylibwholegraph"
 dynamic = ["version"]
 description = "pylibwholegraph - GPU Graph Storage for GNN feature and graph structure"
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "NVIDIA Corporation" },
 ]
