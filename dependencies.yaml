@@ -413,12 +413,19 @@ dependencies:
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {cuda: "12.1"}
             packages:
               - pytorch-cuda=12.1
-          - matrix: {cuda: "11.*"}
+          - matrix: {cuda: "12.4"}
+            packages:
+              - pytorch-cuda=12.4
+          - matrix: {cuda: "11.8"}
             packages:
               - pytorch-cuda=11.8
+          # pytorch only supports certain CUDA versions... skip
+          # adding pytorch-cuda pinning if any other CUDA version is requested
+          - matrix:
+            packages:
 
   depends_on_dgl:
     specific:
