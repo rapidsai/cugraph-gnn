@@ -10,6 +10,7 @@ dependencies:
 - breathe
 - cmake>=3.26.4,!=3.30.0
 - cuda-cudart-dev
+- cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
 - cuda-version=12.1

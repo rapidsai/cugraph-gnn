@@ -244,6 +244,7 @@ dependencies:
               cuda: "12.*"
             packages:
               - cuda-cudart-dev
+              - cuda-nvml-dev
               - cuda-nvtx-dev
               - cuda-profiler-api
               - libcublas-dev
