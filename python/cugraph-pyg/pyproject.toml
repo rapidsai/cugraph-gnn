@@ -16,6 +16,7 @@ testpaths = ["cugraph_pyg/tests"]
 name = "cugraph-pyg"
 dynamic = ["version"]
 description = "cugraph-pyg - PyG support for cuGraph massive-scale, ultra-fast GPU graph analytics."
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "NVIDIA Corporation" },
 ]
@@ -70,3 +71,11 @@ include = [
 build-backend = "setuptools.build_meta"
 dependencies-file = "../../dependencies.yaml"
 matrix-entry = "cuda_suffixed=true"
+
+[tool.pydistcheck]
+select = [
+    "distro-too-large-compressed",
+]
+
+# PyPI limit is 100 MiB, fail CI before we get too close to that
+max_allowed_size_compressed = '75M'
