@@ -10,6 +10,7 @@ dependencies:
 - breathe
 - cmake>=3.26.4,!=3.30.0
 - cuda-cudart-dev
+- cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
 - cuda-version=12.4
@@ -46,7 +47,7 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch-cuda=12.1
+- pytorch-cuda=12.4
 - pytorch::pytorch>=2.3,<2.4.0a0
 - pytorch_geometric>=2.5,<2.6
 - raft-dask==25.2.*,>=0.0.0a0
