@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#if CUDA_VERSION >= 12030
-
 #include "nvml_wrap.h"
+
+#if CUDA_VERSION >= 12030
 #include <dlfcn.h>
 #include <mutex>
 #include <stdio.h>
@@ -74,5 +74,4 @@ bool NvmlFabricSymbolLoaded()
   }
   return nvml_loaded;
 }
-
 #endif  // CUDA_VERSION >= 12030

@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#if CUDA_VERSION >= 12030
-
 #pragma once
+#include <cuda.h>
 
+#if CUDA_VERSION >= 12030
 #include <nvml.h>
 
 bool NvmlFabricSymbolLoaded();
@@ -24,5 +24,4 @@ typedef nvmlReturn_t (*nvmlDeviceGetGpuFabricInfoFunc)(nvmlDevice_t, nvmlGpuFabr
 
 extern nvmlDeviceGetHandleByIndexFunc nvmlDeviceGetHandleByIndexPtr;
 extern nvmlDeviceGetGpuFabricInfoFunc nvmlDeviceGetGpuFabricInfoPtr;
-
 #endif  // CUDA_VERSION >= 12030
