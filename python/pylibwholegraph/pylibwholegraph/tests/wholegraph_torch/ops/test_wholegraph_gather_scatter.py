@@ -26,7 +26,7 @@ import pylibwholegraph.torch.wholememory_ops as wm_ops
 
 def gen_int_embedding(indice_tensor, embedding_dim, output_type):
     if embedding_dim == 0:
-        embedding_dim = 1 # unsqueeze to 2D tensor for input embeddings (2D is required for scatter op)
+        embedding_dim = 1  # unsqueeze 2D for input (2D is required for scatter op)
     indice_count = indice_tensor.shape[0]
     indice_part = (
         indice_tensor.type(torch.int).reshape(indice_count, 1).repeat(1, embedding_dim)
@@ -167,7 +167,7 @@ def routine_func(world_rank: int, world_size: int):
             wmb.WholeMemoryMemoryLocation.MlHost,
             wmb.WholeMemoryMemoryLocation.MlDevice,
         ]:
-            for embedding_dim in [0, 256]: # 0 is for 1D tensor
+            for embedding_dim in [0, 256]:  # 0 is for 1D tensor
                 if wm_comm.support_type_location(mt, ml):
                     scatter_gather_test_cast(
                         wm_comm,

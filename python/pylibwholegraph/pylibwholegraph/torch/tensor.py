@@ -88,7 +88,7 @@ class WholeMemoryTensor(object):
         if self.dim() == 2:
             assert input_tensor.shape[1] == self.shape[1]
         else:
-            # unsqueeze input to 2D tensor here because wmb_tensor is unsqueezed within scatter_op
+            # unsqueeze to 2D tensor because wmb_tensor is unsqueezed within scatter_op
             input_tensor = input_tensor.unsqueeze(1)
         wmb.wholememory_scatter_op(
             wrap_torch_tensor(input_tensor),
