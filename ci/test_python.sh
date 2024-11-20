@@ -8,44 +8,28 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
 
-rapids-logger "Generate Python testing dependencies"
-rapids-dependency-file-generator \
-  --output conda \
-  --file-key test_python \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
-
-rapids-mamba-retry env create --yes -f env.yaml -n test
-
-# Temporarily allow unbound variables for conda activation.
-set +u
-conda activate test
-set -u
+RAPIDS_VERSION="$(rapids-version)"
 
 rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
 
+rapids-logger "Generate Python testing dependencies"
+rapids-dependency-file-generator \
+  --output conda \
+  --file-key test_python \
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
+  --prepend-channel "${CPP_CHANNEL}" \
+  --prepend-channel "${PYTHON_CHANNEL}" \
+| tee env.yaml
+
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
-rapids-print-env
-
-rapids-mamba-retry install \
-  --channel "${CPP_CHANNEL}" \
-  --channel "${PYTHON_CHANNEL}" \
-  libcugraph \
-  pylibcugraph \
-  cugraph \
-  nx-cugraph \
-  cugraph-service-server \
-  cugraph-service-client
-
-rapids-logger "Check GPU usage"
-nvidia-smi
-
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
+mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
 pushd "${RAPIDS_DATASET_ROOT_DIR}"
 ./get_test_data.sh --benchmark
 popd
@@ -53,7 +37,6 @@ popd
 EXITCODE=0
 trap "EXITCODE=1" ERR
 set +e
-
 
 # Test runs that include tests that use dask require
 # --import-mode=append. Those tests start a LocalCUDACluster that inherits
@@ -65,117 +48,131 @@ set +e
 #
 # FIXME: TEMPORARILY disable MG PropertyGraph tests (experimental) tests and
 # bulk sampler IO tests (hangs in CI)
-if [[ "${RAPIDS_CUDA_VERSION}" == "11.8.0" ]]; then
-  if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-    # we are only testing in a single cuda version
-    # because of pytorch and rapids compatibilty problems
-    rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_dgl
 
-    # activate test_cugraph_dgl environment for dgl
-    set +u
-    conda activate test_cugraph_dgl
-    set -u
-    rapids-mamba-retry install \
-      --channel "${CPP_CHANNEL}" \
-      --channel "${PYTHON_CHANNEL}" \
-      --channel conda-forge \
-      --channel dglteam/label/cu118 \
-      --channel nvidia \
-      libcugraph \
-      pylibcugraph \
-      pylibcugraphops \
-      cugraph \
-      cugraph-dgl \
-      'dgl>=1.1.0.cu*,<=2.0.0.cu*' \
-      'pytorch>=2.0' \
-      'cuda-version=11.8'
+if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
+  rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_dgl
 
-    rapids-print-env
+  # activate test_cugraph_dgl environment for dgl
+  set +u
+  conda activate test_cugraph_dgl
+  set -u
 
-    rapids-logger "pytest cugraph_dgl (single GPU)"
-    ./ci/run_cugraph_dgl_pytests.sh \
-      --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-dgl.xml" \
-      --cov-config=../../.coveragerc \
-      --cov=cugraph_dgl \
-      --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-dgl-coverage.xml" \
-      --cov-report=term
-
-    # Reactivate the test environment back
-    set +u
-    conda deactivate
-    conda activate test
-    set -u
+  if [[ "${RAPIDS_CUDA_VERSION%%.*}" == "11" ]]; then
+    DGL_CHANNEL="dglteam/label/th23_cu118"
   else
-    rapids-logger "skipping cugraph_dgl pytest on ARM64"
+    DGL_CHANNEL="dglteam/label/th23_cu121"
   fi
+
+
+  rapids-mamba-retry install \
+    --channel "${CPP_CHANNEL}" \
+    --channel "${PYTHON_CHANNEL}" \
+    --channel pytorch \
+    --channel conda-forge \
+    --channel "${DGL_CHANNEL}" \
+    --channel nvidia \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "cugraph-dgl=${RAPIDS_VERSION}" \
+    'pytorch::pytorch>=2.3,<2.4' \
+    "ogb"
+
+  rapids-print-env
+
+  rapids-logger "Check GPU usage"
+  nvidia-smi
+
+  rapids-logger "pytest cugraph_dgl (single GPU)"
+  ./ci/run_cugraph_dgl_pytests.sh \
+    --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-dgl.xml" \
+    --cov-config=../../.coveragerc \
+    --cov=cugraph_dgl \
+    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-dgl-coverage.xml" \
+    --cov-report=term
+
+  # Reactivate the test environment back
+  set +u
+  conda deactivate
+  set -u
 else
-  rapids-logger "skipping cugraph_dgl pytest on CUDA!=11.8"
+  rapids-logger "skipping cugraph_dgl pytest on ARM64"
 fi
 
-if [[ "${RAPIDS_CUDA_VERSION}" == "11.8.0" ]]; then
-  if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-    rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_pyg
+if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
+  rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_pyg
 
-    # Temporarily allow unbound variables for conda activation.
-    set +u
-    conda activate test_cugraph_pyg
-    set -u
+  # Temporarily allow unbound variables for conda activation.
+  set +u
+  conda activate test_cugraph_pyg
+  set -u
 
-    # TODO re-enable logic once CUDA 12 is testable
-    #if [[ "${RAPIDS_CUDA_VERSION}" == "11.8.0" ]]; then
-    CONDA_CUDA_VERSION="11.8"
-    PYG_URL="https://data.pyg.org/whl/torch-2.1.0+cu118.html"
-    #else
-    #  CONDA_CUDA_VERSION="12.1"
-    #  PYG_URL="https://data.pyg.org/whl/torch-2.1.0+cu121.html"
-    #fi
+  rapids-mamba-retry install \
+    --channel "${CPP_CHANNEL}" \
+    --channel "${PYTHON_CHANNEL}" \
+    --channel pytorch \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "cugraph-pyg=${RAPIDS_VERSION}" \
+    'pytorch::pytorch>=2.3,<2.4' \
+    'ogb'
 
-    # Will automatically install built dependencies of cuGraph-PyG
-    rapids-mamba-retry install \
-      --channel "${CPP_CHANNEL}" \
-      --channel "${PYTHON_CHANNEL}" \
-      --channel pytorch \
-      --channel pyg \
-      --channel nvidia \
-      "cugraph-pyg" \
-      "pytorch=2.1.0" \
-      "pytorch-cuda=${CONDA_CUDA_VERSION}"
+  rapids-print-env
 
-    # Install pyg dependencies (which requires pip)
+  rapids-logger "Check GPU usage"
+  nvidia-smi
 
-    pip install \
-      ogb \
-      tensordict
+  rapids-logger "pytest cugraph_pyg (single GPU)"
+  ./ci/run_cugraph_pyg_pytests.sh \
+    --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
+    --cov-config=../../.coveragerc \
+    --cov=cugraph_pyg \
+    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
+    --cov-report=term
 
-    pip install \
-        pyg_lib \
-        torch_scatter \
-        torch_sparse \
-      -f ${PYG_URL}
-
-    rapids-print-env
-
-    rapids-logger "pytest cugraph_pyg (single GPU)"
-    # rmat is not tested because of multi-GPU testing
-    ./ci/run_cugraph_pyg_pytests.sh \
-      --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
-      --cov-config=../../.coveragerc \
-      --cov=cugraph_pyg \
-      --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
-      --cov-report=term
-
-    # Reactivate the test environment back
-    set +u
-    conda deactivate
-    conda activate test
-    set -u
-  else
-    rapids-logger "skipping cugraph_pyg pytest on ARM64"
-  fi
+  # Reactivate the test environment back
+  set +u
+  conda deactivate
+  set -u
 else
-  rapids-logger "skipping cugraph_pyg pytest on CUDA!=11.8"
+  rapids-logger "skipping cugraph_pyg pytest on ARM64"
 fi
 
+if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
+  rapids-mamba-retry env create --yes -f env.yaml -n test_pylibwholegraph
+
+  # Temporarily allow unbound variables for conda activation.
+  set +u
+  conda activate test_pylibwholegraph
+  set -u
+
+  rapids-mamba-retry install \
+    --channel "${CPP_CHANNEL}" \
+    --channel "${PYTHON_CHANNEL}" \
+    --channel pytorch \
+    'mkl<2024.1.0' \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    'pytorch::pytorch>=2.3,<2.4' \
+    'pytest-forked' \
+    'ogb'
+
+  rapids-print-env
+
+  rapids-logger "Check GPU usage"
+  nvidia-smi
+
+  rapids-logger "pytest pylibwholegraph (single GPU)"
+  ./ci/run_pylibwholegraph_pytests.sh \
+    --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
+    --cov-config=../../.coveragerc \
+    --cov=pylibwholegraph \
+    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
+    --cov-report=term
+
+  # Reactivate the test environment back
+  set +u
+  conda deactivate
+  set -u
+else
+  rapids-logger "skipping pylibwholegraph pytest on ARM64"
+fi
 
 rapids-logger "Test script exiting with value: $EXITCODE"
 exit ${EXITCODE}

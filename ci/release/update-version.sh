@@ -84,3 +84,8 @@ for DEP in "${DEPENDENCIES[@]}"; do
 done
 
 sed_runner "s/\(PROJECT_NUMBER[[:space:]]*\)=.*/\1= ${NEXT_SHORT_TAG}/" cpp/Doxyfile
+
+# CI files
+for FILE in .github/workflows/*.yaml; do
+  sed_runner "/shared-workflows/ s/@.*/@branch-${NEXT_SHORT_TAG}/g" "${FILE}"
+done

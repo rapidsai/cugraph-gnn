@@ -63,7 +63,7 @@ def sample(edgelist, directory):
 
 
 def main():
-    dataset = NodePropPredDataset("ogbn-products")
+    dataset = NodePropPredDataset("ogbn-products", root="datasets")
     el = dataset[0][0]["edge_index"].astype("int64")
 
     with tempfile.TemporaryDirectory() as directory:

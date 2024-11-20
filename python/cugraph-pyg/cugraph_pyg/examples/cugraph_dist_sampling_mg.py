@@ -89,7 +89,7 @@ def main():
     world_size = torch.cuda.device_count()
     uid = cugraph_comms_create_unique_id()
 
-    dataset = NodePropPredDataset("ogbn-products")
+    dataset = NodePropPredDataset("ogbn-products", root="datasets")
     el = dataset[0][0]["edge_index"].astype("int64")
 
     with tempfile.TemporaryDirectory() as directory:

@@ -35,6 +35,8 @@ void host_random_init_integer_indices(void* indices,
                                       wholememory_array_description_t indices_desc,
                                       int64_t max_indices);
 
+void host_random_partition(size_t* partition_sizes, size_t total_size, int partition_count);
+
 struct Metric {
   Metric(const std::string& metrics_name,
          const std::string& metrics_unit,

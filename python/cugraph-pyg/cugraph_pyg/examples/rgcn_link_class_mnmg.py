@@ -148,7 +148,7 @@ def parse_args():
     parser.add_argument("--num_pos", type=int, default=-1)
     parser.add_argument("--fan_out", type=int, default=10)
     parser.add_argument("--dataset", type=str, default="ogbl-wikikg2")
-    parser.add_argument("--dataset_root", type=str, default="dataset")
+    parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--seeds_per_call", type=int, default=-1)
     parser.add_argument("--n_devices", type=int, default=-1)
     parser.add_argument("--skip_partition", action="store_true")

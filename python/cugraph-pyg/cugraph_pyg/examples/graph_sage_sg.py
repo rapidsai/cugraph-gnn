@@ -79,7 +79,7 @@ def train(device: int, features_device: Union[str, int] = "cpu", num_epochs=2) -
 
     from ogb.nodeproppred import NodePropPredDataset
 
-    dataset = NodePropPredDataset(name="ogbn-mag")
+    dataset = NodePropPredDataset(name="ogbn-mag", root="datasets")
     data = dataset[0]
 
     G = data[0]["edge_index_dict"]

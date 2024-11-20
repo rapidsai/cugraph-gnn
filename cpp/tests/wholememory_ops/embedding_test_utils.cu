@@ -528,5 +528,22 @@ void host_random_init_float(float* data, int64_t len, float max_value, float min
   }
 }
 
+void host_random_partition(size_t* partition_sizes, size_t total_size, int partition_count)
+{
+  std::default_random_engine random_engine(0);
+  std::uniform_int_distribution<size_t> uniform(90, 100);
+  size_t acc_size   = 0;
+  size_t random_sum = 0;
+  for (int i = 0; i < partition_count; i++) {
+    partition_sizes[i] = (size_t)uniform(random_engine);
+    random_sum += partition_sizes[i];
+  }
+  for (int i = 0; i < partition_count; i++) {
+    partition_sizes[i] = (size_t)((partition_sizes[i] / (double)random_sum) * total_size);
+    acc_size += partition_sizes[i];
+  }
+  partition_sizes[0] += total_size - acc_size;
+}
+
 }  // namespace testing
 }  // namespace wholememory_ops

@@ -13,7 +13,6 @@ files:
       - cuda
       - cuda_version
       - docs
-      - python_build_wheel
       - python_build_cythonize
       - depends_on_rmm
       - depends_on_cugraph
@@ -22,15 +21,18 @@ files:
       - depends_on_pylibraft
       - depends_on_raft_dask
       - depends_on_pylibcugraphops
-      - depends_on_pylibwholegraph
       - depends_on_cupy
       - depends_on_pytorch
       - depends_on_dgl
       - depends_on_pyg
       - python_run_cugraph_dgl
       - python_run_cugraph_pyg
+      - rapids_build_setuptools
+      - rapids_build_skbuild
+      - test_cpp
       - test_notebook
       - test_python_common
+      - test_python_pylibwholegraph
 
   checks:
     output: none
@@ -53,19 +55,52 @@ files:
     output: none
     includes:
       - cuda_version
+      - depends_on_pytorch
       - py_version
       - test_notebook
-      - test_python_common
   test_python:
     output: none
     includes:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_pylibwholegraph
+      - depends_on_dgl
+      - depends_on_pytorch
       - py_version
       - test_python_common
-      - test_python_pylibcugraph
+
+  py_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: build-system
+    includes:
+      - rapids_build_skbuild
+  py_rapids_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: tool.rapids-build-backend
+      key: requires
+    includes:
+      - common_build
+      - python_build_cythonize
+  py_run_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project
+    includes:
+      - python_run_pylibwholegraph
+  py_test_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project.optional-dependencies
+      key: test
+    includes:
+      - test_python_common
+      - test_python_pylibwholegraph
 
   py_build_cugraph_dgl:
     output: pyproject
@@ -73,15 +108,16 @@ files:
     extras:
       table: build-system
     includes:
-      - python_build_wheel
+      - rapids_build_setuptools
   py_run_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
     extras:
       table: project
     includes:
-      - python_run_cugraph_dgl
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
+      - python_run_cugraph_dgl
   py_test_cugraph_dgl:
     output: pyproject
     pyproject_dir: python/cugraph-dgl
@@ -89,23 +125,26 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - test_python_common
       - depends_on_pylibwholegraph
+      - depends_on_pytorch
+      - test_python_common
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
     extras:
       table: build-system
     includes:
-      - python_build_wheel
+      - rapids_build_setuptools
   py_run_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
     extras:
       table: project
     includes:
-      - python_run_cugraph_pyg
+      - depends_on_cugraph
       - depends_on_pylibcugraphops
+      - depends_on_pyg
+      - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -113,9 +152,11 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - test_python_common
+      - depends_on_pyg
       - depends_on_pylibwholegraph
-
+      - depends_on_pytorch
+      - test_python_common
+      - test_python_cugraph_pyg
 
   cugraph_dgl_dev:
     matrix:
@@ -138,6 +179,7 @@ files:
     includes:
       - checks
       - depends_on_cugraph
+      - depends_on_pyg
       - depends_on_pylibcugraphops
       - depends_on_pytorch
       - cugraph_pyg_dev
@@ -146,7 +188,6 @@ channels:
   - rapidsai
   - rapidsai-nightly
   - dask/label/dev
-  - pyg
   - conda-forge
   - nvidia
 dependencies:
@@ -203,6 +244,7 @@ dependencies:
               cuda: "12.*"
             packages:
               - cuda-cudart-dev
+              - cuda-nvml-dev
               - cuda-nvtx-dev
               - cuda-profiler-api
               - libcublas-dev
@@ -256,82 +298,97 @@ dependencies:
           - matrix:
             packages:
               - python>=3.10,<3.13
-  python_build_wheel:
-    common:
-      - output_types: [conda, pyproject, requirements]
-        packages:
-          - setuptools>=61.0.0
-          - wheel
   python_build_cythonize:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
           - cython>=3.0.0
-      - output_types: conda
+  python_run_pylibwholegraph:
+    common:
+      - output_types: [conda, pyproject, requirements]
         packages:
-          - scikit-build-core>=0.10.0
-      - output_types: [pyproject, requirements]
-        packages:
-          - scikit-build-core[pyproject]>=0.10.0
+          - &numpy numpy>=1.23,<3.0a0
   python_run_cugraph_dgl:
     common:
       - output_types: [conda, pyproject]
         packages:
           - &numba numba>=0.57
-          - &numpy numpy>=1.23,<3.0a0
-      - output_types: [pyproject]
-        packages:
-          - &cugraph cugraph==24.12.*,>=0.0.0a0
+          - *numpy
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
         packages:
           - *numba
           - *numpy
-      - output_types: [pyproject]
+          - pandas
+  rapids_build_skbuild:
+    common:
+      - output_types: [conda, requirements, pyproject]
         packages:
-          - *cugraph
+          - &rapids_build_backend rapids-build-backend>=0.3.0,<0.4.0.dev0
+      - output_types: conda
+        packages:
+          - scikit-build-core>=0.10.0
+      - output_types: [requirements, pyproject]
+        packages:
+          - scikit-build-core[pyproject]>=0.10.0
+  rapids_build_setuptools:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - *rapids_build_backend
+          - setuptools>=61.0.0
+          - wheel
+  test_cpp:
+    common:
+      - output_types: conda
+        packages:
+          - *cmake_ver
+          - nccl>=2.19
   test_notebook:
     common:
       - output_types: [conda, requirements]
         packages:
           - ipython
+          - nbconvert
           - notebook>=0.5.0
-      - output_types: [conda]
-        packages:
-          - wget
+          - ogb
   test_python_common:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - pandas
           - pytest
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
+  test_python_cugraph_pyg:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - ogb
+  test_python_pylibwholegraph:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - pytest-forked
           - scipy
   cugraph_dgl_dev:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*,>=0.0.0a0
-          - pytorch::pytorch>=2.0
-          - dgl>=1.1.0.cu*
+          - dgl>=2.4.0.cu*
           - &tensordict tensordict>=0.1.2
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
         packages:
-          - cugraph==24.12.*,>=0.0.0a0
-          - pytorch::pytorch>=2.0
           - *tensordict
-          - pyg>=2.5,<2.6
 
   depends_on_pytorch:
     common:
       - output_types: [conda]
         packages:
-          - pytorch::pytorch>=2.0,<2.2.0a0
+          - pytorch::pytorch>=2.3,<2.4.0a0
           - torchdata
           - pydantic
     specific:
@@ -348,7 +405,7 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - &pytorch_pip torch>=2.0,<2.2.0a0
+              - &pytorch_pip torch>=2.3,<2.4.0a0
               - *tensordict
           - matrix: {cuda: "11.*"}
             packages:
@@ -357,12 +414,19 @@ dependencies:
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {cuda: "12.1"}
             packages:
               - pytorch-cuda=12.1
-          - matrix: {cuda: "11.*"}
+          - matrix: {cuda: "12.4"}
+            packages:
+              - pytorch-cuda=12.4
+          - matrix: {cuda: "11.8"}
             packages:
               - pytorch-cuda=11.8
+          # pytorch only supports certain CUDA versions... skip
+          # adding pytorch-cuda pinning if any other CUDA version is requested
+          - matrix:
+            packages:
 
   depends_on_dgl:
     specific:
@@ -370,23 +434,20 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - "dglteam/label/th21_cu121::dgl"
+              - "dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"
           - matrix: {cuda: "11.*"}
             packages:
-              - "dglteam/label/th21_cu118::dgl"
-          - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl"]}
+              - "dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*"
+          - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"]}
 
   depends_on_pyg:
-    specific:
+    common:
       - output_types: [conda]
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-              - "pyg::pyg"
-          - matrix: {cuda: "11.*"}
-            packages:
-              - "pyg::pyg"
-          - {matrix: null, packages: ["pyg::pyg"]}
+        packages:
+          - pytorch_geometric>=2.5,<2.6
+      - output_types: [pyproject, requirements]
+        packages:
+          - torch-geometric>=2.5,<2.6
 
   depends_on_pylibwholegraph:
     common:

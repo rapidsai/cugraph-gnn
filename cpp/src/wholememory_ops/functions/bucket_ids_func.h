@@ -23,7 +23,7 @@ namespace wholememory_ops {
 wholememory_error_code_t bucket_ids_for_ranks(void* indices,
                                               wholememory_array_description_t indice_desc,
                                               int64_t* dev_rank_id_count_ptr,
-                                              size_t embedding_entry_count_per_rank,
+                                              size_t* embedding_entry_offsets,
                                               int world_size,
                                               cudaDeviceProp* prop,
                                               cudaStream_t stream);
