@@ -31,7 +31,7 @@ python -m pip install \
     "$(echo ./local-deps/pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}*.whl)" \
     "$(echo ./dist/cugraph_dgl_${RAPIDS_PY_CUDA_SUFFIX}*.whl)[test]" \
     'dgl==2.4.0' \
-    'torch>=2.0,<2.4.0a0'
+    'torch>=2.3'
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
