@@ -26,7 +26,7 @@ rapids-logger "Installing Packages"
 rapids-retry python -m pip install \
     --extra-index-url ${INDEX_URL} \
     "$(echo ./dist/pylibwholegraph*.whl)[test]" \
-    'torch>=2.0,<2.4.0a0'
+    'torch>=2.3'
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests

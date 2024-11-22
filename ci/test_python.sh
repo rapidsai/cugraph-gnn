@@ -73,7 +73,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel nvidia \
     "pylibwholegraph=${RAPIDS_VERSION}" \
     "cugraph-dgl=${RAPIDS_VERSION}" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    'pytorch>=2.3' \
     "ogb"
 
   rapids-print-env
@@ -111,7 +111,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel pytorch \
     "pylibwholegraph=${RAPIDS_VERSION}" \
     "cugraph-pyg=${RAPIDS_VERSION}" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    'pytorch>=2.3' \
     'ogb'
 
   rapids-print-env
@@ -149,7 +149,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel pytorch \
     'mkl<2024.1.0' \
     "pylibwholegraph=${RAPIDS_VERSION}" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    'pytorch>=2.3' \
     'pytest-forked' \
     'ogb'
 
