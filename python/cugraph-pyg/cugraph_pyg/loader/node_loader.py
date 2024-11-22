@@ -110,6 +110,8 @@ class NodeLoader:
             input_id,
         )
 
+        input_nodes += data[1]._vertex_offsets[input_type]
+
         self.__input_data = torch_geometric.sampler.NodeSamplerInput(
             input_id=torch.arange(len(input_nodes), dtype=torch.int64, device="cuda")
             if input_id is None

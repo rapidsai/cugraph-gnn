@@ -228,7 +228,8 @@ class LinkNeighborLoader(LinkLoader):
                 with_replacement=replace,
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
-                heterogeneous=(not graph_store.is_homogeneous)
+                heterogeneous=(not graph_store.is_homogeneous),
+                num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
             (feature_store, graph_store),
             batch_size=batch_size,

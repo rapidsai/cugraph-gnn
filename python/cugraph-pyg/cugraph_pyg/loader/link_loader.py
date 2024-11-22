@@ -128,6 +128,10 @@ class LinkLoader:
             (None, edge_label_index),
         )
 
+        # Note reverse of standard convention here
+        edge_label_index[0] += data[1]._vertex_offsets[input_type[0]]
+        edge_label_index[1] += data[1]._vertex_offsets[input_type[2]]
+
         self.__input_data = torch_geometric.sampler.EdgeSamplerInput(
             input_id=torch.arange(
                 edge_label_index[0].numel(), dtype=torch.int64, device="cuda"

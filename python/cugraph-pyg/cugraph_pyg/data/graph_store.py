@@ -70,6 +70,7 @@ class GraphStore(
         self.__graph = None
         self.__vertex_offsets = None
         self.__weight_attr = None
+        self.__numeric_edge_types = None
 
     def _put_edge_index(
         self,
@@ -173,6 +174,7 @@ class GraphStore(
                     else None,
                 )
             else:
+                print(edgelist_dict)
                 self.__graph = pylibcugraph.SGGraph(
                     self._resource_handle,
                     graph_properties,
@@ -269,6 +271,39 @@ class GraphStore(
             weights.append(feature_store[et, attr_name][ix])
 
         return torch.concat(weights)
+
+    @property
+    def _numeric_edge_types(self) -> Tuple[List, "torch.Tensor", "torch.Tensor"]:
+        """
+        Returns the canonical edge types in order (the 0th canonical type corresponds
+        to numeric edge type 0, etc.), along with the numeric source and destination
+        vertex types for each edge type.
+        """
+
+        if self.__numeric_edge_types is None:
+            sorted_keys = sorted(
+                list(self.__edge_indices.keys(leaves_only=True, include_nested=True))
+            )
+
+            vtype_table = {
+                k: i
+                for i, k in enumerate(sorted(self._vertex_offsets.keys()))
+            }
+
+            srcs = []
+            dsts = []
+
+            for can_etype in sorted_keys:
+                srcs.append(
+                    vtype_table[can_etype[0]]
+                )
+                dsts.append(
+                    vtype_table[can_etype[2]]
+                )
+        
+            self.__numeric_edge_types = (sorted_keys, torch.tensor(srcs,device='cuda',dtype=torch.int32), torch.tensor(dsts,device='cuda',dtype=torch.int32))
+        
+        return self.__numeric_edge_types
 
     def __get_edgelist(self):
         """
