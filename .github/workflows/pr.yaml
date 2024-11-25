@@ -37,7 +37,7 @@ jobs:
       files_yaml: |
         test_cpp:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!docs/**'
@@ -48,20 +48,30 @@ jobs:
           - '!readme_pages/**'
         test_notebooks:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!docs/**'
           - '!readme_pages/**'
         test_python:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!docs/**'
           - '!img/**'
           - '!notebooks/**'
           - '!readme_pages/**'
+  devcontainer:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@branch-25.02
+    with:
+      arch: '["amd64"]'
+      cuda: '["12.5"]'
+      build_command: |
+        sccache -z;
+        build-all --verbose -j$(nproc --ignore=1);
+        sccache -s;
   checks:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-25.02
