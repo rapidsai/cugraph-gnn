@@ -13,6 +13,7 @@ jobs:
   pr-builder:
     needs:
       - changed-files
+      - devcontainer
       - checks
       - conda-cpp-build
       - conda-cpp-tests
