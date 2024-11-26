@@ -262,6 +262,33 @@ dependencies:
         packages:
           - &cmake_ver cmake>=3.26.4,!=3.30.0
           - ninja
+    specific:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              arch: x86_64
+            packages:
+              - gcc_linux-64=11.*
+          - matrix:
+              arch: aarch64
+            packages:
+              - gcc_linux-aarch64=11.*
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              arch: x86_64
+              cuda: "11.8"
+            packages:
+              - nvcc_linux-64=11.8
+          - matrix:
+              arch: aarch64
+              cuda: "11.8"
+            packages:
+              - nvcc_linux-aarch64=11.8
+          - matrix:
+              cuda: "12.*"
+            packages:
+              - cuda-nvcc
 
   docs:
     common:
