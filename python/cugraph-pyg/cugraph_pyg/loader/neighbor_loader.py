@@ -184,15 +184,19 @@ class NeighborLoader(NodeLoader):
         feature_store, graph_store = data
 
         if compression is None:
-            compression = "CSR" if graph_store.is_homogeneous else 'COO'
+            compression = "CSR" if graph_store.is_homogeneous else "COO"
         elif compression not in ["CSR", "COO"]:
             raise ValueError("Invalid value for compression (expected 'CSR' or 'COO')")
 
-        if (not graph_store.is_homogeneous):
-            if compression != 'COO':
-                raise ValueError("Only COO format is supported for heterogeneous graphs!")
+        if not graph_store.is_homogeneous:
+            if compression != "COO":
+                raise ValueError(
+                    "Only COO format is supported for heterogeneous graphs!"
+                )
             if directory is not None:
-                raise ValueError("Writing to disk is not supported for heterogeneous graphs!")
+                raise ValueError(
+                    "Writing to disk is not supported for heterogeneous graphs!"
+                )
 
         writer = (
             None
@@ -221,6 +225,7 @@ class NeighborLoader(NodeLoader):
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),
+                vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
             (feature_store, graph_store),

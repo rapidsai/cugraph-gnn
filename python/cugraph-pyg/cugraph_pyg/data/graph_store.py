@@ -174,6 +174,7 @@ class GraphStore(
                     else None,
                 )
             else:
+                print(self._vertex_offsets)
                 print(edgelist_dict)
                 self.__graph = pylibcugraph.SGGraph(
                     self._resource_handle,
@@ -243,6 +244,27 @@ class GraphStore(
         return dict(self.__vertex_offsets)
 
     @property
+    def _vertex_offset_array(self) -> "torch.Tensor":
+        off = torch.tensor(
+            [self._vertex_offsets[k] for k in sorted(self._vertex_offsets.keys())],
+            dtype=torch.int64,
+            device="cuda",
+        )
+
+        return torch.concat(
+            [
+                off,
+                torch.tensor(
+                    list(self._num_vertices().values()),
+                    device="cuda",
+                    dtype=torch.int64,
+                )
+                .sum()
+                .reshape((1,)),
+            ]
+        )
+
+    @property
     def is_homogeneous(self) -> bool:
         return len(self._vertex_offsets) == 1
 
@@ -286,23 +308,22 @@ class GraphStore(
             )
 
             vtype_table = {
-                k: i
-                for i, k in enumerate(sorted(self._vertex_offsets.keys()))
+                k: i for i, k in enumerate(sorted(self._vertex_offsets.keys()))
             }
 
             srcs = []
             dsts = []
 
             for can_etype in sorted_keys:
-                srcs.append(
-                    vtype_table[can_etype[0]]
-                )
-                dsts.append(
-                    vtype_table[can_etype[2]]
-                )
-        
-            self.__numeric_edge_types = (sorted_keys, torch.tensor(srcs,device='cuda',dtype=torch.int32), torch.tensor(dsts,device='cuda',dtype=torch.int32))
-        
+                srcs.append(vtype_table[can_etype[0]])
+                dsts.append(vtype_table[can_etype[2]])
+
+            self.__numeric_edge_types = (
+                sorted_keys,
+                torch.tensor(srcs, device="cuda", dtype=torch.int32),
+                torch.tensor(dsts, device="cuda", dtype=torch.int32),
+            )
+
         return self.__numeric_edge_types
 
     def __get_edgelist(self):

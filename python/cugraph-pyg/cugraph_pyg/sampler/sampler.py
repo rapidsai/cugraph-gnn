@@ -122,7 +122,7 @@ class SampleIterator:
 
         elif isinstance(next_sample, torch_geometric.sampler.HeteroSamplerOutput):
             col = {}
-            for edge_type, col_idx in next_sample.col:
+            for edge_type, col_idx in next_sample.col.items():
                 sz = next_sample.edge[edge_type].numel()
                 if sz == col_idx.numel():
                     col[edge_type] = col_idx
@@ -190,14 +190,18 @@ class SampleReader:
                 self.__base_reader
             )
             print(self.__raw_sample_data)
-            lho_name = "label_type_hop_offsets" if "label_type_hop_offsets" in self.__raw_sample_data else "label_type_hop_offsets"
+            lho_name = (
+                "label_type_hop_offsets"
+                if "label_type_hop_offsets" in self.__raw_sample_data
+                else "label_type_hop_offsets"
+            )
 
             self.__raw_sample_data["input_offsets"] -= self.__raw_sample_data[
                 "input_offsets"
             ][0].clone()
-            self.__raw_sample_data[lho_name] -= self.__raw_sample_data[
-                lho_name
-            ][0].clone()
+            self.__raw_sample_data[lho_name] -= self.__raw_sample_data[lho_name][
+                0
+            ].clone()
             self.__raw_sample_data["renumber_map_offsets"] -= self.__raw_sample_data[
                 "renumber_map_offsets"
             ][0].clone()
@@ -225,7 +229,12 @@ class HeterogeneousSampleReader(SampleReader):
     """
 
     def __init__(
-        self, base_reader: Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]], src_types: "torch.Tensor", dst_types: "torch.Tensor", edge_types: List[Tuple[str, str, str]]
+        self,
+        base_reader: Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]],
+        src_types: "torch.Tensor",
+        dst_types: "torch.Tensor",
+        vertex_offsets: "torch.Tensor",
+        edge_types: List[Tuple[str, str, str]],
     ):
         """
         Constructs a new HeterogeneousSampleReader
@@ -239,6 +248,10 @@ class HeterogeneousSampleReader(SampleReader):
             Integer source type for each integer edge type.
         dst_types: torch.Tensor
             Integer destination type for each integer edge type.
+        vertex_offsets: torch.Tensor
+            Vertex offsets for each vertex type.  Used to de-offset vertices
+            outputted by the cuGraph sampler and return PyG-compliant vertex
+            IDs.
         edge_types: List[Tuple[str, str, str]]
             List of edge types in the graph in order, so they can be
             mapped to numeric edge types.
@@ -247,14 +260,16 @@ class HeterogeneousSampleReader(SampleReader):
         self.__src_types = src_types
         self.__dst_types = dst_types
         self.__edge_types = edge_types
-        self.__num_vertex_types = max(self.__src_types.max(), self.__dst_types.max()) + 1
+        self.__num_vertex_types = (
+            max(self.__src_types.max(), self.__dst_types.max()) + 1
+        )
+        self.__vertex_offsets = vertex_offsets
 
         super().__init__(base_reader)
 
-
     def __decode_coo(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
-        fanout_length = raw_sample_data['fanout'].numel()
         num_edge_types = self.__src_types.numel()
+        fanout_length = raw_sample_data["fanout"].numel() // num_edge_types
 
         num_sampled_edges = {}
         node = {}
@@ -264,40 +279,47 @@ class HeterogeneousSampleReader(SampleReader):
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
+            print(raw_sample_data["map"])
+            print(raw_sample_data["renumber_map_offsets"])
+
             jx = self.__src_types[etype] + index * self.__num_vertex_types
-            map_ptr_src_beg, map_ptr_src_end = raw_sample_data["renumber_map_offsets"][
-                [jx, jx + 1]
-            ]
-            map_src = raw_sample_data["renumber_map"][map_ptr_src_beg:map_ptr_src_end]
-            node[pyg_can_etype[0]] = map_src.cpu()
+            map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
+            map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
+
+            map_src = raw_sample_data["map"][map_ptr_src_beg:map_ptr_src_end]
+            node[pyg_can_etype[0]] = (
+                map_src - self.__vertex_offsets[self.__src_types[etype]]
+            ).cpu()
 
             kx = self.__dst_types[etype] + index * self.__num_vertex_types
-            map_ptr_dst_beg, map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][
-                [kx, kx + 1]
-            ]
-            map_dst = raw_sample_data["renumber_map"][map_ptr_dst_beg:map_ptr_dst_end]
-            node[pyg_can_etype[2]] = map_dst.cpu()
+            map_ptr_dst_beg = raw_sample_data["renumber_map_offsets"][kx]
+            map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][kx + 1]
 
-            edge_ptr_beg = index * num_edge_types * fanout_length + etype * fanout_length
-            edge_ptr_end = index * num_edge_types * fanout_length + (etype+1) * fanout_length
-            lho = raw_sample_data['label_type_hop_offsets'][
-                edge_ptr_beg:edge_ptr_end
-            ]
+            map_dst = raw_sample_data["map"][map_ptr_dst_beg:map_ptr_dst_end]
+            node[pyg_can_etype[2]] = (
+                map_dst - self.__vertex_offsets[self.__dst_types[etype]]
+            ).cpu()
 
-            num_sampled_edges[pyg_can_etype] = (
-                lho
-            ).diff().cpu()
+            edge_ptr_beg = (
+                index * num_edge_types * fanout_length + etype * fanout_length
+            )
+            edge_ptr_end = (
+                index * num_edge_types * fanout_length + (etype + 1) * fanout_length
+            )
+            lho = raw_sample_data["label_type_hop_offsets"][edge_ptr_beg:edge_ptr_end]
+
+            num_sampled_edges[pyg_can_etype] = (lho).diff().cpu()
 
             eid_i = raw_sample_data["edge_id"][edge_ptr_beg:edge_ptr_end]
             eirx = (index * num_edge_types) + etype
-            edge_id_ptr_beg, edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][
-                [eirx, eirx + 1]
-            ]
+            edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
+            edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
+
             emap = raw_sample_data["edge_renumber_map"][edge_id_ptr_beg:edge_id_ptr_end]
             edge[pyg_can_etype] = emap[eid_i]
 
-            col[pyg_can_etype] = raw_sample_data['majors'][edge_ptr_beg:edge_ptr_end]
-            row[pyg_can_etype] = raw_sample_data['minors'][edge_ptr_beg:edge_ptr_end]
+            col[pyg_can_etype] = raw_sample_data["majors"][edge_ptr_beg:edge_ptr_end]
+            row[pyg_can_etype] = raw_sample_data["minors"][edge_ptr_beg:edge_ptr_end]
 
         num_sampled_nodes = {}
 
@@ -345,7 +367,9 @@ class HeterogeneousSampleReader(SampleReader):
 
     def _decode(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
         if "major_offsets" in raw_sample_data:
-            raise ValueError("CSR format not currently supported for heterogeneous graphs")
+            raise ValueError(
+                "CSR format not currently supported for heterogeneous graphs"
+            )
         else:
             return self.__decode_coo(raw_sample_data, index)
 
@@ -599,13 +623,14 @@ class BaseSampler:
         ):
             return HomogeneousSampleReader(reader)
         else:
-            edge_types,src_types,dst_types = self.__graph_store._numeric_edge_types
+            edge_types, src_types, dst_types = self.__graph_store._numeric_edge_types
 
             return HeterogeneousSampleReader(
                 reader,
                 src_types=src_types,
                 dst_types=dst_types,
                 edge_types=edge_types,
+                vertex_offsets=self.__graph_store._vertex_offset_array,
             )
 
     def sample_from_edges(
@@ -670,10 +695,11 @@ class BaseSampler:
         ):
             return HomogeneousSampleReader(reader)
         else:
-            edge_types,src_types,dst_types = self.__graph_store._numeric_edge_types
+            edge_types, src_types, dst_types = self.__graph_store._numeric_edge_types
             return HeterogeneousSampleReader(
                 reader,
                 src_types=src_types,
                 dst_types=dst_types,
                 edge_types=edge_types,
+                vertex_offsets=self.__graph_store._vertex_offset_array,
             )
