@@ -10,6 +10,7 @@ dependencies:
 - breathe
 - cmake>=3.26.4,!=3.30.0
 - cuda-cudart-dev
+- cuda-nvcc
 - cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
@@ -21,6 +22,7 @@ dependencies:
 - dask-cudf==25.2.*,>=0.0.0a0
 - dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*
 - doxygen
+- gcc_linux-64=11.*
 - graphviz
 - ipython
 - libcublas-dev

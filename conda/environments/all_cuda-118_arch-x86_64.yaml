@@ -19,6 +19,7 @@ dependencies:
 - dask-cudf==25.2.*,>=0.0.0a0
 - dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
 - doxygen
+- gcc_linux-64=11.*
 - graphviz
 - ipython
 - nbconvert
@@ -29,6 +30,7 @@ dependencies:
 - numba>=0.57
 - numpy>=1.23,<3.0a0
 - numpydoc
+- nvcc_linux-64=11.8
 - ogb
 - pandas
 - pre-commit
