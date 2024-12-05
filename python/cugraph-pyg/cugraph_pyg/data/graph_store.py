@@ -174,8 +174,6 @@ class GraphStore(
                     else None,
                 )
             else:
-                print(self._vertex_offsets)
-                print(edgelist_dict)
                 self.__graph = pylibcugraph.SGGraph(
                     self._resource_handle,
                     graph_properties,

@@ -235,6 +235,7 @@ class HeterogeneousSampleReader(SampleReader):
         dst_types: "torch.Tensor",
         vertex_offsets: "torch.Tensor",
         edge_types: List[Tuple[str, str, str]],
+        vertex_types: List[str],
     ):
         """
         Constructs a new HeterogeneousSampleReader
@@ -255,14 +256,17 @@ class HeterogeneousSampleReader(SampleReader):
         edge_types: List[Tuple[str, str, str]]
             List of edge types in the graph in order, so they can be
             mapped to numeric edge types.
+        vertex_types: List[str]
+            List of vertex types, in order so they can be mapped to
+            numeric vertex types.
         """
 
         self.__src_types = src_types
         self.__dst_types = dst_types
         self.__edge_types = edge_types
-        self.__num_vertex_types = (
-            max(self.__src_types.max(), self.__dst_types.max()) + 1
-        )
+        self.__vertex_types = vertex_types
+        self.__num_vertex_types = len(vertex_types)
+
         self.__vertex_offsets = vertex_offsets
 
         super().__init__(base_reader)
@@ -271,11 +275,18 @@ class HeterogeneousSampleReader(SampleReader):
         num_edge_types = self.__src_types.numel()
         fanout_length = raw_sample_data["fanout"].numel() // num_edge_types
 
+        num_sampled_nodes = [
+            torch.zeros((fanout_length + 1,), dtype=torch.int64, device="cuda")
+            for _ in range(self.__num_vertex_types)
+        ]
+
         num_sampled_edges = {}
+
         node = {}
         row = {}
         col = {}
         edge = {}
+
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
@@ -307,7 +318,7 @@ class HeterogeneousSampleReader(SampleReader):
                 edge_ptr_beg : edge_ptr_end + 1
             ]
 
-            num_sampled_edges[pyg_can_etype] = (lho).diff().cpu()
+            num_sampled_edges[pyg_can_etype] = (lho).diff()
 
             eid_i = raw_sample_data["edge_id"][lho[0] : lho[-1]]
 
@@ -321,7 +332,35 @@ class HeterogeneousSampleReader(SampleReader):
             col[pyg_can_etype] = raw_sample_data["majors"][lho[0] : lho[-1]]
             row[pyg_can_etype] = raw_sample_data["minors"][lho[0] : lho[-1]]
 
-        num_sampled_nodes = {}
+            for hop in range(fanout_length):
+                vx = raw_sample_data["majors"][: lho[hop + 1]]
+                if vx.numel() > 0:
+                    num_sampled_nodes[self.__src_types[etype]][hop + 1] = torch.max(
+                        num_sampled_nodes[self.__src_types[etype]][hop + 1],
+                        vx.max() + 1,
+                    )
+
+                vy = raw_sample_data["minors"][: lho[hop + 1]]
+                if vy.numel() > 0:
+                    num_sampled_nodes[self.__dst_types[etype]][hop + 1] = torch.max(
+                        num_sampled_nodes[self.__dst_types[etype]][hop + 1],
+                        vy.max() + 1,
+                    )
+
+            ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+            if ux.numel() > 0:
+                num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
+                    num_sampled_nodes[self.__src_types[etype]][0],
+                    (ux.max() + 1).reshape((1,)),
+                )
+
+        num_sampled_nodes = {
+            self.__vertex_types[i]: z.diff(
+                prepend=torch.zeros((1,), dtype=torch.int64, device="cuda")
+            ).cpu()
+            for i, z in enumerate(num_sampled_nodes)
+        }
+        num_sampled_edges = {k: v.cpu() for k, v in num_sampled_edges.items()}
 
         input_index = raw_sample_data["input_index"][
             raw_sample_data["input_offsets"][index] : raw_sample_data["input_offsets"][
@@ -630,6 +669,7 @@ class BaseSampler:
                 src_types=src_types,
                 dst_types=dst_types,
                 edge_types=edge_types,
+                vertex_types=sorted(self.__graph_store._num_vertices().keys()),
                 vertex_offsets=self.__graph_store._vertex_offset_array,
             )
 
