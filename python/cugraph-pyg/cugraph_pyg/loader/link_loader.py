@@ -129,8 +129,9 @@ class LinkLoader:
         )
 
         # Note reverse of standard convention here
-        edge_label_index[0] += data[1]._vertex_offsets[input_type[0]]
-        edge_label_index[1] += data[1]._vertex_offsets[input_type[2]]
+        if input_type is not None:
+            edge_label_index[0] += data[1]._vertex_offsets[input_type[0]]
+            edge_label_index[1] += data[1]._vertex_offsets[input_type[2]]
 
         self.__input_data = torch_geometric.sampler.EdgeSamplerInput(
             input_id=torch.arange(

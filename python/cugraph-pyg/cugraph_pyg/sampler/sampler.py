@@ -189,11 +189,11 @@ class SampleReader:
             self.__raw_sample_data, start_inclusive, end_inclusive = next(
                 self.__base_reader
             )
-            print(self.__raw_sample_data)
+
             lho_name = (
                 "label_type_hop_offsets"
                 if "label_type_hop_offsets" in self.__raw_sample_data
-                else "label_type_hop_offsets"
+                else "label_hop_offsets"
             )
 
             self.__raw_sample_data["input_offsets"] -= self.__raw_sample_data[
@@ -279,9 +279,6 @@ class HeterogeneousSampleReader(SampleReader):
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
-            print(raw_sample_data["map"])
-            print(raw_sample_data["renumber_map_offsets"])
-
             jx = self.__src_types[etype] + index * self.__num_vertex_types
             map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
             map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
@@ -306,11 +303,14 @@ class HeterogeneousSampleReader(SampleReader):
             edge_ptr_end = (
                 index * num_edge_types * fanout_length + (etype + 1) * fanout_length
             )
-            lho = raw_sample_data["label_type_hop_offsets"][edge_ptr_beg:edge_ptr_end]
+            lho = raw_sample_data["label_type_hop_offsets"][
+                edge_ptr_beg : edge_ptr_end + 1
+            ]
 
             num_sampled_edges[pyg_can_etype] = (lho).diff().cpu()
 
-            eid_i = raw_sample_data["edge_id"][edge_ptr_beg:edge_ptr_end]
+            eid_i = raw_sample_data["edge_id"][lho[0] : lho[-1]]
+
             eirx = (index * num_edge_types) + etype
             edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
             edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
@@ -318,8 +318,8 @@ class HeterogeneousSampleReader(SampleReader):
             emap = raw_sample_data["edge_renumber_map"][edge_id_ptr_beg:edge_id_ptr_end]
             edge[pyg_can_etype] = emap[eid_i]
 
-            col[pyg_can_etype] = raw_sample_data["majors"][edge_ptr_beg:edge_ptr_end]
-            row[pyg_can_etype] = raw_sample_data["minors"][edge_ptr_beg:edge_ptr_end]
+            col[pyg_can_etype] = raw_sample_data["majors"][lho[0] : lho[-1]]
+            row[pyg_can_etype] = raw_sample_data["minors"][lho[0] : lho[-1]]
 
         num_sampled_nodes = {}
 
