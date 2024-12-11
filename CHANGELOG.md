@@ -1,3 +1,37 @@
+# cugraph-gnn 24.12.00 (11 Dec 2024)
+
+## 🚨 Breaking Changes
+
+- Disable RockyLinux Tests for DGL, Disable CUDA All 11.4 Tests ([#89](https://github.com/rapidsai/cugraph-gnn/pull/89)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🐛 Bug Fixes
+
+- Disable RockyLinux Tests for DGL, Disable CUDA All 11.4 Tests ([#89](https://github.com/rapidsai/cugraph-gnn/pull/89)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [Bugfix] Add stream synchronization before the scatter operation ([#73](https://github.com/rapidsai/cugraph-gnn/pull/73)) [@chang-l](https://github.com/chang-l)
+- [Bugfix] Dynamic load NVML symbols for better compatibility ([#72](https://github.com/rapidsai/cugraph-gnn/pull/72)) [@chang-l](https://github.com/chang-l)
+
+## 🚀 New Features
+
+- [Feature] Add gather/scatter support 1D tensor ([#74](https://github.com/rapidsai/cugraph-gnn/pull/74)) [@chang-l](https://github.com/chang-l)
+- update wholegraph ([#65](https://github.com/rapidsai/cugraph-gnn/pull/65)) [@zhuofan1123](https://github.com/zhuofan1123)
+
+## 🛠️ Improvements
+
+- skip CUDA 11.4 conda-python-tests jobs ([#91](https://github.com/rapidsai/cugraph-gnn/pull/91)) [@jameslamb](https://github.com/jameslamb)
+- Relax PyTorch upper bound (allowing 2.4) ([#75](https://github.com/rapidsai/cugraph-gnn/pull/75)) [@jakirkham](https://github.com/jakirkham)
+- remove versioning workaround for nightlies ([#69](https://github.com/rapidsai/cugraph-gnn/pull/69)) [@jameslamb](https://github.com/jameslamb)
+- fix devcontainer builds ([#68](https://github.com/rapidsai/cugraph-gnn/pull/68)) [@jameslamb](https://github.com/jameslamb)
+- enforce wheel size limits, README formatting in CI ([#67](https://github.com/rapidsai/cugraph-gnn/pull/67)) [@jameslamb](https://github.com/jameslamb)
+- start publishing packages ([#66](https://github.com/rapidsai/cugraph-gnn/pull/66)) [@jameslamb](https://github.com/jameslamb)
+- add notebook tests, build.sh args ([#62](https://github.com/rapidsai/cugraph-gnn/pull/62)) [@jameslamb](https://github.com/jameslamb)
+- add nightly builds/tests, remove some cugraph references ([#61](https://github.com/rapidsai/cugraph-gnn/pull/61)) [@jameslamb](https://github.com/jameslamb)
+- remove docs support in build.sh, remove test_wheel.sh, other small cleanup ([#60](https://github.com/rapidsai/cugraph-gnn/pull/60)) [@jameslamb](https://github.com/jameslamb)
+- add PR CI for cugraph-pyg and cugraph-dgl ([#59](https://github.com/rapidsai/cugraph-gnn/pull/59)) [@jameslamb](https://github.com/jameslamb)
+- add full CI for wholegraph ([#58](https://github.com/rapidsai/cugraph-gnn/pull/58)) [@jameslamb](https://github.com/jameslamb)
+- add alpha specs, pre-commit hook to enforce them ([#57](https://github.com/rapidsai/cugraph-gnn/pull/57)) [@jameslamb](https://github.com/jameslamb)
+- introduce minimal CI for PRs ([#56](https://github.com/rapidsai/cugraph-gnn/pull/56)) [@jameslamb](https://github.com/jameslamb)
+- Add Copy PR Bot ([#55](https://github.com/rapidsai/cugraph-gnn/pull/55)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
 # cugraph 24.06.00 (5 Jun 2024)
 
 ## 🚨 Breaking Changes
