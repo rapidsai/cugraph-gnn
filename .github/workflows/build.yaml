@@ -46,7 +46,7 @@ jobs:
   docs-build:
     needs: conda-cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch--25.02
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
     with:
       arch: "amd64"
       branch: ${{ inputs.branch }}
