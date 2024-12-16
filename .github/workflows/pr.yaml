@@ -122,9 +122,9 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch--25.02
     with:
-      build_type: pull-request
       arch: "amd64"
-      container_image: "rapidsai/ci-conda:latest"
+      build_type: pull-request
+      container_image: "rapidsai/ci-conda:cuda12.5.1-ubuntu22.04-py3.11"
       run_script: "ci/build_docs.sh"
   # wheel-build-pylibwholegraph:
   #   needs: checks
