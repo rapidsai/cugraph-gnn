@@ -44,7 +44,7 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
   docs-build:
-    needs: conda-cpp-build
+    needs: cpp-build
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
     with:
