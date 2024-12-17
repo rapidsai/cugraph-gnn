@@ -43,6 +43,18 @@ jobs:
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
+  docs-build:
+    needs: conda-cpp-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
+    with:
+      arch: "amd64"
+      branch: ${{ inputs.branch }}
+      build_type: ${{ inputs.build_type || 'branch' }}
+      container_image: "rapidsai/ci-conda:latest"
+      date: ${{ inputs.date }}
+      run_script: "ci/build_docs.sh"
+      sha: ${{ inputs.sha }}
   upload-conda:
     needs: [cpp-build, python-build]
     secrets: inherit

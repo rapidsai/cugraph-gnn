@@ -19,6 +19,7 @@ jobs:
       - conda-cpp-tests
       - conda-python-build
       - conda-python-tests
+      - docs-build
       - conda-notebook-tests
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
@@ -116,6 +117,15 @@ jobs:
     with:
       build_type: pull-request
       matrix_filter: map(select(.ARCH == "amd64"))
+  docs-build:
+    needs: conda-cpp-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
+    with:
+      arch: "amd64"
+      build_type: pull-request
+      container_image: "rapidsai/ci-conda:latest"
+      run_script: "ci/build_docs.sh"
   wheel-build-pylibwholegraph:
     needs: checks
     secrets: inherit
