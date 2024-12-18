@@ -45,7 +45,7 @@ VALIDARGS="
 HELP="$0 [<target> ...] [<flag> ...]
  where <target> is:
    clean                      - remove all existing build artifacts and configuration (start over)
-   uninstall                  - uninstall libcugraph and cugraph from a prior build/install (see also -n)
+   uninstall                  - uninstall libwholegraph and GNN Python packages from a prior build/install (see also -n)
    cugraph-pyg                - build the cugraph-pyg Python package
    cugraph-dgl                - build the cugraph-dgl extensions for DGL
    pylibwholegraph            - build the pylibwholegraph Python package

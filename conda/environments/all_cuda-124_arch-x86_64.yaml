@@ -40,7 +40,6 @@ dependencies:
 - pre-commit
 - pydantic
 - pylibcugraphops==25.2.*,>=0.0.0a0
-- pylibraft==25.2.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov
@@ -49,7 +48,6 @@ dependencies:
 - pytorch-cuda=12.4
 - pytorch>=2.3
 - pytorch_geometric>=2.5,<2.6
-- raft-dask==25.2.*,>=0.0.0a0
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
 - rmm==25.2.*,>=0.0.0a0
 - scikit-build-core>=0.10.0

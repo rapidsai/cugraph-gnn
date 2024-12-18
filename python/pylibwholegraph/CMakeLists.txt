@@ -105,10 +105,6 @@ include(../../cpp/cmake/thirdparty/get_raft.cmake)
 ##############################################################################
 # - Dependencies  ------------------------------------------------------------
 
-#find_package(PythonInterp 3 REQUIRED)
-
-#include(${CMAKE_CURRENT_LIST_DIR}/../cmake/thirdparty/nanobind.cmake)
-
 # use <package>_ROOT here to take precedence over any other package
 if (DEFINED ENV{LIBWHOLEGRAPH_DIR})
   set(wholegraph_ROOT "$ENV{LIBWHOLEGRAPH_DIR}")
@@ -158,7 +154,3 @@ message(STATUS "PYLIBWHOLEGRAPH: CXX_DEFINITIONS='${CXX_DEFINITIONS}'")
 set(WHOLEGRAPH_CPP_TARGET "wholegraph::wholegraph" CACHE STRING "libwholegraph target name")
 
 add_subdirectory(pylibwholegraph/binding)
-
-# when used without setup.py, command is like:
-# export LIBWHOLEGRAPH_DIR=`pwd`/../../cpp/build/install
-# cmake ../ -DSKBUILD=ON

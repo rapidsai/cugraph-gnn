@@ -41,6 +41,7 @@ function(find_and_configure_raft)
                 "RAFT_COMPILE_DIST_LIBRARY OFF"
                 "BUILD_TESTS OFF"
                 "BUILD_BENCH OFF"
+                "BUILD_PRIMS_BENCH OFF"
                 "RAFT_ENABLE_cuco_DEPENDENCY OFF"
     )
 

@@ -78,7 +78,7 @@ if hasArg "--run-python-tests"; then
 
     echo "Python pytest for cugraph-dgl (single-GPU only)..."
     cd ${CUGRAPH_ROOT}/python/cugraph-dgl
-    pytest -sv --cache-clear --junitxml=${CUGRAPH_ROOT}/junit-cugraph-service-pytests.xml --benchmark-disable -k "not mg" ./tests
+    pytest -sv --cache-clear --junitxml=${CUGRAPH_ROOT}/junit-cugraph-dgl-pytests.xml --benchmark-disable -k "not mg" ./tests
     echo "Ran Python pytest for cugraph-dgl : return code was: $?, test script exit code is now: $EXITCODE"
 fi
 
