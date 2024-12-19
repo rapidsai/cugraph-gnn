@@ -11,18 +11,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gat_conv import GATConv
-from .gatv2_conv import GATv2Conv
-from .hetero_gat_conv import HeteroGATConv
-from .rgcn_conv import RGCNConv
-from .sage_conv import SAGEConv
-from .transformer_conv import TransformerConv
+import warnings
 
-__all__ = [
-    "GATConv",
-    "GATv2Conv",
-    "HeteroGATConv",
-    "RGCNConv",
-    "SAGEConv",
-    "TransformerConv",
-]
+HAVE_CUGRAPH_OPS = False
+try:
+    import pylibcugraphops
+    HAVE_CUGRAPH_OPS = True
+except ImportError:
+    pass
+except Exception as e:
+    warnings.warn(f"Unexpected error while importing pylibcugraphops: {e}")
+
+if HAVE_CUGRAPH_OPS:
+    from .gat_conv import GATConv
+    from .gatv2_conv import GATv2Conv
+    from .hetero_gat_conv import HeteroGATConv
+    from .rgcn_conv import RGCNConv
+    from .sage_conv import SAGEConv
+    from .transformer_conv import TransformerConv
+
+    __all__ = [
+        "GATConv",
+        "GATv2Conv",
+        "HeteroGATConv",
+        "RGCNConv",
+        "SAGEConv",
+        "TransformerConv",
+    ]
