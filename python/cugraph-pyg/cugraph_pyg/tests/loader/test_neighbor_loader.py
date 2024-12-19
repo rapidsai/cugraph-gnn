@@ -194,3 +194,64 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
         assert batch.edge_label[0] == 1.0
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_basic():
+    src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    graph_store = GraphStore()
+    feature_store = TensorDictFeatureStore()
+
+    graph_store[("paper", "cites", "paper"), "coo"] = [src, dst]
+    graph_store[("author", "writes", "paper"), "coo"] = [asrc, adst]
+
+    from cugraph_pyg.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1, 1, 1, 1],
+        input_nodes=("paper", torch.tensor([0, 1])),
+        batch_size=2,
+    )
+
+    out = next(iter(loader))
+
+    assert sorted(out["paper"].n_id.tolist()) == [0, 1, 4, 5]
+    assert sorted(out["author"].n_id.tolist()) == [0, 1, 3]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_single_etype():
+    src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    graph_store = GraphStore()
+    feature_store = TensorDictFeatureStore()
+
+    graph_store[("paper", "cites", "paper"), "coo"] = [src, dst]
+    graph_store[("author", "writes", "paper"), "coo"] = [asrc, adst]
+
+    from cugraph_pyg.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[0, 1, 0, 1],
+        input_nodes=("paper", torch.tensor([0, 1])),
+        batch_size=2,
+    )
+
+    out = next(iter(loader))
+
+    assert out["author"].n_id.numel() == 0
+    assert out["author", "writes", "paper"].edge_index.numel() == 0
+    assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [0, 0]
