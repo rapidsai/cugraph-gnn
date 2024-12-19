@@ -23,7 +23,6 @@ import numpy as np
 from cugraph_pyg.loader import DaskNeighborLoader
 from cugraph_pyg.loader import BulkSampleLoader
 from cugraph_pyg.data import DaskGraphStore
-from cugraph_pyg.nn import SAGEConv as CuGraphSAGEConv
 
 from cugraph.gnn import FeatureStore
 from cugraph.utilities.utils import import_optional, MissingModule
@@ -403,15 +402,15 @@ def test_cugraph_loader_e2e_csc(framework: str):
     )
 
     if framework == "pyg":
-        convs = [
-            torch_geometric.nn.SAGEConv(256, 64, aggr="mean").cuda(),
-            torch_geometric.nn.SAGEConv(64, 1, aggr="mean").cuda(),
-        ]
+        SAGEConv = torch_geometric.nn.SAGEConv
     else:
-        convs = [
-            CuGraphSAGEConv(256, 64, aggr="mean").cuda(),
-            CuGraphSAGEConv(64, 1, aggr="mean").cuda(),
-        ]
+        pytest.skip("Skipping tests that requires cugraph-ops")
+        # SAGEConv = cugraph_pyg.nn.SAGEConv
+
+    convs = [
+        SAGEConv(256, 64, aggr="mean").cuda(),
+        SAGEConv(64, 1, aggr="mean").cuda(),
+    ]
 
     trim = trim_to_layer.TrimToLayer()
     relu = torch.nn.functional.relu

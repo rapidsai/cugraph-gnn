@@ -43,6 +43,11 @@ except ImportError:
     gpubenchmark = pytest_benchmark.plugin.benchmark
 
 
+def pytest_ignore_collect(collection_path, config):
+    """Return True to prevent considering this path for collection."""
+    if "nn" in collection_path.name:
+        return True
+
 @pytest.fixture(scope="module")
 def dask_client():
     dask_scheduler_file = os.environ.get("SCHEDULER_FILE")
