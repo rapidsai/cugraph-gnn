@@ -48,6 +48,7 @@ def pytest_ignore_collect(collection_path, config):
     if "nn" in collection_path.name:
         return True
 
+
 @pytest.fixture(scope="module")
 def dask_client():
     dask_scheduler_file = os.environ.get("SCHEDULER_FILE")

@@ -16,6 +16,7 @@ import warnings
 HAVE_CUGRAPH_OPS = False
 try:
     import pylibcugraphops
+
     HAVE_CUGRAPH_OPS = True
 except ImportError:
     pass
