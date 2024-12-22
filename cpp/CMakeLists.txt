@@ -290,8 +290,6 @@ foreach(file IN LISTS WHOLEGRAPH_PUBLIC_HEADERS)
     string(JOIN "/" out_path "include" ${file_out_})
     install(FILES "${WHOLEGRAPH_INCLUDE_DIR}/${file}"
             DESTINATION "${out_path}")
-    #install(FILES "${WHOLEGRAPH_INCLUDE_DIR}/${file}"
-    #        DESTINATION "${file}")
 endforeach()
 
 rapids_cmake_install_lib_dir( lib_dir )
@@ -329,7 +327,7 @@ rapids_export(
         DOCUMENTATION doc_string
         FINAL_CODE_BLOCK code_string)
 
-        ################################################################################
+################################################################################
 # - make documentation ---------------------------------------------------------
 # requires doxygen and graphviz to be installed
 # from build directory, run make doxygen
