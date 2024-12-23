@@ -156,6 +156,17 @@ class SampleIterator:
             input_type, input_id = next_sample.metadata[0]
             data[input_type].input_id = input_id
             data[input_type].batch_size = input_id.size(0)
+
+            if len(next_sample.metadata) == 2:
+                data[input_type].seed_time = next_sample.metadata[1]
+            elif len(next_sample.metadata) == 4:
+                (
+                    data[input_type].edge_label_index,
+                    data[input_type].edge_label,
+                    data[input_type].seed_time,
+                ) = next_sample.metadata[1:]
+            else:
+                raise ValueError("Invalid metadata")
         else:
             raise ValueError("Invalid output type")
 
@@ -340,23 +351,24 @@ class HeterogeneousSampleReader(SampleReader):
             for hop in range(fanout_length):
                 vx = raw_sample_data["majors"][: lho[hop + 1]]
                 if vx.numel() > 0:
-                    num_sampled_nodes[self.__src_types[etype]][hop + 1] = torch.max(
-                        num_sampled_nodes[self.__src_types[etype]][hop + 1],
+                    num_sampled_nodes[self.__dst_types[etype]][hop + 1] = torch.max(
+                        num_sampled_nodes[self.__dst_types[etype]][hop + 1],
                         vx.max() + 1,
                     )
 
                 vy = raw_sample_data["minors"][: lho[hop + 1]]
                 if vy.numel() > 0:
-                    num_sampled_nodes[self.__dst_types[etype]][hop + 1] = torch.max(
-                        num_sampled_nodes[self.__dst_types[etype]][hop + 1],
+                    num_sampled_nodes[self.__src_types[etype]][hop + 1] = torch.max(
+                        num_sampled_nodes[self.__src_types[etype]][hop + 1],
                         vy.max() + 1,
                     )
 
             ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
             if ux.numel() > 0:
-                input_type = pyg_can_etype[0]  # can only ever be 1
-                num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
-                    num_sampled_nodes[self.__src_types[etype]][0],
+                input_type = pyg_can_etype[2]  # can only ever be 1
+                print("input type:", input_type)
+                num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
+                    num_sampled_nodes[self.__dst_types[etype]][0],
                     (ux.max() + 1).reshape((1,)),
                 )
 
