@@ -92,10 +92,12 @@ def str_to_wmb_wholememory_memory_type(str_wmb_type: str):
         return wmb.WholeMemoryMemoryType.MtChunked
     elif str_wmb_type == "distributed":
         return wmb.WholeMemoryMemoryType.MtDistributed
+    elif str_wmb_type == "hierarchy":
+        return wmb.WholeMemoryMemoryType.MtHierarchy
     else:
         raise ValueError(
             f"WholeMemory type {str_wmb_type} not supported,"
-            " should be (continuous, chunked, distributed)"
+            " should be (continuous, chunked, distributed, hierarchy)"
         )
 
 

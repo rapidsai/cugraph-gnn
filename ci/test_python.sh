@@ -64,9 +64,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   fi
 
 
-  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
-  #       from the 'cugraph-gnn' repo and stop publishing them from
-  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
@@ -74,9 +71,9 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --channel conda-forge \
     --channel "${DGL_CHANNEL}" \
     --channel nvidia \
-    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
-    "cugraph-dgl=${RAPIDS_VERSION},>=24.12.00a1000" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "cugraph-dgl=${RAPIDS_VERSION}" \
+    'pytorch>=2.3' \
     "ogb"
 
   rapids-print-env
@@ -108,16 +105,13 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_cugraph_pyg
   set -u
 
-  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
-  #       from the 'cugraph-gnn' repo and stop publishing them from
-  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
-    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
-    "cugraph-pyg=${RAPIDS_VERSION},>=24.12.00a1000" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    "cugraph-pyg=${RAPIDS_VERSION}" \
+    'pytorch>=2.3' \
     'ogb'
 
   rapids-print-env
@@ -149,16 +143,13 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   conda activate test_pylibwholegraph
   set -u
 
-  # TODO: remove the '>=24.12.00a1000' once we start publishing nightly packages
-  #       from the 'cugraph-gnn' repo and stop publishing them from
-  #       the 'cugraph' / 'wholegraph' repos
   rapids-mamba-retry install \
     --channel "${CPP_CHANNEL}" \
     --channel "${PYTHON_CHANNEL}" \
     --channel pytorch \
     'mkl<2024.1.0' \
-    "pylibwholegraph=${RAPIDS_VERSION},>=24.12.00a1000" \
-    'pytorch::pytorch>=2.3,<2.4' \
+    "pylibwholegraph=${RAPIDS_VERSION}" \
+    'pytorch>=2.3' \
     'pytest-forked' \
     'ogb'
 

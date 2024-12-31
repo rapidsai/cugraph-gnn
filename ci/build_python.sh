@@ -15,11 +15,7 @@ rapids-print-env
 
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 
-# TODO: revert this once we start publishing nightly packages
-#       from the 'cugraph-gnn' repo and stop publishing them from
-#       the 'cugraph' / 'wholegraph' repos
-# rapids-generate-version > ./VERSION
-echo "24.12.00a1000" > ./VERSION
+rapids-generate-version > ./VERSION
 
 sccache --zero-stats
 
