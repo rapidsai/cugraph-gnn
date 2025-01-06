@@ -40,7 +40,8 @@ wholememory_error_code_t create_wholememory(wholememory_handle_t* wholememory_ha
                                             wholememory_comm_t comm,
                                             wholememory_memory_type_t memory_type,
                                             wholememory_memory_location_t memory_location,
-                                            size_t data_granularity) noexcept;
+                                            size_t data_granularity,
+                                            size_t* rank_entry_partition = nullptr) noexcept;
 
 wholememory_error_code_t destroy_wholememory_with_comm_locked(
   wholememory_handle_t wholememory_handle) noexcept;
@@ -48,6 +49,12 @@ wholememory_error_code_t destroy_wholememory_with_comm_locked(
 wholememory_error_code_t destroy_wholememory(wholememory_handle_t wholememory_handle) noexcept;
 
 wholememory_error_code_t get_communicator_from_handle(
+  wholememory_comm_t* comm, wholememory_handle_t wholememory_handle) noexcept;
+
+wholememory_error_code_t get_local_communicator_from_handle(
+  wholememory_comm_t* comm, wholememory_handle_t wholememory_handle) noexcept;
+
+wholememory_error_code_t get_cross_communicator_from_handle(
   wholememory_comm_t* comm, wholememory_handle_t wholememory_handle) noexcept;
 
 wholememory_memory_type_t get_memory_type(wholememory_handle_t wholememory_handle) noexcept;
@@ -64,6 +71,12 @@ wholememory_error_code_t get_local_memory_from_handle(
   size_t* local_offset,
   wholememory_handle_t wholememory_handle) noexcept;
 
+wholememory_error_code_t get_local_node_memory_from_handle(
+  void** local_ptr,
+  size_t* local_size,
+  size_t* local_offset,
+  wholememory_handle_t wholememory_handle) noexcept;
+
 wholememory_error_code_t get_rank_memory_from_handle(
   void** rank_memory_ptr,
   size_t* rank_memory_size,
@@ -71,21 +84,27 @@ wholememory_error_code_t get_rank_memory_from_handle(
   int rank,
   wholememory_handle_t wholememory_handle) noexcept;
 
+wholememory_error_code_t get_local_size_from_handle(
+  size_t* size, wholememory_handle_t wholememory_handle) noexcept;
+
+wholememory_error_code_t get_local_offset_from_handle(
+  size_t* offset, wholememory_handle_t wholememory_handle) noexcept;
+
 wholememory_error_code_t get_global_pointer_from_handle(
   void** global_ptr, wholememory_handle_t wholememory_handle) noexcept;
 
 wholememory_error_code_t get_global_reference_from_handle(
   wholememory_gref_t* wholememory_gref, wholememory_handle_t wholememory_handle) noexcept;
 
-wholememory_error_code_t determine_partition_plan(size_t* size_per_rank,
-                                                  size_t total_size,
-                                                  size_t data_granularity,
-                                                  int world_size) noexcept;
+wholememory_error_code_t equal_partition_plan(size_t* entry_per_rank,
+                                              size_t total_entry_count,
+                                              int world_size) noexcept;
 
-size_t determine_entry_partition_plan(size_t total_entry_count, int world_size) noexcept;
+wholememory_error_code_t get_rank_partition_sizes_from_handle(
+  size_t* rank_sizes, wholememory_handle_t wholememory_handle) noexcept;
 
-wholememory_error_code_t get_partition_plan_from_handle(
-  size_t* size_per_rank, wholememory_handle_t wholememory_handle) noexcept;
+wholememory_error_code_t get_rank_partition_offsets_from_handle(
+  size_t* rank_offsets, wholememory_handle_t wholememory_handle) noexcept;
 
 wholememory_distributed_backend_t get_distributed_backend_t(
   wholememory_handle_t wholememory_handle) noexcept;

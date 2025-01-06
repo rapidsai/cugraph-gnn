@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "system_info.hpp"
-
 #include <string>
 
 #include "cuda_macros.hpp"
@@ -140,17 +138,19 @@ wholememory_error_code_t NvmlEnsureInitialized()
 wholememory_error_code_t GetGpuFabricInfo(int dev, nvmlGpuFabricInfo_t* gpuFabricInfo)
 {
   WHOLEMEMORY_CHECK_NOTHROW(NvmlEnsureInitialized() == WHOLEMEMORY_SUCCESS);
-  std::lock_guard<std::mutex> locked(lock);
-  // gpuFabricInfo->version = nvmlGpuFabricInfo_v2;
-  nvmlDevice_t nvml_device;
-  nvmlReturn_t ret = nvmlDeviceGetHandleByIndex(dev, &nvml_device);
-  WHOLEMEMORY_EXPECTS_NOTHROW(
-    ret == NVML_SUCCESS, "nvmlDeviceGetHandleByIndex error:%s", nvmlErrorString(ret));
-  ret = nvmlDeviceGetGpuFabricInfo(nvml_device, gpuFabricInfo);
-  WHOLEMEMORY_EXPECTS_NOTHROW(
-    ret == NVML_SUCCESS, "nvmlDeviceGetGpuFabricInfo error:%s", nvmlErrorString(ret));
-
-  return WHOLEMEMORY_SUCCESS;
+  if (wholememory::nvmlFabricSymbolLoaded) {
+    std::lock_guard<std::mutex> locked(lock);
+    // gpuFabricInfo->version = nvmlGpuFabricInfo_v2;
+    nvmlDevice_t nvml_device;
+    nvmlReturn_t ret = nvmlDeviceGetHandleByIndexPtr(dev, &nvml_device);
+    WHOLEMEMORY_EXPECTS_NOTHROW(
+      ret == NVML_SUCCESS, "nvmlDeviceGetHandleByIndex error:%s", nvmlErrorString(ret));
+    ret = nvmlDeviceGetGpuFabricInfoPtr(nvml_device, gpuFabricInfo);
+    WHOLEMEMORY_EXPECTS_NOTHROW(
+      ret == NVML_SUCCESS, "nvmlDeviceGetGpuFabricInfo error:%s", nvmlErrorString(ret));
+    return WHOLEMEMORY_SUCCESS;
+  }
+  return WHOLEMEMORY_SYSTEM_ERROR;
 }
 
 };  // namespace wholememory

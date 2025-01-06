@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2018-2024, NVIDIA CORPORATION.
+# Copyright (c) 2018-2025, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,20 +14,9 @@
 # limitations under the License.
 #=============================================================================
 
-cmake_minimum_required(VERSION 3.23.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 
 include(../rapids_config.cmake)
-
-set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION_MAJOR_MINOR}.00")
-
-include(FetchContent)
-
-FetchContent_Declare(
-  rapids-cmake
-  GIT_REPOSITORY https://github.com/rapidsai/rapids-cmake.git
-  GIT_TAG        origin/branch-${RAPIDS_VERSION_MAJOR_MINOR}
-)
-FetchContent_MakeAvailable(rapids-cmake)
 include(rapids-cmake)
 include(rapids-cpm)
 include(rapids-cuda)
@@ -36,13 +25,11 @@ include(rapids-find)
 
 rapids_cuda_init_architectures(WHOLEGRAPH)
 
-project(WHOLEGRAPH VERSION ${WHOLEGRAPH_VERSION} LANGUAGES CXX CUDA)
-
-set(CMAKE_CXX_STANDARD 17)
-
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES   FALSE)
-set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES   FALSE)
-set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES   FALSE)
+project(
+  WHOLEGRAPH
+  VERSION "${RAPIDS_VERSION}"
+  LANGUAGES CXX CUDA
+)
 
 # Write the version header
 rapids_cmake_write_version_file(include/wholegraph/version_config.hpp)
@@ -109,11 +96,6 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 message("-- Building for GPU_ARCHS = ${CMAKE_CUDA_ARCHITECTURES}")
 
-#list(APPEND WHOLEGRAPH_CUDA_FLAGS --expt-extended-lambda --expt-relaxed-constexpr)
-#list(APPEND WHOLEGRAPH_CUDA_FLAGS -Werror=cross-execution-space-call -Wno-deprecated-declarations -Xptxas=--disable-warnings)
-#list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xcompiler=-Wall,-Wno-error=sign-compare,-Wno-error=unused-but-set-variable)
-#list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xfatbin=-compress-all)
-
 # Option to enable line info in CUDA device compilation to allow introspection when profiling /
 # memchecking
 if (CMAKE_CUDA_LINEINFO)
@@ -170,8 +152,6 @@ target_compile_options(wholegraph
             PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${WHOLEGRAPH_CXX_FLAGS}>"
                     "$<$<COMPILE_LANGUAGE:CUDA>:${WHOLEGRAPH_CUDA_FLAGS}>"
 )
-
-#target_link_libraries(wholegraph PRIVATE -static-libgcc -static-libstdc++)
 
 ################################################################################
 # - include paths --------------------------------------------------------------
@@ -290,8 +270,6 @@ foreach(file IN LISTS WHOLEGRAPH_PUBLIC_HEADERS)
     string(JOIN "/" out_path "include" ${file_out_})
     install(FILES "${WHOLEGRAPH_INCLUDE_DIR}/${file}"
             DESTINATION "${out_path}")
-    #install(FILES "${WHOLEGRAPH_INCLUDE_DIR}/${file}"
-    #        DESTINATION "${file}")
 endforeach()
 
 rapids_cmake_install_lib_dir( lib_dir )
@@ -329,7 +307,7 @@ rapids_export(
         DOCUMENTATION doc_string
         FINAL_CODE_BLOCK code_string)
 
-        ################################################################################
+################################################################################
 # - make documentation ---------------------------------------------------------
 # requires doxygen and graphviz to be installed
 # from build directory, run make doxygen

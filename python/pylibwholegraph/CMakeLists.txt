@@ -1,5 +1,5 @@
 #=============================================================================
-# Copyright (c) 2018-2024, NVIDIA CORPORATION.
+# Copyright (c) 2018-2025, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,23 +17,17 @@
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 
 include(../../rapids_config.cmake)
-set(WHOLEGRAPH_VERSION "${RAPIDS_VERSION_MAJOR_MINOR}.00")
-
-include(FetchContent)
-
-FetchContent_Declare(
-        rapids-cmake
-        GIT_REPOSITORY https://github.com/rapidsai/rapids-cmake.git
-        GIT_TAG        origin/branch-${RAPIDS_VERSION_MAJOR_MINOR}
-)
-FetchContent_MakeAvailable(rapids-cmake)
 include(rapids-cmake)
 include(rapids-cuda)
 include(rapids-cpm)
 
 rapids_cuda_init_architectures(PYLIBWHOLEGRAPH)
 
-project(PYLIBWHOLEGRAPH VERSION ${WHOLEGRAPH_VERSION} LANGUAGES CXX CUDA)
+project(
+  PYLIBWHOLEGRAPH
+  VERSION "${RAPIDS_VERSION}"
+  LANGUAGES CXX CUDA
+)
 
 ##############################################################################
 # - User Options  ------------------------------------------------------------
@@ -105,10 +99,6 @@ include(../../cpp/cmake/thirdparty/get_raft.cmake)
 ##############################################################################
 # - Dependencies  ------------------------------------------------------------
 
-#find_package(PythonInterp 3 REQUIRED)
-
-#include(${CMAKE_CURRENT_LIST_DIR}/../cmake/thirdparty/nanobind.cmake)
-
 # use <package>_ROOT here to take precedence over any other package
 if (DEFINED ENV{LIBWHOLEGRAPH_DIR})
   set(wholegraph_ROOT "$ENV{LIBWHOLEGRAPH_DIR}")
@@ -126,12 +116,6 @@ else()
             "cmake prefix ${CMAKE_PREFIX_PATH} or user dir $ENV{LIBWHOLEGRAPH_DIR}")
 endif()
 
-execute_process(
-        COMMAND "${Python_EXECUTABLE}" -c "import os; import skbuild; print(os.path.join(os.path.dirname(skbuild.__file__), 'resources/cmake'))"
-        OUTPUT_VARIABLE SKBUILD_CMAKE_MODULE_PATH OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-list(APPEND CMAKE_MODULE_PATH "${SKBUILD_CMAKE_MODULE_PATH}")
-
 include(rapids-cython-core)
 rapids_cython_init()
 
@@ -146,19 +130,11 @@ message(VERBOSE "PYLIBWHOLEGRAPH: Enable detection of conda environment for depe
 # this is needed for clang-tidy runs
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-list(APPEND CXX_DEFINITIONS WHOLEGRAPH_VERSION=${WHOLEGRAPH_VERSION})
-
 message(STATUS "PYLIBWHOLEGRAPH: DEFAULT_CXX_FLAGS='${DEFAULT_CXX_FLAGS}'")
 message(STATUS "PYLIBWHOLEGRAPH: CXX_FLAGS='${CXX_FLAGS}'")
 message(STATUS "PYLIBWHOLEGRAPH: CXX_DEFINITIONS='${CXX_DEFINITIONS}'")
 
 ##############################################################################
-# - Variables ----------------------------------------------------------------
-
-set(WHOLEGRAPH_CPP_TARGET "wholegraph::wholegraph" CACHE STRING "libwholegraph target name")
+# - Cython modules -----------------------------------------------------------
 
 add_subdirectory(pylibwholegraph/binding)
-
-# when used without setup.py, command is like:
-# export LIBWHOLEGRAPH_DIR=`pwd`/../../cpp/build/install
-# cmake ../ -DSKBUILD=ON

@@ -23,6 +23,7 @@ requires = [
 name = "pylibwholegraph"
 dynamic = ["version"]
 description = "pylibwholegraph - GPU Graph Storage for GNN feature and graph structure"
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "NVIDIA Corporation" },
 ]
@@ -74,3 +75,11 @@ wheel.packages = ["pylibwholegraph"]
 provider = "scikit_build_core.metadata.regex"
 input = "pylibwholegraph/VERSION"
 regex = "(?P<value>.*)"
+
+[tool.pydistcheck]
+select = [
+    "distro-too-large-compressed",
+]
+
+# detect when package size grows significantly
+max_allowed_size_compressed = '350M'

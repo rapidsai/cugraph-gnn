@@ -63,5 +63,7 @@ void host_check_embedding_same(void* host_embedding,
 
 void host_random_init_float(float* data, int64_t len, float max_value, float min_value);
 
+void host_random_partition(size_t* partition_sizes, size_t total_size, int partition_count);
+
 }  // namespace testing
 }  // namespace wholememory_ops

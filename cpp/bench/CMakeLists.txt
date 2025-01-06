@@ -35,7 +35,9 @@ function(ConfigureBench)
             rmm::rmm
             pthread
     )
-
+    if(BUILD_WITH_NVSHMEM)
+        target_compile_definitions(${BENCH_NAME} PRIVATE WITH_NVSHMEM_SUPPORT)
+    endif()
     set_target_properties(
             ${BENCH_NAME}
             PROPERTIES # set target compile options
