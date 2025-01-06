@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -161,6 +161,8 @@ class GraphStore(
                 )
                 vertices_array = cupy.array_split(vertices_array, world_size)[rank]
 
+                print(len(edgelist_dict["src"]))
+
                 self.__graph = pylibcugraph.MGGraph(
                     self._resource_handle,
                     graph_properties,
@@ -293,7 +295,9 @@ class GraphStore(
         return torch.concat(weights)
 
     @property
-    def _numeric_edge_types(self) -> Tuple[List, "torch.Tensor", "torch.Tensor"]:
+    def _numeric_edge_types(
+        self,
+    ) -> Tuple[List[Tuple[str, str, str]], "torch.Tensor", "torch.Tensor"]:
         """
         Returns the canonical edge types in order (the 0th canonical type corresponds
         to numeric edge type 0, etc.), along with the numeric source and destination
