@@ -44,7 +44,7 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch-gpu>=2.3=*cuda120*
+- pytorch>=2.3
 - pytorch_geometric>=2.5,<2.6
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
 - rmm==25.2.*,>=0.0.0a0

@@ -398,6 +398,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
+          - pytorch>=2.3
           - torchdata
           - pydantic
     specific:
@@ -421,19 +422,6 @@ dependencies:
               - *pytorch_pip
               - *tensordict
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
-      - output_types: [conda]
-        # PyTorch will stop publishing conda packages after 2.5.
-        # Consider switching to conda-forge::pytorch-gpu.
-        # Note that the CUDA version may differ from the official PyTorch wheels.
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-            - pytorch-gpu>=2.3=*cuda120*
-          - matrix: {cuda: "11.*"}
-            packages:
-            - pytorch-gpu>=2.3=*cuda118*
-          - matrix:
-            packages:
 
   depends_on_dgl:
     specific:

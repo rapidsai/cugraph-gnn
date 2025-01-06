@@ -16,7 +16,7 @@ dependencies:
 - pytest-benchmark
 - pytest-cov
 - pytest-xdist
-- pytorch-gpu>=2.3=*cuda118*
+- pytorch>=2.3
 - tensordict>=0.1.2
 - torchdata
 name: cugraph_dgl_dev_cuda-118

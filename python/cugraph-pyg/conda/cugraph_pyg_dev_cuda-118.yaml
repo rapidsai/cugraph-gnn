@@ -14,7 +14,7 @@ dependencies:
 - pytest-benchmark
 - pytest-cov
 - pytest-xdist
-- pytorch-gpu>=2.3=*cuda118*
+- pytorch>=2.3
 - pytorch_geometric>=2.5,<2.6
 - tensordict>=0.1.2
 - torchdata
