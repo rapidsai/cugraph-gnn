@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 import cudf
 import cupy as cp
 import numpy as np
@@ -179,6 +180,7 @@ def test_get_source_destination_range():
     assert output_d == expected_output
 
 
+@pytest.mark.skip(reason="Skipping due to missing cugraph-ops backend.")
 def test__create_homogeneous_cugraph_dgl_nn_sparse_graph():
     tensor_d = {
         "sources_range": 1,
@@ -196,6 +198,7 @@ def test__create_homogeneous_cugraph_dgl_nn_sparse_graph():
     assert isinstance(sparse_graph, cugraph_dgl.nn.SparseGraph)
 
 
+@pytest.mark.skip(reason="Skipping due to missing cugraph-ops backend.")
 def test_create_homogeneous_sampled_graphs_from_dataframe_csc():
     df = get_dummy_sampled_df_csc()
     batches = create_homogeneous_sampled_graphs_from_dataframe_csc(df)

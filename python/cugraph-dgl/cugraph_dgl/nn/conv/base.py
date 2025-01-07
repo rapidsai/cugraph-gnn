@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024, NVIDIA CORPORATION.
+# Copyright (c) 2023-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -279,6 +279,18 @@ class SparseGraph(object):
         return sg
 
 
+def conditional_class(import_name):
+    def decorator(cls):
+        try:
+            __import__(import_name)
+            return cls
+        except ImportError:
+            return None
+
+    return decorator
+
+
+@conditional_class("pylibcugraphops")
 class BaseConv(torch.nn.Module):
     r"""An abstract base class for cugraph-ops nn module."""
 
@@ -298,7 +310,7 @@ class BaseConv(torch.nn.Module):
         g: Union[SparseGraph, dgl.DGLHeteroGraph],
         is_bipartite: bool = False,
         max_in_degree: Optional[int] = None,
-    ) -> ops_torch.CSC:
+    ) -> "ops_torch.CSC":
         """Create CSC structure needed by cugraph-ops."""
 
         if not isinstance(g, (SparseGraph, dgl.DGLHeteroGraph)):
@@ -333,7 +345,7 @@ class BaseConv(torch.nn.Module):
         etypes: Optional[torch.Tensor] = None,
         is_bipartite: bool = False,
         max_in_degree: Optional[int] = None,
-    ) -> ops_torch.HeteroCSC:
+    ) -> "ops_torch.HeteroCSC":
         """Create HeteroCSC structure needed by cugraph-ops."""
 
         if not isinstance(g, (SparseGraph, dgl.DGLHeteroGraph)):
