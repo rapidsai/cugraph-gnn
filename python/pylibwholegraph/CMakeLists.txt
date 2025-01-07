@@ -127,9 +127,6 @@ message(VERBOSE "PYLIBWHOLEGRAPH: Enable detection of conda environment for depe
 ##############################################################################
 # - Compiler options ---------------------------------------------------------
 
-# this is needed for clang-tidy runs
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 message(STATUS "PYLIBWHOLEGRAPH: DEFAULT_CXX_FLAGS='${DEFAULT_CXX_FLAGS}'")
 message(STATUS "PYLIBWHOLEGRAPH: CXX_FLAGS='${CXX_FLAGS}'")
 message(STATUS "PYLIBWHOLEGRAPH: CXX_DEFINITIONS='${CXX_DEFINITIONS}'")
