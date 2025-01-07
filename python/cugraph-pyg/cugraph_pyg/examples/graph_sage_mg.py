@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024, NVIDIA CORPORATION.
+# Copyright (c) 2023-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,7 +29,7 @@ import warnings
 import torch
 import numpy as np
 
-from cugraph_pyg.nn import SAGEConv as CuGraphSAGEConv
+from torch_geometric.nn import SAGEConv
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -41,22 +41,21 @@ from torch.nn.parallel import DistributedDataParallel as ddp
 from typing import List
 
 
-class CuGraphSAGE(nn.Module):
+class GraphSAGE(nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers):
         super().__init__()
 
         self.convs = torch.nn.ModuleList()
-        self.convs.append(CuGraphSAGEConv(in_channels, hidden_channels))
+        self.convs.append(SAGEConv(in_channels, hidden_channels))
         for _ in range(num_layers - 1):
-            conv = CuGraphSAGEConv(hidden_channels, hidden_channels)
+            conv = SAGEConv(hidden_channels, hidden_channels)
             self.convs.append(conv)
 
         self.lin = nn.Linear(hidden_channels, out_channels)
 
-    def forward(self, x, edge, size):
-        edge_csc = CuGraphSAGEConv.to_csc(edge, (size[0], size[0]))
+    def forward(self, x, edge):
         for conv in self.convs:
-            x = conv(x, edge_csc)[: size[1]]
+            x = conv(x, edge)
             x = F.relu(x)
             x = F.dropout(x, p=0.5)
 
@@ -262,7 +261,7 @@ def train(
     )
     td.barrier()
     model = (
-        CuGraphSAGE(in_channels=128, hidden_channels=64, out_channels=349, num_layers=3)
+        GraphSAGE(in_channels=128, hidden_channels=64, out_channels=349, num_layers=3)
         .to(torch.float32)
         .to(device_id)
     )
@@ -316,7 +315,6 @@ def train(
                     hetero_data.edge_index_dict[("paper", "cites", "paper")].to(
                         device_id
                     ),
-                    (len(y_true), len(y_true)),
                 )
                 end_time_forward = time.perf_counter_ns()
                 total_time_forward += (end_time_forward - start_time_forward) / 1e9
