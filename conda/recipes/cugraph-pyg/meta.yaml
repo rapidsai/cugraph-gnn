@@ -35,7 +35,6 @@ requirements:
     - pytorch >=2.3
     - cupy >=12.0.0
     - cugraph ={{ minor_version }}
-    - pylibcugraphops ={{ minor_version }}
     - tensordict >=0.1.2
     - pytorch_geometric >=2.5,<2.6
 
