@@ -17,9 +17,10 @@
 import os
 import argparse
 
-import pandas  # consider using cudf.pandas here
-
 import torch
+import cupy
+
+os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 
 
 def parse_args():
@@ -108,6 +109,16 @@ def parse_args():
     parser.add_argument(
         "--input_format", type=str, required=False, default="csv", help="csv or parquet"
     )
+    parser.add_argument(
+        "--use_managed_memory",
+        action="store_true",
+        required=False,
+        default=False,
+        help=(
+            "Whether to use managed memory "
+            "(allow spilling to CPU memory if there is not enough GPU memory)"
+        ),
+    )
 
     return parser.parse_args()
 
@@ -121,7 +132,31 @@ if __name__ == "__main__":
 
     local_rank = int(os.environ["LOCAL_RANK"])
     device = torch.device(local_rank)
+
+    if global_rank == 0:
+        from rmm.allocators.torch import rmm_torch_allocator
+
+        torch.cuda.memory.change_current_allocator(rmm_torch_allocator)
+    torch.distributed.barrier()
+
     torch.cuda.set_device(local_rank)
+    cupy.cuda.Device(local_rank).use()
+
+    from rmm.allocators.cupy import rmm_cupy_allocator
+
+    cupy.cuda.set_allocator(rmm_cupy_allocator)
+
+    import rmm
+
+    rmm.reinitialize(
+        devices=[local_rank],
+        managed_memory=args.use_managed_memory,
+        pool_allocator=True,
+    )
+    torch.distributed.barrier()
+
+    # import cudf after rmm has been reinitialized
+    import cudf
 
     node_types = args.node_types.split(",")
     local_num_nodes = {}
@@ -143,9 +178,9 @@ if __name__ == "__main__":
         node_fpath = os.path.join(node_folder_name, node_fname)
 
         if args.input_format.lower() == "csv":
-            ndf = pandas.read_csv(node_fpath)
+            ndf = cudf.read_csv(node_fpath)
         elif args.input_format.lower() == "parquet":
-            ndf = pandas.read_parquet(node_fpath)
+            ndf = cudf.read_parquet(node_fpath)
         else:
             raise ValueError("Invalid input type.")
 
@@ -162,7 +197,7 @@ if __name__ == "__main__":
             for i in range(node_offset_tensor.numel())
         ]
 
-        node_offset_tensor = node_offset_tensor.cumsum(0).cpu()
+        node_offset_tensor = node_offset_tensor.cumsum(0)
         global_num_nodes[node_type] = int(node_offset_tensor[-1])
         local_node_offsets[node_type] = (
             0 if global_rank == 0 else int(node_offset_tensor[global_rank - 1])
@@ -173,24 +208,27 @@ if __name__ == "__main__":
                 torch.arange(
                     local_node_offsets[node_type],
                     local_node_offsets[node_type] + local_num_nodes[node_type],
+                    device=device,
+                    dtype=torch.int64,
                 ),
                 torch.as_tensor(
-                    ndf[args.node_colname], device="cpu", dtype=torch.int64
+                    ndf[args.node_colname], device=device, dtype=torch.int64
                 ),
             ]
         )
 
         torch.distributed.all_gather(map_tensor, local_renumber_map.to(device))
-        map_tensor = torch.concat(map_tensor, dim=1).cpu()
-        global_renumber_map[node_type] = pandas.DataFrame(
+        map_tensor = torch.concat(map_tensor, dim=1)
+        global_renumber_map[node_type] = cudf.DataFrame(
             {
-                "id": map_tensor[0].numpy(),
+                "id": cupy.asarray(map_tensor[0]),
             },
-            index=map_tensor[1].numpy(),
+            index=cupy.asarray(map_tensor[1]),
         )
 
-        local_renumber_map_df = pandas.DataFrame(
-            {"id": local_renumber_map[0].numpy()}, index=local_renumber_map[1].numpy()
+        local_renumber_map_df = cudf.DataFrame(
+            {"id": cupy.asarray(local_renumber_map[0])},
+            index=cupy.asarray(local_renumber_map[1]),
         )
 
         if args.output_format.lower() == "csv":
@@ -219,14 +257,15 @@ if __name__ == "__main__":
         edge_fname = os.listdir(edge_folder_name)[local_rank]
         edge_fpath = os.path.join(edge_folder_name, edge_fname)
 
-        edf = pandas.read_csv(edge_fpath)
+        edf = cudf.read_csv(edge_fpath)
+
         srcs = edf[args.source_colname].values
         dsts = edf[args.destination_colname].values
 
         src_map = global_renumber_map[src_type]["id"]
         dst_map = global_renumber_map[dst_type]["id"]
 
-        new_edf = pandas.DataFrame(
+        new_edf = cudf.DataFrame(
             {
                 args.source_colname: src_map.loc[srcs].values,
                 args.destination_colname: dst_map.loc[dsts].values,
@@ -245,3 +284,7 @@ if __name__ == "__main__":
             )
         else:
             raise ValueError("Invalid output format.")
+
+    torch.distributed.barrier()
+    print("Success!")
+    torch.distributed.destroy_process_group()
