@@ -257,7 +257,12 @@ if __name__ == "__main__":
         edge_fname = os.listdir(edge_folder_name)[local_rank]
         edge_fpath = os.path.join(edge_folder_name, edge_fname)
 
-        edf = cudf.read_csv(edge_fpath)
+        if args.input_format.lower() == "csv":
+            edf = cudf.read_csv(edge_fpath)
+        elif args.input_format.lower() == "parquet":
+            edf = cudf.read_parquet(edge_fpath)
+        else:
+            raise ValueError("Invalid input format")
 
         srcs = edf[args.source_colname].values
         dsts = edf[args.destination_colname].values
