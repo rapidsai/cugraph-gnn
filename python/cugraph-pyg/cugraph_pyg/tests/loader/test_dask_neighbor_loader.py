@@ -405,7 +405,6 @@ def test_cugraph_loader_e2e_csc(framework: str):
         SAGEConv = torch_geometric.nn.SAGEConv
     else:
         pytest.skip("Skipping tests that requires cugraph-ops")
-        # SAGEConv = cugraph_pyg.nn.SAGEConv
 
     convs = [
         SAGEConv(256, 64, aggr="mean").cuda(),
