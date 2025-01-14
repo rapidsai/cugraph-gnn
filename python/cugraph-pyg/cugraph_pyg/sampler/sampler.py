@@ -366,7 +366,7 @@ class HeterogeneousSampleReader(SampleReader):
             ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
             if ux.numel() > 0:
                 input_type = pyg_can_etype[2]  # can only ever be 1
-                print("input type:", input_type)
+
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
                     (ux.max() + 1).reshape((1,)),

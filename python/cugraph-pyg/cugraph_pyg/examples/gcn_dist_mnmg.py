@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,7 +17,6 @@
 import argparse
 import os
 import warnings
-import tempfile
 import time
 import json
 
@@ -179,7 +178,6 @@ def run_train(
     fan_out,
     num_classes,
     wall_clock_start,
-    tempdir=None,
     num_layers=3,
     in_memory=False,
     seeds_per_call=-1,
@@ -194,13 +192,9 @@ def run_train(
     from cugraph_pyg.loader import NeighborLoader
 
     ix_train = split_idx["train"].cuda()
-    train_path = None if in_memory else os.path.join(tempdir, f"train_{global_rank}")
-    if train_path:
-        os.mkdir(train_path)
     train_loader = NeighborLoader(
         data,
         input_nodes=ix_train,
-        directory=train_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=seeds_per_call if seeds_per_call > 0 else None,
@@ -208,13 +202,9 @@ def run_train(
     )
 
     ix_test = split_idx["test"].cuda()
-    test_path = None if in_memory else os.path.join(tempdir, f"test_{global_rank}")
-    if test_path:
-        os.mkdir(test_path)
     test_loader = NeighborLoader(
         data,
         input_nodes=ix_test,
-        directory=test_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=80000,
@@ -222,13 +212,9 @@ def run_train(
     )
 
     ix_valid = split_idx["valid"].cuda()
-    valid_path = None if in_memory else os.path.join(tempdir, f"valid_{global_rank}")
-    if valid_path:
-        os.mkdir(valid_path)
     valid_loader = NeighborLoader(
         data,
         input_nodes=ix_valid,
-        directory=valid_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=seeds_per_call if seeds_per_call > 0 else None,
@@ -347,7 +333,6 @@ def parse_args():
     parser.add_argument("--epochs", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--fan_out", type=int, default=30)
-    parser.add_argument("--tempdir_root", type=str, default=None)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--dataset", type=str, default="ogbn-products")
     parser.add_argument("--skip_partition", action="store_true")
@@ -427,23 +412,21 @@ if __name__ == "__main__":
         ).to(device)
         model = DistributedDataParallel(model, device_ids=[local_rank])
 
-        with tempfile.TemporaryDirectory(dir=args.tempdir_root) as tempdir:
-            run_train(
-                global_rank,
-                data,
-                split_idx,
-                world_size,
-                device,
-                model,
-                args.epochs,
-                args.batch_size,
-                args.fan_out,
-                meta["num_classes"],
-                wall_clock_start,
-                tempdir,
-                args.num_layers,
-                args.in_memory,
-                args.seeds_per_call,
-            )
+        run_train(
+            global_rank,
+            data,
+            split_idx,
+            world_size,
+            device,
+            model,
+            args.epochs,
+            args.batch_size,
+            args.fan_out,
+            meta["num_classes"],
+            wall_clock_start,
+            args.num_layers,
+            args.in_memory,
+            args.seeds_per_call,
+        )
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
