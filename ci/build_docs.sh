@@ -14,6 +14,8 @@ rapids-dependency-file-generator \
   --file-key docs \
   --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
 
+source ./ci/use_conda_packages_from_prs.sh
+
 rapids-mamba-retry env create --yes -f env.yaml -n docs
 
 # Temporarily allow unbound variables for conda activation.

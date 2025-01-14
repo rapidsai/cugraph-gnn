@@ -11,6 +11,8 @@ source rapids-date-string
 
 export CMAKE_GENERATOR=Ninja
 
+source ./ci/use_conda_packages_from_prs.sh
+
 rapids-print-env
 
 rapids-logger "Begin cpp build"

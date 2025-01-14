@@ -1,9 +1,11 @@
 #!/bin/bash
-# Copyright (c) 2023-2024, NVIDIA CORPORATION.
+# Copyright (c) 2023-2025, NVIDIA CORPORATION.
 
 set -e          # abort the script on error
 set -o pipefail # piped commands propagate their error
 set -E          # ERR traps are inherited by subcommands
+
+source ./ci/use_wheels_from_prs.sh
 
 mkdir -p ./dist
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
