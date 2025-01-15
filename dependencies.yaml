@@ -54,8 +54,7 @@ files:
     includes:
       - cuda_version
       - depends_on_pytorch
-      - depends_on_cudf
-      - depends_on_cugraph
+      - depends_on_cugraph_dgl
       - py_version
       - test_notebook
   test_python:
