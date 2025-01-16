@@ -7,13 +7,6 @@ set -Eeuo pipefail
 
 RAPIDS_VERSION="$(rapids-version)"
 
-# Temporarily allow unbound variables for conda activation.
-set +u
-conda activate test
-set -u
-
-rapids-print-env
-
 rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
@@ -28,6 +21,13 @@ rapids-dependency-file-generator \
 | tee env.yaml
 
 rapids-mamba-retry env create --yes -f env.yaml -n test
+
+# Temporarily allow unbound variables for conda activation.
+set +u
+conda activate test
+set -u
+
+rapids-print-env
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
 NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"
