@@ -38,46 +38,7 @@ option(WHOLEGRAPH_BUILD_WHEELS "Whether we're building a wheel for pypi" OFF)
 ##############################################################################
 # - Base Rapids Options  -----------------------------------------------------
 
-set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
-set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CMAKE_COMMAND} -E time")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# pywholegraph Options
-function(show_python_envs position)
-    message(STATUS "[PYTHON INFO] POSITION: ${position} Python_ROOT_DIR=${Python_ROOT_DIR}")
-    message(STATUS "                        ${position} Python_INCLUDE_DIR=${Python_INCLUDE_DIR} Python_LIBRARY=${Python_LIBRARY} Python_EXECUTABLE=${Python_EXECUTABLE}")
-    message(STATUS "                        ${position} PYTHON_INCLUDE_DIR=${PYTHON_INCLUDE_DIR} PYTHON_LIBRARY=${PYTHON_LIBRARY} PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}")
-    message(STATUS "                        ${position} Python_INCLUDE_DIRS=${Python_INCLUDE_DIRS} Python_LIBRARIES=${Python_LIBRARIES}")
-endfunction(show_python_envs)
-
-set(SKBUILD ON)
-set(Python_USE_STATIC_LIBS TRUE)
-if (NOT DEFINED BUILD_PYTHON_EXE)
-    if (DEFINED Python_EXECUTABLE)
-        set(BUILD_PYTHON_EXE ${Python_EXECUTABLE})
-    elseif(DEFINED PYTHON_EXECUTABLE)
-        set(BUILD_PYTHON_EXE ${PYTHON_EXECUTABLE})
-    elseif(DEFINED Python_ROOT_DIR)
-        set(BUILD_PYTHON_EXE "${Python_ROOT_DIR}/bin/python3")
-    else()
-        execute_process(COMMAND "which" "python3"
-                OUTPUT_VARIABLE BUILD_PYTHON_EXE OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-    endif()
-endif()
-execute_process(COMMAND ${BUILD_PYTHON_EXE} -c "import sys; print(sys.exec_prefix)"
-        OUTPUT_VARIABLE Python_ROOT_DIR OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-execute_process(COMMAND ${BUILD_PYTHON_EXE} -c "import sys; print(sys.executable)"
-        OUTPUT_VARIABLE Python_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-execute_process(COMMAND ${BUILD_PYTHON_EXE} -c "import sysconfig; print(sysconfig.get_path('include'))"
-        OUTPUT_VARIABLE Python_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-execute_process(COMMAND ${BUILD_PYTHON_EXE} -c "import sysconfig; print(sysconfig.get_config_var('LIBDEST'))"
-        OUTPUT_VARIABLE Python_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-set(PYTHON_EXECUTABLE ${Python_EXECUTABLE})
-set(PYTHON_INCLUDE_DIR ${Python_INCLUDE_DIR})
-set(PYTHON_LIBRARY ${Python_LIBRARY})
-find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
-
-show_python_envs("python env")
 
 # default build type
 rapids_cmake_build_type(Release)
