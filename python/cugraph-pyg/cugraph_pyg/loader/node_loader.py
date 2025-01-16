@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -109,6 +109,8 @@ class NodeLoader:
             input_nodes,
             input_id,
         )
+        if input_type is not None:
+            input_nodes += data[1]._vertex_offsets[input_type]
 
         self.__input_data = torch_geometric.sampler.NodeSamplerInput(
             input_id=torch.arange(len(input_nodes), dtype=torch.int64, device="cuda")
