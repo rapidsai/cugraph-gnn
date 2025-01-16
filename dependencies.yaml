@@ -541,6 +541,12 @@ dependencies:
               - cugraph-cu11==25.2.*,>=0.0.0a0
           - {matrix: null, packages: [*cugraph_unsuffixed]}
 
+  depends_on_cugraph_dgl:
+      common:
+        - output_types: conda
+          packages:
+            - cugraph-dgl==25.2.*,>=0.0.0a0
+
   depends_on_cudf:
     common:
       - output_types: conda
