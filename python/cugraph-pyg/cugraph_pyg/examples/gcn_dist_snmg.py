@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 import argparse
 import os
-import tempfile
 import time
 import warnings
 
@@ -80,9 +79,7 @@ def run_train(
     split_idx,
     num_classes,
     wall_clock_start,
-    tempdir=None,
     num_layers=3,
-    in_memory=False,
     seeds_per_call=-1,
 ):
 
@@ -117,13 +114,9 @@ def run_train(
     dist.barrier()
 
     ix_train = torch.tensor_split(split_idx["train"], world_size)[rank].cuda()
-    train_path = None if in_memory else os.path.join(tempdir, f"train_{rank}")
-    if train_path:
-        os.mkdir(train_path)
     train_loader = NeighborLoader(
         (feature_store, graph_store),
         input_nodes=ix_train,
-        directory=train_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=seeds_per_call if seeds_per_call > 0 else None,
@@ -131,13 +124,9 @@ def run_train(
     )
 
     ix_test = torch.tensor_split(split_idx["test"], world_size)[rank].cuda()
-    test_path = None if in_memory else os.path.join(tempdir, f"test_{rank}")
-    if test_path:
-        os.mkdir(test_path)
     test_loader = NeighborLoader(
         (feature_store, graph_store),
         input_nodes=ix_test,
-        directory=test_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=80000,
@@ -145,13 +134,9 @@ def run_train(
     )
 
     ix_valid = torch.tensor_split(split_idx["valid"], world_size)[rank].cuda()
-    valid_path = None if in_memory else os.path.join(tempdir, f"valid_{rank}")
-    if valid_path:
-        os.mkdir(valid_path)
     valid_loader = NeighborLoader(
         (feature_store, graph_store),
         input_nodes=ix_valid,
-        directory=valid_path,
         shuffle=True,
         drop_last=True,
         local_seeds_per_call=seeds_per_call if seeds_per_call > 0 else None,
@@ -271,10 +256,8 @@ if __name__ == "__main__":
         parser.add_argument("--epochs", type=int, default=4)
         parser.add_argument("--batch_size", type=int, default=1024)
         parser.add_argument("--fan_out", type=int, default=30)
-        parser.add_argument("--tempdir_root", type=str, default=None)
         parser.add_argument("--dataset_root", type=str, default="datasets")
         parser.add_argument("--dataset", type=str, default="ogbn-products")
-        parser.add_argument("--in_memory", action="store_true", default=False)
         parser.add_argument("--seeds_per_call", type=int, default=-1)
 
         parser.add_argument(
@@ -315,25 +298,22 @@ if __name__ == "__main__":
 
         cugraph_id = cugraph_comms_create_unique_id()
 
-        with tempfile.TemporaryDirectory(dir=args.tempdir_root) as tempdir:
-            mp.spawn(
-                run_train,
-                args=(
-                    data,
-                    world_size,
-                    cugraph_id,
-                    model,
-                    args.epochs,
-                    args.batch_size,
-                    args.fan_out,
-                    split_idx,
-                    dataset.num_classes,
-                    wall_clock_start,
-                    tempdir,
-                    args.num_layers,
-                    args.in_memory,
-                    args.seeds_per_call,
-                ),
-                nprocs=world_size,
-                join=True,
-            )
+        mp.spawn(
+            run_train,
+            args=(
+                data,
+                world_size,
+                cugraph_id,
+                model,
+                args.epochs,
+                args.batch_size,
+                args.fan_out,
+                split_idx,
+                dataset.num_classes,
+                wall_clock_start,
+                args.num_layers,
+                args.seeds_per_call,
+            ),
+            nprocs=world_size,
+            join=True,
+        )
