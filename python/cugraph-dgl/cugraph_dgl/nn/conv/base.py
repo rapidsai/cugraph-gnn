@@ -18,7 +18,6 @@ from cugraph.utilities.utils import import_optional
 import cugraph_dgl
 
 torch = import_optional("torch")
-ops_torch = import_optional("pylibcugraphops.pytorch")
 dgl = import_optional("dgl")
 
 
@@ -34,9 +33,8 @@ def decompress_ids(c_ids: torch.Tensor) -> torch.Tensor:
 
 
 class SparseGraph(object):
-    r"""A class to create and store different sparse formats needed by
-    cugraph-ops. It always creates a CSC representation and can provide COO- or
-    CSR-format if needed.
+    r"""A class to create and store different sparse formats. It always creates
+    a CSC representation and can provide COO- or CSR-format if needed.
 
     Parameters
     ----------

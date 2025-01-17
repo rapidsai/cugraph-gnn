@@ -361,9 +361,8 @@ def test_cugraph_loader_e2e_coo():
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.skipif(not HAS_TORCH_SPARSE, reason="torch-sparse not available")
-@pytest.mark.parametrize("framework", ["pyg", "cugraph-ops"])
 @pytest.mark.sg
-def test_cugraph_loader_e2e_csc(framework: str):
+def test_cugraph_loader_e2e_csc():
     m = [2, 9, 99, 82, 9, 3, 18, 1, 12]
     x = torch.randint(3000, (256, 256)).to(torch.float32)
     F = FeatureStore()
@@ -401,14 +400,9 @@ def test_cugraph_loader_e2e_csc(framework: str):
         input_files=list(os.listdir(tempdir.name))[100:200],
     )
 
-    if framework == "pyg":
-        SAGEConv = torch_geometric.nn.SAGEConv
-    else:
-        pytest.skip("Skipping tests that requires cugraph-ops")
-
     convs = [
-        SAGEConv(256, 64, aggr="mean").cuda(),
-        SAGEConv(64, 1, aggr="mean").cuda(),
+        torch_geometric.nn.SAGEConv(256, 64, aggr="mean").cuda(),
+        torch_geometric.nn.SAGEConv(64, 1, aggr="mean").cuda(),
     ]
 
     trim = trim_to_layer.TrimToLayer()
@@ -418,44 +412,17 @@ def test_cugraph_loader_e2e_csc(framework: str):
     for hetero_data in loader:
         x = hetero_data["t0"]["x"].cuda()
 
-        if framework == "pyg":
-            ei = hetero_data["t0", "knows", "t0"]["adj_t"].coo()
-            ei = torch.stack((ei[0], ei[1]))
-        else:
-            ei = hetero_data["t0", "knows", "t0"]["adj_t"].csr()
-            ei = [ei[1], ei[0], x.shape[0]]
+        ei = hetero_data["t0", "knows", "t0"]["adj_t"].coo()
+        ei = torch.stack((ei[0], ei[1]))
 
         num_sampled_nodes = hetero_data["t0"]["num_sampled_nodes"]
         num_sampled_edges = hetero_data["t0", "knows", "t0"]["num_sampled_edges"]
 
         s = x.shape[0]
         for i in range(len(convs)):
-            if framework == "pyg":
-                x, ei, _ = trim(i, num_sampled_nodes, num_sampled_edges, x, ei, None)
-            else:
-                if i > 0:
-                    x = x.narrow(
-                        dim=0,
-                        start=0,
-                        length=s - num_sampled_nodes[-i],
-                    )
-
-                    ei[0] = ei[0].narrow(
-                        dim=0,
-                        start=0,
-                        length=ei[0].size(0) - num_sampled_edges[-i],
-                    )
-                    ei[1] = ei[1].narrow(
-                        dim=0, start=0, length=ei[1].size(0) - num_sampled_nodes[-i]
-                    )
-                    ei[2] = x.size(0)
-
+            x, ei, _ = trim(i, num_sampled_nodes, num_sampled_edges, x, ei, None)
             s = x.shape[0]
-
-            if framework == "pyg":
-                x = convs[i](x, ei, size=(s, s))
-            else:
-                x = convs[i](x, ei)
+            x = convs[i](x, ei, size=(s, s))
             x = relu(x)
             x = dropout(x, p=0.5)
 
