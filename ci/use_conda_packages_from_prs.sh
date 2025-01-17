@@ -1,6 +1,6 @@
 # Copyright (c) 2025, NVIDIA CORPORATION.
 
-CUGRAPH_COMMIT="5b6fd89c2e44ef58c22131aa799807151bff4e42"
+CUGRAPH_COMMIT="2dbd946375d83dc30d29f1b09a013e3a6159483d"
 
 CUGRAPH_CPP_CHANNEL=$(rapids-get-pr-conda-artifact cugraph 4804 cpp "${CUGRAPH_COMMIT:0:7}")
 CUGRAPH_PYTHON_CHANNEL=$(rapids-get-pr-conda-artifact cugraph 4804 python "${CUGRAPH_COMMIT:0:7}")
