@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -38,9 +38,6 @@ def set_framework(framework: str):
     elif framework_name == "wg":
         from wg_torch.gnn.SAGEConv import SAGEConv
         from wg_torch.gnn.GATConv import GATConv
-    elif framework_name == "cugraph":
-        from .cugraphops.sage_conv import CuGraphSAGEConv as SAGEConv
-        from .cugraphops.gat_conv import CuGraphGATConv as GATConv
 
 
 def create_gnn_layers(
@@ -101,17 +98,6 @@ def create_gnn_layers(
                 gnn_layers.append(
                     SAGEConv(layer_input_dim, layer_output_dim, aggregator="gcn")
                 )
-        elif framework_name == "cugraph":
-            assert model_type == "sage" or model_type == "gat"
-            if model_type == "sage":
-                gnn_layers.append(SAGEConv(layer_input_dim, layer_output_dim))
-            elif model_type == "gat":
-                concat = not mean_output
-                gnn_layers.append(
-                    GATConv(
-                        layer_input_dim, layer_output_dim, heads=num_head, concat=concat
-                    )
-                )
     return gnn_layers
 
 
@@ -164,11 +150,6 @@ def create_sub_graph(
             num_dst_nodes=target_gid_1.size(0),
         )
         return block
-    elif framework_name == "cugraph":
-        if add_self_loop:
-            csr_row_ptr, csr_col_ind = add_csr_self_loop(csr_row_ptr, csr_col_ind)
-            max_num_neighbors = max_num_neighbors + 1
-        return [csr_row_ptr, csr_col_ind, max_num_neighbors]
     else:
         assert framework_name == "wg"
         return [csr_row_ptr, csr_col_ind]
@@ -181,8 +162,6 @@ def layer_forward(layer, x_feat, x_target_feat, sub_graph):
         x_feat = layer((x_feat, x_target_feat), sub_graph)
     elif framework_name == "dgl":
         x_feat = layer(sub_graph, (x_feat, x_target_feat))
-    elif framework_name == "cugraph":
-        x_feat = layer(x_feat, sub_graph[0], sub_graph[1], sub_graph[2])
     elif framework_name == "wg":
         x_feat = layer(sub_graph[0], sub_graph[1], x_feat, x_target_feat)
     return x_feat
