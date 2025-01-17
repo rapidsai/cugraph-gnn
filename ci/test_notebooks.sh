@@ -7,11 +7,19 @@ set -Eeuo pipefail
 
 RAPIDS_VERSION="$(rapids-version)"
 
+rapids-logger "Downloading artifacts from previous jobs"
+CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
+PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+
 rapids-logger "Generate notebook testing dependencies"
 rapids-dependency-file-generator \
   --output conda \
   --file-key test_notebooks \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
+  --prepend-channel dglteam/label/th23_cu118 \
+  --prepend-channel "${CPP_CHANNEL}" \
+  --prepend-channel "${PYTHON_CHANNEL}" \
+| tee env.yaml
 
 source ./ci/use_conda_packages_from_prs.sh
 
@@ -23,16 +31,6 @@ conda activate test
 set -u
 
 rapids-print-env
-
-rapids-logger "Downloading artifacts from previous jobs"
-CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
-PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
-
-rapids-mamba-retry install \
-  --channel "${CPP_CHANNEL}" \
-  --channel "${PYTHON_CHANNEL}" \
-  --channel dglteam/label/th23_cu118 \
-  "cugraph-dgl=${RAPIDS_VERSION}"
 
 NBTEST="$(realpath "$(dirname "$0")/utils/nbtest.sh")"
 NOTEBOOK_LIST="$(realpath "$(dirname "$0")/notebook_list.py")"

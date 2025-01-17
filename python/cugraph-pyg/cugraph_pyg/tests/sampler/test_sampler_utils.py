@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -27,7 +27,6 @@ from cugraph import uniform_neighbor_sample
 torch = import_optional("torch")
 
 
-@pytest.mark.cugraph_ops
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 def test_neighbor_sample(basic_graph_1):
@@ -87,7 +86,6 @@ def test_neighbor_sample(basic_graph_1):
     assert out.num_sampled_edges[("vt1", "pig", "vt1")] == [6]
 
 
-@pytest.mark.cugraph_ops
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 def test_neighbor_sample_multi_vertex(multi_edge_multi_vertex_graph_1):

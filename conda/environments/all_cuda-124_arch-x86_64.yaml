@@ -22,7 +22,7 @@ dependencies:
 - dask-cudf==25.2.*,>=0.0.0a0
 - dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*
 - doxygen
-- gcc_linux-64=11.*
+- gcc_linux-64=13.*
 - graphviz
 - ipython
 - libcublas-dev
@@ -39,13 +39,11 @@ dependencies:
 - pandas
 - pre-commit
 - pydantic
-- pylibcugraphops==25.2.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch-cuda=12.4
 - pytorch>=2.3
 - pytorch_geometric>=2.5,<2.6
 - rapids-build-backend>=0.3.0,<0.4.0.dev0

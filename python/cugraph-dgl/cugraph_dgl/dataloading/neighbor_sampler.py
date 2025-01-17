@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,11 +14,10 @@
 from __future__ import annotations
 
 import warnings
-import tempfile
 
 from typing import Sequence, Optional, Union, List, Tuple, Iterator
 
-from cugraph.gnn import UniformNeighborSampler, BiasedNeighborSampler, DistSampleWriter
+from cugraph.gnn import UniformNeighborSampler, BiasedNeighborSampler
 from cugraph.utilities.utils import import_optional
 
 import cugraph_dgl
@@ -124,7 +123,7 @@ class NeighborSampler(Sampler):
             Can be either "dgl.Block" (default), or "cugraph_dgl.nn.SparseGraph".
         **kwargs
             Keyword arguments for the underlying cuGraph distributed sampler
-            and writer (directory, batches_per_partition, format,
+            and writer (batches_per_partition, format,
             local_seeds_per_call).
         """
 
@@ -165,18 +164,6 @@ class NeighborSampler(Sampler):
     ) -> Iterator[DGLSamplerOutput]:
         kwargs = dict(**self.__kwargs)
 
-        directory = kwargs.pop("directory", None)
-        if directory is None:
-            warnings.warn("Setting a directory to store samples is recommended.")
-            self._tempdir = tempfile.TemporaryDirectory()
-            directory = self._tempdir.name
-
-        writer = DistSampleWriter(
-            directory=directory,
-            batches_per_partition=kwargs.pop("batches_per_partition", 256),
-            format=kwargs.pop("format", "parquet"),
-        )
-
         sampling_clx = (
             UniformNeighborSampler
             if self.__prob_attr is None
@@ -185,7 +172,7 @@ class NeighborSampler(Sampler):
 
         ds = sampling_clx(
             g._graph(self.edge_dir, prob_attr=self.__prob_attr),
-            writer,
+            writer=None,
             compression="CSR",
             fanout=self._reversed_fanout_vals,
             prior_sources_behavior="carryover",
