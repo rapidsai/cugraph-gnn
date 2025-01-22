@@ -30,7 +30,6 @@ project(
 # ##################################################################################################
 # * User Options  ------------------------------------------------------------
 
-option(DETECT_CONDA_ENV "Enable detection of conda environment for dependencies" ON)
 option(WHOLEGRAPH_BUILD_WHEELS "Whether we're building a wheel for pypi" OFF)
 
 # ##################################################################################################
@@ -40,16 +39,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # default build type
 rapids_cmake_build_type(Release)
-
-message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-
-if(DETECT_CONDA_ENV)
-  rapids_cmake_support_conda_env(conda_env MODIFY_PREFIX_PATH)
-  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND DEFINED ENV{CONDA_PREFIX})
-    message(STATUS "No CMAKE_INSTALL_PREFIX argument detected, setting to: $ENV{CONDA_PREFIX}")
-    set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
-  endif()
-endif()
 
 rapids_cpm_init()
 
@@ -78,14 +67,6 @@ endif()
 
 include(rapids-cython-core)
 rapids_cython_init()
-
-# ##################################################################################################
-# * Display options ----------------------------------------------------------
-
-message(
-  VERBOSE
-  "PYLIBWHOLEGRAPH: Enable detection of conda environment for dependencies: ${DETECT_CONDA_ENV}"
-)
 
 # ##################################################################################################
 # * Compiler options ---------------------------------------------------------
