@@ -15,11 +15,11 @@ dependencies:
 - cuda-nvtx-dev
 - cuda-profiler-api
 - cuda-version=12.4
-- cudf==25.2.*,>=0.0.0a0
-- cugraph==25.2.*,>=0.0.0a0
+- cudf==25.4.*,>=0.0.0a0
+- cugraph==25.4.*,>=0.0.0a0
 - cupy>=12.0.0
 - cython>=3.0.0
-- dask-cudf==25.2.*,>=0.0.0a0
+- dask-cudf==25.4.*,>=0.0.0a0
 - dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*
 - doxygen
 - gcc_linux-64=13.*
@@ -47,7 +47,7 @@ dependencies:
 - pytorch>=2.3
 - pytorch_geometric>=2.5,<2.6
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
-- rmm==25.2.*,>=0.0.0a0
+- rmm==25.4.*,>=0.0.0a0
 - scikit-build-core>=0.10.0
 - scipy
 - setuptools>=61.0.0
