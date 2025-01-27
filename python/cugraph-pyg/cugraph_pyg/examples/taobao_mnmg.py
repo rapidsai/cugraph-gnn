@@ -16,7 +16,7 @@ import os
 import json
 import warnings
 
-from sys import gc
+import gc
 
 from datetime import timedelta
 
