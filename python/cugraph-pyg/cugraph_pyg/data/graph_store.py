@@ -161,8 +161,6 @@ class GraphStore(
                 )
                 vertices_array = cupy.array_split(vertices_array, world_size)[rank]
 
-                print(len(edgelist_dict["src"]))
-
                 self.__graph = pylibcugraph.MGGraph(
                     self._resource_handle,
                     graph_properties,
