@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -90,8 +90,10 @@ def load_data(
     edge_feature_store = TensorDictFeatureStore()
     meta = {}
 
-    graph_store[("n", "e", "n"), "coo"] = dataset.edge_index
-    edge_feature_store[("n", "e", "n"), "rel"] = dataset.edge_reltype.pin_memory()
+    graph_store[
+        ("n", "e", "n"), "coo", False, (dataset.num_nodes, dataset.num_nodes)
+    ] = dataset.edge_index
+    edge_feature_store[("n", "e", "n"), "rel", None] = dataset.edge_reltype.pin_memory()
     meta["num_nodes"] = dataset.num_nodes
     meta["num_rels"] = dataset.edge_reltype.max() + 1
 

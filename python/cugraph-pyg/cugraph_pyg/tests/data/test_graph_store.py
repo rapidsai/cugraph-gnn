@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -30,8 +30,12 @@ def test_graph_store_basic_api():
 
     ei = torch.stack([dst, src])
 
+    num_nodes = karate.number_of_nodes()
+
     graph_store = GraphStore()
-    graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo")
+    graph_store.put_edge_index(
+        ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
+    )
 
     rei = graph_store.get_edge_index(("person", "knows", "person"), "coo")
 
