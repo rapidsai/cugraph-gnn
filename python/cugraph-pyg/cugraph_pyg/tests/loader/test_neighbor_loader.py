@@ -37,11 +37,15 @@ def test_neighbor_loader():
 
     ei = torch.stack([dst, src])
 
+    num_nodes = karate.number_of_nodes()
+
     graph_store = GraphStore()
-    graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo")
+    graph_store.put_edge_index(
+        ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
+    )
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (34, 16))
+    feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     loader = NeighborLoader(
         (feature_store, graph_store),
@@ -51,7 +55,7 @@ def test_neighbor_loader():
 
     for batch in loader:
         assert isinstance(batch, torch_geometric.data.Data)
-        assert (feature_store["person", "feat"][batch.n_id] == batch.feat).all()
+        assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -64,12 +68,16 @@ def test_neighbor_loader_biased():
         ]
     )
 
+    num_nodes = 6
+
     graph_store = GraphStore()
-    graph_store.put_edge_index(eix, ("person", "knows", "person"), "coo")
+    graph_store.put_edge_index(
+        eix, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
+    )
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (6, 12))
-    feature_store[("person", "knows", "person"), "bias"] = torch.tensor(
+    feature_store["person", "feat", None] = torch.randint(128, (6, 12))
+    feature_store[("person", "knows", "person"), "bias", None] = torch.tensor(
         [0, 12, 14], dtype=torch.float32
     )
 
@@ -104,7 +112,7 @@ def test_link_neighbor_loader_basic(
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -140,7 +148,7 @@ def test_link_neighbor_loader_negative_sampling_basic(batch_size):
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -174,7 +182,7 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -205,11 +213,19 @@ def test_neighbor_loader_hetero_basic():
     asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
     adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
 
+    num_authors = 4
+    num_papers = 6
+
     graph_store = GraphStore()
     feature_store = TensorDictFeatureStore()
 
-    graph_store[("paper", "cites", "paper"), "coo"] = [src, dst]
-    graph_store[("author", "writes", "paper"), "coo"] = [asrc, adst]
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src,
+        dst,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
 
     from cugraph_pyg.loader import NeighborLoader
 
@@ -235,11 +251,19 @@ def test_neighbor_loader_hetero_single_etype():
     asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
     adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
 
+    num_authors = 4
+    num_papers = 6
+
     graph_store = GraphStore()
     feature_store = TensorDictFeatureStore()
 
-    graph_store[("paper", "cites", "paper"), "coo"] = [src, dst]
-    graph_store[("author", "writes", "paper"), "coo"] = [asrc, adst]
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src,
+        dst,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
 
     from cugraph_pyg.loader import NeighborLoader
 

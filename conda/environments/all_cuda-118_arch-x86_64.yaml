@@ -39,7 +39,7 @@ dependencies:
 - pytest-forked
 - pytest-xdist
 - pytorch>=2.3
-- pytorch_geometric>=2.5,<2.6
+- pytorch_geometric>=2.5,<2.7
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
 - rmm==25.2.*,>=0.0.0a0
 - scikit-build-core>=0.10.0

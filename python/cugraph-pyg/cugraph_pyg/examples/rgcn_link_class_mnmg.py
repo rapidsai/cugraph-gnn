@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -93,7 +93,11 @@ def train(epoch, model, optimizer, train_loader, edge_feature_store, num_steps=N
     optimizer.zero_grad()
 
     for i, batch in enumerate(train_loader):
-        r = edge_feature_store[("n", "e", "n"), "rel"][batch.e_id].flatten().cuda()
+        r = (
+            edge_feature_store[("n", "e", "n"), "rel", None][batch.e_id]
+            .flatten()
+            .cuda()
+        )
         z = model.encode(batch.edge_index, r)
 
         loss = model.recon_loss(z, batch.edge_index)
@@ -301,13 +305,18 @@ def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_pa
     feature_store = TensorDictFeatureStore()
     edge_feature_store = WholeFeatureStore()
 
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+
+    print("num nodes:", meta["num_nodes"])
+
     # Load edge index
-    graph_store[("n", "e", "n"), "coo"] = torch.load(
-        os.path.join(edge_path, f"rank={rank}.pt")
-    )
+    graph_store[
+        ("n", "e", "n"), "coo", False, (meta["num_nodes"], meta["num_nodes"])
+    ] = torch.load(os.path.join(edge_path, f"rank={rank}.pt"))
 
     # Load edge rel type
-    edge_feature_store[("n", "e", "n"), "rel"] = torch.load(
+    edge_feature_store[("n", "e", "n"), "rel", None] = torch.load(
         os.path.join(rel_path, f"rank={rank}.pt")
     )
 
@@ -332,9 +341,6 @@ def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_pa
         splits[stage]["head_neg"] = head_neg
         splits[stage]["tail_neg"] = tail_neg
         splits[stage]["relation"] = relation
-
-    with open(meta_path, "r") as f:
-        meta = json.load(f)
 
     return (feature_store, graph_store), edge_feature_store, splits, meta
 
