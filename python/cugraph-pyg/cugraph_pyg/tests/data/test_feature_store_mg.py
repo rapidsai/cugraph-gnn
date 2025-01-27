@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -46,22 +46,24 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     features = features.reshape((features.numel() // 100, 100)).to(torch_dtype)
 
     tensordict_store = TensorDictFeatureStore()
-    tensordict_store["node", "fea"] = features
+    tensordict_store["node", "fea", None] = features
 
     whole_store = WholeFeatureStore()
-    whole_store["node", "fea"] = torch.tensor_split(features, world_size)[rank]
+    whole_store["node", "fea", None] = torch.tensor_split(features, world_size)[rank]
 
     ix = torch.arange(features.shape[0])
     assert (
-        whole_store["node", "fea"][ix].cpu() == tensordict_store["node", "fea"][ix]
+        whole_store["node", "fea", None][ix].cpu()
+        == tensordict_store["node", "fea", None][ix]
     ).all()
 
     label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    tensordict_store["node", "label"] = label
-    whole_store["node", "label"] = torch.tensor_split(label, world_size)[rank]
+    tensordict_store["node", "label", None] = label
+    whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
 
     assert (
-        whole_store["node", "fea"][ix].cpu() == tensordict_store["node", "fea"][ix]
+        whole_store["node", "fea", None][ix].cpu()
+        == tensordict_store["node", "fea", None][ix]
     ).all()
 
     pylibwholegraph.torch.initialize.finalize()

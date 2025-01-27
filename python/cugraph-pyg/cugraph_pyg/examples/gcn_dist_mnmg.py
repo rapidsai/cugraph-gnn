@@ -150,10 +150,10 @@ def load_partitioned_data(
         )
 
     # Load features
-    feature_store["node", "x"] = torch.load(
+    feature_store["node", "x", None] = torch.load(
         os.path.join(feature_path, f"rank={rank}_x.pt")
     )
-    feature_store["node", "y"] = torch.load(
+    feature_store["node", "y", None] = torch.load(
         os.path.join(feature_path, f"rank={rank}_y.pt")
     )
 
