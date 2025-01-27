@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -135,8 +135,8 @@ def add_common_model_options(argparser: ArgumentParser):
         "-f",
         "--framework",
         dest="framework",
-        default="cugraph",
-        help="framework type, valid values are: dgl, pyg, wg, cugraph",
+        default="wg",
+        help="framework type, valid values are: dgl, pyg, wg",
     )
     argparser.add_argument(
         "--heads", type=int, dest="heads", default=4, help="num heads"
