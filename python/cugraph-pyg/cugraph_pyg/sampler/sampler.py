@@ -407,7 +407,11 @@ class HeterogeneousSampleReader(SampleReader):
             )
         else:
             if "input_label" in raw_sample_data:
-                edge_label = raw_sample_data["input_label"]
+                edge_label = raw_sample_data["input_label"][
+                    raw_sample_data["input_offsets"][index] : raw_sample_data[
+                        "input_offsets"
+                    ][index + 1]
+                ]
             else:
                 edge_label = None
 
@@ -549,7 +553,11 @@ class HomogeneousSampleReader(SampleReader):
             )
         else:
             if "input_label" in raw_sample_data:
-                edge_label = raw_sample_data["input_label"]
+                edge_label = raw_sample_data["input_label"][
+                    raw_sample_data["input_offsets"][index] : raw_sample_data[
+                        "input_offsets"
+                    ][index + 1]
+                ]
             else:
                 edge_label = None
 
