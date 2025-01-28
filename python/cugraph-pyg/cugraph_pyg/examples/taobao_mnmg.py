@@ -362,7 +362,6 @@ def test(model, loader):
     model.eval()
     preds, targets = [], []
     for i, batch in enumerate(loader):
-        print(batch)
         if i == 100:
             break
 
