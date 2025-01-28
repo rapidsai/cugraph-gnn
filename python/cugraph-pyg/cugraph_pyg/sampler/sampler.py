@@ -775,6 +775,7 @@ class BaseSampler:
         reader = self.__sampler.sample_from_edges(
             torch.stack([src, dst]),  # reverse of usual convention
             input_id=input_id,
+            input_label=index.label,
             batch_size=self.__batch_size + neg_batch_size,
             **kwargs,
         )
