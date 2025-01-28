@@ -765,5 +765,6 @@ class BaseSampler:
                 src_types=src_types,
                 dst_types=dst_types,
                 edge_types=edge_types,
+                vertex_types=sorted(self.__graph_store._num_vertices().keys()),
                 vertex_offsets=self.__graph_store._vertex_offset_array,
             )

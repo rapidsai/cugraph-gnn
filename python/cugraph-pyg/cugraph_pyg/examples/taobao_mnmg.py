@@ -463,8 +463,8 @@ if __name__ == "__main__":
     )
 
     model = Model(
-        num_users=data["user"].num_nodes,
-        num_items=data["item"].num_nodes,
+        num_users=meta["num_nodes"]["user"],
+        num_items=meta["num_nodes"]["item"],
         hidden_channels=64,
         out_channels=64,
     ).to(local_rank)
