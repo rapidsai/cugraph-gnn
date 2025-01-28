@@ -332,9 +332,6 @@ def train(model, optimizer, loader):
         batch = batch.to(rank)
         optimizer.zero_grad()
 
-        if i == 100:
-            break
-
         if i % 10 == 0 and rank == 0:
             print(f"iter {i}")
 
@@ -362,9 +359,6 @@ def test(model, loader):
     model.eval()
     preds, targets = [], []
     for i, batch in enumerate(loader):
-        if i == 100:
-            break
-
         batch = batch.to(rank)
 
         pred = (
@@ -455,14 +449,14 @@ if __name__ == "__main__":
 
     from cugraph_pyg.loader import LinkNeighborLoader
 
-    def create_loader(data_l, shuffle=False):
+    def create_loader(data_l):
         return LinkNeighborLoader(
             data=data_l[0],
             edge_label_index=data_l[1],
             edge_label=data_l[2],
             neg_sampling="binary" if data_l[2] is None else None,
             batch_size=args.batch_size,
-            shuffle=shuffle,
+            shuffle=True,
             drop_last=True,
             num_neighbors={
                 ("user", "to", "item"): [8, 4],
@@ -476,7 +470,6 @@ if __name__ == "__main__":
     print("Creating train loader...")
     train_loader = create_loader(
         data_dict["train"],
-        shuffle=True,
     )
     print(f"Created train loader on rank {global_rank}")
 
@@ -530,9 +523,7 @@ if __name__ == "__main__":
     del val_loader
     gc.collect()
     print("Creating test loader...")
-    test_loader = create_loader(
-        data_dict["test"],
-    )
+    test_loader = create_loader(data_dict["test"])
 
     if global_rank == 0:
         print("Test")
