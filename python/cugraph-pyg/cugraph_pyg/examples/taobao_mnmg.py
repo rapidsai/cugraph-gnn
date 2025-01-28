@@ -240,6 +240,9 @@ def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
         (data["item"].num_nodes, data["item"].num_nodes),
     ] = data["item", "rev_to", "item"].edge_index
 
+    feature_store["item", "x", None] = data["item"].x
+    feature_store["user", "x", None] = data["user"].x
+
     out = (
         (feature_store, graph_store),
         data["user", "to", "item"].edge_label_index,
@@ -251,6 +254,7 @@ def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
 
 def load_partitions(edge_path, meta_path, wg_mem_type):
     rank = torch.distributed.get_rank()
+    world_size = torch.distributed.get_world_size()
     data = HeteroData()
 
     # Load metadata
@@ -260,6 +264,14 @@ def load_partitions(edge_path, meta_path, wg_mem_type):
 
     data["user"].num_nodes = meta["num_nodes"]["user"]
     data["item"].num_nodes = meta["num_nodes"]["item"]
+
+    data["user"].x = torch.tensor_split(
+        torch.arange(data["user"].num_nodes), world_size
+    )[rank]
+
+    data["item"].x = torch.tensor_split(
+        torch.arange(data["item"].num_nodes), world_size
+    )[rank]
 
     # T.ToUndirected() will not work here because we are working with
     # partitioned data.  The number of nodes will not match.
@@ -456,11 +468,17 @@ if __name__ == "__main__":
         data_dict["train"],
         shuffle=True,
     )
+    print(f"Created train loader on rank {global_rank}")
+
+    torch.distributed.barrier()
 
     print("Creating validation loader...")
     val_loader = create_loader(
         data_dict["val"],
     )
+    print(f"Created validation loader on rank {global_rank}")
+
+    torch.distributed.barrier()
 
     model = Model(
         num_users=meta["num_nodes"]["user"],
@@ -468,6 +486,7 @@ if __name__ == "__main__":
         hidden_channels=64,
         out_channels=64,
     ).to(local_rank)
+    print(f"Created model on rank {global_rank}")
 
     # Initialize lazy modules
     # FIXME DO NOT DO THIS!!!!  Use set parameters
@@ -479,6 +498,7 @@ if __name__ == "__main__":
             batch["user", "item"].edge_label_index,
         )
         break
+    print(f"Initialized model on rank {global_rank}")
 
     model = DistributedDataParallel(model, device_ids=[local_rank])
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
