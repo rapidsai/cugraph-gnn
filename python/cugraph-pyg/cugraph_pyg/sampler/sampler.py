@@ -365,7 +365,11 @@ class HeterogeneousSampleReader(SampleReader):
 
             ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
             if ux.numel() > 0:
-                input_type = pyg_can_etype[2]  # can only ever be 1
+                # can only ever be 1
+                if "edge_inverse" in raw_sample_data:
+                    input_type = pyg_can_etype
+                else:
+                    input_type = pyg_can_etype[2]
 
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
@@ -383,13 +387,33 @@ class HeterogeneousSampleReader(SampleReader):
         }
         num_sampled_edges = {k: v.cpu() for k, v in num_sampled_edges.items()}
 
+        input_index = raw_sample_data["input_index"][
+            raw_sample_data["input_offsets"][index] : raw_sample_data["input_offsets"][
+                index + 1
+            ]
+        ]
+
+        num_seeds = input_index.numel()
+        input_index = input_index[input_index >= 0]
+
+        num_pos = input_index.numel()
+        num_neg = num_seeds - num_pos
+        if num_neg > 0:
+            edge_label = torch.concat(
+                [
+                    torch.full((num_pos,), 1.0),
+                    torch.full((num_neg,), 0.0),
+                ]
+            )
+        else:
+            if "input_label" in raw_sample_data:
+                edge_label = raw_sample_data["input_label"]
+            else:
+                edge_label = None
+
         input_index = (
             input_type,
-            raw_sample_data["input_index"][
-                raw_sample_data["input_offsets"][index] : raw_sample_data[
-                    "input_offsets"
-                ][index + 1]
-            ],
+            input_index,
         )
 
         edge_inverse = (
@@ -413,7 +437,7 @@ class HeterogeneousSampleReader(SampleReader):
             metadata = (
                 input_index,
                 edge_inverse.view(2, -1),
-                None,
+                edge_label,
                 None,  # TODO this will eventually include time
             )
 
@@ -524,7 +548,10 @@ class HomogeneousSampleReader(SampleReader):
                 ]
             )
         else:
-            edge_label = None
+            if "input_label" in raw_sample_data:
+                edge_label = raw_sample_data["input_label"]
+            else:
+                edge_label = None
 
         edge_inverse = (
             (

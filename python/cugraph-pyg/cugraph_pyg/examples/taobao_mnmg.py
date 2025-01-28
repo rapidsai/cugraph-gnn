@@ -328,9 +328,15 @@ def train(model, optimizer, loader):
     model.train()
 
     total_loss = total_examples = 0
-    for batch in loader:
+    for i, batch in enumerate(loader):
         batch = batch.to(rank)
         optimizer.zero_grad()
+
+        if i == 100:
+            break
+
+        if i % 10 == 0 and rank == 0:
+            print(f"iter {i}")
 
         pred = model(
             batch.x_dict,
@@ -355,7 +361,11 @@ def test(model, loader):
 
     model.eval()
     preds, targets = [], []
-    for batch in loader:
+    for i, batch in enumerate(loader):
+        print(batch)
+        if i == 100:
+            break
+
         batch = batch.to(rank)
 
         pred = (
@@ -461,6 +471,7 @@ if __name__ == "__main__":
                 ("item", "to", "item"): [8, 4],
                 ("item", "rev_to", "item"): [8, 4],
             },
+            local_seeds_per_call=16384,
         )
 
     print("Creating train loader...")
@@ -504,9 +515,9 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     best_val_auc = 0
-    for epoch in range(1, args.epochs):
+    for epoch in range(1, args.epochs + 1):
         print("Train")
-        loss = train(model, train_loader)
+        loss = train(model, optimizer, train_loader)
 
         if global_rank == 0:
             print("Val")
@@ -517,7 +528,7 @@ if __name__ == "__main__":
             print(f"Epoch: {epoch:02d}, Loss: {loss:4f}, Val AUC: {val_auc:.4f}")
 
     del train_loader
-    del eval_loader
+    del val_loader
     gc.collect()
     print("Creating test loader...")
     test_loader = create_loader(
