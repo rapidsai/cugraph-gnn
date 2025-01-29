@@ -15,6 +15,7 @@
 import time
 import argparse
 import gc
+import warnings
 
 import torch
 
@@ -201,6 +202,12 @@ def parse_args():
 
 
 def main():
+    warnings.warn(
+        "The Dask API is used in this example is deprecated.  "
+        "Please refer to 'gcn_dist_sg' for an example that uses the new API.",
+        FutureWarning,
+    )
+
     args = parse_args()
 
     try:

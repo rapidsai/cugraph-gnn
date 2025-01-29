@@ -419,6 +419,12 @@ def parse_args():
 
 
 def main():
+    warnings.warn(
+        "The Dask API is used in this example is deprecated.  "
+        "Please refer to 'gcn_dist_mg' for an example that uses the new API.",
+        FutureWarning,
+    )
+
     args = parse_args()
     if args.dask_scheduler_file is None:
         warnings.warn(
