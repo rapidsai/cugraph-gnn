@@ -8,6 +8,7 @@ channels:
 - nvidia
 dependencies:
 - cugraph==25.2.*,>=0.0.0a0
+- ogb
 - pre-commit
 - pydantic
 - pytest
@@ -15,6 +16,7 @@ dependencies:
 - pytest-cov
 - pytest-xdist
 - pytorch>=2.3
+- pytorch>=2.3,<2.6a0
 - pytorch_geometric>=2.5,<2.7
 - tensordict>=0.1.2
 - torchdata

@@ -10,6 +10,7 @@ dependencies:
 - cugraph==25.2.*,>=0.0.0a0
 - dgl>=2.4.0.cu*
 - dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
+- ogb
 - pre-commit
 - pydantic
 - pytest
@@ -17,6 +18,7 @@ dependencies:
 - pytest-cov
 - pytest-xdist
 - pytorch>=2.3
+- pytorch>=2.3,<2.6a0
 - tensordict>=0.1.2
 - torchdata
 name: cugraph_dgl_dev_cuda-118
