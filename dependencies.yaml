@@ -229,6 +229,10 @@ dependencies:
               cuda: "12.5"
             packages:
               - cuda-version=12.5
+          - matrix:
+              cuda: "12.8"
+            packages:
+              - cuda-version=12.8
   cuda:
     specific:
       - output_types: [conda]
@@ -440,10 +444,10 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch_geometric>=2.5,<2.6
+          - pytorch_geometric>=2.5,<2.7
       - output_types: [pyproject, requirements]
         packages:
-          - torch-geometric>=2.5,<2.6
+          - torch-geometric>=2.5,<2.7
 
   depends_on_pylibwholegraph:
     common:
