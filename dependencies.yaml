@@ -457,10 +457,10 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - *pytorch_pip
+              - torch>=2.3,<2.6a0
           - matrix: {cuda: "11.*"}
             packages:
-              - *pytorch_pip
+              - torch>=2.3,<2.6a0
           - {matrix: null, packages: [*pytorch_pip]}
 
   depends_on_dgl:
