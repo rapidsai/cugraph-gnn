@@ -436,11 +436,12 @@ dependencies:
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
 
   # Will remove this after snap-stanford/ogb#497 is resolved.
+  # Temporarily sets the max pytorch version to 2.5 for compatibility
+  # with ogb.
   depends_on_ogb:
     common:
       - output_types: [conda]
         packages:
-          - ogb
           - pytorch>=2.3,<2.6a0
     specific:
       - output_types: [requirements]
@@ -457,11 +458,9 @@ dependencies:
           - matrix: {cuda: "12.*"}
             packages:
               - *pytorch_pip
-              - ogb
           - matrix: {cuda: "11.*"}
             packages:
               - *pytorch_pip
-              - ogb
           - {matrix: null, packages: [*pytorch_pip]}
 
   depends_on_dgl:

@@ -10,7 +10,6 @@ dependencies:
 - cugraph==25.2.*,>=0.0.0a0
 - dgl>=2.4.0.cu*
 - dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
-- ogb
 - pre-commit
 - pydantic
 - pytest
