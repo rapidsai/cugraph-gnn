@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -30,9 +30,9 @@ def test_tensordict_feature_store_basic_api():
 
     other_features = torch.randint(1024, (10, 5))
 
-    feature_store["node", "feat0"] = node_features_0
-    feature_store["node", "feat1"] = node_features_1
-    feature_store["other", "feat"] = other_features
+    feature_store["node", "feat0", None] = node_features_0
+    feature_store["node", "feat1", None] = node_features_1
+    feature_store["other", "feat", None] = other_features
 
     assert (feature_store["node"]["feat0"][:] == node_features_0).all()
     assert (feature_store["node"]["feat1"][:] == node_features_1).all()
@@ -40,5 +40,5 @@ def test_tensordict_feature_store_basic_api():
 
     assert len(feature_store.get_all_tensor_attrs()) == 3
 
-    del feature_store["node", "feat0"]
+    del feature_store["node", "feat0", None]
     assert len(feature_store.get_all_tensor_attrs()) == 2
