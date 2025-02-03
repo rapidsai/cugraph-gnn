@@ -15,6 +15,8 @@ import warnings
 
 from typing import Union, Tuple, Optional, Callable, List, Dict
 
+import numpy as np
+
 import cugraph_pyg
 from cugraph_pyg.loader import LinkLoader
 from cugraph_pyg.sampler import BaseSampler
@@ -217,6 +219,17 @@ class LinkNeighborLoader(LinkLoader):
 
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
+
+        if isinstance(num_neighbors, dict):
+            sorted_keys, _, _ = graph_store._numeric_edge_types
+            fanout_length = len(next(iter(num_neighbors.values())))
+            na = np.zeros(fanout_length * len(sorted_keys), dtype="int32")
+            for i, key in enumerate(sorted_keys):
+                if key in num_neighbors:
+                    for hop in range(fanout_length):
+                        na[hop * len(sorted_keys) + i] = num_neighbors[key][hop]
+
+            num_neighbors = na
 
         sampler = BaseSampler(
             NeighborSampler(

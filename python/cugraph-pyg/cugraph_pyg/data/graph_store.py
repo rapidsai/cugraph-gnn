@@ -293,7 +293,9 @@ class GraphStore(
         return torch.concat(weights)
 
     @property
-    def _numeric_edge_types(self) -> Tuple[List, "torch.Tensor", "torch.Tensor"]:
+    def _numeric_edge_types(
+        self,
+    ) -> Tuple[List[Tuple[str, str, str]], "torch.Tensor", "torch.Tensor"]:
         """
         Returns the canonical edge types in order (the 0th canonical type corresponds
         to numeric edge type 0, etc.), along with the numeric source and destination
