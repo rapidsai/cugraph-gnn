@@ -94,9 +94,9 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
         assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="deleteme")
 @pytest.mark.parametrize("specify_size", [True, False])
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
@@ -164,6 +164,7 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     ).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -223,6 +224,7 @@ def run_test_link_neighbor_loader_basic_mg(
         assert (elx[i] == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -284,6 +286,7 @@ def run_test_link_neighbor_loader_uneven_mg(
         assert (elx[:, [i]] == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skip(reason="broken")
@@ -345,6 +348,9 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
         assert batch.edge_label[0] == 1.0
+
+    cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
