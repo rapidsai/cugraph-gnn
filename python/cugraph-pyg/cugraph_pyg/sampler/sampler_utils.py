@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -459,18 +459,11 @@ def neg_sample(
         int(ceil(seed_src.numel() / batch_size)),
     )
 
-    if graph_store.is_multi_gpu:
-        num_neg_global = torch.tensor([num_neg], device="cuda")
-        torch.distributed.all_reduce(num_neg_global, op=torch.distributed.ReduceOp.SUM)
-        num_neg = int(num_neg_global)
-    else:
-        num_neg_global = num_neg
-
     if node_time is None:
         result_dict = pylibcugraph.negative_sampling(
             graph_store._resource_handle,
             graph_store._graph,
-            num_neg_global,
+            num_neg,
             vertices=None
             if unweighted
             else cupy.arange(src_weight.numel(), dtype="int64"),
