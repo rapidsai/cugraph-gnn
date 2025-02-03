@@ -459,17 +459,11 @@ def neg_sample(
         int(ceil(seed_src.numel() / batch_size)),
     )
 
-    if graph_store.is_multi_gpu:
-        num_neg_global = torch.tensor([num_neg], device="cuda")
-        torch.distributed.all_reduce(num_neg_global, op=torch.distributed.ReduceOp.SUM)
-    else:
-        num_neg_global = num_neg
-
     if node_time is None:
         result_dict = pylibcugraph.negative_sampling(
             graph_store._resource_handle,
             graph_store._graph,
-            num_neg_global,
+            num_neg,
             vertices=None
             if unweighted
             else cupy.arange(src_weight.numel(), dtype="int64"),
