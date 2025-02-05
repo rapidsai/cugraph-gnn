@@ -13,7 +13,6 @@
 
 import numpy as np
 import torch
-import pickle
 from torch.utils.data import Dataset
 
 
@@ -28,10 +27,7 @@ class NodeClassificationDataset(Dataset):
         return len(self.dataset)
 
 
-def create_node_claffication_datasets(pickle_data_filename: str):
-    with open(pickle_data_filename, "rb") as f:
-        data_and_label = pickle.load(f)
-
+def create_node_classification_datasets(data_and_label: dict):
     train_data = {
         "idx": data_and_label["train_idx"],
         "label": data_and_label["train_label"],

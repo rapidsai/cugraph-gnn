@@ -18,6 +18,7 @@ import argparse
 
 import apex
 import torch
+import pickle
 from apex.parallel import DistributedDataParallel as DDP
 import pylibwholegraph.torch as wgth
 
@@ -141,8 +142,12 @@ def main_func():
     if args.use_cpp_ext:
         wgth.compile_cpp_extension()
 
-    train_ds, valid_ds, test_ds = wgth.create_node_claffication_datasets(
-        args.pickle_data_path
+    data_and_label = dict()
+    with open(args.pickle_data_path, "rb") as f:
+        data_and_label = pickle.load(f)
+
+    train_ds, valid_ds, test_ds = wgth.create_node_classification_datasets(
+        data_and_label
     )
 
     graph_structure = wgth.GraphStructure()
