@@ -24,7 +24,7 @@ PYTORCH_URL="https://download.pytorch.org/whl/cu${PYTORCH_CUDA_VER}"
 DGL_URL="https://data.dgl.ai/wheels/torch-2.3/cu${PYTORCH_CUDA_VER}/repo.html"
 
 # echo to expand wildcard before adding `[extra]` requires for pip
-python -m pip install \
+rapids-pip-retry install \
     -v \
     --extra-index-url "${PYTORCH_URL}" \
     --find-links "${DGL_URL}" \
