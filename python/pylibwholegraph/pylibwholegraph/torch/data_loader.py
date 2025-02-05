@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,7 +13,6 @@
 
 import numpy as np
 import torch
-import pickle
 from torch.utils.data import Dataset
 
 
@@ -28,10 +27,7 @@ class NodeClassificationDataset(Dataset):
         return len(self.dataset)
 
 
-def create_node_claffication_datasets(pickle_data_filename: str):
-    with open(pickle_data_filename, "rb") as f:
-        data_and_label = pickle.load(f)
-
+def create_node_classification_datasets(data_and_label: dict):
     train_data = {
         "idx": data_and_label["train_idx"],
         "label": data_and_label["train_label"],
