@@ -22,7 +22,7 @@ else
 fi
 
 # echo to expand wildcard before adding `[extra]` requires for pip
-python -m pip install \
+rapids-pip-retry install \
     -v \
     --extra-index-url "${PYTORCH_URL}" \
     --find-links "${PYG_URL}" \
