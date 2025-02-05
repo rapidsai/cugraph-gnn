@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -76,7 +76,7 @@ from .common_options import (
 
 from .gnn_model import set_framework, create_gnn_layers, create_sub_graph, HomoGNNModel
 from .data_loader import (
-    create_node_claffication_datasets,
+    create_node_classification_datasets,
     get_train_dataloader,
     get_valid_test_dataloader,
 )
