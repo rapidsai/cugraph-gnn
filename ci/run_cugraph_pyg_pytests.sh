@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 
 set -euo pipefail
 
@@ -11,8 +11,8 @@ pytest --cache-clear --benchmark-disable "$@" .
 # Used to skip certain examples in CI due to memory limitations
 export CI=true
 
-# Test examples
-for e in "$(pwd)"/examples/*.py; do
-  rapids-logger "running example $e"
-  (yes || true) | python $e
-done
+# Test examples (disabled due to excessive network bandwidth usage)
+#for e in "$(pwd)"/examples/*.py; do
+#  rapids-logger "running example $e"
+#  (yes || true) | python $e
+#done
