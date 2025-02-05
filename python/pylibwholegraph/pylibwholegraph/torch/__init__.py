@@ -76,7 +76,7 @@ from .common_options import (
 
 from .gnn_model import set_framework, create_gnn_layers, create_sub_graph, HomoGNNModel
 from .data_loader import (
-    create_node_claffication_datasets,
+    create_node_classification_datasets,
     get_train_dataloader,
     get_valid_test_dataloader,
 )
