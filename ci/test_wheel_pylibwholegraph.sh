@@ -23,7 +23,7 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
-rapids-retry rapids-pip-retry install \
+rapids-pip-retry install \
     --extra-index-url ${INDEX_URL} \
     "$(echo ./dist/pylibwholegraph*.whl)[test]" \
     'torch>=2.3'
