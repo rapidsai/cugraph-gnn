@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -79,7 +79,7 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
     graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo", False, sz)
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (34, 16))
+    feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     ix_train = torch.tensor_split(torch.arange(34), world_size, axis=0)[rank]
 
@@ -91,12 +91,12 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
 
     for batch in loader:
         assert isinstance(batch, torch_geometric.data.Data)
-        assert (feature_store["person", "feat"][batch.n_id] == batch.feat).all()
+        assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="deleteme")
 @pytest.mark.parametrize("specify_size", [True, False])
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
@@ -134,8 +134,8 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     graph_store.put_edge_index(eix, ("person", "knows", "person"), "coo")
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (6 * world_size, 12))
-    feature_store[("person", "knows", "person"), "bias"] = torch.concat(
+    feature_store["person", "feat", None] = torch.randint(128, (6 * world_size, 12))
+    feature_store[("person", "knows", "person"), "bias", None] = torch.concat(
         [torch.tensor([0, 1, 1], dtype=torch.float32) for _ in range(world_size)]
     )
 
@@ -164,6 +164,7 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     ).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -199,7 +200,7 @@ def run_test_link_neighbor_loader_basic_mg(
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -223,9 +224,9 @@ def run_test_link_neighbor_loader_basic_mg(
         assert (elx[i] == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="deleteme")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
 @pytest.mark.parametrize("select_edges", [64, 128])
@@ -255,16 +256,18 @@ def test_link_neighbor_loader_basic_mg(select_edges, batch_size, depth):
     )
 
 
-def run_test_link_neighbor_loader_uneven_mg(rank, uid, world_size, edge_index):
+def run_test_link_neighbor_loader_uneven_mg(
+    rank, uid, world_size, edge_index, num_nodes
+):
     init_pytorch_worker(rank, world_size, uid)
 
     graph_store = GraphStore(is_multi_gpu=True)
     feature_store = TensorDictFeatureStore()
 
     batch_size = 1
-    graph_store[("n", "e", "n"), "coo"] = torch.tensor_split(
-        edge_index, world_size, dim=-1
-    )[rank]
+    graph_store[
+        ("n", "e", "n"), "coo", False, (num_nodes, num_nodes)
+    ] = torch.tensor_split(edge_index, world_size, dim=-1)[rank]
 
     elx = graph_store[("n", "e", "n"), "coo"]  # select all edges on each worker
     loader = LinkNeighborLoader(
@@ -283,9 +286,10 @@ def run_test_link_neighbor_loader_uneven_mg(rank, uid, world_size, edge_index):
         assert (elx[:, [i]] == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
-@pytest.mark.skip(reason="deleteme")
+@pytest.mark.skip(reason="broken")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
 def test_link_neighbor_loader_uneven_mg():
@@ -305,6 +309,7 @@ def test_link_neighbor_loader_uneven_mg():
             uid,
             world_size,
             edge_index,
+            13,
         ),
         nprocs=world_size,
     )
@@ -343,6 +348,9 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
         assert batch.edge_label[0] == 1.0
+
+    cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")

@@ -12,12 +12,15 @@ concurrency:
 jobs:
   pr-builder:
     needs:
+      - check-nightly-ci
       - changed-files
+      - devcontainer
       - checks
       - conda-cpp-build
       - conda-cpp-tests
       - conda-python-build
       - conda-python-tests
+      - docs-build
       - conda-notebook-tests
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
@@ -26,21 +29,32 @@ jobs:
       - wheel-build-cugraph-pyg
       - wheel-tests-cugraph-pyg
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@branch-25.04
     if: always()
     with:
       needs: ${{ toJSON(needs) }}
+  check-nightly-ci:
+    # Switch to ubuntu-latest once it defaults to a version of Ubuntu that
+    # provides at least Python 3.11 (see
+    # https://docs.python.org/3/library/datetime.html#datetime.date.fromisoformat)
+    runs-on: ubuntu-24.04
+    env:
+      RAPIDS_GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check if nightly CI is passing
+        uses: rapidsai/shared-actions/check_nightly_success/dispatch@main
+        with:
+          repo: cugraph-gnn
   changed-files:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@branch-25.04
     with:
       files_yaml: |
         test_cpp:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
-          - '!docs/**'
           - '!img/**'
           - '!mg_utils/**'
           - '!notebooks/**'
@@ -48,48 +62,56 @@ jobs:
           - '!readme_pages/**'
         test_notebooks:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
-          - '!docs/**'
           - '!readme_pages/**'
         test_python:
           - '**'
-          - '!.devcontainers/**'
+          - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
-          - '!docs/**'
           - '!img/**'
           - '!notebooks/**'
           - '!readme_pages/**'
+  devcontainer:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@branch-25.04
+    with:
+      arch: '["amd64"]'
+      cuda: '["12.8"]'
+      build_command: |
+        sccache -z;
+        build-all --verbose -j$(nproc --ignore=1);
+        sccache -s;
   checks:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@branch-25.04
     with:
       enable_check_generated_files: false
   conda-cpp-build:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-25.04
     with:
       build_type: pull-request
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
     with:
       build_type: pull-request
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.04
     with:
       build_type: pull-request
   conda-notebook-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_notebooks
     with:
       build_type: pull-request
@@ -100,21 +122,31 @@ jobs:
   conda-python-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
+      matrix_filter: map(select(.ARCH == "amd64"))
+  docs-build:
+    needs: conda-cpp-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.04
+    with:
+      arch: "amd64"
+      build_type: pull-request
+      container_image: "rapidsai/ci-conda:latest"
+      run_script: "ci/build_docs.sh"
   wheel-build-pylibwholegraph:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
       build_type: pull-request
       script: ci/build_wheel_pylibwholegraph.sh
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
@@ -123,14 +155,14 @@ jobs:
   wheel-build-cugraph-dgl:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
       build_type: pull-request
       script: ci/build_wheel_cugraph-dgl.sh
   wheel-tests-cugraph-dgl:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
@@ -139,14 +171,14 @@ jobs:
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
       build_type: pull-request
       script: ci/build_wheel_cugraph-pyg.sh
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.04
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request

@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -111,11 +111,13 @@ def load_data(
     feature_store = TensorDictFeatureStore()  # empty fs required by PyG
     edge_feature_store = WholeFeatureStore()
 
-    graph_store[("n", "e", "n"), "coo"] = torch.tensor_split(
-        data.edge_index.cuda(), world_size, dim=1
-    )[rank]
+    print("num nodes:", data.num_nodes)
 
-    edge_feature_store[("n", "e", "n"), "rel"] = torch.tensor_split(
+    graph_store[
+        ("n", "e", "n"), "coo", False, (data.num_nodes, data.num_nodes)
+    ] = torch.tensor_split(data.edge_index.cuda(), world_size, dim=1)[rank]
+
+    edge_feature_store[("n", "e", "n"), "rel", None] = torch.tensor_split(
         data.edge_reltype.cuda(),
         world_size,
     )[rank]
