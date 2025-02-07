@@ -19,6 +19,7 @@ import warnings
 import gc
 
 from datetime import timedelta
+from time import perf_counter
 
 import torch
 import torch.nn.functional as F
@@ -324,6 +325,7 @@ def load_partitions(edge_path, meta_path, wg_mem_type):
 
 
 def train(model, optimizer, loader):
+    start_time = perf_counter()
     rank = torch.distributed.get_rank()
     model.train()
 
@@ -333,7 +335,8 @@ def train(model, optimizer, loader):
         optimizer.zero_grad()
 
         if i % 10 == 0 and rank == 0:
-            print(f"iter {i}")
+            curr_time = perf_counter()
+            print(f"iter {i}, {curr_time - start_time} sec elapsed.")
 
         pred = model(
             batch.x_dict,
@@ -491,6 +494,8 @@ if __name__ == "__main__":
     ).to(local_rank)
     print(f"Created model on rank {global_rank}")
 
+    init_start = perf_counter()
+
     # Initialize lazy modules
     # FIXME DO NOT DO THIS!!!!  Use set parameters
     for batch in train_loader:
@@ -501,23 +506,38 @@ if __name__ == "__main__":
             batch["user", "item"].edge_label_index,
         )
         break
-    print(f"Initialized model on rank {global_rank}")
+    init_end = perf_counter()
+    print(
+        f"Initialized model on rank {global_rank}, "
+        f"took {init_end-init_start:.4f} seconds."
+    )
 
     model = DistributedDataParallel(model, device_ids=[local_rank])
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
+    train_start = perf_counter()
     best_val_auc = 0
     for epoch in range(1, args.epochs + 1):
+        train_start = perf_counter()
         print("Train")
         loss = train(model, optimizer, train_loader)
+        train_end = perf_counter()
 
         if global_rank == 0:
             print("Val")
+        val_start = perf_counter()
         val_auc = test(model, val_loader)
         best_val_auc = max(best_val_auc, val_auc)
+        val_end = perf_counter()
 
         if global_rank == 0:
-            print(f"Epoch: {epoch:02d}, Loss: {loss:4f}, Val AUC: {val_auc:.4f}")
+            print(
+                f"Epoch: {epoch:02d}, Loss: {loss:4f}, Val AUC: {val_auc:.4f},"
+                f" Train time: {train_end - train_start:.4f} s, "
+                f"Val time: {val_end - val_start:.4f} s"
+            )
+    train_end = perf_counter()
+    print(f"Training complete in {train_end - train_start:.4f} seconds.")
 
     del train_loader
     del val_loader
