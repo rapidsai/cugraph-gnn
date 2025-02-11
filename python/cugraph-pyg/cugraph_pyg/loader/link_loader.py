@@ -128,6 +128,8 @@ class LinkLoader:
             (None, edge_label_index),
         )
 
+        print(input_type, edge_label_index)
+
         # Note reverse of standard convention here
         if input_type is not None:
             edge_label_index[0] += data[1]._vertex_offsets[input_type[0]]

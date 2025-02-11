@@ -509,13 +509,13 @@ if __name__ == "__main__":
     init_end = perf_counter()
     print(
         f"Initialized model on rank {global_rank}, "
-        f"took {init_end-init_start:.4f} seconds."
+        f"took {init_end - init_start:.4f} seconds."
     )
 
     model = DistributedDataParallel(model, device_ids=[local_rank])
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    train_start = perf_counter()
+    training_start = perf_counter()
     best_val_auc = 0
     for epoch in range(1, args.epochs + 1):
         train_start = perf_counter()
@@ -536,7 +536,7 @@ if __name__ == "__main__":
                 f" Train time: {train_end - train_start:.4f} s, "
                 f"Val time: {val_end - val_start:.4f} s"
             )
-    train_end = perf_counter()
+    training_end = perf_counter()
     print(f"Training complete in {train_end - train_start:.4f} seconds.")
 
     del train_loader
