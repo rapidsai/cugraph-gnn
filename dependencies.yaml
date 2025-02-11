@@ -68,6 +68,46 @@ files:
       - depends_on_ogb
       - py_version
       - test_python_common
+  test_cugraph_dgl:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_cugraph_dgl
+  test_cugraph_pyg:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_cugraph_pyg
+  test_pylibwholegraph:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_mkl
+      - depends_on_pylibwholegraph
+      - test_python_pylibwholegraph
 
   py_build_pylibwholegraph:
     output: pyproject
@@ -393,6 +433,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - pytest-forked
+      - output_types: [pyproject, requirements]
           - scipy
   cugraph_dgl_dev:
     common:
@@ -658,3 +699,13 @@ dependencies:
             packages: &cupy_packages_cu11
               - cupy-cuda11x>=13.2.0
           - {matrix: null, packages: *cupy_packages_cu11}
+  depends_on_cugraph_pyg:
+    common:
+      - output_types: conda
+        packages:
+          - cugraph-pyg==25.4.*,>=0.0.0a0
+  depends_on_mkl:
+    common:
+      - output_types: conda
+        packages:
+          - mkl<2024.1.0
