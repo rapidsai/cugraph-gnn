@@ -433,8 +433,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - pytest-forked
-      - output_types: [pyproject, requirements]
-        packages:
           - scipy
   cugraph_dgl_dev:
     common:
