@@ -7,16 +7,16 @@ import json
 
 import torch
 import torch.nn.functional as F
+
+from torch.nn import Linear
+
+
 from tqdm import tqdm
 
 from torch_geometric import EdgeIndex
 from torch_geometric.datasets import MovieLens
-from torch_geometric.metrics import (
-    LinkPredMAP,
-    LinkPredPrecision,
-    LinkPredRecall,
-)
-from torch_geometric.nn import MIPSKNNIndex, SAGEConv, to_hetero
+
+from torch_geometric.nn import SAGEConv
 from torch_geometric.data import HeteroData
 
 from pylibwholegraph.torch.initialize import (
@@ -24,14 +24,16 @@ from pylibwholegraph.torch.initialize import (
     finalize as wm_finalize,
 )
 
+from sklearn.metrics import roc_auc_score
+
 
 def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     import rmm
 
     rmm.reinitialize(
         devices=local_rank,
-        managed_memory=True,
-        pool_allocator=True,
+        managed_memory=False,
+        pool_allocator=False,
     )
 
     import cupy
@@ -89,11 +91,14 @@ def cugraph_pyg_from_heterodata(data, wg_mem_type):
     ] = data["movie", "rev_rates", "user"].edge_index
 
     feature_store["user", "x", None] = data["user"].x
+    feature_store["movie", "x", None] = data["movie"].x
 
     return feature_store, graph_store
 
 
-def preprocess_and_partition(data, edge_path, meta_path):
+def preprocess_and_partition(data, edge_path, features_path, meta_path):
+    world_size = torch.distributed.get_world_size()
+
     # Only use edges with high ratings (>= 4):
     mask = data["user", "rates", "movie"].edge_label >= 4
     data["user", "movie"].edge_index = data["user", "movie"].edge_index[:, mask]
@@ -120,6 +125,18 @@ def preprocess_and_partition(data, edge_path, meta_path):
         d_path = os.path.join(user_movie_edge_path, d)
         write_edges(eid, d_path)
 
+    print("Writing features...")
+    movie_path = os.path.join(features_path, "movie")
+    os.makedirs(
+        movie_path,
+        exist_ok=True,
+    )
+    for r, fx in enumerate(torch.tensor_split(data["movie"].x, world_size)):
+        torch.save(
+            fx,
+            os.path.join(movie_path, f"rank={r}.pt"),
+        )
+
     print("Writing metadata...")
     meta = {
         "num_nodes": {
@@ -131,7 +148,7 @@ def preprocess_and_partition(data, edge_path, meta_path):
         json.dump(meta, f)
 
 
-def load_partitions(edge_path, meta_path):
+def load_partitions(edge_path, features_path, meta_path):
     rank = torch.distributed.get_rank()
     world_size = torch.distributed.get_world_size()
     data = HeteroData()
@@ -143,9 +160,17 @@ def load_partitions(edge_path, meta_path):
 
     data["user"].num_nodes = meta["num_nodes"]["user"]
     data["movie"].num_nodes = meta["num_nodes"]["movie"]
-    data["user"].x = torch.tensor_split(torch.eye(data["user"].num_nodes), world_size)[
-        rank
-    ]
+    data["user"].x = (
+        torch.tensor_split(
+            torch.eye(data["user"].num_nodes, dtype=torch.float32), world_size
+        )[rank]
+        .detach()
+        .clone()
+    )
+    data["movie"].x = torch.load(
+        os.path.join(features_path, "movie", f"rank={rank}.pt"),
+        weights_only=True,
+    )
 
     # T.ToUndirected() will not work here because we are working with
     # partitioned data.  The number of nodes will not match.
@@ -182,40 +207,70 @@ def load_partitions(edge_path, meta_path):
     return data, label_dict
 
 
-class GNN(torch.nn.Module):
-    def __init__(self, hidden_channels):
+class Encoder(torch.nn.Module):
+    def __init__(self, hidden_channels, out_channels):
         super().__init__()
         self.conv1 = SAGEConv((-1, -1), hidden_channels)
         self.conv2 = SAGEConv((-1, -1), hidden_channels)
         self.conv3 = SAGEConv((-1, -1), hidden_channels)
+        self.lin1 = Linear(hidden_channels, out_channels)
+        self.lin2 = Linear(hidden_channels, out_channels)
 
-    def forward(self, x, edge_index):
-        x = self.conv1(x, edge_index).relu()
-        x = self.conv2(x, edge_index).relu()
-        x = self.conv3(x, edge_index)
-        return x
+    def forward(self, x_dict, edge_index_dict):
+        user_x = self.conv1(
+            (x_dict["movie"], x_dict["user"]),
+            edge_index_dict["movie", "rev_rates", "user"],
+        ).relu()
+
+        movie_x = self.conv2(
+            (x_dict["user"], x_dict["movie"]), edge_index_dict["user", "rates", "movie"]
+        ).relu()
+
+        user_x = self.conv3(
+            (movie_x, user_x), edge_index_dict["movie", "rev_rates", "user"]
+        ).relu()
+
+        return {
+            "user": self.lin1(user_x),
+            "movie": self.lin2(movie_x),
+        }
 
 
-class InnerProductDecoder(torch.nn.Module):
+class EdgeDecoder(torch.nn.Module):
+    def __init__(self, hidden_channels):
+        super().__init__()
+        self.lin1 = Linear(2 * hidden_channels, hidden_channels)
+        self.lin2 = Linear(hidden_channels, 1)
+
     def forward(self, x_dict, edge_label_index):
-        x_src = x_dict["user"][edge_label_index[0]]
-        x_dst = x_dict["movie"][edge_label_index[1]]
-        return (x_src * x_dst).sum(dim=-1)
+        row, col = edge_label_index
+        z = torch.cat(
+            [
+                x_dict["user"][row],
+                x_dict["movie"][col],
+            ],
+            dim=-1,
+        )
+
+        z = self.lin1(z).relu()
+        z = self.lin2(z)
+        return z.view(-1)
 
 
 class Model(torch.nn.Module):
-    def __init__(self, hidden_channels):
+    def __init__(self, hidden_channels, metadata):
         super().__init__()
-        self.encoder = GNN(hidden_channels)
-        self.encoder = to_hetero(self.encoder, data.metadata(), aggr="sum")
-        self.decoder = InnerProductDecoder()
+        self.encoder = Encoder(hidden_channels, hidden_channels)
+        self.decoder = EdgeDecoder(hidden_channels)
 
-    def forward(self, x_dict, edge_index_dict, edge_label_index):
+    def forward(self, x_dict, edge_index_dict, num_samples):
         x_dict = self.encoder(x_dict, edge_index_dict)
-        return self.decoder(x_dict, edge_label_index)
+        return self.decoder(
+            x_dict, edge_index_dict["user", "rates", "movie"][:, :num_samples]
+        )
 
 
-def train():
+def train(train_loader, model, optimizer):
     model.train()
 
     total_loss = total_examples = 0
@@ -226,9 +281,10 @@ def train():
         out = model(
             batch.x_dict,
             batch.edge_index_dict,
-            batch["user", "movie"].edge_label_index,
+            batch["user", "rates", "movie"].edge_label.shape[0],
         )
-        y = batch["user", "movie"].edge_label
+
+        y = batch["user", "rates", "movie"].edge_label
 
         loss = F.binary_cross_entropy_with_logits(out, y)
         loss.backward()
@@ -241,60 +297,33 @@ def train():
 
 
 @torch.no_grad()
-def test(edge_label_index, exclude_links):
+def test(test_loader, model):
     model.eval()
 
-    dst_embs = []
-    for batch in dst_loader:  # Collect destination node/movie embeddings:
+    preds = []
+    targets = []
+    for batch in test_loader:
         batch = batch.to(device)
-        emb = model.encoder(batch.x_dict, batch.edge_index_dict)["movie"]
-        emb = emb[: batch["movie"].batch_size]
-        dst_embs.append(emb)
-    dst_emb = torch.cat(dst_embs, dim=0)
-    del dst_embs
-
-    # Instantiate k-NN index based on maximum inner product search (MIPS):
-    mips = MIPSKNNIndex(dst_emb)
-
-    # Initialize metrics:
-    map_metric = LinkPredMAP(k=args.npred).to(device)
-    precision_metric = LinkPredPrecision(k=args.npred).to(device)
-    recall_metric = LinkPredRecall(k=args.npred).to(device)
-
-    num_processed = 0
-    for batch in src_loader:  # Collect source node/user embeddings:
-        batch = batch.to(device)
-
-        # Compute user embeddings:
-        emb = model.encoder(batch.x_dict, batch.edge_index_dict)["user"]
-        emb = emb[: batch["user"].batch_size]
-
-        # Filter labels/exclusion by current batch:
-        _edge_label_index = edge_label_index.sparse_narrow(
-            dim=0,
-            start=num_processed,
-            length=emb.size(0),
+        pred = (
+            model(
+                batch.x_dict,
+                batch.edge_index_dict,
+                batch["user", "rates", "movie"].edge_label.shape[0],
+            )
+            .sigmoid()
+            .view(-1)
+            .cpu()
         )
-        _exclude_links = exclude_links.sparse_narrow(
-            dim=0,
-            start=num_processed,
-            length=emb.size(0),
-        )
-        num_processed += emb.size(0)
 
-        # Perform MIPS search:
-        _, pred_index_mat = mips.search(emb, args.npred, _exclude_links)
+        target = batch["user", "rates", "movie"].edge_label.long().cpu()
 
-        # Update retrieval metrics:
-        map_metric.update(pred_index_mat, _edge_label_index)
-        precision_metric.update(pred_index_mat, _edge_label_index)
-        recall_metric.update(pred_index_mat, _edge_label_index)
+        preds.append(pred)
+        targets.append(target)
 
-    return (
-        float(map_metric.compute()),
-        float(precision_metric.compute()),
-        float(recall_metric.compute()),
-    )
+    pred = torch.cat(preds, dim=0).numpy()
+    target = torch.cat(targets, dim=0).numpy()
+
+    return roc_auc_score(target, pred)
 
 
 if __name__ == "__main__":
@@ -303,7 +332,6 @@ if __name__ == "__main__":
         exit()
 
     parser = ArgumentParser()
-    parser.add_argument("--npred", type=int, default=20, help="Number of predictions")
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--epochs", type=int, default=16)
     parser.add_argument("--dataset_root", type=str, default="datasets")
@@ -340,6 +368,7 @@ if __name__ == "__main__":
 
     # Split the data
     edge_path = os.path.join(args.dataset_root, dataset_name + "_eix_part")
+    features_path = os.path.join(args.dataset_root, dataset_name + "_feat")
     meta_path = os.path.join(args.dataset_root, dataset_name + "_meta.json")
 
     if not args.skip_partition and global_rank == 0:
@@ -348,11 +377,15 @@ if __name__ == "__main__":
         dataset = MovieLens(args.dataset_root, model_name="all-MiniLM-L6-v2")
         data = dataset[0]
 
-        preprocess_and_partition(data, edge_path=edge_path, meta_path=meta_path)
+        preprocess_and_partition(
+            data, edge_path=edge_path, features_path=features_path, meta_path=meta_path
+        )
         print("Data partitioning complete!")
 
     torch.distributed.barrier()
-    data, label_dict = load_partitions(edge_path=edge_path, meta_path=meta_path)
+    data, label_dict = load_partitions(
+        edge_path=edge_path, features_path=features_path, meta_path=meta_path
+    )
     torch.distributed.barrier()
 
     feature_store, graph_store = cugraph_pyg_from_heterodata(
@@ -360,6 +393,8 @@ if __name__ == "__main__":
     )
     eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
     eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
+    num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
+    metadata = data.metadata()
     del data
 
     # TODO enable temporal sampling when it is available in cuGraph-PyG
@@ -376,7 +411,7 @@ if __name__ == "__main__":
         # temporal_strategy='last',
     )
 
-    from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
+    from cugraph_pyg.loader import LinkNeighborLoader
 
     train_loader = LinkNeighborLoader(
         edge_label_index=(("user", "rates", "movie"), eli_train),
@@ -385,18 +420,13 @@ if __name__ == "__main__":
         **kwargs,
     )
 
-    src_loader = NeighborLoader(
-        input_nodes="user",
-        # input_time=(time[test_index].min() - 1).repeat(data['user'].num_nodes),
-        **kwargs,
-    )
-    dst_loader = NeighborLoader(
-        input_nodes="movie",
-        # input_time=(time[test_index].min() - 1).repeat(data['movie'].num_nodes),
+    test_loader = LinkNeighborLoader(
+        edge_label_index=(("user", "rates", "movie"), eli_test),
+        neg_sampling=dict(mode="binary", amount=1),
         **kwargs,
     )
 
-    sparse_size = (data["user"].num_nodes, data["movie"].num_nodes)
+    sparse_size = (num_nodes["user"], num_nodes["movie"])
     test_edge_label_index = EdgeIndex(
         eli_test.to(device),
         sparse_size=sparse_size,
@@ -406,24 +436,16 @@ if __name__ == "__main__":
         sparse_size=sparse_size,
     ).sort_by("row")[0]
 
-    model = Model(hidden_channels=64).to(device)
+    model = Model(hidden_channels=64, metadata=metadata).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    for epoch in range(1, args.num_epochs):
-        train_loss = train()
+    for epoch in range(1, args.epochs + 1):
+        train_loss = train(train_loader, model, optimizer)
         print(f"Epoch: {epoch:02d}, Loss: {train_loss:.4f}")
-        val_map, val_precision, val_recall = test(
-            test_edge_label_index,
-            test_exclude_links,
-        )
-        print(
-            f"Test MAP@{args.npred}: {val_map:.4f}, "
-            f"Test Precision@{args.npred}: {val_precision:.4f}, "
-            f"Test Recall@{args.npred}: {val_recall:.4f}"
-        )
+        auc = test(test_loader, model)
+        print(f"Test AUC: {auc:.4f} ")
 
     from cugraph.gnn import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()
     wm_finalize()
-    torch.distributed.destroy_process_group()
