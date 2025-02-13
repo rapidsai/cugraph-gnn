@@ -7,7 +7,7 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cugraph==25.2.*,>=0.0.0a0
+- cugraph==25.2.*
 - pre-commit
 - pydantic
 - pytest
