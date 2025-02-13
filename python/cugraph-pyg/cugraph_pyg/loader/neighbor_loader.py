@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 import warnings
 
 from typing import Union, Tuple, Optional, Callable, List, Dict
+
+import numpy as np
 
 import cugraph_pyg
 from cugraph_pyg.loader import NodeLoader
@@ -181,10 +183,22 @@ class NeighborLoader(NodeLoader):
             # Will eventually automatically convert these objects to cuGraph objects.
             raise NotImplementedError("Currently can't accept non-cugraph graphs")
 
+        feature_store, graph_store = data
+
         if compression is None:
-            compression = "CSR"
+            compression = "CSR" if graph_store.is_homogeneous else "COO"
         elif compression not in ["CSR", "COO"]:
             raise ValueError("Invalid value for compression (expected 'CSR' or 'COO')")
+
+        if not graph_store.is_homogeneous:
+            if compression != "COO":
+                raise ValueError(
+                    "Only COO format is supported for heterogeneous graphs!"
+                )
+            if directory is not None:
+                raise ValueError(
+                    "Writing to disk is not supported for heterogeneous graphs!"
+                )
 
         writer = (
             None
@@ -196,10 +210,19 @@ class NeighborLoader(NodeLoader):
             )
         )
 
-        feature_store, graph_store = data
-
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
+
+        if isinstance(num_neighbors, dict):
+            sorted_keys, _, _ = graph_store._numeric_edge_types
+            fanout_length = len(next(iter(num_neighbors.values())))
+            na = np.zeros(fanout_length * len(sorted_keys), dtype="int32")
+            for i, key in enumerate(sorted_keys):
+                if key in num_neighbors:
+                    for hop in range(fanout_length):
+                        na[hop * len(sorted_keys) + i] = num_neighbors[key][hop]
+
+            num_neighbors = na
 
         sampler = BaseSampler(
             NeighborSampler(
@@ -214,6 +237,9 @@ class NeighborLoader(NodeLoader):
                 with_replacement=replace,
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
+                heterogeneous=(not graph_store.is_homogeneous),
+                vertex_type_offsets=graph_store._vertex_offset_array,
+                num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
             (feature_store, graph_store),
             batch_size=batch_size,

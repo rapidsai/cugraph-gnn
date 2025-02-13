@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -37,11 +37,15 @@ def test_neighbor_loader():
 
     ei = torch.stack([dst, src])
 
+    num_nodes = karate.number_of_nodes()
+
     graph_store = GraphStore()
-    graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo")
+    graph_store.put_edge_index(
+        ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
+    )
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (34, 16))
+    feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     loader = NeighborLoader(
         (feature_store, graph_store),
@@ -51,7 +55,7 @@ def test_neighbor_loader():
 
     for batch in loader:
         assert isinstance(batch, torch_geometric.data.Data)
-        assert (feature_store["person", "feat"][batch.n_id] == batch.feat).all()
+        assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -64,12 +68,16 @@ def test_neighbor_loader_biased():
         ]
     )
 
+    num_nodes = 6
+
     graph_store = GraphStore()
-    graph_store.put_edge_index(eix, ("person", "knows", "person"), "coo")
+    graph_store.put_edge_index(
+        eix, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
+    )
 
     feature_store = TensorDictFeatureStore()
-    feature_store["person", "feat"] = torch.randint(128, (6, 12))
-    feature_store[("person", "knows", "person"), "bias"] = torch.tensor(
+    feature_store["person", "feat", None] = torch.randint(128, (6, 12))
+    feature_store[("person", "knows", "person"), "bias", None] = torch.tensor(
         [0, 12, 14], dtype=torch.float32
     )
 
@@ -104,7 +112,7 @@ def test_link_neighbor_loader_basic(
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -140,7 +148,7 @@ def test_link_neighbor_loader_negative_sampling_basic(batch_size):
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -174,7 +182,7 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
     feature_store = TensorDictFeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
-    graph_store[("n", "e", "n"), "coo"] = torch.stack(
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
         [
             torch.randint(0, num_nodes, (num_edges,)),
             torch.randint(0, num_nodes, (num_edges,)),
@@ -194,3 +202,80 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
         assert batch.edge_label[0] == 1.0
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_basic():
+    src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    num_authors = 4
+    num_papers = 6
+
+    graph_store = GraphStore()
+    feature_store = TensorDictFeatureStore()
+
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src,
+        dst,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
+
+    from cugraph_pyg.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1, 1, 1, 1],
+        input_nodes=("paper", torch.tensor([0, 1])),
+        batch_size=2,
+    )
+
+    out = next(iter(loader))
+
+    assert sorted(out["paper"].n_id.tolist()) == [0, 1, 4, 5]
+    assert sorted(out["author"].n_id.tolist()) == [0, 1, 3]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_single_etype():
+    src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    num_authors = 4
+    num_papers = 6
+
+    graph_store = GraphStore()
+    feature_store = TensorDictFeatureStore()
+
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src,
+        dst,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
+
+    from cugraph_pyg.loader import NeighborLoader
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[0, 1, 0, 1],
+        input_nodes=("paper", torch.tensor([0, 1])),
+        batch_size=2,
+    )
+
+    out = next(iter(loader))
+
+    assert out["author"].n_id.numel() == 0
+    assert out["author", "writes", "paper"].edge_index.numel() == 0
+    assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [0, 0]

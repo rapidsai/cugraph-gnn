@@ -28,7 +28,7 @@ concurrency:
 jobs:
   cpp-build:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -37,16 +37,28 @@ jobs:
   python-build:
     needs: [cpp-build]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
+  docs-build:
+    needs: cpp-build
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.02
+    with:
+      arch: "amd64"
+      branch: ${{ inputs.branch }}
+      build_type: ${{ inputs.build_type || 'branch' }}
+      container_image: "rapidsai/ci-conda:latest"
+      date: ${{ inputs.date }}
+      run_script: "ci/build_docs.sh"
+      sha: ${{ inputs.sha }}
   upload-conda:
     needs: [cpp-build, python-build]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -54,7 +66,7 @@ jobs:
       sha: ${{ inputs.sha }}
   wheel-build-cugraph-dgl:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -64,16 +76,17 @@ jobs:
   wheel-publish-cugraph-dgl:
     needs: wheel-build-cugraph-dgl
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       package-name: cugraph-dgl
+      package-type: python
   wheel-build-cugraph-pyg:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -83,16 +96,17 @@ jobs:
   wheel-publish-cugraph-pyg:
     needs: wheel-build-cugraph-pyg
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       package-name: cugraph-pyg
+      package-type: python
   wheel-build-pylibwholegraph:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -102,10 +116,11 @@ jobs:
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-24.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.02
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       package-name: pylibwholegraph
+      package-type: python

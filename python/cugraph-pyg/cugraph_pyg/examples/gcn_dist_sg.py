@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,7 +13,6 @@
 
 import time
 import argparse
-import tempfile
 import os
 import warnings
 
@@ -96,22 +95,15 @@ def create_loader(
     input_nodes,
     replace,
     batch_size,
-    samples_dir,
     stage_name,
     local_seeds_per_call,
 ):
-    if samples_dir is not None:
-        directory = os.path.join(samples_dir, stage_name)
-        os.mkdir(directory)
-    else:
-        directory = None
     return NeighborLoader(
         data,
         num_neighbors=num_neighbors,
         input_nodes=input_nodes,
         replace=replace,
         batch_size=batch_size,
-        directory=directory,
         local_seeds_per_call=local_seeds_per_call,
     )
 
@@ -136,8 +128,8 @@ def load_data(
     ] = data.edge_index
 
     feature_store = cugraph_pyg.data.TensorDictFeatureStore()
-    feature_store["node", "x"] = data.x
-    feature_store["node", "y"] = data.y
+    feature_store["node", "x", None] = data.x
+    feature_store["node", "y", None] = data.y
 
     return (
         (feature_store, graph_store),
@@ -155,7 +147,6 @@ def parse_args():
     parser.add_argument("--epochs", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=1024)
     parser.add_argument("--fan_out", type=int, default=30)
-    parser.add_argument("--tempdir_root", type=str, default=None)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--dataset", type=str, default="ogbn-products")
     parser.add_argument("--in_memory", action="store_true", default=False)
@@ -177,60 +168,56 @@ if __name__ == "__main__":
         warnings.warn("Pruning test dataset for CI run.")
         split_idx["test"] = split_idx["test"][:1000]
 
-    with tempfile.TemporaryDirectory(dir=args.tempdir_root) as samples_dir:
-        loader_kwargs = {
-            "data": data,
-            "num_neighbors": [args.fan_out] * args.num_layers,
-            "replace": False,
-            "batch_size": args.batch_size,
-            "samples_dir": None if args.in_memory else samples_dir,
-            "local_seeds_per_call": None
-            if args.seeds_per_call <= 0
-            else args.seeds_per_call,
-        }
+    loader_kwargs = {
+        "data": data,
+        "num_neighbors": [args.fan_out] * args.num_layers,
+        "replace": False,
+        "batch_size": args.batch_size,
+        "local_seeds_per_call": None
+        if args.seeds_per_call <= 0
+        else args.seeds_per_call,
+    }
 
-        train_loader = create_loader(
-            input_nodes=split_idx["train"],
-            stage_name="train",
-            **loader_kwargs,
-        )
+    train_loader = create_loader(
+        input_nodes=split_idx["train"],
+        stage_name="train",
+        **loader_kwargs,
+    )
 
-        val_loader = create_loader(
-            input_nodes=split_idx["valid"],
-            stage_name="val",
-            **loader_kwargs,
-        )
+    val_loader = create_loader(
+        input_nodes=split_idx["valid"],
+        stage_name="val",
+        **loader_kwargs,
+    )
 
-        test_loader = create_loader(
-            input_nodes=split_idx["test"],
-            stage_name="test",
-            **loader_kwargs,
-        )
+    test_loader = create_loader(
+        input_nodes=split_idx["test"],
+        stage_name="test",
+        **loader_kwargs,
+    )
 
-        model = torch_geometric.nn.models.GCN(
-            num_features,
-            args.hidden_channels,
-            args.num_layers,
-            num_classes,
-        ).to(device)
+    model = torch_geometric.nn.models.GCN(
+        num_features,
+        args.hidden_channels,
+        args.num_layers,
+        num_classes,
+    ).to(device)
 
-        optimizer = torch.optim.Adam(
-            model.parameters(), lr=args.lr, weight_decay=0.0005
-        )
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.0005)
 
-        warmup_steps = 20
+    warmup_steps = 20
 
-        torch.cuda.synchronize()
-        prep_time = round(time.perf_counter() - wall_clock_start, 2)
-        print("Total time before training begins (prep_time)=", prep_time, "seconds")
-        print("Beginning training...")
-        for epoch in range(1, 1 + args.epochs):
-            train(epoch)
-            val_acc = test(val_loader, val_steps=100)
-            print(f"Val Acc: ~{val_acc:.4f}")
+    torch.cuda.synchronize()
+    prep_time = round(time.perf_counter() - wall_clock_start, 2)
+    print("Total time before training begins (prep_time)=", prep_time, "seconds")
+    print("Beginning training...")
+    for epoch in range(1, 1 + args.epochs):
+        train(epoch)
+        val_acc = test(val_loader, val_steps=100)
+        print(f"Val Acc: ~{val_acc:.4f}")
 
-        test_acc = test(test_loader)
-        print(f"Test Acc: {test_acc:.4f}")
-        total_time = round(time.perf_counter() - wall_clock_start, 2)
-        print("Total Program Runtime (total_time) =", total_time, "seconds")
-        print("total_time - prep_time =", total_time - prep_time, "seconds")
+    test_acc = test(test_loader)
+    print(f"Test Acc: {test_acc:.4f}")
+    total_time = round(time.perf_counter() - wall_clock_start, 2)
+    print("Total Program Runtime (total_time) =", total_time, "seconds")
+    print("total_time - prep_time =", total_time - prep_time, "seconds")
