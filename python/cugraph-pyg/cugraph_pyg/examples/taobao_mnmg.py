@@ -331,7 +331,7 @@ def train(model, optimizer, loader):
 
     total_loss = total_examples = 0
     for i, batch in enumerate(loader):
-        batch = batch.to(rank)
+        batch = batch.cuda()
         optimizer.zero_grad()
 
         if i % 10 == 0 and rank == 0:
@@ -357,12 +357,10 @@ def train(model, optimizer, loader):
 
 @torch.no_grad()
 def test(model, loader):
-    rank = torch.distributed.get_rank()
-
     model.eval()
     preds, targets = [], []
     for i, batch in enumerate(loader):
-        batch = batch.to(rank)
+        batch = batch.cuda()
 
         pred = (
             model(
