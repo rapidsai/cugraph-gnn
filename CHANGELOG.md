@@ -1,3 +1,52 @@
+# cugraph-gnn 25.02.00 (13 Feb 2025)
+
+## 🚨 Breaking Changes
+
+- update pip devcontainers to UCX 1.18 ([#112](https://github.com/rapidsai/cugraph-gnn/pull/112)) [@jameslamb](https://github.com/jameslamb)
+- remove dependency on cugraph-ops ([#99](https://github.com/rapidsai/cugraph-gnn/pull/99)) [@tingyu66](https://github.com/tingyu66)
+- [FEA] Support Heterogeneous Sampling in cuGraph-PyG ([#82](https://github.com/rapidsai/cugraph-gnn/pull/82)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🐛 Bug Fixes
+
+- Remove Build Directory ([#107](https://github.com/rapidsai/cugraph-gnn/pull/107)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Fix inputs for the workflow ([#106](https://github.com/rapidsai/cugraph-gnn/pull/106)) [@vyasr](https://github.com/vyasr)
+- Remove invalid conditional ([#105](https://github.com/rapidsai/cugraph-gnn/pull/105)) [@vyasr](https://github.com/vyasr)
+
+## 📖 Documentation
+
+- build libwholegraph docs in CI ([#96](https://github.com/rapidsai/cugraph-gnn/pull/96)) [@jameslamb](https://github.com/jameslamb)
+
+## 🚀 New Features
+
+- Fix of create_node_classification_datasets ([#128](https://github.com/rapidsai/cugraph-gnn/pull/128)) [@linhu-nv](https://github.com/linhu-nv)
+- [FEA] Knowledge Graph/Graph Database Renumbering ([#101](https://github.com/rapidsai/cugraph-gnn/pull/101)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [FEA] Support Heterogeneous Sampling in cuGraph-PyG ([#82](https://github.com/rapidsai/cugraph-gnn/pull/82)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🛠️ Improvements
+
+- Use `rapids-pip-retry` in CI jobs that might need retries ([#133](https://github.com/rapidsai/cugraph-gnn/pull/133)) [@gforsyth](https://github.com/gforsyth)
+- Revert CUDA 12.8 shared workflow branch changes ([#121](https://github.com/rapidsai/cugraph-gnn/pull/121)) [@vyasr](https://github.com/vyasr)
+- Deprecate the Dask API in cuGraph-PyG ([#118](https://github.com/rapidsai/cugraph-gnn/pull/118)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Build and test with CUDA 12.8.0 ([#115](https://github.com/rapidsai/cugraph-gnn/pull/115)) [@bdice](https://github.com/bdice)
+- Support PyG 2.6 in cuGraph-PyG ([#114](https://github.com/rapidsai/cugraph-gnn/pull/114)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- update pip devcontainers to UCX 1.18 ([#112](https://github.com/rapidsai/cugraph-gnn/pull/112)) [@jameslamb](https://github.com/jameslamb)
+- enforce `cmake-format` and `cmake-lint`, other small packaging changes ([#111](https://github.com/rapidsai/cugraph-gnn/pull/111)) [@jameslamb](https://github.com/jameslamb)
+- wholegraph: remove debugging details from CMake ([#109](https://github.com/rapidsai/cugraph-gnn/pull/109)) [@jameslamb](https://github.com/jameslamb)
+- Use GCC 13 in CUDA 12 conda builds. ([#108](https://github.com/rapidsai/cugraph-gnn/pull/108)) [@bdice](https://github.com/bdice)
+- Heterogeneous Link Prediction Example for cuGraph-PyG ([#104](https://github.com/rapidsai/cugraph-gnn/pull/104)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- remove flake8, clang tools from wholegraph CMake ([#103](https://github.com/rapidsai/cugraph-gnn/pull/103)) [@jameslamb](https://github.com/jameslamb)
+- simplify wholegraph CMake, other small building and testing changes ([#102](https://github.com/rapidsai/cugraph-gnn/pull/102)) [@jameslamb](https://github.com/jameslamb)
+- Check if nightlies have succeeded recently enough ([#100](https://github.com/rapidsai/cugraph-gnn/pull/100)) [@vyasr](https://github.com/vyasr)
+- remove dependency on cugraph-ops ([#99](https://github.com/rapidsai/cugraph-gnn/pull/99)) [@tingyu66](https://github.com/tingyu66)
+- remove unused dependencies.yaml entries, other small cleanup ([#98](https://github.com/rapidsai/cugraph-gnn/pull/98)) [@jameslamb](https://github.com/jameslamb)
+- fix nightly docs workflow dependencies ([#97](https://github.com/rapidsai/cugraph-gnn/pull/97)) [@jameslamb](https://github.com/jameslamb)
+- merge branch-24.12 into branch-25.02 ([#95](https://github.com/rapidsai/cugraph-gnn/pull/95)) [@jameslamb](https://github.com/jameslamb)
+- Update version references in workflow ([#93](https://github.com/rapidsai/cugraph-gnn/pull/93)) [@AyodeAwe](https://github.com/AyodeAwe)
+- Require approval to run CI on draft PRs ([#80](https://github.com/rapidsai/cugraph-gnn/pull/80)) [@bdice](https://github.com/bdice)
+- add devcontainers ([#79](https://github.com/rapidsai/cugraph-gnn/pull/79)) [@jameslamb](https://github.com/jameslamb)
+- skip conda-python-tests on arm64 ([#70](https://github.com/rapidsai/cugraph-gnn/pull/70)) [@jameslamb](https://github.com/jameslamb)
+- Add breaking change workflow trigger ([#64](https://github.com/rapidsai/cugraph-gnn/pull/64)) [@AyodeAwe](https://github.com/AyodeAwe)
+
 # cugraph-gnn 24.12.00 (11 Dec 2024)
 
 ## 🚨 Breaking Changes
