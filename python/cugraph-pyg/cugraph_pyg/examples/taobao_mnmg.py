@@ -525,6 +525,9 @@ if __name__ == "__main__":
 
         if global_rank == 0:
             print("Val")
+
+        torch.cuda.synchronize()
+
         val_start = perf_counter()
         val_auc = test(model, val_loader)
         best_val_auc = max(best_val_auc, val_auc)
