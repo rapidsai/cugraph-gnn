@@ -43,11 +43,14 @@ files:
       - cuda_version
       - docs
       - py_version
+      - depends_on_libwholegraph
   test_cpp:
     output: none
     includes:
       - cuda_version
       - test_cpp
+      - depends_on_libwholegraph
+      - depends_on_libwholegraph_tests
   test_notebooks:
     output: none
     includes:
@@ -548,6 +551,18 @@ dependencies:
             packages:
               - pylibwholegraph-cu11==25.4.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}
+
+  depends_on_libwholegraph:
+    common:
+      - output_types: conda
+        packages:
+          - libwholegraph==25.4.*,>=0.0.0a0
+
+  depends_on_libwholegraph_tests:
+    common:
+      - output_types: conda
+        packages:
+          - libwholegraph-tests==25.4.*,>=0.0.0a0
 
   depends_on_rmm:
     common:
