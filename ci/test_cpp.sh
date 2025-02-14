@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 
 set -euo pipefail
 
@@ -7,8 +7,6 @@ set -euo pipefail
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 . /opt/conda/etc/profile.d/conda.sh
-
-RAPIDS_VERSION="$(rapids-version)"
 
 CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 
@@ -18,7 +16,7 @@ rapids-dependency-file-generator \
   --file-key test_cpp \
   --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch)" \
   --prepend-channel "${CPP_CHANNEL}" \
-| tee env.yaml
+  | tee env.yaml
 
 rapids-mamba-retry env create --yes -f env.yaml -n test
 
@@ -31,11 +29,6 @@ RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}/
 mkdir -p "${RAPIDS_TESTS_DIR}"
 
 rapids-print-env
-
-rapids-mamba-retry install \
-    --channel "${CPP_CHANNEL}" \
-    "libwholegraph=${RAPIDS_VERSION}" \
-    "libwholegraph-tests=${RAPIDS_VERSION}"
 
 rapids-logger "Check GPU usage"
 nvidia-smi

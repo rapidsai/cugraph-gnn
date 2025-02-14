@@ -43,11 +43,14 @@ files:
       - cuda_version
       - docs
       - py_version
+      - depends_on_libwholegraph
   test_cpp:
     output: none
     includes:
       - cuda_version
       - test_cpp
+      - depends_on_libwholegraph
+      - depends_on_libwholegraph_tests
   test_notebooks:
     output: none
     includes:
@@ -68,6 +71,46 @@ files:
       - depends_on_ogb
       - py_version
       - test_python_common
+  test_cugraph_dgl:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_cugraph_dgl
+  test_cugraph_pyg:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_pylibwholegraph
+      - depends_on_cugraph_pyg
+  test_pylibwholegraph:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_dgl
+      - depends_on_pytorch
+      - depends_on_ogb
+      - py_version
+      - test_python_common
+      - depends_on_mkl
+      - depends_on_pylibwholegraph
+      - test_python_pylibwholegraph
 
   py_build_pylibwholegraph:
     output: pyproject
@@ -509,6 +552,18 @@ dependencies:
               - pylibwholegraph-cu11==25.4.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}
 
+  depends_on_libwholegraph:
+    common:
+      - output_types: conda
+        packages:
+          - libwholegraph==25.4.*,>=0.0.0a0
+
+  depends_on_libwholegraph_tests:
+    common:
+      - output_types: conda
+        packages:
+          - libwholegraph-tests==25.4.*,>=0.0.0a0
+
   depends_on_rmm:
     common:
       - output_types: conda
@@ -658,3 +713,13 @@ dependencies:
             packages: &cupy_packages_cu11
               - cupy-cuda11x>=13.2.0
           - {matrix: null, packages: *cupy_packages_cu11}
+  depends_on_cugraph_pyg:
+    common:
+      - output_types: conda
+        packages:
+          - cugraph-pyg==25.4.*,>=0.0.0a0
+  depends_on_mkl:
+    common:
+      - output_types: conda
+        packages:
+          - mkl<2024.1.0

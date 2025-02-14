@@ -57,6 +57,7 @@ DEPENDENCIES=(
   libraft
   libraft-headers
   librmm
+  libwholegraph
   pylibcugraph
   pylibwholegraph
   rmm
