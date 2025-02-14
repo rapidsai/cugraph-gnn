@@ -19,6 +19,7 @@ import warnings
 import gc
 
 from datetime import timedelta
+from time import perf_counter
 
 import torch
 import torch.nn.functional as F
@@ -324,16 +325,18 @@ def load_partitions(edge_path, meta_path, wg_mem_type):
 
 
 def train(model, optimizer, loader):
+    start_time = perf_counter()
     rank = torch.distributed.get_rank()
     model.train()
 
     total_loss = total_examples = 0
     for i, batch in enumerate(loader):
-        batch = batch.to(rank)
+        batch = batch.cuda()
         optimizer.zero_grad()
 
         if i % 10 == 0 and rank == 0:
-            print(f"iter {i}")
+            curr_time = perf_counter()
+            print(f"iter {i}, {curr_time - start_time} sec elapsed.")
 
         pred = model(
             batch.x_dict,
@@ -354,12 +357,10 @@ def train(model, optimizer, loader):
 
 @torch.no_grad()
 def test(model, loader):
-    rank = torch.distributed.get_rank()
-
     model.eval()
     preds, targets = [], []
     for i, batch in enumerate(loader):
-        batch = batch.to(rank)
+        batch = batch.cuda()
 
         pred = (
             model(
@@ -380,6 +381,66 @@ def test(model, loader):
     target = torch.cat(targets, dim=0).numpy()
 
     return roc_auc_score(target, pred)
+
+
+def balance_shuffle_edge_split(edge_label_index, edge_label):
+    rank = torch.distributed.get_rank()
+    world_size = torch.distributed.get_world_size()
+
+    local_num_edges = torch.tensor(
+        [int(edge_label_index.shape[1])], device="cuda", dtype=torch.int64
+    )
+    num_edges = torch.empty((world_size,), dtype=torch.int64, device="cuda")
+
+    torch.distributed.all_gather_into_tensor(num_edges, local_num_edges)
+    total_num_edges = num_edges.sum()
+
+    edge_offsets = num_edges.cumsum(0).cpu()[:-1]
+
+    if rank == 0:
+        dst_rank = (
+            torch.randperm(total_num_edges, device="cuda", dtype=torch.int64)
+            % world_size
+        )
+    else:
+        dst_rank = torch.empty((total_num_edges,), device="cuda", dtype=torch.int64)
+
+    torch.distributed.broadcast(dst_rank, src=0)
+
+    if rank > 0 and rank < world_size - 1:
+        local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
+    elif rank == 0:
+        local_rank_t = dst_rank[0 : edge_offsets[0]]
+    else:
+        local_rank_t = dst_rank[edge_offsets[-1] :]
+
+    s = [edge_label_index[0].cuda()[local_rank_t == r] for r in range(world_size)]
+
+    s_counts = torch.tensor([x.numel() for x in s], device="cuda", dtype=torch.int64)
+    s_counts_global = torch.empty(
+        (world_size, world_size), device="cuda", dtype=torch.int64
+    )
+    torch.distributed.all_gather_into_tensor(s_counts_global, s_counts)
+    r_counts = s_counts_global[:, rank]
+
+    rx = [torch.empty((ln,), device="cuda", dtype=torch.int64) for ln in r_counts]
+
+    torch.distributed.all_to_all(rx, s)
+    edge_label_index[0] = torch.concat(rx).cpu()
+
+    s = [edge_label_index[1].cuda()[local_rank_t == r] for r in range(world_size)]
+    torch.distributed.all_to_all(rx, s)
+    edge_label_index[1] = torch.concat(rx).cpu()
+
+    if edge_label is not None:
+        s = [edge_label.cuda()[local_rank_t == r] for r in range(world_size)]
+        rx = [
+            torch.empty((ln,), device="cuda", dtype=edge_label.dtype) for ln in r_counts
+        ]
+        torch.distributed.all_to_all(rx, s)
+        edge_label = torch.concat(rx).cpu()
+
+    return edge_label_index, edge_label
 
 
 if __name__ == "__main__":
@@ -450,11 +511,18 @@ if __name__ == "__main__":
     from cugraph_pyg.loader import LinkNeighborLoader
 
     def create_loader(data_l):
+        edge_label_index = data_l[1]
+        edge_label = data_l[2]
+
+        edge_label_index, edge_label = balance_shuffle_edge_split(
+            edge_label_index, edge_label
+        )
+
         return LinkNeighborLoader(
             data=data_l[0],
-            edge_label_index=data_l[1],
-            edge_label=data_l[2],
-            neg_sampling="binary" if data_l[2] is None else None,
+            edge_label_index=edge_label_index,
+            edge_label=edge_label,
+            neg_sampling="binary" if edge_label is None else None,
             batch_size=args.batch_size,
             shuffle=True,
             drop_last=True,
@@ -491,6 +559,8 @@ if __name__ == "__main__":
     ).to(local_rank)
     print(f"Created model on rank {global_rank}")
 
+    init_start = perf_counter()
+
     # Initialize lazy modules
     # FIXME DO NOT DO THIS!!!!  Use set parameters
     for batch in train_loader:
@@ -501,23 +571,41 @@ if __name__ == "__main__":
             batch["user", "item"].edge_label_index,
         )
         break
-    print(f"Initialized model on rank {global_rank}")
+    init_end = perf_counter()
+    print(
+        f"Initialized model on rank {global_rank}, "
+        f"took {init_end - init_start:.4f} seconds."
+    )
 
     model = DistributedDataParallel(model, device_ids=[local_rank])
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
+    training_start = perf_counter()
     best_val_auc = 0
     for epoch in range(1, args.epochs + 1):
+        train_start = perf_counter()
         print("Train")
         loss = train(model, optimizer, train_loader)
+        train_end = perf_counter()
 
         if global_rank == 0:
             print("Val")
+
+        torch.cuda.synchronize()
+
+        val_start = perf_counter()
         val_auc = test(model, val_loader)
         best_val_auc = max(best_val_auc, val_auc)
+        val_end = perf_counter()
 
         if global_rank == 0:
-            print(f"Epoch: {epoch:02d}, Loss: {loss:4f}, Val AUC: {val_auc:.4f}")
+            print(
+                f"Epoch: {epoch:02d}, Loss: {loss:4f}, Val AUC: {val_auc:.4f},"
+                f" Train time: {train_end - train_start:.4f} s, "
+                f"Val time: {val_end - val_start:.4f} s"
+            )
+    training_end = perf_counter()
+    print(f"Training complete in {train_end - train_start:.4f} seconds.")
 
     del train_loader
     del val_loader
