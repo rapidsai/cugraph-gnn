@@ -383,6 +383,66 @@ def test(model, loader):
     return roc_auc_score(target, pred)
 
 
+def balance_shuffle_edge_split(edge_label_index, edge_label):
+    rank = torch.distributed.get_rank()
+    world_size = torch.distributed.get_world_size()
+
+    local_num_edges = torch.tensor(
+        [int(edge_label_index.shape[1])], device="cuda", dtype=torch.int64
+    )
+    num_edges = torch.empty((world_size,), dtype=torch.int64, device="cuda")
+
+    torch.distributed.all_gather_into_tensor(num_edges, local_num_edges)
+    total_num_edges = num_edges.sum()
+
+    edge_offsets = num_edges.cumsum(0).cpu()[:-1]
+
+    if rank == 0:
+        dst_rank = (
+            torch.randperm(total_num_edges, device="cuda", dtype=torch.int64)
+            % world_size
+        )
+    else:
+        dst_rank = torch.empty((total_num_edges,), device="cuda", dtype=torch.int64)
+
+    torch.distributed.broadcast(dst_rank, src=0)
+
+    if rank > 0 and rank < world_size - 1:
+        local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
+    elif rank == 0:
+        local_rank_t = dst_rank[0 : edge_offsets[0]]
+    else:
+        local_rank_t = dst_rank[edge_offsets[-1] :]
+
+    s = [edge_label_index[0].cuda()[local_rank_t == r] for r in range(world_size)]
+
+    s_counts = torch.tensor([x.numel() for x in s], device="cuda", dtype=torch.int64)
+    s_counts_global = torch.empty(
+        (world_size, world_size), device="cuda", dtype=torch.int64
+    )
+    torch.distributed.all_gather_into_tensor(s_counts_global, s_counts)
+    r_counts = s_counts_global[:, rank]
+
+    rx = [torch.empty((ln,), device="cuda", dtype=torch.int64) for ln in r_counts]
+
+    torch.distributed.all_to_all(rx, s)
+    edge_label_index[0] = torch.concat(rx).cpu()
+
+    s = [edge_label_index[1].cuda()[local_rank_t == r] for r in range(world_size)]
+    torch.distributed.all_to_all(rx, s)
+    edge_label_index[1] = torch.concat(rx).cpu()
+
+    if edge_label is not None:
+        s = [edge_label.cuda()[local_rank_t == r] for r in range(world_size)]
+        rx = [
+            torch.empty((ln,), device="cuda", dtype=edge_label.dtype) for ln in r_counts
+        ]
+        torch.distributed.all_to_all(rx, s)
+        edge_label = torch.concat(rx).cpu()
+
+    return edge_label_index, edge_label
+
+
 if __name__ == "__main__":
     if "LOCAL_RANK" not in os.environ:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
@@ -451,11 +511,18 @@ if __name__ == "__main__":
     from cugraph_pyg.loader import LinkNeighborLoader
 
     def create_loader(data_l):
+        edge_label_index = data_l[1]
+        edge_label = data_l[2]
+
+        edge_label_index, edge_label = balance_shuffle_edge_split(
+            edge_label_index, edge_label
+        )
+
         return LinkNeighborLoader(
             data=data_l[0],
-            edge_label_index=data_l[1],
-            edge_label=data_l[2],
-            neg_sampling="binary" if data_l[2] is None else None,
+            edge_label_index=edge_label_index,
+            edge_label=edge_label,
+            neg_sampling="binary" if edge_label is None else None,
             batch_size=args.batch_size,
             shuffle=True,
             drop_last=True,
