@@ -6,6 +6,12 @@ set -euo pipefail
 # Support invoking test_python.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
+if [[ "${RAPIDS_CUDA_VERSION%%.*}" == "11" ]]; then
+  DGL_CHANNEL="dglteam/label/th23_cu118"
+else
+  DGL_CHANNEL="dglteam/label/th23_cu121"
+fi
+
 . /opt/conda/etc/profile.d/conda.sh
 
 RAPIDS_VERSION="$(rapids-version)"
@@ -41,7 +47,7 @@ set +e
 # bulk sampler IO tests (hangs in CI)
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-  rapids-logger "Generate Python testing dependencies"
+  rapids-logger "(cugraph-dgl) Generate Python testing dependencies"
   rapids-dependency-file-generator \
     --output conda \
     --file-key test_cugraph_dgl \
@@ -60,12 +66,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   set +u
   conda activate test_cugraph_dgl
   set -u
-
-  if [[ "${RAPIDS_CUDA_VERSION%%.*}" == "11" ]]; then
-    DGL_CHANNEL="dglteam/label/th23_cu118"
-  else
-    DGL_CHANNEL="dglteam/label/th23_cu121"
-  fi
 
 
   rapids-print-env
@@ -90,7 +90,7 @@ else
 fi
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-  rapids-logger "Generate Python testing dependencies"
+  rapids-logger "(cugraph-pyg) Generate Python testing dependencies"
   rapids-dependency-file-generator \
     --output conda \
     --file-key test_cugraph_pyg \
@@ -129,7 +129,7 @@ else
 fi
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-  rapids-logger "Generate Python testing dependencies"
+  rapids-logger "(pylibwholegraph) Generate Python testing dependencies"
   rapids-dependency-file-generator \
     --output conda \
     --file-key test_pylibwholegraph \
