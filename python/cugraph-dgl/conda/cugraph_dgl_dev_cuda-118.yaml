@@ -9,7 +9,7 @@ channels:
 dependencies:
 - cugraph==25.4.*,>=0.0.0a0
 - dgl>=2.4.0.cu*
-- dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
+- dglteam/label/th24_cu118::dgl>=2.4.0.th24.cu*
 - pre-commit
 - pydantic
 - pytest
