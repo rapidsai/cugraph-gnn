@@ -469,11 +469,11 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - "dglteam/label/th24_cu124::dgl>=2.4.0.th24.cu*"
+              - "dglteam/label/th24_cu124::dgl>=2.4.0"
           - matrix: {cuda: "11.*"}
             packages:
-              - "dglteam/label/th24_cu118::dgl>=2.4.0.th24.cu*"
-          - {matrix: null, packages: ["dglteam/label/th24_cu124::dgl>=2.4.0.th24.cu*"]}
+              - "dglteam/label/th24_cu118::dgl>=2.4.0"
+          - {matrix: null, packages: ["dglteam/label/th24_cu124::dgl>=2.4.0"]}
 
   depends_on_pyg:
     common:
