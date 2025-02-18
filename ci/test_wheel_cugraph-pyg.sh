@@ -38,9 +38,9 @@ python -m pytest \
   --cache-clear \
   --benchmark-disable \
   tests
-# Test examples
-for e in "$(pwd)"/examples/*.py; do
-  rapids-logger "running example $e"
-  (yes || true) | python $e
-done
+# Test examples (disabled due to excessive network bandwidth usage)
+#for e in "$(pwd)"/examples/*.py; do
+#  rapids-logger "running example $e"
+#  (yes || true) | python $e
+#done
 popd
