@@ -512,11 +512,11 @@ dependencies:
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - "dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"
+              - "dglteam/label/th24_cu124::dgl"
           - matrix: {cuda: "11.*"}
             packages:
-              - "dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*"
-          - {matrix: null, packages: ["dglteam/label/th23_cu121::dgl>=2.4.0.th23.cu*"]}
+              - "dglteam/label/th24_cu118::dgl"
+          - {matrix: null, packages: ["dglteam/label/th24_cu124::dgl"]}
 
   depends_on_pyg:
     common:
