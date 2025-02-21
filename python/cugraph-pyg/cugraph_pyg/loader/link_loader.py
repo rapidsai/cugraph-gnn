@@ -125,7 +125,9 @@ class LinkLoader:
             edge_label_index,
         ) = torch_geometric.loader.utils.get_edge_label_index(
             data,
-            (None, edge_label_index),
+            (None, edge_label_index)
+            if isinstance(edge_label_index, torch.Tensor)
+            else edge_label_index,
         )
 
         # Note reverse of standard convention here
