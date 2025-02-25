@@ -29,4 +29,4 @@ pyproject.toml     @rapidsai/packaging-codeowners
 VERSION            @rapidsai/packaging-codeowners
 
 # notebooks code owners
-*.ipynb @cugraph-notebook-codeowners
+*.ipynb @rapidsai/cugraph-notebook-codeowners
