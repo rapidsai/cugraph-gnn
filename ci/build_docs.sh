@@ -3,16 +3,21 @@
 
 set -euo pipefail
 
+rapids-logger "Downloading artifacts from previous jobs"
+
+CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
+
 rapids-logger "Create test conda environment"
 . /opt/conda/etc/profile.d/conda.sh
 
-RAPIDS_VERSION="$(rapids-version)"
 export RAPIDS_VERSION_MAJOR_MINOR="$(rapids-version-major-minor)"
 
 rapids-dependency-file-generator \
   --output conda \
   --file-key docs \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" | tee env.yaml
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}" \
+  --prepend-channel "${CPP_CHANNEL}" \
+  | tee env.yaml
 
 rapids-mamba-retry env create --yes -f env.yaml -n docs
 
@@ -23,14 +28,7 @@ set -u
 
 rapids-print-env
 
-rapids-logger "Downloading artifacts from previous jobs"
-
-CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
 export RAPIDS_DOCS_DIR="$(mktemp -d)"
-
-rapids-mamba-retry install \
-  --channel "${CPP_CHANNEL}" \
-  "libwholegraph=${RAPIDS_VERSION}"
 
 rapids-logger "Build C++ docs"
 pushd cpp

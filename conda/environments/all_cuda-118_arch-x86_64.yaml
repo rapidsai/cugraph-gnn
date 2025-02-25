@@ -8,7 +8,7 @@ channels:
 - nvidia
 dependencies:
 - breathe
-- cmake>=3.26.4,!=3.30.0
+- cmake>=3.30.4
 - cuda-nvtx
 - cuda-version=11.8
 - cudatoolkit
@@ -17,7 +17,7 @@ dependencies:
 - cupy>=13.2.0
 - cython>=3.0.0
 - dask-cudf==25.4.*,>=0.0.0a0
-- dglteam/label/th23_cu118::dgl>=2.4.0.th23.cu*
+- dglteam/label/th24_cu118::dgl
 - doxygen
 - gcc_linux-64=11.*
 - graphviz
