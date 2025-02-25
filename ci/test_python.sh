@@ -7,9 +7,9 @@ set -euo pipefail
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 if [[ "${RAPIDS_CUDA_VERSION%%.*}" == "11" ]]; then
-  DGL_CHANNEL="dglteam/label/th23_cu118"
+  DGL_CHANNEL="dglteam/label/th24_cu118"
 else
-  DGL_CHANNEL="dglteam/label/th23_cu121"
+  DGL_CHANNEL="dglteam/label/th24_cu124"
 fi
 
 . /opt/conda/etc/profile.d/conda.sh
