@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 
 set -euo pipefail
 
@@ -22,19 +22,19 @@ sccache --zero-stats
 # TODO: Remove `--no-test` flags once importing on a CPU
 # node works correctly
 rapids-logger "Begin pylibwholegraph build"
-RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry build \
   --no-test \
   --channel "${CPP_CHANNEL}" \
   conda/recipes/pylibwholegraph
 
 sccache --show-adv-stats
 
-RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry build \
   --no-test \
   --channel "${CPP_CHANNEL}" \
   conda/recipes/cugraph-pyg
 
-RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry mambabuild \
+RAPIDS_PACKAGE_VERSION=$(head -1 ./VERSION) rapids-conda-retry build \
   --no-test \
   --channel "${CPP_CHANNEL}" \
   conda/recipes/cugraph-dgl
