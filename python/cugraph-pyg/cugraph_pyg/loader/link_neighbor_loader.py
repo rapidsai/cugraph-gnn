@@ -166,6 +166,12 @@ class LinkNeighborLoader(LinkLoader):
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
+        if directory is not None:
+            warnings.warn(
+                "Unbuffered sampling, where samples are dumped to disk"
+                ", is deprecated in cuGraph-PyG and will be removed in release 25.06."
+            )
+
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
             warnings.warn(
