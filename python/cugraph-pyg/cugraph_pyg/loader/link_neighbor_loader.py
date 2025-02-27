@@ -169,14 +169,16 @@ class LinkNeighborLoader(LinkLoader):
         if directory is not None:
             warnings.warn(
                 "Unbuffered sampling, where samples are dumped to disk"
-                ", is deprecated in cuGraph-PyG and will be removed in release 25.06."
+                ", is deprecated in cuGraph-PyG and will be removed in release 25.06.",
+                FutureWarning,
             )
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
             warnings.warn(
                 "The 'directed' argument is deprecated. "
-                "Use subgraph_type='induced' instead."
+                "Use subgraph_type='induced' instead.",
+                FutureWarning,
             )
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")
