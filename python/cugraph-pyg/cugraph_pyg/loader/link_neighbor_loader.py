@@ -177,8 +177,7 @@ class LinkNeighborLoader(LinkLoader):
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
             warnings.warn(
                 "The 'directed' argument is deprecated. "
-                "Use subgraph_type='induced' instead.",
-                FutureWarning,
+                "Use subgraph_type='induced' instead."
             )
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")

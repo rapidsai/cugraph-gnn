@@ -162,7 +162,8 @@ class NeighborLoader(NodeLoader):
         if directory is not None:
             warnings.warn(
                 "Unbuffered sampling, where samples are dumped to disk"
-                ", is deprecated in cuGraph-PyG and will be removed in release 25.06."
+                ", is deprecated in cuGraph-PyG and will be removed in release 25.06.",
+                FutureWarning,
             )
 
         if not directed:
