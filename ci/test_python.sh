@@ -54,7 +54,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
     --prepend-channel "${CPP_CHANNEL}" \
     --prepend-channel "${PYTHON_CHANNEL}" \
-    --prepend-channel pytorch \
     --prepend-channel conda-forge \
     --prepend-channel "${DGL_CHANNEL}" \
     --prepend-channel nvidia \
@@ -96,8 +95,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --file-key test_cugraph_pyg \
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
     --prepend-channel "${CPP_CHANNEL}" \
-    --prepend-channel "${PYTHON_CHANNEL}" \
-    --prepend-channel pytorch \
+    --prepend-channel "${PYTHON_CHANNEL}"
   | tee env.yaml
 
   rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_pyg
@@ -136,7 +134,6 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
     --prepend-channel "${CPP_CHANNEL}" \
     --prepend-channel "${PYTHON_CHANNEL}" \
-    --prepend-channel pytorch \
   | tee env.yaml
 
   rapids-mamba-retry env create --yes -f env.yaml -n test_pylibwholegraph
