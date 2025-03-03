@@ -443,7 +443,6 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch>=2.3
           - torchdata
           - pydantic
     specific:
@@ -467,6 +466,15 @@ dependencies:
               - *pytorch_pip
               - *tensordict
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
+      - output_types: [conda]
+        matrices:
+          - matrix: {cuda: "11.*"}
+            packages:
+              - pytorch>=2.3,<=2.5.1 # This is the final CUDA 11 build on conda-forge.
+          - matrix: {cuda: "12.*"}
+            packages:
+              - pytorch>=2.3
+          - {matrix: null, packages: ["pytorch>=2.3"]}
 
   depends_on_dgl:
     specific:
