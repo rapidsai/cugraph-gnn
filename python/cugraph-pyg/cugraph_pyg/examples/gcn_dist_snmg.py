@@ -274,10 +274,17 @@ if __name__ == "__main__":
 
         torch.cuda.memory.change_current_allocator(rmm_torch_allocator)
 
-        dataset = PygNodePropPredDataset(name=args.dataset, root=args.dataset_root)
-        split_idx = dataset.get_idx_split()
-        data = dataset[0]
-        data.y = data.y.reshape(-1)
+        with torch.serialization.safe_globals(
+            [
+                torch_geometric.data.data.DataEdgeAttr,
+                torch_geometric.data.data.DataTensorAttr,
+                torch_geometric.data.storage.GlobalStorage,
+            ]
+        ):
+            dataset = PygNodePropPredDataset(name=args.dataset, root=args.dataset_root)
+            split_idx = dataset.get_idx_split()
+            data = dataset[0]
+            data.y = data.y.reshape(-1)
 
         model = torch_geometric.nn.models.GCN(
             dataset.num_features,

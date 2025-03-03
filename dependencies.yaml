@@ -20,7 +20,6 @@ files:
       - depends_on_dask_cudf
       - depends_on_cupy
       - depends_on_pytorch
-      - depends_on_ogb
       - depends_on_dgl
       - depends_on_pyg
       - python_run_cugraph_dgl
@@ -56,7 +55,6 @@ files:
     includes:
       - cuda_version
       - depends_on_pytorch
-      - depends_on_ogb
       - depends_on_cugraph_dgl
       - py_version
       - test_notebook
@@ -68,7 +66,6 @@ files:
       - depends_on_cudf
       - depends_on_dgl
       - depends_on_pytorch
-      - depends_on_ogb
       - py_version
       - test_python_common
   test_cugraph_dgl:
@@ -79,7 +76,6 @@ files:
       - depends_on_cudf
       - depends_on_dgl
       - depends_on_pytorch
-      - depends_on_ogb
       - py_version
       - test_python_common
       - depends_on_pylibwholegraph
@@ -92,7 +88,6 @@ files:
       - depends_on_cudf
       - depends_on_dgl
       - depends_on_pytorch
-      - depends_on_ogb
       - py_version
       - test_python_common
       - depends_on_pylibwholegraph
@@ -105,7 +100,6 @@ files:
       - depends_on_cudf
       - depends_on_dgl
       - depends_on_pytorch
-      - depends_on_ogb
       - py_version
       - test_python_common
       - depends_on_mkl
@@ -169,7 +163,6 @@ files:
     includes:
       - depends_on_pylibwholegraph
       - depends_on_pytorch
-      - depends_on_ogb
       - test_python_common
   py_build_cugraph_pyg:
     output: pyproject
@@ -197,7 +190,6 @@ files:
       - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pytorch
-      - depends_on_ogb
       - test_python_common
       - test_python_cugraph_pyg
 
@@ -211,7 +203,6 @@ files:
       - depends_on_cugraph
       - depends_on_dgl
       - depends_on_pytorch
-      - depends_on_ogb
       - cugraph_dgl_dev
       - test_python_common
   cugraph_pyg_dev:
@@ -224,7 +215,6 @@ files:
       - depends_on_cugraph
       - depends_on_pyg
       - depends_on_pytorch
-      - depends_on_ogb
       - cugraph_pyg_dev
       - test_python_common
 channels:
@@ -477,34 +467,6 @@ dependencies:
               - *pytorch_pip
               - *tensordict
           - {matrix: null, packages: [*pytorch_pip, *tensordict]}
-
-  # Will remove this after snap-stanford/ogb#497 is resolved.
-  # Temporarily sets the max pytorch version to 2.5 for compatibility
-  # with ogb.
-  depends_on_ogb:
-    common:
-      - output_types: [conda]
-        packages:
-          - pytorch>=2.3,<2.6a0
-    specific:
-      - output_types: [requirements]
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu121
-          - matrix: {cuda: "11.*"}
-            packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu118
-          - {matrix: null, packages: null}
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix: {cuda: "12.*"}
-            packages:
-              - torch>=2.3,<2.6a0
-          - matrix: {cuda: "11.*"}
-            packages:
-              - torch>=2.3,<2.6a0
-          - {matrix: null, packages: [*pytorch_pip]}
 
   depends_on_dgl:
     specific:
