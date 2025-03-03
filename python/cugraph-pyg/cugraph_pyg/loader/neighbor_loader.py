@@ -64,7 +64,7 @@ class NeighborLoader(NodeLoader):
         neighbor_sampler: Optional["torch_geometric.sampler.NeighborSampler"] = None,
         directed: bool = True,  # Deprecated.
         batch_size: int = 16,
-        directory: Optional[str] = None,
+        directory: Optional[str] = None,  # Deprecated.
         batches_per_partition=256,
         format: str = "parquet",
         compression: Optional[str] = None,
@@ -158,6 +158,13 @@ class NeighborLoader(NodeLoader):
         """
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
+
+        if directory is not None:
+            warnings.warn(
+                "Unbuffered sampling, where samples are dumped to disk"
+                ", is deprecated in cuGraph-PyG and will be removed in release 25.06.",
+                FutureWarning,
+            )
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
