@@ -16,7 +16,7 @@ rapids-dependency-file-generator \
   --output conda \
   --file-key test_notebooks \
   --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION}"  \
-  --prepend-channel dglteam/label/th24_cu118 \
+  --prepend-channel "dglteam/label/th24_cu124" \
   --prepend-channel "${CPP_CHANNEL}" \
   --prepend-channel "${PYTHON_CHANNEL}" \
 | tee env.yaml
