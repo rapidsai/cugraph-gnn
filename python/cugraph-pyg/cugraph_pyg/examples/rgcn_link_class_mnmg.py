@@ -18,7 +18,10 @@ import json
 import argparse
 import warnings
 
+import numpy
+
 import torch
+import torch_geometric
 
 import torch.nn.functional as F
 from torch.nn import Parameter
@@ -375,10 +378,21 @@ if __name__ == "__main__":
         meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
 
         if not args.skip_partition and global_rank == 0:
-            data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
-            dataset = data[0]
+            with torch.serialization.safe_globals(
+                [
+                    torch_geometric.data.data.DataEdgeAttr,
+                    torch_geometric.data.data.DataTensorAttr,
+                    torch_geometric.data.storage.GlobalStorage,
+                    numpy.core.multiarray._reconstruct,
+                    numpy.ndarray,
+                    numpy.dtype,
+                    numpy.dtypes.Int64DType,
+                ]
+            ):
+                data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
+                dataset = data[0]
 
-            splits = data.get_edge_split()
+                splits = data.get_edge_split()
 
             meta = {}
             meta["num_nodes"] = int(dataset.num_nodes)

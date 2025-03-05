@@ -19,6 +19,7 @@ from typing import Tuple, Dict, Any
 
 import torch
 import cupy
+import numpy
 
 import rmm
 from rmm.allocators.cupy import rmm_cupy_allocator
@@ -78,10 +79,21 @@ def load_data(
 ]:
     from ogb.linkproppred import PygLinkPropPredDataset
 
-    data = PygLinkPropPredDataset(dataset_str, root=dataset_root)
-    dataset = data[0]
+    with torch.serialization.safe_globals(
+        [
+            torch_geometric.data.data.DataEdgeAttr,
+            torch_geometric.data.data.DataTensorAttr,
+            torch_geometric.data.storage.GlobalStorage,
+            numpy.core.multiarray._reconstruct,
+            numpy.ndarray,
+            numpy.dtype,
+            numpy.dtypes.Int64DType,
+        ]
+    ):
+        data = PygLinkPropPredDataset(dataset_str, root=dataset_root)
+        dataset = data[0]
 
-    splits = data.get_edge_split()
+        splits = data.get_edge_split()
 
     from cugraph_pyg.data import GraphStore, TensorDictFeatureStore
 
