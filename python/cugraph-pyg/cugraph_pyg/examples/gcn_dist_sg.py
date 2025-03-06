@@ -118,9 +118,16 @@ def load_data(
 ]:
     from ogb.nodeproppred import PygNodePropPredDataset
 
-    dataset = PygNodePropPredDataset(dataset, root=dataset_root)
-    split_idx = dataset.get_idx_split()
-    data = dataset[0]
+    with torch.serialization.safe_globals(
+        [
+            torch_geometric.data.data.DataEdgeAttr,
+            torch_geometric.data.data.DataTensorAttr,
+            torch_geometric.data.storage.GlobalStorage,
+        ]
+    ):
+        dataset = PygNodePropPredDataset(dataset, root=dataset_root)
+        split_idx = dataset.get_idx_split()
+        data = dataset[0]
 
     graph_store = cugraph_pyg.data.GraphStore()
     graph_store[

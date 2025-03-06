@@ -19,6 +19,8 @@ import warnings
 
 from typing import Tuple, Any
 
+import numpy
+
 import torch
 
 import torch.nn.functional as F
@@ -288,10 +290,21 @@ if __name__ == "__main__":
         # import ogb here to stop it from creating a context and breaking pytorch/rmm
         from ogb.linkproppred import PygLinkPropPredDataset
 
-        data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
-        dataset = data[0]
+        with torch.serialization.safe_globals(
+            [
+                torch_geometric.data.data.DataEdgeAttr,
+                torch_geometric.data.data.DataTensorAttr,
+                torch_geometric.data.storage.GlobalStorage,
+                numpy.core.multiarray._reconstruct,
+                numpy.ndarray,
+                numpy.dtype,
+                numpy.dtypes.Int64DType,
+            ]
+        ):
+            data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
+            dataset = data[0]
 
-        splits = data.get_edge_split()
+            splits = data.get_edge_split()
 
         meta = {}
         meta["num_nodes"] = dataset.num_nodes

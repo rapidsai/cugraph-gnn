@@ -17,7 +17,7 @@ rapids-logger "Begin cpp build"
 
 sccache --zero-stats
 
-RAPIDS_PACKAGE_VERSION=$(rapids-generate-version) rapids-conda-retry mambabuild conda/recipes/libwholegraph
+RAPIDS_PACKAGE_VERSION=$(rapids-generate-version) rapids-conda-retry build conda/recipes/libwholegraph
 
 sccache --show-adv-stats
 
