@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,8 +12,12 @@
 # limitations under the License.
 
 import warnings
+import os
 
 from typing import Optional, Tuple, List
+
+from cugraph_pyg.tensor import DistEmbedding, DistTensor
+from cugraph_pyg.tensor.utils import nvlink_network
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
@@ -151,17 +155,15 @@ class WholeFeatureStore(
     is on.
     """
 
-    def __init__(self, memory_type="distributed", location="cpu"):
+    def __init__(self, memory_type=None, location="cpu"):
         """
         Constructs an empty WholeFeatureStore.
 
         Parameters
         ----------
-        memory_type: str (optional, default='distributed')
-            The memory type of this store.  Options are
-            'distributed', 'chunked', and 'continuous'.
-            For more information consult the WholeGraph
-            documentation.
+        memory_type: str (optional, default=None)
+            Has no effect.  Retained for compatibility purposes.
+
         location: str(optional, default='cpu')
             The location ('cpu' or 'cuda') where data is stored.
         """
@@ -169,72 +171,52 @@ class WholeFeatureStore(
 
         self.__features = {}
 
-        self.__wg_comm = wgth.get_global_communicator()
-        self.__wg_type = memory_type
         self.__wg_location = location
+
+        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+            self.__backend = "vmm"
+        else:
+            self.__backend = "vmm" if nvlink_network() else "nccl"
+
+        if memory_type is not None:
+            warnings.warn(
+                "The memory_type argument is deprecated. "
+                "Memory type is now automatically inferred."
+            )
+
+    def __make_wg_tensor(self, tensor):
+        if tensor.dim() == 1:
+            DistTensor(
+                tensor,
+                device=self.__wg_location,
+                backend=self.__backend,
+            )
+        else:
+            DistEmbedding(
+                tensor,
+                device=self.__wg_location,
+                backend=self.__backend,
+            )
 
     def _put_tensor(
         self,
         tensor: "torch_geometric.typing.FeatureTensorType",
         attr: "torch_geometric.data.feature_store.TensorAttr",
     ) -> bool:
-        wg_comm_obj = self.__wg_comm
+        if attr.is_set("index") and attr.index is not None:
+            if (attr.group_name, attr.attr_name) not in self.__features:
+                dummy = torch.empty_like(tensor)
+                self.__features[
+                    (attr.group_name, attr.attr_name)
+                ] = self.__make_wg_tensor(dummy)
+                del dummy
 
-        if attr.is_set("index"):
-            if (attr.group_name, attr.attr_name) in self.__features:
-                raise NotImplementedError(
-                    "Updating an embedding from an index"
-                    " is not supported by WholeGraph."
-                )
-            else:
-                warnings.warn(
-                    "Ignoring index parameter "
-                    f"(attribute does not exist for group {attr.group_name})"
-                )
+            self.__features[(attr.group_name, attr.attr_name)][attr.index] = tensor
+        else:
+            self.__features[(attr.group_name, attr.attr_name)] = self.__make_wg_tensor(
+                tensor
+            )
 
-        if len(tensor.shape) > 2:
-            raise ValueError("Only 1-D or 2-D tensors are supported by WholeGraph.")
-
-        rank = torch.distributed.get_rank()
-        world_size = torch.distributed.get_world_size()
-
-        ld = torch.tensor(tensor.shape[0], device="cuda", dtype=torch.int64)
-        sizes = torch.empty((world_size,), device="cuda", dtype=torch.int64)
-        torch.distributed.all_gather_into_tensor(sizes, ld)
-
-        sizes = sizes.cpu()
-        ld = sizes.sum()
-
-        td = -1 if len(tensor.shape) == 1 else tensor.shape[1]
-        global_shape = [
-            int(ld),
-            td if td > 0 else 1,
-        ]
-
-        if td < 0:
-            tensor = tensor.reshape((tensor.shape[0], 1))
-
-        wg_embedding = wgth.create_wholememory_tensor(
-            wg_comm_obj,
-            self.__wg_type,
-            self.__wg_location,
-            global_shape,
-            tensor.dtype,
-            [global_shape[1], 1],
-        )
-
-        offset = sizes[:rank].sum() if rank > 0 else 0
-
-        wg_embedding.scatter(
-            tensor.clone(memory_format=torch.contiguous_format).cuda(),
-            torch.arange(
-                offset, offset + tensor.shape[0], dtype=torch.int64, device="cuda"
-            ).contiguous(),
-        )
-
-        wg_comm_obj.barrier()
-
-        self.__features[attr.group_name, attr.attr_name] = (wg_embedding, td)
         return True
 
     def _get_tensor(
@@ -243,21 +225,12 @@ class WholeFeatureStore(
         if (attr.group_name, attr.attr_name) not in self.__features:
             return None
 
-        emb, td = self.__features[attr.group_name, attr.attr_name]
+        emb = self.__features[attr.group_name, attr.attr_name]
 
-        if attr.index is None or (not attr.is_set("index")):
-            attr.index = torch.arange(emb.shape[0], dtype=torch.int64)
+        if attr.is_set("index") and attr.index is not None:
+            return emb[attr.index]
 
-        attr.index = attr.index.cuda()
-        t = emb.gather(
-            attr.index,
-            force_dtype=emb.dtype,
-        )
-
-        if td < 0:
-            t = t.reshape((t.shape[0],))
-
-        return t
+        return emb
 
     def _remove_tensor(
         self, attr: "torch_geometric.data.feature_store.TensorAttr"
