@@ -1,5 +1,5 @@
 # =============================================================================
-# Copyright (c) 2018-2025, NVIDIA CORPORATION.
+# Copyright (c) 2025, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -14,23 +14,28 @@
 
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
-include(../../cmake/rapids_config.cmake)
+include(../../rapids_config.cmake)
 include(rapids-cmake)
 include(rapids-cuda)
 include(rapids-cpm)
 
-rapids_cuda_init_architectures(PYLIBWHOLEGRAPH)
+rapids_cuda_init_architectures(LIBWHOLEGRAPH)
 
 project(
-  PYLIBWHOLEGRAPH
+  LIBWHOLEGRAPH
   VERSION "${RAPIDS_VERSION}"
   LANGUAGES CXX CUDA
 )
 
-include(rapids-cython-core)
-rapids_cython_init()
+# default build type
+rapids_cmake_build_type(Release)
+
+rapids_cpm_init()
+
+include(../../cpp/cmake/thirdparty/get_raft.cmake)
 
 # ##################################################################################################
-# * Cython modules -----------------------------------------------------------
+# * Dependencies  ------------------------------------------------------------
 
-add_subdirectory(pylibwholegraph/binding)
+message(STATUS "LIBWHOLEGRAPH: building statically linked wheel")
+add_subdirectory(../../cpp/ libwholegraph EXCLUDE_FROM_ALL)
