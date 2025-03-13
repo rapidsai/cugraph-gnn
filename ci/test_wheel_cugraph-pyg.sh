@@ -12,20 +12,9 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-s3 python ./local-deps
 RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-s3 python ./dist
 
-# determine pytorch and pyg sources
-if [[ "${CUDA_VERSION}" == "11.8.0" ]]; then
-  PYTORCH_URL="https://download.pytorch.org/whl/cu118"
-  PYG_URL="https://data.pyg.org/whl/torch-2.3.0+cu118.html"
-else
-  PYTORCH_URL="https://download.pytorch.org/whl/cu121"
-  PYG_URL="https://data.pyg.org/whl/torch-2.3.0+cu121.html"
-fi
-
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-pip-retry install \
     -v \
-    --extra-index-url "${PYTORCH_URL}" \
-    --find-links "${PYG_URL}" \
     "$(echo ./local-deps/pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}*.whl)" \
     "$(echo ./dist/cugraph_pyg_${RAPIDS_PY_CUDA_SUFFIX}*.whl)[test]"
 
