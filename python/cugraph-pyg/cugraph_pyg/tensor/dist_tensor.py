@@ -103,50 +103,66 @@ class DistTensor:
                 )
                 self.__dtype = dtype
             else:
-                # TODO support other formats, split this into a separate function
-                if isinstance(src, torch.Tensor):
-                    self.__tensor = create_wg_dist_tensor(
-                        list(src.shape),
-                        src.dtype,
-                        device,
-                        partition_book,
-                        backend,
-                        *args,
-                        **kwargs,
-                    )
-                    self.__dtype = src.dtype
-                    host_tensor = src
-                elif isinstance(src, str) and src.endswith(".pt"):
-                    host_tensor = torch.load(src, mmap=True)
-                    self.__tensor = create_wg_dist_tensor(
-                        list(host_tensor.shape),
-                        host_tensor.dtype,
-                        device,
-                        partition_book,
-                        backend,
-                        *args,
-                        **kwargs,
-                    )
-                    self.__dtype = host_tensor.dtype
-                elif isinstance(src, str) and src.endswith(".npy"):
-                    host_tensor = torch.from_numpy(np.load(src, mmap_mode="c"))
-                    self.__dtype = host_tensor.dtype
-                    self.__tensor = create_wg_dist_tensor(
-                        list(host_tensor.shape),
-                        host_tensor.dtype,
-                        device,
-                        partition_book,
-                        backend,
-                        *args,
-                        **kwargs,
-                    )
-                else:
-                    raise ValueError(
-                        "Unsupported source type. Please provide "
-                        "a torch.Tensor, a file path, or a list of file paths."
-                    )
+                self._init_from_single_source(src, device, partition_book, backend, *args, **kwargs)
 
-                self.load_from_global_tensor(host_tensor)
+    def _init_from_single_source(self, src, device, partition_book, backend, *args, **kwargs):
+        """
+        Initialize DistTensor from a single source (tensor or file).
+        
+        Parameters
+        ----------
+        src : Union[torch.Tensor, str]
+            Source tensor or file path
+        device : str
+            Device to store the tensor on
+        partition_book : Union[List[int], None]
+            Partition configuration
+        backend : str
+            Communication backend
+        """
+        if isinstance(src, torch.Tensor):
+            self.__tensor = create_wg_dist_tensor(
+                list(src.shape),
+                src.dtype,
+                device,
+                partition_book,
+                backend,
+                *args,
+                **kwargs,
+            )
+            self.__dtype = src.dtype
+            host_tensor = src
+        elif isinstance(src, str) and src.endswith(".pt"):
+            host_tensor = torch.load(src, mmap=True)
+            self.__tensor = create_wg_dist_tensor(
+                list(host_tensor.shape),
+                host_tensor.dtype,
+                device,
+                partition_book,
+                backend,
+                *args,
+                **kwargs,
+            )
+            self.__dtype = host_tensor.dtype
+        elif isinstance(src, str) and src.endswith(".npy"):
+            host_tensor = torch.from_numpy(np.load(src, mmap_mode="c"))
+            self.__dtype = host_tensor.dtype
+            self.__tensor = create_wg_dist_tensor(
+                list(host_tensor.shape),
+                host_tensor.dtype,
+                device,
+                partition_book,
+                backend,
+                *args,
+                **kwargs,
+            )
+        else:
+            raise ValueError(
+                "Unsupported source type. Please provide "
+                "a torch.Tensor, a file path, or a list of file paths."
+            )
+
+        self.load_from_global_tensor(host_tensor)
 
     def load_from_global_tensor(self, tensor):
         # input pytorch host tensor (mmapped or in shared host memory),
