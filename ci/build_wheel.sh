@@ -7,6 +7,8 @@ package_name=$1
 package_dir=$2
 underscore_package_name=$(echo "${package_name}" | tr "-" "_")
 
+wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR:-"final_dist"}
+
 # The set of shared libraries that should be packaged differs by project.
 #
 # Capturing that here in argument-parsing to allow this build_wheel.sh
@@ -48,13 +50,14 @@ sccache --show-adv-stats
 if [[ ${package_name} == "cugraph-dgl" ]] || \
    [[ ${package_name} == "cugraph-pyg" ]]; then
     RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python dist
+    cp dist/* "${wheel_dir}/"
 else
 
     mkdir -p final_dist
     python -m auditwheel repair \
         "${EXCLUDE_ARGS[@]}" \
-        -w final_dist \
+        -w "${wheel_dir}" \
         dist/*
 
-    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python final_dist
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${wheel_dir}"
 fi
