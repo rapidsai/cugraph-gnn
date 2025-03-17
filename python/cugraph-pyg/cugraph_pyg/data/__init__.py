@@ -31,6 +31,8 @@ def TensorDictFeatureStore(*args, **kwargs):
         FutureWarning,
     )
 
+    return DEPRECATED__TensorDictFeatureStore(*args, **kwargs)
+
 
 def DaskGraphStore(*args, **kwargs):
     warnings.warn(
