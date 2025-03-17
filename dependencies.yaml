@@ -438,7 +438,7 @@ dependencies:
       - output_types: [conda]
         packages:
           - dgl>=2.4.0.cu*
-          - &tensordict tensordict>=0.1.2,<=0.6.2.0a0
+          - &tensordict tensordict>=0.1.2,<=0.6.2
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
@@ -454,7 +454,7 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - tensordict>=0.1.2,<=0.6.2.0a0
+          - tensordict>=0.1.2,<=0.6.2
     specific:
       - output_types: [requirements]
         matrices:
