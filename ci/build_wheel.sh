@@ -50,10 +50,10 @@ sccache --show-adv-stats
 if [[ ${package_name} == "cugraph-dgl" ]] || \
    [[ ${package_name} == "cugraph-pyg" ]]; then
     RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python dist
+    mkdir -p "${wheel_dir}"
     cp dist/* "${wheel_dir}/"
 else
 
-    mkdir -p final_dist
     python -m auditwheel repair \
         "${EXCLUDE_ARGS[@]}" \
         -w "${wheel_dir}" \
