@@ -68,11 +68,16 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_cugraph-dgl.sh
+      package-type: python
+      wheel-name: cugraph-dgl
+      pure-wheel: true
   wheel-publish-cugraph-dgl:
     needs: wheel-build-cugraph-dgl
     secrets: inherit
@@ -88,11 +93,16 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_cugraph-pyg.sh
+      package-type: python
+      wheel-name: cugraph-pyg
+      pure-wheel: true
   wheel-publish-cugraph-pyg:
     needs: wheel-build-cugraph-pyg
     secrets: inherit
@@ -113,6 +123,8 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_pylibwholegraph.sh
+      package-type: python
+      wheel-name: pylibwholegraph
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit

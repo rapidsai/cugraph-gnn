@@ -143,8 +143,8 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_pylibwholegraph.sh
-      wheel_type: python
-      wheel_name: pylibwholegraph
+      package-type: python
+      wheel-name: pylibwholegraph
   # wheel-tests-pylibwholegraph:
   #   needs: [wheel-build-pylibwholegraph, changed-files]
   #   secrets: inherit
@@ -159,11 +159,13 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
       script: ci/build_wheel_cugraph-dgl.sh
-      wheel_type: python
-      wheel_name: cugraph-dgl
-      pure_wheel: true
+      package-type: python
+      wheel-name: cugraph-dgl
+      pure-wheel: true
   # wheel-tests-cugraph-dgl:
   #   needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
   #   secrets: inherit
@@ -178,11 +180,13 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.04
     with:
+      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
+      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
       script: ci/build_wheel_cugraph-pyg.sh
-      wheel_type: python
-      wheel_name: cugraph-pyg
-      pure_wheel: true
+      package-type: python
+      wheel-name: cugraph-pyg
+      pure-wheel: true
   # wheel-tests-cugraph-pyg:
   #   needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
   #   secrets: inherit
