@@ -12,12 +12,14 @@
 # limitations under the License.
 
 import pytest
+import os
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
 from cugraph_pyg.data import TensorDictFeatureStore
 
 torch = import_optional("torch")
+pylibwholegraph = import_optional("pylibwholegraph")
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -42,3 +44,28 @@ def test_tensordict_feature_store_basic_api():
 
     del feature_store["node", "feat0", None]
     assert len(feature_store.get_all_tensor_attrs()) == 2
+
+
+@pytest.mark.skipif(
+    isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
+)
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.mg
+def test_wholegraph_feature_store_basic_api():
+    world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
+    raise NotImplementedError("Must write this test!")
+
+    """
+    torch.multiprocessing.spawn(
+        run_test_wholegraph_feature_store_rank_0,
+        args=(
+            world_size,
+            dtype,
+        ),
+        nprocs=world_size,
+    )"
+    """

@@ -73,7 +73,7 @@ class DistTensor:
         **kwargs,
     ):
 
-        self.__tensor = None
+        self._tensor = None
         self.__device = device
         if src is None:
             # Create an empty WholeGraph tensor
@@ -84,7 +84,7 @@ class DistTensor:
             elif not (len(shape) in [1, 2]):
                 raise ValueError("The shape of the tensor must be 1D or 2D.")
 
-            self.__tensor = create_wg_dist_tensor(
+            self._tensor = create_wg_dist_tensor(
                 list(shape), dtype, device, partition_book, backend, *args, **kwargs
             )
             self.__dtype = dtype
@@ -98,17 +98,21 @@ class DistTensor:
                         " supported with binary format."
                     )
 
-                self.__tensor = create_wg_dist_tensor_from_files(
+                self._tensor = create_wg_dist_tensor_from_files(
                     src, shape, dtype, device, partition_book, backend, *args, **kwargs
                 )
                 self.__dtype = dtype
             else:
-                self._init_from_single_source(src, device, partition_book, backend, *args, **kwargs)
+                self._init_from_single_source(
+                    src, device, partition_book, backend, *args, **kwargs
+                )
 
-    def _init_from_single_source(self, src, device, partition_book, backend, *args, **kwargs):
+    def _init_from_single_source(
+        self, src, device, partition_book, backend, *args, **kwargs
+    ):
         """
         Initialize DistTensor from a single source (tensor or file).
-        
+
         Parameters
         ----------
         src : Union[torch.Tensor, str]
@@ -121,7 +125,7 @@ class DistTensor:
             Communication backend
         """
         if isinstance(src, torch.Tensor):
-            self.__tensor = create_wg_dist_tensor(
+            self._tensor = create_wg_dist_tensor(
                 list(src.shape),
                 src.dtype,
                 device,
@@ -134,7 +138,7 @@ class DistTensor:
             host_tensor = src
         elif isinstance(src, str) and src.endswith(".pt"):
             host_tensor = torch.load(src, mmap=True)
-            self.__tensor = create_wg_dist_tensor(
+            self._tensor = create_wg_dist_tensor(
                 list(host_tensor.shape),
                 host_tensor.dtype,
                 device,
@@ -147,7 +151,7 @@ class DistTensor:
         elif isinstance(src, str) and src.endswith(".npy"):
             host_tensor = torch.from_numpy(np.load(src, mmap_mode="c"))
             self.__dtype = host_tensor.dtype
-            self.__tensor = create_wg_dist_tensor(
+            self._tensor = create_wg_dist_tensor(
                 list(host_tensor.shape),
                 host_tensor.dtype,
                 device,
@@ -332,10 +336,6 @@ class DistTensor:
     @property
     def dtype(self):
         return self.__dtype
-
-    @property
-    def _tensor(self):
-        return self.__tensor
 
     def __repr__(self):
         if self._tensor is None:

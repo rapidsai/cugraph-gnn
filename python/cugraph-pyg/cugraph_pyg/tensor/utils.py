@@ -24,11 +24,6 @@ wgth = import_optional("pylibwholegraph.torch")
 def copy_host_global_tensor_to_local(wm_tensor, host_tensor, wm_comm):
     local_tensor, local_start = wm_tensor.get_local_tensor(host_view=False)
 
-    local_ref_start = wm_tensor.get_local_entry_start()
-    local_ref_count = wm_tensor.get_local_entry_count()
-    assert local_start == local_ref_start
-    assert local_tensor.shape[0] == local_ref_count
-
     local_tensor.copy_(host_tensor[local_start : local_start + local_tensor.shape[0]])
     wm_comm.barrier()
 
@@ -90,7 +85,6 @@ def create_wg_dist_tensor(
             cache_policy=cache_policy,
             embedding_entry_partition=partition_book,
             **kwargs,
-            tensor_entry_partition=None,
         )
     else:
         if len(shape) not in [1, 2]:

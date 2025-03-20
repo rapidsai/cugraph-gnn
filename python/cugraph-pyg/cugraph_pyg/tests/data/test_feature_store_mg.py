@@ -77,6 +77,10 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
 @pytest.mark.mg
 def test_wholegraph_feature_store_basic_api(dtype):
     world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
     torch.multiprocessing.spawn(
         run_test_wholegraph_feature_store_basic_api,
         args=(
@@ -85,3 +89,28 @@ def test_wholegraph_feature_store_basic_api(dtype):
         ),
         nprocs=world_size,
     )
+
+
+@pytest.mark.skipif(
+    isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
+)
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.mg
+def test_wholegraph_feature_store_rank_0():
+    world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
+    raise NotImplementedError("Must write this test!")
+
+    """
+    torch.multiprocessing.spawn(
+        run_test_wholegraph_feature_store_rank_0,
+        args=(
+            world_size,
+            dtype,
+        ),
+        nprocs=world_size,
+    )
+    """

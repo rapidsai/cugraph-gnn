@@ -184,19 +184,50 @@ class WholeFeatureStore(
                 "Memory type is now automatically inferred."
             )
 
-    def __make_wg_tensor(self, tensor):
+    def __make_wg_tensor(self, tensor, ix=None):
+        world_size = torch.distributed.get_world_size()
+        rank = torch.distributed.get_rank()
+
+        ld = torch.tensor(tensor.shape[0], device="cuda", dtype=torch.int64)
+        sizes = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+        torch.distributed.all_gather_into_tensor(sizes, ld)
+
         if tensor.dim() == 1:
-            DistTensor(
-                tensor,
+            global_shape = [
+                sizes.sum(),
+            ]
+            tx = DistTensor(
+                None,
+                shape=global_shape,
+                dtype=tensor.dtype,
+                device=self.__wg_location,
+                backend=self.__backend,
+            )
+        elif tensor.dim() == 2:
+            global_shape = [sizes.sum(), int(tensor.shape[1])]
+            tx = DistEmbedding(
+                None,
+                shape=global_shape,
+                dtype=tensor.dtype,
                 device=self.__wg_location,
                 backend=self.__backend,
             )
         else:
-            DistEmbedding(
-                tensor,
-                device=self.__wg_location,
-                backend=self.__backend,
-            )
+            raise ValueError("Tensor must be 1D or 2D.")
+
+        if ix is None:
+            offset = sizes[:rank].sum() if rank > 0 else 0
+            ix = torch.arange(
+                offset, offset + tensor.shape[0], dtype=torch.int64, device="cuda"
+            ).contiguous()
+
+        if tensor.shape[0] != ix.shape[0]:
+            raise ValueError("Shape mismatch")
+        if ix.dim() != 1:
+            raise ValueError("Index must be 1D")
+
+        tx[ix] = tensor
+        return tx
 
     def _put_tensor(
         self,
@@ -208,10 +239,7 @@ class WholeFeatureStore(
                 dummy = torch.empty_like(tensor)
                 self.__features[
                     (attr.group_name, attr.attr_name)
-                ] = self.__make_wg_tensor(dummy)
-                del dummy
-
-            self.__features[(attr.group_name, attr.attr_name)][attr.index] = tensor
+                ] = self.__make_wg_tensor(dummy, ix=attr.index)
         else:
             self.__features[(attr.group_name, attr.attr_name)] = self.__make_wg_tensor(
                 tensor
