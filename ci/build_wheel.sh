@@ -7,7 +7,7 @@ package_name=$1
 package_dir=$2
 underscore_package_name=$(echo "${package_name}" | tr "-" "_")
 
-wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR:-"final_dist"}
+wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR}
 
 # The set of shared libraries that should be packaged differs by project.
 #

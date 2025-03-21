@@ -5,7 +5,7 @@ set -euo pipefail
 
 package_dir="python/pylibwholegraph"
 
-wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR:-"final_dist"}
+wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR}
 
 export SKBUILD_CMAKE_ARGS="-DBUILD_SHARED_LIBS=OFF;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-DCUDA_STATIC_RUNTIME=ON;-DWHOLEGRAPH_BUILD_WHEELS=ON"
 
