@@ -17,7 +17,7 @@ import os
 from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
-from cugraph_pyg.tensor.utils import nvlink_network
+from cugraph_pyg.tensor.utils import has_nvlink_network
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
@@ -176,7 +176,7 @@ class WholeFeatureStore(
         if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
             self.__backend = "vmm"
         else:
-            self.__backend = "vmm" if nvlink_network() else "nccl"
+            self.__backend = "vmm" if has_nvlink_network() else "nccl"
 
         if memory_type is not None:
             warnings.warn(
@@ -236,10 +236,9 @@ class WholeFeatureStore(
     ) -> bool:
         if attr.is_set("index") and attr.index is not None:
             if (attr.group_name, attr.attr_name) not in self.__features:
-                dummy = torch.empty_like(tensor)
                 self.__features[
                     (attr.group_name, attr.attr_name)
-                ] = self.__make_wg_tensor(dummy, ix=attr.index)
+                ] = self.__make_wg_tensor(tensor, ix=attr.index)
         else:
             self.__features[(attr.group_name, attr.attr_name)] = self.__make_wg_tensor(
                 tensor

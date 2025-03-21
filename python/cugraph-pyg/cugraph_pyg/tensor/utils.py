@@ -180,7 +180,7 @@ def create_wg_dist_tensor_from_files(
     return wm_embedding
 
 
-def nvlink_network():
+def has_nvlink_network():
     r"""Check if the current hardware supports cross-node NVLink network."""
 
     global_comm = wgth.comm.get_global_communicator("nccl")

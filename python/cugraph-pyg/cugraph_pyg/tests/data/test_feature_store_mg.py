@@ -91,26 +91,69 @@ def test_wholegraph_feature_store_basic_api(dtype):
     )
 
 
+def run_test_wholegraph_feature_store_single_construct(rank, world_size):
+    torch.cuda.set_device(rank)
+
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
+
+    pylibwholegraph.torch.initialize.init(
+        rank,
+        world_size,
+        rank,
+        world_size,
+    )
+
+    features = torch.arange(0, world_size * 2000)
+    features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
+
+    tensordict_store = TensorDictFeatureStore()
+    tensordict_store["node", "fea", None] = features
+
+    whole_store = WholeFeatureStore()
+    if rank == 0:
+        whole_store["node", "fea", None] = features
+    else:
+        whole_store["node", "fea", None] = torch.empty_like(features)
+
+    ix = torch.arange(features.shape[0])
+    assert (
+        whole_store["node", "fea", None][ix].cpu()
+        == tensordict_store["node", "fea", None][ix]
+    ).all()
+    assert (
+        whole_store["node", "fea", None][ix].cpu()
+        == tensordict_store["node", "fea", None][ix]
+    ).all()
+
+    ix = torch.randperm(features.shape[0])
+
+    label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
+    tensordict_store["node", "label", None] = label
+    whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
+
+    assert (
+        whole_store["node", "fea", None][ix].cpu()
+        == tensordict_store["node", "fea", None][ix]
+    ).all()
+
+    pylibwholegraph.torch.initialize.finalize()
+
+
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
-def test_wholegraph_feature_store_rank_0():
+def test_wholegraph_feature_store_single_construct():
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
     os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
 
-    raise NotImplementedError("Must write this test!")
-
-    """
     torch.multiprocessing.spawn(
-        run_test_wholegraph_feature_store_rank_0,
-        args=(
-            world_size,
-            dtype,
-        ),
+        run_test_wholegraph_feature_store_single_construct,
+        args=(world_size,),
         nprocs=world_size,
     )
-    """
