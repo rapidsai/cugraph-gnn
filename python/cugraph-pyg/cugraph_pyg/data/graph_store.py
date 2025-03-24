@@ -21,6 +21,8 @@ import pylibcugraph
 from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
+from cugraph_pyg.tensor import DistTensor
+
 from typing import Union, Optional, List, Dict, Tuple
 
 
@@ -28,7 +30,6 @@ from typing import Union, Optional, List, Dict, Tuple
 # dependencies in order to build properly.
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
-tensordict = import_optional("tensordict")
 
 TensorType = Union["torch.Tensor", cupy.ndarray, np.ndarray, cudf.Series, pandas.Series]
 
@@ -56,7 +57,7 @@ class GraphStore(
         Constructs a new, empty GraphStore object.  This object
         represents one slice of a graph on particular worker.
         """
-        self.__edge_indices = tensordict.TensorDict({}, batch_size=(2,))
+        self.__edge_indices = {}
         self.__sizes = {}
 
         self.__handle = None
@@ -89,9 +90,13 @@ class GraphStore(
         elif isinstance(edge_index, cudf.Series):
             edge_index = torch.as_tensor(edge_index.values, device="cuda")
 
-        self.__edge_indices[edge_attr.edge_type] = torch.stack(
-            [edge_index[0], edge_index[1]]
-        )
+        if isinstance(edge_index, DistTensor):
+            self.__edge_indices[edge_attr.edge_type] = edge_index
+
+        else:
+            tx = torch.stack([edge_index[0], edge_index[1]])
+            self.__edge_indices[edge_attr.edge_type] = DistTensor(tx)
+
         self.__sizes[edge_attr.edge_type] = edge_attr.size
 
         # invalidate the graph
@@ -101,7 +106,8 @@ class GraphStore(
     def _get_edge_index(
         self, edge_attr: "torch_geometric.data.EdgeAttr"
     ) -> Optional["torch_geometric.typing.EdgeTensorType"]:
-        ei = torch_geometric.EdgeIndex(self.__edge_indices[edge_attr.edge_type])
+        local_eix = self.__edge_indices[edge_attr.edge_type].get_local_tensor()
+        ei = torch_geometric.EdgeIndex(local_eix)
 
         if edge_attr.layout == "csr":
             return ei.sort_by("row").values.get_csr()

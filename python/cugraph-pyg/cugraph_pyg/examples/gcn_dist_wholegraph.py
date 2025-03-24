@@ -121,7 +121,17 @@ def load_and_distribute_data(rank):
             False,
             (meta["num_nodes"], meta["num_nodes"]),
         ] = data.edge_index
-
+    else:
+        # Create dummy tensors for feature store, will be filled in by rank 0
+        feature_store["node", "x", None] = torch.tensor([], dtype=torch.float32)
+        feature_store["node", "y", None] = torch.tensor([], dtype=torch.int64)
+        # Create dummy tensor for graph store, will be filled in by rank 0
+        graph_store[
+            ("node", "rel", "node"),
+            "coo",
+            False,
+            (meta["num_nodes"], meta["num_nodes"]),
+        ] = torch.tensor([], dtype=torch.int64)
     # Synchronize to ensure data is distributed
     dist.barrier()
 
