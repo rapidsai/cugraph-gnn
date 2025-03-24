@@ -137,7 +137,7 @@ class TensorDictFeatureStore(
         return attrs
 
 
-class WholeFeatureStore(
+class FeatureStore(
     object
     if isinstance(torch_geometric, MissingModule)
     else torch_geometric.data.FeatureStore
