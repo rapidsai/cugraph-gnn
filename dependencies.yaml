@@ -5,7 +5,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["11.8", "12.4", "12.6"]
+      cuda: ["11.8", "12.1", "12.4"]
       arch: [x86_64]
     includes:
       - checks
@@ -78,7 +78,6 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - depends_on_cugraph_dgl
   test_cugraph_pyg:
@@ -91,7 +90,6 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
@@ -272,10 +270,6 @@ dependencies:
             packages:
               - cuda-version=12.5
           - matrix:
-              cuda: "12.6"
-            packages:
-              - cuda-version=12.6
-          - matrix:
               cuda: "12.8"
             packages:
               - cuda-version=12.8
@@ -438,7 +432,7 @@ dependencies:
       - output_types: [conda]
         packages:
           - dgl>=2.4.0.cu*
-          - &tensordict tensordict>=0.1.2,<=0.6.2
+          - &tensordict tensordict>=0.1.2
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
@@ -454,13 +448,13 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - tensordict>=0.1.2,<=0.6.2
+          - tensordict
     specific:
       - output_types: [requirements]
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              - --extra-index-url=https://download.pytorch.org/whl/cu121
           - matrix: {cuda: "11.*"}
             packages:
               - --extra-index-url=https://download.pytorch.org/whl/cu118
