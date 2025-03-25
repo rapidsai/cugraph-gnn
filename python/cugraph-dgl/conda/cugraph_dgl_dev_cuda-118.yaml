@@ -7,7 +7,7 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cugraph==25.4.*,>=0.0.0a0
+- cugraph==25.6.*,>=0.0.0a0
 - dgl>=2.4.0.cu*
 - dglteam/label/th24_cu118::dgl
 - pre-commit
@@ -17,6 +17,6 @@ dependencies:
 - pytest-cov
 - pytest-xdist
 - pytorch>=2.3,<=2.5.1
-- tensordict>=0.1.2
+- tensordict>=0.1.2,<=0.6.2
 - torchdata
 name: cugraph_dgl_dev_cuda-118
