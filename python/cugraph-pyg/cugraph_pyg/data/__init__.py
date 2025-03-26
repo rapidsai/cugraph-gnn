@@ -23,7 +23,7 @@ from cugraph_pyg.data.feature_store import (
     FeatureStore,
 )
 
-from cugraph_pyg.utilities.utils import import_optional
+from cugraph.utilities.utils import import_optional
 
 
 def GraphStore(*args, **kwargs):

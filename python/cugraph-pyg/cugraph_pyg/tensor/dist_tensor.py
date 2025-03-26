@@ -443,7 +443,15 @@ class DistEmbedding(DistTensor):
         DistEmbedding
             The WholeGraph-backed Distributed Tensor.
         """
-        return cls(tensor, device, partition_book, name, cache_policy, *args, **kwargs)
+        return cls(
+            src=tensor,
+            device=device,
+            partition_book=partition_book,
+            name=name,
+            cache_policy=cache_policy,
+            *args,
+            **kwargs,
+        )
 
     @classmethod
     def from_file(
@@ -473,7 +481,13 @@ class DistEmbedding(DistTensor):
             The WholeGraph-backed Distributed Tensor.
         """
         return cls(
-            file_path, device, partition_book, name, cache_policy, *args, **kwargs
+            src=file_path,
+            device=device,
+            partition_book=partition_book,
+            name=name,
+            cache_policy=cache_policy,
+            *args,
+            **kwargs,
         )
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):
