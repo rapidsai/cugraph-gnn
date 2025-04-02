@@ -16,7 +16,7 @@ import os
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore
+from cugraph_pyg.data import TensorDictFeatureStore, FeatureStore
 
 torch = import_optional("torch")
 pylibwholegraph = import_optional("pylibwholegraph")
@@ -46,7 +46,7 @@ def test_tensordict_feature_store_basic_api():
     assert len(feature_store.get_all_tensor_attrs()) == 2
 
 
-def run_test_wholegraph_feature_store_rank_0(rank, world_size):
+def run_test_wholegraph_feature_store_basic_api(rank, world_size):
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -66,7 +66,7 @@ def run_test_wholegraph_feature_store_rank_0(rank, world_size):
     tensordict_store = TensorDictFeatureStore()
     tensordict_store["node", "fea", None] = features
 
-    whole_store = WholeFeatureStore()
+    whole_store = FeatureStore()
     if rank == 0:
         whole_store["node", "fea", None] = features
     else:

@@ -481,7 +481,7 @@ class NewGraphStore(
             self.__edge_indices[edge_attr.edge_type] = edge_index
         else:
             tx = torch.stack([edge_index[0], edge_index[1]])
-            self.__edge_indices[edge_attr.edge_type] = DistTensor(tx)
+            self.__edge_indices[edge_attr.edge_type] = DistTensor(tx.T)
 
         self.__sizes[edge_attr.edge_type] = edge_attr.size
 
@@ -493,7 +493,10 @@ class NewGraphStore(
         self, edge_attr: "torch_geometric.data.EdgeAttr"
     ) -> Optional["torch_geometric.typing.EdgeTensorType"]:
         # TODO Return WG edge index
-        local_eix = self.__edge_indices[edge_attr.edge_type].get_local_tensor()
+        local_eix = (
+            self.__edge_indices[edge_attr.edge_type].get_local_tensor().T.contiguous()
+        )
+        print("local_eix", local_eix)
         ei = torch_geometric.EdgeIndex(local_eix)
 
         if edge_attr.layout == "csr":
@@ -602,11 +605,11 @@ class NewGraphStore(
                 if edge_attr.edge_type[0] != edge_attr.edge_type[2]:
                     if edge_attr.edge_type[0] not in num_vertices:
                         num_vertices[edge_attr.edge_type[0]] = int(
-                            self.__edge_indices[edge_attr.edge_type][0].max() + 1
+                            self.__edge_indices[edge_attr.edge_type].T[0].max() + 1
                         )
                     if edge_attr.edge_type[2] not in num_vertices:
                         num_vertices[edge_attr.edge_type[1]] = int(
-                            self.__edge_indices[edge_attr.edge_type][1].max() + 1
+                            self.__edge_indices[edge_attr.edge_type].T[1].max() + 1
                         )
                 elif edge_attr.edge_type[0] not in num_vertices:
                     num_vertices[edge_attr.edge_type[0]] = int(
