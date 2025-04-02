@@ -18,8 +18,6 @@ import numpy as np
 from cugraph.gnn import FeatureStore
 from cugraph.datasets import karate
 
-import tempfile
-
 # module-wide fixtures
 
 # If the rapids-pytest-benchmark plugin is installed, the "gpubenchmark"
