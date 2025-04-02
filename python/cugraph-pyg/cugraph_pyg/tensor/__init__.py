@@ -12,3 +12,4 @@
 # limitations under the License.
 
 from cugraph_pyg.tensor.dist_tensor import DistTensor, DistEmbedding
+from cugraph_pyg.tensor.dist_matrix import DistMatrix

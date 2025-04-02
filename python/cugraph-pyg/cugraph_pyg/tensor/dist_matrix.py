@@ -26,7 +26,14 @@ class DistMatrix:
 
     def __init__(
         self,
-        src: Optional[Union[Tuple[torch.Tensor, torch.Tensor], str, List[str]]] = None,
+        src: Optional[
+            Union[
+                Tuple[torch.Tensor, torch.Tensor],
+                Tuple[DistTensor, DistTensor],
+                str,
+                List[str],
+            ]
+        ] = None,
         shape: Optional[Union[list, tuple]] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
@@ -56,6 +63,12 @@ class DistMatrix:
                 raise ValueError("Only COO format is supported for empty matrices")
             self._col = DistTensor(src=None, device=device, dtype=dtype, shape=shape)
             self._row = DistTensor(src=None, device=device, dtype=dtype, shape=shape)
+        elif isinstance(src, (str, list)):
+            raise NotImplementedError(
+                "Constructing from a file or list of files is not yet supported."
+            )
+        else:
+            raise ValueError("Invalid src type")
 
     def __setitem__(
         self,
@@ -78,3 +91,26 @@ class DistMatrix:
                 raise ValueError("val must be a tuple of two tensors")
             self._col[idx] = val[0]
             self._row[idx] = val[1]
+
+    def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
+        if self._format != "coo":
+            raise ValueError("Getting is currently only supported for COO format")
+        if idx.dim() != 1:
+            raise ValueError("idx must be a 1D tensor")
+
+        return torch.stack([self._col[idx], self._row[idx]])
+
+    def get_local_tensor(self) -> Tuple[torch.Tensor, torch.Tensor]:
+        return (self._col.get_local_tensor(), self._row.get_local_tensor())
+
+    @property
+    def local_col(self) -> torch.Tensor:
+        return self._col.get_local_tensor()
+
+    @property
+    def local_row(self) -> torch.Tensor:
+        return self._row.get_local_tensor()
+
+    @property
+    def local_coo(self) -> torch.Tensor:
+        return torch.stack(self.get_local_tensor())

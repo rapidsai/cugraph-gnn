@@ -21,7 +21,7 @@ import pylibcugraph
 from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
-from cugraph_pyg.tensor import DistTensor
+from cugraph_pyg.tensor import DistTensor, DistMatrix
 
 from typing import Union, Optional, List, Dict, Tuple
 
@@ -477,11 +477,12 @@ class NewGraphStore(
         elif isinstance(edge_index, cudf.Series):
             edge_index = torch.as_tensor(edge_index.values, device="cuda")
 
-        if isinstance(edge_index, DistTensor):
-            self.__edge_indices[edge_attr.edge_type] = edge_index
+        if isinstance(edge_index, Tuple[DistTensor, DistTensor]):
+            self.__edge_indices[edge_attr.edge_type] = DistMatrix(src=edge_index)
         else:
-            tx = torch.stack([edge_index[0], edge_index[1]])
-            self.__edge_indices[edge_attr.edge_type] = DistTensor(tx.T)
+            self.__edge_indices[edge_attr.edge_type] = DistTensor(
+                src=[(edge_index[0], edge_index[1])]
+            )
 
         self.__sizes[edge_attr.edge_type] = edge_attr.size
 
@@ -492,11 +493,8 @@ class NewGraphStore(
     def _get_edge_index(
         self, edge_attr: "torch_geometric.data.EdgeAttr"
     ) -> Optional["torch_geometric.typing.EdgeTensorType"]:
-        # TODO Return WG edge index
-        local_eix = (
-            self.__edge_indices[edge_attr.edge_type].get_local_tensor().T.contiguous()
-        )
-        print("local_eix", local_eix)
+        # TODO Return WG edge index as duck-type for torch_geometric.EdgeIndex
+        local_eix = self.__edge_indices[edge_attr.edge_type].local_coo
         ei = torch_geometric.EdgeIndex(local_eix)
 
         if edge_attr.layout == "csr":
@@ -515,7 +513,7 @@ class NewGraphStore(
 
     def get_all_edge_attrs(self) -> List["torch_geometric.data.EdgeAttr"]:
         attrs = []
-        for et in self.__edge_indices.keys(leaves_only=True, include_nested=True):
+        for et in self.__edge_indices.keys():
             attrs.append(
                 torch_geometric.data.EdgeAttr(
                     edge_type=et, layout="coo", is_sorted=False, size=self.__sizes[et]
@@ -605,15 +603,18 @@ class NewGraphStore(
                 if edge_attr.edge_type[0] != edge_attr.edge_type[2]:
                     if edge_attr.edge_type[0] not in num_vertices:
                         num_vertices[edge_attr.edge_type[0]] = int(
-                            self.__edge_indices[edge_attr.edge_type].T[0].max() + 1
+                            self.__edge_indices[edge_attr.edge_type].local_col.max() + 1
                         )
                     if edge_attr.edge_type[2] not in num_vertices:
                         num_vertices[edge_attr.edge_type[1]] = int(
-                            self.__edge_indices[edge_attr.edge_type].T[1].max() + 1
+                            self.__edge_indices[edge_attr.edge_type].local_row.max() + 1
                         )
                 elif edge_attr.edge_type[0] not in num_vertices:
                     num_vertices[edge_attr.edge_type[0]] = int(
-                        self.__edge_indices[edge_attr.edge_type].max() + 1
+                        torch.cat(
+                            self.__edge_indices[edge_attr.edge_type].local_coo
+                        ).max()
+                        + 1
                     )
 
         if self.is_multi_gpu:
@@ -744,13 +745,9 @@ class NewGraphStore(
             [
                 torch.stack(
                     [
-                        self.__edge_indices[
-                            dst_type, rel_type, src_type
-                        ].get_local_tensor()[0]
+                        self.__edge_indices[dst_type, rel_type, src_type].local_col
                         + self._vertex_offsets[dst_type],
-                        self.__edge_indices[
-                            dst_type, rel_type, src_type
-                        ].get_local_tensor()[1]
+                        self.__edge_indices[dst_type, rel_type, src_type].local_row
                         + self._vertex_offsets[src_type],
                     ]
                 )
@@ -763,17 +760,14 @@ class NewGraphStore(
             len(sorted_keys), dtype=torch.int32, device="cuda"
         ).repeat_interleave(
             torch.tensor(
-                [
-                    self.__edge_indices[et].get_local_tensor().shape[1]
-                    for et in sorted_keys
-                ],
+                [self.__edge_indices[et].local_row.numel() for et in sorted_keys],
                 device="cuda",
                 dtype=torch.int64,
             )
         )
 
         num_edges_t = torch.tensor(
-            [self.__edge_indices[et].get_local_tensor().shape[1] for et in sorted_keys],
+            [self.__edge_indices[et].local_row.numel() for et in sorted_keys],
             device="cuda",
         )
 
