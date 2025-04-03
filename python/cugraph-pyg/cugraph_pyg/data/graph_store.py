@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import numpy as np
 import cupy
 import cudf
@@ -22,6 +24,8 @@ from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.tensor import DistTensor, DistMatrix
+from cugraph_pyg.tensor.utils import has_nvlink_network
+
 
 from typing import Union, Optional, List, Dict, Tuple
 
@@ -452,6 +456,11 @@ class NewGraphStore(
 
         self.__clear_graph()
 
+        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+            self.__backend = "vmm"
+        else:
+            self.__backend = "vmm" if has_nvlink_network() else "nccl"
+
         super().__init__()
 
     def __clear_graph(self):
@@ -493,7 +502,7 @@ class NewGraphStore(
             self.__edge_indices[edge_attr.edge_type] = edge_index
         else:
             self.__edge_indices[edge_attr.edge_type] = DistMatrix(
-                shape=(size, size), dtype=torch.long
+                shape=(size, size), dtype=torch.long, backend=self.__backend
             )
 
             if isinstance(edge_index[0], DistTensor) and isinstance(

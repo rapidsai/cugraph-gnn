@@ -39,14 +39,18 @@ def GraphStore(*args, **kwargs):
 
         if is_multi_gpu:
             wgth = import_optional("pylibwholegraph.torch")
+            torch = import_optional("torch")
+            rank = torch.distributed.get_rank()
+            world_size = torch.distributed.get_world_size()
             try:
-                comm = wgth.get_global_communicator()
-                assert comm is not None
-            except:
-                raise RuntimeError(
-                    "WholeGraph is not initialized.  Please call "
-                    "pylibwholegraph.torch.initialize.init()"
+                wgth.initialize.init(
+                    rank,
+                    world_size,
+                    rank,
+                    world_size,
                 )
+            except:
+                warnings.warn("WholeGraph already initialized, continuing.")
             return NewGraphStore(*args, **kwargs)
         else:
             warnings.warn(

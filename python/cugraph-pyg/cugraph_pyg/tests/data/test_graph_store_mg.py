@@ -21,6 +21,7 @@ from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph_pyg.data import GraphStore
 
 torch = import_optional("torch")
+pylibwholegraph = import_optional("pylibwholegraph")
 
 
 def run_test_graph_store_basic_api(rank, world_size):

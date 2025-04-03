@@ -11,12 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
 from cugraph.utilities.utils import import_optional
 from typing import Optional, Union, Tuple, List, Literal
 
-from cugraph_pyg.tensor import DistTensor, has_nvlink_network
+from cugraph_pyg.tensor import DistTensor
 
 torch = import_optional("torch")
 
@@ -39,14 +37,10 @@ class DistMatrix:
         shape: Optional[Union[list, tuple]] = None,
         dtype: Optional[torch.dtype] = None,
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
+        backend: Optional[Literal["nccl", "vmm"]] = "nccl",
         format: Optional[Literal["csc", "coo"]] = "coo",
     ):
-
-        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
-            self.__backend = "vmm"
-        else:
-            self.__backend = "vmm" if has_nvlink_network() else "nccl"
-
+        self.__backend = backend
         self._format = format
 
         if isinstance(src, (tuple, list)):
