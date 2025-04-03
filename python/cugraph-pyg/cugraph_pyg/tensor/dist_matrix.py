@@ -59,7 +59,7 @@ class DistMatrix:
                 )
 
                 if self._format == "coo":
-                    if self._col.numel() != self._row.numel():
+                    if self._col.shape[0] != self._row.shape[0]:
                         raise ValueError(
                             "col and row must have the same number of "
                             "elements for COO format"
