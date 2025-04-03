@@ -477,12 +477,39 @@ class NewGraphStore(
         elif isinstance(edge_index, cudf.Series):
             edge_index = torch.as_tensor(edge_index.values, device="cuda")
 
-        if isinstance(edge_index, Tuple[DistTensor, DistTensor]):
-            self.__edge_indices[edge_attr.edge_type] = DistMatrix(src=edge_index)
+        world_size = torch.distributed.get_world_size()
+        rank = torch.distributed.get_rank()
+
+        local_size = torch.tensor(
+            edge_index[1].shape[0], device="cuda", dtype=torch.int64
+        )
+        sizes = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+        torch.distributed.all_gather_into_tensor(sizes, local_size)
+        size = int(sizes.sum())
+
+        offset = sizes[:rank].sum() if rank > 0 else 0
+
+        if isinstance(edge_index, DistMatrix):
+            self.__edge_indices[edge_attr.edge_type] = edge_index
         else:
-            self.__edge_indices[edge_attr.edge_type] = DistTensor(
-                src=[(edge_index[0], edge_index[1])]
+            self.__edge_indices[edge_attr.edge_type] = DistMatrix(
+                shape=(size, size), dtype=torch.long
             )
+
+            if isinstance(edge_index[0], DistTensor) and isinstance(
+                edge_index[1], DistTensor
+            ):
+                if edge_index[0].shape[0] != edge_index[1].shape[0]:
+                    raise ValueError(
+                        "Only COO format is supported for construction "
+                        "from DistTensor tuples."
+                    )
+                self.__edge_indices[edge_attr.edge_type]._row = edge_index[0]
+                self.__edge_indices[edge_attr.edge_type]._col = edge_index[1]
+            else:
+                self.__edge_indices[edge_attr.edge_type][
+                    offset : offset + local_size
+                ] = edge_index
 
         self.__sizes[edge_attr.edge_type] = edge_attr.size
 

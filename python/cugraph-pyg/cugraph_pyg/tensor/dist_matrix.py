@@ -11,10 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from cugraph.utilities.utils import import_optional
 from typing import Optional, Union, Tuple, List, Literal
 
-from cugraph_pyg.tensor import DistTensor
+from cugraph_pyg.tensor import DistTensor, has_nvlink_network
 
 torch = import_optional("torch")
 
@@ -40,30 +42,54 @@ class DistMatrix:
         format: Optional[Literal["csc", "coo"]] = "coo",
     ):
 
+        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+            self.__backend = "vmm"
+        else:
+            self.__backend = "vmm" if has_nvlink_network() else "nccl"
+
         self._format = format
 
-        if isinstance(src, tuple):
-            if len(src) != 2:
-                raise ValueError("src must be a tuple of two tensors")
-            self._col = DistTensor(
-                src=src[0], device=device, dtype=(dtype or src[0].dtype)
-            )
-            self._row = DistTensor(
-                src=src[1], device=device, dtype=(dtype or src[1].dtype)
-            )
-
-            if self._format == "coo" and self._col.numel() != self._row.numel():
-                raise ValueError(
-                    "col and row must have the same number of elements for COO format"
+        if isinstance(src, (tuple, list)):
+            if isinstance(src[0], str):
+                raise NotImplementedError(
+                    "Constructing from a file or list of files is not yet supported."
                 )
+            else:
+                if len(src) != 2:
+                    raise ValueError("src must be a tuple of two tensors")
+                self._col = DistTensor(
+                    src=src[0], device=device, dtype=(dtype or src[0].dtype)
+                )
+                self._row = DistTensor(
+                    src=src[1], device=device, dtype=(dtype or src[1].dtype)
+                )
+
+                if self._format == "coo":
+                    if self._col.numel() != self._row.numel():
+                        raise ValueError(
+                            "col and row must have the same number of "
+                            "elements for COO format"
+                        )
         elif src is None:
             if dtype is None or shape is None:
                 raise ValueError("dtype and shape must be provided if src is None")
             if self._format != "coo":
                 raise ValueError("Only COO format is supported for empty matrices")
-            self._col = DistTensor(src=None, device=device, dtype=dtype, shape=shape)
-            self._row = DistTensor(src=None, device=device, dtype=dtype, shape=shape)
-        elif isinstance(src, (str, list)):
+            self._col = DistTensor(
+                src=None,
+                device=device,
+                dtype=dtype,
+                shape=(shape[0],),
+                backend=self.__backend,
+            )
+            self._row = DistTensor(
+                src=None,
+                device=device,
+                dtype=dtype,
+                shape=(shape[1],),
+                backend=self.__backend,
+            )
+        elif isinstance(src, str):
             raise NotImplementedError(
                 "Constructing from a file or list of files is not yet supported."
             )
@@ -72,9 +98,15 @@ class DistMatrix:
 
     def __setitem__(
         self,
-        idx: torch.Tensor,
+        idx: Union[torch.Tensor, slice],
         val: Union[torch.Tensor, tuple[torch.Tensor, torch.Tensor]],
     ):
+        if isinstance(idx, slice):
+            size = self._col.shape[0]
+            idx = torch.arange(size)[idx]
+
+        print(idx, self._col.shape, self._row.shape, flush=True)
+
         if self._format != "coo":
             raise ValueError("Updating is currently only supported for COO format")
         if isinstance(val, torch.Tensor):
@@ -91,6 +123,8 @@ class DistMatrix:
                 raise ValueError("val must be a tuple of two tensors")
             self._col[idx] = val[0]
             self._row[idx] = val[1]
+
+        print("done!", flush=True)
 
     def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
         if self._format != "coo":
@@ -114,3 +148,11 @@ class DistMatrix:
     @property
     def local_coo(self) -> torch.Tensor:
         return torch.stack(self.get_local_tensor())
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        return (self._col.shape[0], self._row.shape[0])
+
+    @property
+    def dtype(self) -> torch.dtype:
+        return self._col.dtype
