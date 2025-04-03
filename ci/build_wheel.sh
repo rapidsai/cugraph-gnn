@@ -7,8 +7,6 @@ package_name=$1
 package_dir=$2
 underscore_package_name=$(echo "${package_name}" | tr "-" "_")
 
-wheel_dir=${RAPIDS_WHEEL_BLD_OUTPUT_DIR}
-
 # The set of shared libraries that should be packaged differs by project.
 #
 # Capturing that here in argument-parsing to allow this build_wheel.sh
@@ -50,14 +48,13 @@ sccache --show-adv-stats
 if [[ ${package_name} == "cugraph-dgl" ]] || \
    [[ ${package_name} == "cugraph-pyg" ]]; then
     RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-upload-wheels-to-s3 python dist
-    mkdir -p "${wheel_dir}"
-    cp dist/* "${wheel_dir}/"
+    cp dist/* "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}/"
 else
-
+    # repair wheels and write to the location that artifact-uploading code expects to find them
     python -m auditwheel repair \
         "${EXCLUDE_ARGS[@]}" \
-        -w "${wheel_dir}" \
+        -w "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}" \
         dist/*
 
-    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${wheel_dir}"
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 fi
