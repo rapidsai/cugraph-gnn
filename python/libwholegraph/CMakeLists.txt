@@ -22,20 +22,34 @@ include(rapids-cpm)
 rapids_cuda_init_architectures(LIBWHOLEGRAPH)
 
 project(
-  LIBWHOLEGRAPH
+  libwholegraph
   VERSION "${RAPIDS_VERSION}"
   LANGUAGES CXX CUDA
 )
 
-# default build type
-rapids_cmake_build_type(Release)
+# Defined this variable in cpp/CMakeLists.txt
+# and used it to gate the `get_nccl.cmake` file
+# which is maybe correct?
+# but I need to make sure that the nccl I have from the wheel
+# is discoverable here
+SET(USE_NCCL_WHEEL ON)
 
 rapids_cpm_init()
 
-include(../../cpp/cmake/thirdparty/get_raft.cmake)
+# include(../../cpp/cmake/thirdparty/get_raft.cmake)
 
 # ##################################################################################################
 # * Dependencies  ------------------------------------------------------------
 
+add_subdirectory(../../cpp/ libwholegraph)
+
+if(USE_NCCL_WHEEL)
+  set(rpaths "$ORIGIN/../../nvidia/nccl")
+  set_property(
+    TARGET wholegraph
+    PROPERTY INSTALL_RPATH ${rpaths}
+    APPEND
+  )
+endif()
+
 message(STATUS "LIBWHOLEGRAPH: building statically linked wheel")
-add_subdirectory(../../cpp/ libwholegraph EXCLUDE_FROM_ALL)
