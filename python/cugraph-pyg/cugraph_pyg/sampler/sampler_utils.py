@@ -22,7 +22,6 @@ from cugraph.utilities.utils import import_optional
 import cupy
 import pylibcugraph
 
-dask_cudf = import_optional("dask_cudf")
 torch_geometric = import_optional("torch_geometric")
 
 torch = import_optional("torch")
