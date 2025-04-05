@@ -156,7 +156,6 @@ def parse_args():
     parser.add_argument("--fan_out", type=int, default=30)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--dataset", type=str, default="ogbn-products")
-    parser.add_argument("--in_memory", action="store_true", default=False)
     parser.add_argument("--seeds_per_call", type=int, default=-1)
 
     return parser.parse_args()
