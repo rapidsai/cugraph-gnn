@@ -314,26 +314,33 @@ def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_pa
     print("num nodes:", meta["num_nodes"])
 
     # Load edge index
+    print("loading edge index", flush=True)
     graph_store[
         ("n", "e", "n"), "coo", False, (meta["num_nodes"], meta["num_nodes"])
     ] = torch.load(os.path.join(edge_path, f"rank={rank}.pt"))
+    print("loaded edge index", flush=True)
 
+    print("loading edge rel type", flush=True)
     # Load edge rel type
     edge_feature_store[("n", "e", "n"), "rel", None] = torch.load(
         os.path.join(rel_path, f"rank={rank}.pt")
     )
+    print("loaded edge rel type", flush=True)
 
     splits = {}
 
     # Load positive edges
+    print("loading positive edges", flush=True)
     for stage in ["train", "test", "valid"]:
         head, tail = torch.load(os.path.join(pos_path, f"rank={rank}_{stage}.pt"))
         splits[stage] = {
             "head": head,
             "tail": tail,
         }
+    print("loaded positive edges", flush=True)
 
     # Load negative edges
+    print("loading negative edges", flush=True)
     for stage in ["test", "valid"]:
         head_neg, tail_neg = torch.load(
             os.path.join(neg_path, f"rank={rank}_{stage}.pt")
@@ -344,7 +351,7 @@ def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_pa
         splits[stage]["head_neg"] = head_neg
         splits[stage]["tail_neg"] = tail_neg
         splits[stage]["relation"] = relation
-
+    print("loaded negative edges", flush=True)
     return (feature_store, graph_store), edge_feature_store, splits, meta
 
 

@@ -226,7 +226,7 @@ class FeatureStore(
         if ix.dim() != 1:
             raise ValueError("Index must be 1D")
 
-        tx[ix] = tensor
+        tx[ix] = tensor.clone(memory_format=torch.contiguous_format).pin_memory()
         return tx
 
     def _put_tensor(
