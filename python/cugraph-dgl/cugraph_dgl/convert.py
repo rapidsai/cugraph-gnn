@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,8 +13,7 @@
 from __future__ import annotations
 from cugraph.utilities.utils import import_optional
 
-import cugraph_dgl
-from cugraph_dgl import CuGraphStorage
+from cugraph_dgl.cugraph_storage import CuGraphStorage
 from cugraph_dgl.utils.cugraph_conversion_utils import (
     get_edges_dict_from_dgl_HeteroGraph,
     add_ndata_from_dgl_HeteroGraph,
