@@ -37,11 +37,6 @@ import torch_geometric  # noqa: E402
 import cugraph_pyg  # noqa: E402
 from cugraph_pyg.loader import NeighborLoader  # noqa: E402
 
-# Enable cudf spilling to save gpu memory
-from cugraph.testing.mg_utils import enable_spilling  # noqa: E402
-
-enable_spilling()
-
 
 def train(epoch: int):
     model.train()
