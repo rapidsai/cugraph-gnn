@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# Copyright (c) 2022-2024, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -130,6 +130,10 @@ def init_pytorch_worker(rank, world_size, cugraph_id, init_wholegraph=False):
     from rmm.allocators.cupy import rmm_cupy_allocator
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
+
+    from cugraph.testing.mg_utils import enable_spilling
+
+    enable_spilling()
 
     th.cuda.set_device(rank)
 
