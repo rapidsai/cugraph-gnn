@@ -423,7 +423,7 @@ if __name__ == "__main__":
         graph_store = GraphStore(is_multi_gpu=True)
 
         print("broadcasting edge index", flush=True)
-        graph_store["n", "e", "n", "coo", False, (num_nodes, num_nodes)] = (
+        graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
             dataset.edge_index
             if global_rank == 0
             else torch.tensor([], dtype=torch.int64)
