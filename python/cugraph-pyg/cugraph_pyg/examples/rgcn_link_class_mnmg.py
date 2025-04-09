@@ -402,18 +402,18 @@ if __name__ == "__main__":
                 splits = data.get_edge_split()
 
             num_nodes = torch.tensor(
-                dataset.num_nodes, dtype=torch.int64, device="cuda"
+                [dataset.num_nodes], dtype=torch.int64, device="cuda"
             )
             num_rels = torch.tensor(
-                int(dataset.edge_reltype.max()) + 1, dtype=torch.int32, device="cuda"
+                [int(dataset.edge_reltype.max()) + 1], dtype=torch.int32, device="cuda"
             )
             print(f"num_nodes: {num_nodes}, num_rels: {num_rels}", flush=True)
         else:
             num_nodes = torch.tensor([0], dtype=torch.int64, device="cuda")
             num_rels = torch.tensor([0], dtype=torch.int32, device="cuda")
         torch.distributed.broadcast(num_nodes, src=0)
-
-        torch.distributed.barrier()
+        num_nodes = int(num_nodes[0])
+        num_rels = int(num_rels[0])
 
         from cugraph_pyg.data import WholeFeatureStore, GraphStore
 
