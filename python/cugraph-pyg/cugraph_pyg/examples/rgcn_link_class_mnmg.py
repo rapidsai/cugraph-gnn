@@ -409,7 +409,7 @@ if __name__ == "__main__":
         else:
             num_nodes = torch.tensor([0], dtype=torch.int64, device="cuda")
             num_rels = torch.tensor([0], dtype=torch.int32, device="cuda")
-        torch.distributed.broadcast(num_nodes, src=0, device=device)
+        torch.distributed.broadcast(num_nodes, src=0)
 
         torch.distributed.barrier()
 
