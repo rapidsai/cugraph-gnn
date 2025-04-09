@@ -397,6 +397,7 @@ if __name__ == "__main__":
             ):
                 data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
                 dataset = data[0]
+                print(dataset, flush=True)
 
                 splits = data.get_edge_split()
 
@@ -406,6 +407,7 @@ if __name__ == "__main__":
             num_rels = torch.tensor(
                 int(dataset.edge_reltype.max()) + 1, dtype=torch.int32, device="cuda"
             )
+            print(f"num_nodes: {num_nodes}, num_rels: {num_rels}", flush=True)
         else:
             num_nodes = torch.tensor([0], dtype=torch.int64, device="cuda")
             num_rels = torch.tensor([0], dtype=torch.int32, device="cuda")
