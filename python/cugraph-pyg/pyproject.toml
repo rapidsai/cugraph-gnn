@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "cugraph==25.4.*,>=0.0.0a0",
+    "cugraph==25.4.*",
     "numba>=0.57",
     "numpy>=1.23,<3.0a0",
     "pandas",
@@ -44,7 +44,7 @@ Documentation = "https://docs.rapids.ai/api/cugraph/stable/"
 [project.optional-dependencies]
 test = [
     "ogb",
-    "pylibwholegraph==25.4.*,>=0.0.0a0",
+    "pylibwholegraph==25.4.*",
     "pytest",
     "pytest-benchmark",
     "pytest-cov",
