@@ -127,6 +127,14 @@ files:
       - depends_on_libraft
       - depends_on_librmm
 
+  py_run_libwholegraph:
+    output: pyproject
+    pyproject_dir: python/libwholegraph
+    extras:
+      table: project
+    includes:
+      - depends_on_rapids_logger
+
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -386,6 +394,11 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - cython>=3.0.0
+  python_run_libwholegraph:
+    common:
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          - depends_on_rapids_logger
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -593,6 +606,16 @@ dependencies:
             packages:
               - librmm-cu11==25.4.*,>=0.0.0a0
           - {matrix: null, packages: [*librmm_unsuffixed]}
+
+  depends_on_rapids_logger:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - rapids-logger==0.1.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
 
   depends_on_libwholegraph:
     common:
