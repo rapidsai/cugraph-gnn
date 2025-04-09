@@ -163,7 +163,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, args):
+def run_train(rank, model, data, edge_feature_store, splits, args):
     model = model.to(rank)
     model = GAE(DistributedDataParallel(model, device_ids=[rank]))
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -383,7 +383,7 @@ if __name__ == "__main__":
         neg_path = os.path.join(args.dataset_root, args.dataset + "_e_neg_part")
         meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
 
-        if not args.skip_partition and global_rank == 0:
+        if global_rank == 0:
             with torch.serialization.safe_globals(
                 [
                     torch_geometric.data.data.DataEdgeAttr,
@@ -400,44 +400,74 @@ if __name__ == "__main__":
 
                 splits = data.get_edge_split()
 
-            meta = {}
-            meta["num_nodes"] = int(dataset.num_nodes)
-            meta["num_rels"] = int(dataset.edge_reltype.max()) + 1
-
-            partition_data(
-                dataset,
-                splits,
-                meta,
-                edge_path=edge_path,
-                rel_path=rel_path,
-                pos_path=pos_path,
-                neg_path=neg_path,
-                meta_path=meta_path,
+            num_nodes = torch.tensor(
+                dataset.num_nodes, dtype=torch.int64, device="cuda"
             )
-            del data
-            del dataset
-            del splits
+            num_rels = torch.tensor(
+                int(dataset.edge_reltype.max()) + 1, dtype=torch.int32, device="cuda"
+            )
+        else:
+            num_nodes = torch.tensor([0], dtype=torch.int64, device="cuda")
+            num_rels = torch.tensor([0], dtype=torch.int32, device="cuda")
+        torch.distributed.broadcast(num_nodes, src=0, device=device)
+
         torch.distributed.barrier()
 
-        # Load partitions
-        data, edge_feature_store, splits, meta = load_partitioned_data(
-            rank=global_rank,
-            edge_path=edge_path,
-            rel_path=rel_path,
-            pos_path=pos_path,
-            neg_path=neg_path,
-            meta_path=meta_path,
+        from cugraph_pyg.data import WholeFeatureStore, GraphStore
+
+        edge_feature_store = WholeFeatureStore()
+        splits_storage = WholeFeatureStore()
+        feature_store = torch_geometric.data.HeteroData()
+        graph_store = GraphStore(is_multi_gpu=True)
+
+        graph_store["n", "e", "n", "coo", False, (num_nodes, num_nodes)] = (
+            dataset.edge_index
+            if global_rank == 0
+            else torch.tensor([], dtype=torch.int64)
         )
+        edge_feature_store[("n", "e", "n"), "rel", None] = (
+            dataset.edge_reltype.to(torch.int32)
+            if global_rank == 0
+            else torch.tensor([], dtype=torch.int32)
+        )
+
+        for stage in ["train", "test", "valid"]:
+            splits_storage[stage, "head", None] = (
+                splits[stage]["head"].to(torch.int64)
+                if global_rank == 0
+                else torch.tensor([], dtype=torch.int64)
+            )
+            splits_storage[stage, "tail", None] = (
+                splits[stage]["tail"].to(torch.int64)
+                if global_rank == 0
+                else torch.tensor([], dtype=torch.int64)
+            )
+
+        for stage in ["test", "valid"]:
+            splits_storage[stage, "head_neg", None] = (
+                splits[stage]["head_neg"].to(torch.int64)
+                if global_rank == 0
+                else torch.tensor([], dtype=torch.int64)
+            )
+            splits_storage[stage, "tail_neg", None] = (
+                splits[stage]["tail_neg"].to(torch.int64)
+                if global_rank == 0
+                else torch.tensor([], dtype=torch.int64)
+            )
+            splits_storage[stage, "relation", None] = (
+                splits[stage]["relation"].to(torch.int32)
+                if global_rank == 0
+                else torch.tensor([], dtype=torch.int32)
+            )
+
         torch.distributed.barrier()
 
         model = RGCNEncoder(
-            meta["num_nodes"],
+            num_nodes,
             hidden_channels=args.hidden_channels,
-            num_relations=meta["num_rels"],
+            num_relations=num_rels,
         )
 
-        run_train(
-            global_rank, world_size, model, data, edge_feature_store, meta, splits, args
-        )
+        run_train(global_rank, model, data, edge_feature_store, splits, args)
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
