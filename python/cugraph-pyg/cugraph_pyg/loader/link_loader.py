@@ -125,7 +125,9 @@ class LinkLoader:
             edge_label_index,
         ) = torch_geometric.loader.utils.get_edge_label_index(
             data,
-            (None, edge_label_index),
+            (None, edge_label_index)
+            if isinstance(edge_label_index, torch.Tensor)
+            else edge_label_index,
         )
 
         # Note reverse of standard convention here
@@ -186,7 +188,8 @@ class LinkLoader:
 
         if self.__drop_last:
             d = perm.numel() % self.__batch_size
-            perm = perm[:-d]
+            if d > 0:
+                perm = perm[:-d]
 
         input_data = torch_geometric.sampler.EdgeSamplerInput(
             input_id=self.__input_data.input_id[perm],

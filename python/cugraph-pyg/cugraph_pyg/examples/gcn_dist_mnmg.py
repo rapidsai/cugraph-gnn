@@ -381,8 +381,17 @@ if __name__ == "__main__":
         # constructed from partitions of the edge index and features, respectively,
         # so this works well.
         if not args.skip_partition and global_rank == 0:
-            dataset = PygNodePropPredDataset(name=args.dataset, root=args.dataset_root)
-            split_idx = dataset.get_idx_split()
+            with torch.serialization.safe_globals(
+                [
+                    torch_geometric.data.data.DataEdgeAttr,
+                    torch_geometric.data.data.DataTensorAttr,
+                    torch_geometric.data.storage.GlobalStorage,
+                ]
+            ):
+                dataset = PygNodePropPredDataset(
+                    name=args.dataset, root=args.dataset_root
+                )
+                split_idx = dataset.get_idx_split()
 
             partition_data(
                 dataset,

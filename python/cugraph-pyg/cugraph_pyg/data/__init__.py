@@ -18,9 +18,20 @@ from cugraph_pyg.data.dask_graph_store import (
 )
 from cugraph_pyg.data.graph_store import GraphStore
 from cugraph_pyg.data.feature_store import (
-    TensorDictFeatureStore,
+    TensorDictFeatureStore as DEPRECATED__TensorDictFeatureStore,
     WholeFeatureStore,
 )
+
+
+def TensorDictFeatureStore(*args, **kwargs):
+    warnings.warn(
+        "TensorDictFeatureStore is deprecated.  Consider changing your "
+        "workflow to launch using 'torchrun' and store data in "
+        "the faster and more memory-efficient WholeFeatureStore instead.",
+        FutureWarning,
+    )
+
+    return DEPRECATED__TensorDictFeatureStore(*args, **kwargs)
 
 
 def DaskGraphStore(*args, **kwargs):

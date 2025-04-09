@@ -1,3 +1,42 @@
+# cugraph-gnn 25.04.00 (9 Apr 2025)
+
+## 🚨 Breaking Changes
+
+- Update PyTorch to use CUDA 12.6 ([#155](https://github.com/rapidsai/cugraph-gnn/pull/155)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Deprecate Unbuffered Sampling in cuGraph-PyG ([#151](https://github.com/rapidsai/cugraph-gnn/pull/151)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Update DGL Packages to PyTorch 2.4 ([#148](https://github.com/rapidsai/cugraph-gnn/pull/148)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Update CuPy Version to 13.2 ([#132](https://github.com/rapidsai/cugraph-gnn/pull/132)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [FEA] Support Link Prediction and Negative Sampling in cuGraph-DGL ([#50](https://github.com/rapidsai/cugraph-gnn/pull/50)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🐛 Bug Fixes
+
+- [FIX] Add mkl version, limit tensordict to 0.6.2 ([#161](https://github.com/rapidsai/cugraph-gnn/pull/161)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Fix update version ([#157](https://github.com/rapidsai/cugraph-gnn/pull/157)) [@raydouglass](https://github.com/raydouglass)
+- Drop PyTorch Constraint for OGB ([#153](https://github.com/rapidsai/cugraph-gnn/pull/153)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Update DGL Packages to PyTorch 2.4 ([#148](https://github.com/rapidsai/cugraph-gnn/pull/148)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [BUG] Fix bug with drop_last when mod is 0 ([#136](https://github.com/rapidsai/cugraph-gnn/pull/136)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Update CuPy Version to 13.2 ([#132](https://github.com/rapidsai/cugraph-gnn/pull/132)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🚀 New Features
+
+- [FEA] New MovieLens Example, Add Timing to Taobao Example ([#141](https://github.com/rapidsai/cugraph-gnn/pull/141)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [FEA] Support Link Prediction and Negative Sampling in cuGraph-DGL ([#50](https://github.com/rapidsai/cugraph-gnn/pull/50)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🛠️ Improvements
+
+- Deprecate TensorDictFeatureStore in cuGraph-PyG ([#160](https://github.com/rapidsai/cugraph-gnn/pull/160)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Update PyTorch to use CUDA 12.6 ([#155](https://github.com/rapidsai/cugraph-gnn/pull/155)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Deprecate Unbuffered Sampling in cuGraph-PyG ([#151](https://github.com/rapidsai/cugraph-gnn/pull/151)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Use conda-build instead of conda-mambabuild ([#150](https://github.com/rapidsai/cugraph-gnn/pull/150)) [@bdice](https://github.com/bdice)
+- add cugraph-notebook-codeowners to CODEOWNERS ([#149](https://github.com/rapidsai/cugraph-gnn/pull/149)) [@AyodeAwe](https://github.com/AyodeAwe)
+- Require CMake 3.30.4 ([#147](https://github.com/rapidsai/cugraph-gnn/pull/147)) [@robertmaynard](https://github.com/robertmaynard)
+- Create Conda CI test env in one step ([#144](https://github.com/rapidsai/cugraph-gnn/pull/144)) [@KyleFromNVIDIA](https://github.com/KyleFromNVIDIA)
+- Add build_type input to `test.yaml` ([#143](https://github.com/rapidsai/cugraph-gnn/pull/143)) [@gforsyth](https://github.com/gforsyth)
+- Use shared-workflows branch-25.04 ([#138](https://github.com/rapidsai/cugraph-gnn/pull/138)) [@bdice](https://github.com/bdice)
+- disallow fallback to Make in Python builds ([#123](https://github.com/rapidsai/cugraph-gnn/pull/123)) [@jameslamb](https://github.com/jameslamb)
+- Forward-merge branch-25.02 to branch-25.04 ([#122](https://github.com/rapidsai/cugraph-gnn/pull/122)) [@bdice](https://github.com/bdice)
+- Migrate to NVKS for amd64 CI runners ([#119](https://github.com/rapidsai/cugraph-gnn/pull/119)) [@bdice](https://github.com/bdice)
+
 # cugraph-gnn 25.02.00 (13 Feb 2025)
 
 ## 🚨 Breaking Changes

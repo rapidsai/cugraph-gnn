@@ -7,16 +7,15 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cugraph==25.2.*
+- cugraph==25.4.*,>=0.0.0a0
 - pre-commit
 - pydantic
 - pytest
 - pytest-benchmark
 - pytest-cov
 - pytest-xdist
-- pytorch>=2.3
-- pytorch>=2.3,<2.6a0
+- pytorch>=2.3,<=2.5.1
 - pytorch_geometric>=2.5,<2.7
-- tensordict>=0.1.2
+- tensordict>=0.1.2,<=0.6.2
 - torchdata
 name: cugraph_pyg_dev_cuda-118
