@@ -41,7 +41,6 @@ option(CMAKE_CUDA_LINEINFO
 option(BUILD_TESTS "Configure CMake to build tests" ON)
 option(CUDA_STATIC_RUNTIME "Statically link the CUDA toolkit runtime and libraries" OFF)
 option(BUILD_WITH_NVSHMEM "Enable nvshmem integration" OFF)
-option(USE_NCCL_WHEEL "Use the NCCL wheel for dynamic linking instead of vendoring" OFF)
 option(WHOLEGRAPH_EXCLUDE_NVSHMEM_FROM_ALL "Exclude nvshmem targets from wholeGraph's 'all' target"
        ON
 )
@@ -114,9 +113,7 @@ endif()
 rapids_cpm_init()
 
 include(./cmake/thirdparty/get_raft.cmake)
-if(NOT USE_NCCL_WHEEL)
-  include(./cmake/thirdparty/get_nccl.cmake)
-endif()
+include(./cmake/thirdparty/get_nccl.cmake)
 if(BUILD_WITH_NVSHMEM)
   include(./cmake/thirdparty/get_nvshmem.cmake)
 endif()
