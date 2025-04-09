@@ -293,7 +293,6 @@ def partition_data(
         for (r, n) in enumerate(
             torch.tensor_split(splits[stage]["relation"], world_size, dim=-1)
         ):
-            print(n)
             rank_path = os.path.join(neg_path, f"rank={r}_{stage}_relation.pt")
             torch.save(n.clone(), rank_path)
 
@@ -302,10 +301,10 @@ def partition_data(
 
 
 def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_path):
-    from cugraph_pyg.data import GraphStore, WholeFeatureStore, TensorDictFeatureStore
+    from cugraph_pyg.data import GraphStore, WholeFeatureStore
 
-    graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    graph_store = GraphStore(is_multi_gpu=True)
+    feature_store = torch_geometric.data.HeteroData()
     edge_feature_store = WholeFeatureStore()
 
     with open(meta_path, "r") as f:
