@@ -24,7 +24,7 @@ from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.tensor import DistTensor, DistMatrix
-from cugraph_pyg.tensor.utils import has_nvlink_network
+from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
 
 from typing import Union, Optional, List, Dict, Tuple
@@ -489,8 +489,16 @@ class NewGraphStore(
         world_size = torch.distributed.get_world_size()
         rank = torch.distributed.get_rank()
 
+        if isinstance(edge_index, torch.Tensor) and is_empty(edge_index):
+            edge_index = torch.tensor([[], []], device="cuda", dtype=torch.int64)
+        else:
+            if len(edge_index) != 2:
+                raise ValueError("Edge index must be of length 2")
+
         local_size = torch.tensor(
-            edge_index[1].shape[0], device="cuda", dtype=torch.int64
+            0 if is_empty(edge_index[1]) else edge_index[1].shape[0],
+            device="cuda",
+            dtype=torch.int64,
         )
         sizes = torch.empty((world_size,), device="cuda", dtype=torch.int64)
         torch.distributed.all_gather_into_tensor(sizes, local_size)

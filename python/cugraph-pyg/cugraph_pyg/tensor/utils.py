@@ -201,3 +201,16 @@ def has_nvlink_network():
         return True
 
     return False
+
+
+def is_empty(a):
+    return a.numel() == 0
+
+
+def empty(dim: int = 1):
+    if dim == 1:
+        return torch.tensor([], dtype=torch.int32)
+    elif dim == 2:
+        return torch.tensor([], dtype=torch.int32).view(0, 1)
+    else:
+        raise ValueError(f"Unsupported dimension: {dim}")

@@ -17,7 +17,7 @@ import os
 from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
-from cugraph_pyg.tensor.utils import has_nvlink_network
+from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
@@ -187,31 +187,95 @@ class FeatureStore(
     def __make_wg_tensor(self, tensor, ix=None):
         world_size = torch.distributed.get_world_size()
         rank = torch.distributed.get_rank()
+        d = torch.tensor(tensor.dim(), device="cuda", dtype=torch.int64)
 
-        ld = torch.tensor(tensor.shape[0], device="cuda", dtype=torch.int64)
+        global_d = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+        torch.distributed.all_gather_into_tensor(global_d, d)
+        if not (global_d[0] == global_d).all():
+            raise ValueError("Tensor dimension must be the same across ranks")
+
+        ld = torch.tensor(
+            0 if is_empty(tensor) else tensor.shape[0], device="cuda", dtype=torch.int64
+        )
         sizes = torch.empty((world_size,), device="cuda", dtype=torch.int64)
         torch.distributed.all_gather_into_tensor(sizes, ld)
+
+        dtypes = {}
+        dtype_ids = {}
+        for k, v in [
+            (torch.float32, 0),
+            (torch.float64, 1),
+            (torch.int32, 2),
+            (torch.int64, 3),
+            (torch.bool, 4),
+        ]:
+            dtypes[k] = v
+            dtype_ids[v] = k
+
+        def _encode_dtype(dtype: torch.dtype):
+            if dtype not in dtypes:
+                raise ValueError(f"Unsupported dtype: {dtype}")
+            return dtypes[dtype]
+
+        def _decode_dtype(dtype_id: int):
+            if dtype_id not in dtype_ids:
+                raise ValueError(f"Unsupported dtype id: {dtype_id}")
+            return dtype_ids[dtype_id]
+
+        dtype = torch.tensor(
+            _encode_dtype(tensor.dtype), device="cuda", dtype=torch.int64
+        )
+        global_dtype = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+        torch.distributed.all_gather_into_tensor(global_dtype, dtype)
+        global_dtype = global_dtype[sizes > 0]
+        if len(global_dtype) == 0:
+            raise ValueError("Tensor is empty")
+        if (global_dtype[0] == global_dtype).all():
+            dtype = _decode_dtype(int(global_dtype[0]))
+        else:
+            raise ValueError("Tensor dtype must be the same across ranks")
 
         if tensor.dim() == 1:
             global_shape = [
                 sizes.sum(),
             ]
+
             tx = DistTensor(
                 None,
                 shape=global_shape,
-                dtype=tensor.dtype,
+                dtype=dtype,
                 device=self.__wg_location,
                 backend=self.__backend,
             )
         elif tensor.dim() == 2:
-            global_shape = [sizes.sum(), int(tensor.shape[1])]
+            td = torch.tensor(
+                -1 if is_empty(tensor) else tensor.shape[1],
+                device="cuda",
+                dtype=torch.int64,
+            )
+            global_td = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+            torch.distributed.all_gather_into_tensor(global_td, td)
+            global_td = global_td[global_td > 0]
+
+            if len(global_td) == 0:
+                raise ValueError("Tensor is empty")
+
+            if (global_td[0] == global_td).all():
+                td = int(global_td[0])
+            else:
+                raise ValueError("Trailing dimensions must be the same across ranks")
+
+            global_shape = [int(sizes.sum()), td]
             tx = DistEmbedding(
                 None,
                 shape=global_shape,
-                dtype=tensor.dtype,
+                dtype=dtype,
                 device=self.__wg_location,
                 backend=self.__backend,
             )
+
+            if is_empty(tensor):
+                tensor = tensor.reshape((-1, td))
         else:
             raise ValueError("Tensor must be 1D or 2D.")
 

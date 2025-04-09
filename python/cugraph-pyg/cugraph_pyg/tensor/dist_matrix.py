@@ -99,8 +99,6 @@ class DistMatrix:
             size = self._col.shape[0]
             idx = torch.arange(size)[idx]
 
-        print(idx, self._col.shape, self._row.shape, flush=True)
-
         if self._format != "coo":
             raise ValueError("Updating is currently only supported for COO format")
         if isinstance(val, torch.Tensor):

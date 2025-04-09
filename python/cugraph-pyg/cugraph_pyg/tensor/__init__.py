@@ -13,3 +13,4 @@
 
 from cugraph_pyg.tensor.dist_tensor import DistTensor, DistEmbedding
 from cugraph_pyg.tensor.dist_matrix import DistMatrix
+from cugraph_pyg.tensor.utils import is_empty, empty
