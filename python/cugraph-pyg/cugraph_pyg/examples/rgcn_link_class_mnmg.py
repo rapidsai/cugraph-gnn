@@ -420,17 +420,21 @@ if __name__ == "__main__":
         feature_store = torch_geometric.data.HeteroData()
         graph_store = GraphStore(is_multi_gpu=True)
 
+        print("broadcasting edge index", flush=True)
         graph_store["n", "e", "n", "coo", False, (num_nodes, num_nodes)] = (
             dataset.edge_index
             if global_rank == 0
             else torch.tensor([], dtype=torch.int64)
         )
+
+        print("broadcasting edge rel type", flush=True)
         edge_feature_store[("n", "e", "n"), "rel", None] = (
             dataset.edge_reltype.to(torch.int32)
             if global_rank == 0
             else torch.tensor([], dtype=torch.int32)
         )
 
+        print("broadcasting splits", flush=True)
         for stage in ["train", "test", "valid"]:
             splits_storage[stage, "head", None] = (
                 splits[stage]["head"].to(torch.int64)
@@ -443,6 +447,7 @@ if __name__ == "__main__":
                 else torch.tensor([], dtype=torch.int64)
             )
 
+        print("broadcasting negative splits", flush=True)
         for stage in ["test", "valid"]:
             splits_storage[stage, "head_neg", None] = (
                 splits[stage]["head_neg"].to(torch.int64)
@@ -460,6 +465,7 @@ if __name__ == "__main__":
                 else torch.tensor([], dtype=torch.int32)
             )
 
+        print("reached barrier", flush=True)
         torch.distributed.barrier()
 
         model = RGCNEncoder(
@@ -468,6 +474,6 @@ if __name__ == "__main__":
             num_relations=num_rels,
         )
 
-        run_train(global_rank, model, data, edge_feature_store, splits, args)
+        run_train(global_rank, model, data, edge_feature_store, splits_storage, args)
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
