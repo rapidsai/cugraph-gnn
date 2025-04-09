@@ -479,13 +479,13 @@ dependencies:
     specific:
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {arch: x86_64, cuda: "12.*"}
             packages:
               - "dglteam/label/th24_cu124::dgl"
-          - matrix: {cuda: "11.*"}
+          - matrix: {arch: x86_64, cuda: "11.*"}
             packages:
               - "dglteam/label/th24_cu118::dgl"
-          - {matrix: null, packages: ["dglteam/label/th24_cu124::dgl"]}
+          - {matrix: null, packages: null}
 
   depends_on_pyg:
     common:
