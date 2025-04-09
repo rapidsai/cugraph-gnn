@@ -5,17 +5,17 @@ set -euo pipefail
 
 package_name=$1
 package_dir=$2
-underscore_package_name=$(echo "${package_name}" | tr "-" "_")
 
 # The set of shared libraries that should be packaged differs by project.
 #
 # Capturing that here in argument-parsing to allow this build_wheel.sh
 # script to be re-used by all wheel builds in the project.
 case "${package_dir}" in
-  python/pylibwholegraph)
+  python/pylibwholegraph | python/libwholegraph )
     EXCLUDE_ARGS=(
         --exclude libcuda.so.1
         --exclude libnvidia-ml.so.1
+        --exclude librapids_logger.so
     )
   ;;
   *)
