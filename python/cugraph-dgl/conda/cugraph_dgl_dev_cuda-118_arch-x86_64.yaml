@@ -8,6 +8,8 @@ channels:
 - nvidia
 dependencies:
 - cugraph==25.6.*,>=0.0.0a0
+- dgl>=2.4.0.cu*
+- dglteam/label/th24_cu118::dgl
 - pre-commit
 - pydantic
 - pytest
@@ -15,7 +17,6 @@ dependencies:
 - pytest-cov
 - pytest-xdist
 - pytorch>=2.3,<=2.5.1
-- pytorch_geometric>=2.5,<2.7
 - tensordict>=0.1.2,<=0.6.2
 - torchdata
-name: cugraph_pyg_dev_cuda-118
+name: cugraph_dgl_dev_cuda-118_arch-x86_64
