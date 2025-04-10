@@ -20,7 +20,6 @@ dependencies:
 - cupy>=13.2.0
 - cython>=3.0.0
 - dask-cudf==25.6.*,>=0.0.0a0
-- dglteam/label/th24_cu124::dgl
 - doxygen
 - gcc_linux-aarch64=13.*
 - graphviz
