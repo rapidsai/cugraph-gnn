@@ -5,7 +5,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["11.8", "12.4", "12.6"]
+      cuda: ["11.8", "12.8"]
       arch: [x86_64, aarch64]
     includes:
       - checks
@@ -197,7 +197,8 @@ files:
 
   cugraph_dgl_dev:
     matrix:
-      cuda: ["11.8"]
+      cuda: ["11.8", "12.8"]
+      arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-dgl/conda
     includes:
@@ -209,7 +210,8 @@ files:
       - test_python_common
   cugraph_pyg_dev:
     matrix:
-      cuda: ["11.8"]
+      cuda: ["11.8", "12.8"]
+      arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
     includes:
@@ -310,13 +312,13 @@ dependencies:
         matrices:
           - matrix:
               arch: x86_64
-              cuda: "11.8"
+              cuda: "11.*"
             packages:
               - gcc_linux-64=11.*
               - nvcc_linux-64=11.8
           - matrix:
               arch: aarch64
-              cuda: "11.8"
+              cuda: "11.*"
             packages:
               - gcc_linux-aarch64=11.*
               - nvcc_linux-aarch64=11.8
@@ -479,13 +481,13 @@ dependencies:
     specific:
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: {arch: x86_64, cuda: "12.*"}
             packages:
               - "dglteam/label/th24_cu124::dgl"
-          - matrix: {cuda: "11.*"}
+          - matrix: {arch: x86_64, cuda: "11.*"}
             packages:
               - "dglteam/label/th24_cu118::dgl"
-          - {matrix: null, packages: ["dglteam/label/th24_cu124::dgl"]}
+          - {matrix: null, packages: null}
 
   depends_on_pyg:
     common:
