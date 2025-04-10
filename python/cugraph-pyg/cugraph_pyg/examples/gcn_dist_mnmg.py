@@ -251,14 +251,17 @@ def run_train(
         nb = i + 1.0
 
         if global_rank == 0:
+            end = time.time()
+            print(f"Epoch {epoch} train time: {end - start} s")
             print(
                 "Average Training Iteration Time:",
-                (time.time() - start) / (nb - warmup_steps),
+                (end - start) / (nb - warmup_steps),
                 "s/iter",
             )
 
         with torch.no_grad():
             total_correct = total_examples = 0
+            start = time.time()
             for i, batch in enumerate(valid_loader):
                 if i >= eval_steps:
                     break
@@ -277,6 +280,8 @@ def run_train(
 
             acc_val = total_correct / total_examples
             if global_rank == 0:
+                end = time.time()
+                print(f"Epoch {epoch} val time: {end - start} s")
                 print(
                     f"Validation Accuracy: {acc_val * 100.0:.4f}%",
                 )
