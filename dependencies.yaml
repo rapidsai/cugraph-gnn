@@ -6,7 +6,7 @@ files:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
       cuda: ["11.8", "12.4", "12.6"]
-      arch: [x86_64]
+      arch: [x86_64, aarch64]
     includes:
       - checks
       - common_build
@@ -585,10 +585,10 @@ dependencies:
           - {matrix: null, packages: [*cugraph_unsuffixed]}
 
   depends_on_cugraph_dgl:
-      common:
-        - output_types: conda
-          packages:
-            - cugraph-dgl==25.6.*,>=0.0.0a0
+    common:
+      - output_types: conda
+        packages:
+          - cugraph-dgl==25.6.*,>=0.0.0a0
 
   depends_on_cudf:
     common:
