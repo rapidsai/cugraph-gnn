@@ -160,7 +160,7 @@ def test(stage, epoch, model, loader, num_steps=None):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--hidden_channels", type=int, default=128)
+    parser.add_argument("--hidden_channels", type=int, default=32)
     parser.add_argument("--num_layers", type=int, default=1)
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--epochs", type=int, default=4)
