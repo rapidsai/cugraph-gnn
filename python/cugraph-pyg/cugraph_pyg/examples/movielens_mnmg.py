@@ -56,10 +56,6 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
 
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
-
     torch.cuda.set_device(local_rank)
 
     from cugraph.gnn import cugraph_comms_init

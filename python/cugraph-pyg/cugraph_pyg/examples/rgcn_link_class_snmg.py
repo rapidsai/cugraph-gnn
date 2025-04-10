@@ -69,10 +69,6 @@ def init_pytorch_worker(rank, world_size, uid):
         world_size=world_size,
     )
 
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
-
 
 class RGCNEncoder(torch.nn.Module):
     def __init__(self, num_nodes, hidden_channels, num_relations, num_bases=30):
