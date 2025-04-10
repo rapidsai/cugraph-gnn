@@ -214,9 +214,6 @@ def run_train(
 
     dist.barrier()
 
-    eval_steps = 1000
-    warmup_steps = 20
-    dist.barrier()
     torch.cuda.synchronize()
 
     if global_rank == 0:
@@ -224,12 +221,12 @@ def run_train(
         print("Total time before training begins (prep_time) =", prep_time, "seconds")
         print("Beginning training...")
 
+    total_train_time = 0
+    total_val_time = 0
     for epoch in range(epochs):
+        torch.cuda.synchronize()
+        start = time.time()
         for i, batch in enumerate(train_loader):
-            if i == warmup_steps:
-                torch.cuda.synchronize()
-                start = time.time()
-
             batch = batch.to(device)
             batch_size = batch.batch_size
 
@@ -248,24 +245,22 @@ def run_train(
                     + ", Loss: "
                     + str(loss)
                 )
-        nb = i + 1.0
 
         if global_rank == 0:
             end = time.time()
+            total_train_time += end - start
             print(f"Epoch {epoch} train time: {end - start} s")
             print(
                 "Average Training Iteration Time:",
-                (end - start) / (nb - warmup_steps),
+                (end - start) / (i + 1.0),
                 "s/iter",
             )
 
         with torch.no_grad():
             total_correct = total_examples = 0
+            torch.cuda.synchronize()
             start = time.time()
             for i, batch in enumerate(valid_loader):
-                if i >= eval_steps:
-                    break
-
                 batch = batch.to(device)
                 batch_size = batch.batch_size
 
@@ -281,6 +276,7 @@ def run_train(
             acc_val = total_correct / total_examples
             if global_rank == 0:
                 end = time.time()
+                total_val_time += end - start
                 print(f"Epoch {epoch} val time: {end - start} s")
                 print(
                     f"Validation Accuracy: {acc_val * 100.0:.4f}%",
@@ -311,6 +307,8 @@ def run_train(
 
     if global_rank == 0:
         total_time = round(time.perf_counter() - wall_clock_start, 2)
+        print(f"Train time: {total_train_time} s")
+        print(f"Eval time: {total_val_time} s")
         print("Total Program Runtime (total_time) =", total_time, "seconds")
         print("total_time - prep_time =", total_time - prep_time, "seconds")
 
