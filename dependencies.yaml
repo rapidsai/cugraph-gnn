@@ -198,6 +198,7 @@ files:
   cugraph_dgl_dev:
     matrix:
       cuda: ["11.8", "12.8"]
+      arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-dgl/conda
     includes:
@@ -210,6 +211,7 @@ files:
   cugraph_pyg_dev:
     matrix:
       cuda: ["11.8", "12.8"]
+      arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
     includes:
