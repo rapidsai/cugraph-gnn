@@ -655,10 +655,7 @@ class NewGraphStore(
                         )
                 elif edge_attr.edge_type[0] not in num_vertices:
                     num_vertices[edge_attr.edge_type[0]] = int(
-                        torch.cat(
-                            self.__edge_indices[edge_attr.edge_type].local_coo
-                        ).max()
-                        + 1
+                        self.__edge_indices[edge_attr.edge_type].local_coo.max() + 1
                     )
 
         if self.is_multi_gpu:
