@@ -27,10 +27,6 @@ from torch.nn.parallel import DistributedDataParallel
 
 import torch_geometric
 
-# Allow computation on objects that are larger than GPU memory
-# https://docs.rapids.ai/api/cudf/stable/developer_guide/library_design/#spilling-to-host-memory
-os.environ["CUDF_SPILL"] = "1"
-
 # Ensures that a CUDA context is not created on import of rapids.
 # Allows pytorch to create the context instead
 os.environ["RAPIDS_NO_INITIALIZE"] = "1"
@@ -51,10 +47,6 @@ def init_pytorch_worker(rank, world_size, cugraph_id):
     from rmm.allocators.cupy import rmm_cupy_allocator
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
-
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
 
     torch.cuda.set_device(rank)
 

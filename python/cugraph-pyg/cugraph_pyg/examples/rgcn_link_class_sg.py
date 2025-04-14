@@ -38,11 +38,6 @@ from torch_geometric.nn import FastRGCNConv, GAE  # noqa: E402
 import torch_geometric  # noqa: E402
 import cugraph_pyg  # noqa: E402
 
-# Enable cudf spilling to save gpu memory
-from cugraph.testing.mg_utils import enable_spilling  # noqa: E402
-
-enable_spilling()
-
 
 class RGCNEncoder(torch.nn.Module):
     def __init__(self, num_nodes, hidden_channels, num_relations, num_bases=30):
