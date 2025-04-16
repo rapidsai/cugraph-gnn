@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
-include(../../rapids_config.cmake)
+include(../../cmake/rapids_config.cmake)
 # gets all the other stuff rapids exports, etc
 include(rapids-cmake)
 # cmds for configuring cuda projects
