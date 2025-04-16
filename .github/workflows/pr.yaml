@@ -22,6 +22,7 @@ jobs:
       - conda-python-tests
       - docs-build
       - conda-notebook-tests
+      - wheel-build-libwholegraph
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
       - wheel-build-cugraph-dgl
@@ -136,8 +137,17 @@ jobs:
       build_type: pull-request
       container_image: "rapidsai/ci-conda:latest"
       run_script: "ci/build_docs.sh"
-  wheel-build-pylibwholegraph:
+  wheel-build-libwholegraph:
     needs: checks
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
+    with:
+      build_type: pull-request
+      script: ci/build_wheel_libwholegraph.sh
+      package-type: python
+      wheel-name: libwholegraph
+  wheel-build-pylibwholegraph:
+    needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
     with:
