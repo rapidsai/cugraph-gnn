@@ -132,7 +132,7 @@ file(
   "src/graph_ops/*.cpp"
 )
 
-add_library(wholegraph)
+add_library(wholegraph SHARED)
 add_library(wholegraph::wholegraph ALIAS wholegraph)
 
 target_sources(wholegraph PRIVATE ${WHOLEGRAPH_SOURCES})
