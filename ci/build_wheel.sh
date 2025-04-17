@@ -11,7 +11,7 @@ package_dir=$2
 # Capturing that here in argument-parsing to allow this build_wheel.sh
 # script to be re-used by all wheel builds in the project.
 case "${package_dir}" in
-  python/pylibwholegraph | python/libwholegraph )
+  python/pylibwholegraph )
     EXCLUDE_ARGS=(
         --exclude libcuda.so.1
         --exclude libnvidia-ml.so.1
