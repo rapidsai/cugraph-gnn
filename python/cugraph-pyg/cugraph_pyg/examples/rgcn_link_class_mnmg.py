@@ -63,10 +63,6 @@ def init_pytorch_worker(global_rank, local_rank, world_size, uid):
 
     wm_init(global_rank, world_size, local_rank, torch.cuda.device_count())
 
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
-
 
 class RGCNEncoder(torch.nn.Module):
     def __init__(self, num_nodes, hidden_channels, num_relations, num_bases=30):
