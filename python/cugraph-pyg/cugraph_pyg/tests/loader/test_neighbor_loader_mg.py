@@ -48,10 +48,6 @@ def init_pytorch_worker(rank, world_size, cugraph_id):
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
 
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
-
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -103,6 +99,9 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
 def test_neighbor_loader_mg(specify_size):
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
 
     torch.multiprocessing.spawn(
         run_test_neighbor_loader_mg,
@@ -173,6 +172,9 @@ def test_neighbor_loader_biased_mg():
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
 
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
     torch.multiprocessing.spawn(
         run_test_neighbor_loader_biased_mg,
         args=(
@@ -221,7 +223,7 @@ def run_test_link_neighbor_loader_basic_mg(
         assert (
             batch.input_id.cpu() == torch.arange(i * batch_size, (i + 1) * batch_size)
         ).all()
-        assert (elx[i] == batch.n_id[batch.edge_label_index.cpu()]).all()
+        assert (elx[i].cpu() == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
     torch.distributed.destroy_process_group()
@@ -239,6 +241,9 @@ def test_link_neighbor_loader_basic_mg(select_edges, batch_size, depth):
 
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
 
     torch.multiprocessing.spawn(
         run_test_link_neighbor_loader_basic_mg,
@@ -303,6 +308,9 @@ def test_link_neighbor_loader_uneven_mg():
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
 
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
     torch.multiprocessing.spawn(
         run_test_link_neighbor_loader_uneven_mg,
         args=(
@@ -359,6 +367,9 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
 def test_link_neighbor_loader_negative_sampling_basic_mg(batch_size):
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
+
+    # simulate torchrun call
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
 
     torch.multiprocessing.spawn(
         run_test_link_neighbor_loader_negative_sampling_basic_mg,

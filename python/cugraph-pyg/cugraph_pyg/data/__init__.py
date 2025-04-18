@@ -13,11 +13,56 @@
 
 import warnings
 
-from cugraph_pyg.data.graph_store import GraphStore
+from cugraph_pyg.data.graph_store import (
+    GraphStore as DEPRECATED__OldGraphStore,
+    NewGraphStore,
+)
+
 from cugraph_pyg.data.feature_store import (
     TensorDictFeatureStore as DEPRECATED__TensorDictFeatureStore,
-    WholeFeatureStore,
+    FeatureStore,
 )
+
+from cugraph.utilities.utils import import_optional
+
+
+def GraphStore(*args, **kwargs):
+    is_multi_gpu = kwargs.pop("is_multi_gpu", None)
+
+    if is_multi_gpu is not None:
+        warnings.warn(
+            "The is_multi_gpu argument is deprecated."
+            "In release 25.08, multi-GPU mode will be enabled automatically"
+            "when there is more than one GPU worker.",
+            FutureWarning,
+        )
+
+        if is_multi_gpu:
+            wgth = import_optional("pylibwholegraph.torch")
+            torch = import_optional("torch")
+            rank = torch.distributed.get_rank()
+            world_size = torch.distributed.get_world_size()
+            try:
+                wgth.initialize.init(
+                    rank,
+                    world_size,
+                    rank,
+                    world_size,
+                )
+            except:
+                warnings.warn("WholeGraph already initialized, continuing.")
+            return NewGraphStore(*args, **kwargs)
+        else:
+            warnings.warn(
+                "Running without torchrun will be deprecated in release 25.08."
+            )
+
+    return DEPRECATED__OldGraphStore(*args, **kwargs)
+
+
+def WholeFeatureStore(*args, **kwargs):
+    warnings.warn("WholeFeatureStore has been renamed to FeatureStore", FutureWarning)
+    return FeatureStore(*args, **kwargs)
 
 
 def TensorDictFeatureStore(*args, **kwargs):
