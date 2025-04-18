@@ -27,6 +27,8 @@ project(
   LANGUAGES CXX CUDA
 )
 
+find_package(wholegraph "${RAPIDS_VERSION}" REQUIRED)
+
 include(rapids-cython-core)
 rapids_cython_init()
 
