@@ -45,18 +45,19 @@ def _load_wheel_installation(soname: str):
 def load_library():
     """Dynamically load libwholegraph.so and its dependencies"""
     try:
-        # libraft must be loaded before libwholegraph because libwholegraph
-        # references its symbols
+        # these libraries must be loaded before libwholegraph because
+        # libwholegraph references their symbols
         import libraft
+        import rapids_logger
 
         libraft.load_library()
+        rapids_logger.load_library()
     except ModuleNotFoundError:
-        # 'libwholegraph' has a runtime dependency on 'libraft'. However,
-        # that dependency might be satisfied by the 'libraft' conda package
-        # (which does not have any Python modules), instead of the
-        # 'libraft' wheel.
+        # 'libwholegraph' has a runtime dependency on 'libraft' et al.. However,
+        # that dependency might be satisfied by a conda package
+        # (which does not have any Python modules), instead of a wheel.
         #
-        # In that situation, assume that 'libraft.so' is in a place where
+        # In that situation, assume that a shared object is in a place where
         # the loader can find it.
         pass
 
