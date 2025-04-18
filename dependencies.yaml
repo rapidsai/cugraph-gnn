@@ -134,6 +134,7 @@ files:
       table: project
     includes:
       - depends_on_rapids_logger
+      - depends_on_libraft
 
   py_build_pylibwholegraph:
     output: pyproject
