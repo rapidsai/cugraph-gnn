@@ -142,6 +142,7 @@ files:
       table: build-system
     includes:
       - rapids_build_skbuild
+
   py_rapids_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -152,6 +153,9 @@ files:
       - common_build
       - python_build_cythonize
       - depends_on_libwholegraph
+      - depends_on_libraft
+      - depends_on_librmm
+
   py_run_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
