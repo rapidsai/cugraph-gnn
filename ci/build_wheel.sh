@@ -10,18 +10,18 @@ package_dir=$2
 #
 # Capturing that here in argument-parsing to allow this build_wheel.sh
 # script to be re-used by all wheel builds in the project.
-case "${package_dir}" in
-  python/pylibwholegraph )
-    EXCLUDE_ARGS=(
-        --exclude libcuda.so.1
-        --exclude libnvidia-ml.so.1
-        --exclude librapids_logger.so
+#
+EXCLUDE_ARGS=(
+    --exclude libcuda.so.1
+    --exclude libnvidia-ml.so.1
+    --exclude librapids_logger.so
     )
-  ;;
-  *)
-    EXCLUDE_ARGS=()
-  ;;
-esac
+
+if [[ "${package_name}" == "pylibwholegraph" ]]; then
+    EXCLUDE_ARGS+=(
+        --exclude libwholegraph.so
+    )
+fi
 
 source rapids-configure-sccache
 source rapids-date-string
@@ -56,5 +56,9 @@ else
         -w "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}" \
         dist/*
 
-    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+    if [[ ${package_name} == "libwholegraph" ]]; then
+        RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 cpp "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+    else
+        RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+    fi
 fi
