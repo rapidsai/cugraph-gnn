@@ -55,6 +55,7 @@ test = [
 [tool.rapids-build-backend]
 build-backend = "scikit_build_core.build"
 dependencies-file = "../../dependencies.yaml"
+matrix-entry = "cuda_suffixed=true"
 requires = [
     "cmake>=3.30.4",
     "cython>=3.0.0",
