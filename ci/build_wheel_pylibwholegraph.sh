@@ -5,8 +5,6 @@ set -euo pipefail
 
 package_dir="python/pylibwholegraph"
 
-
-set -x
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 # Download the libcugraph wheel built in the previous step and make it
@@ -22,5 +20,3 @@ export SKBUILD_CMAKE_ARGS="-DBUILD_SHARED_LIBS=ON;-DCMAKE_MESSAGE_LOG_LEVEL=VERB
 
 ./ci/build_wheel.sh pylibwholegraph ${package_dir} python
 ./ci/validate_wheel.sh ${package_dir} "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
-
-set +x
