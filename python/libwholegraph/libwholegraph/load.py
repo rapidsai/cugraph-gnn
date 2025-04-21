@@ -62,7 +62,8 @@ def load_library():
         pass
 
     prefer_system_installation = (
-        os.getenv("RAPIDS_LIBWHOLEGRAPH_PREFER_SYSTEM_LIBRARY", "false").lower() != "false"
+        os.getenv("RAPIDS_LIBWHOLEGRAPH_PREFER_SYSTEM_LIBRARY", "false").lower()
+        != "false"
     )
 
     libs_to_return = []
