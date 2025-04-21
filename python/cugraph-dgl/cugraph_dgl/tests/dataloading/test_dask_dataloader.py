@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -52,7 +52,7 @@ def sample_cugraph_dgl_graphs(cugraph_gs, train_nid, fanouts):
     sampler = cugraph_dgl.dataloading.NeighborSampler(fanouts)
     tempdir_object = tempfile.TemporaryDirectory()
     sampling_output_dir = tempdir_object
-    dataloader = cugraph_dgl.dataloading.DaskDataLoader(
+    dataloader = cugraph_dgl.dataloading.dask_dataloader.DaskDataLoader(
         cugraph_gs,
         train_nid,
         sampler,
