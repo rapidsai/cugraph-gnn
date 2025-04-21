@@ -17,7 +17,6 @@ cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 include(../../cmake/rapids_config.cmake)
 include(rapids-cmake)
 include(rapids-cuda)
-include(rapids-cpm)
 
 rapids_cuda_init_architectures(LIBWHOLEGRAPH)
 
@@ -26,8 +25,6 @@ project(
   VERSION "${RAPIDS_VERSION}"
   LANGUAGES CXX CUDA
 )
-
-rapids_cpm_init()
 
 # * Dependencies
 

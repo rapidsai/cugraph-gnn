@@ -21,7 +21,7 @@ import os
 # namespace. This allows libraries that express a dependency on
 # this library to be loaded later and successfully satisfy this dependency
 # without polluting the global symbol table with symbols from
-# libcugraph that could conflict with symbols from other DSOs.
+# libwholegraph that could conflict with symbols from other DSOs.
 PREFERRED_LOAD_FLAG = ctypes.RTLD_LOCAL
 
 
@@ -62,7 +62,7 @@ def load_library():
         pass
 
     prefer_system_installation = (
-        os.getenv("RAPIDS_LIBCUGRAPH_PREFER_SYSTEM_LIBRARY", "false").lower() != "false"
+        os.getenv("RAPIDS_LIBWHOLEGRAPH_PREFER_SYSTEM_LIBRARY", "false").lower() != "false"
     )
 
     libs_to_return = []

@@ -17,7 +17,7 @@ EXCLUDE_ARGS=(
     --exclude librapids_logger.so
     )
 
-if [[ "${package_name}" == "pylibwholegraph" ]]; then
+if [[ "${package_name}" != "libwholegraph" ]]; then
     EXCLUDE_ARGS+=(
         --exclude libwholegraph.so
     )
