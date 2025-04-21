@@ -164,6 +164,7 @@ files:
       table: project
     includes:
       - python_run_pylibwholegraph
+      - depends_on_libwholegraph
   py_test_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
