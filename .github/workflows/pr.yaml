@@ -144,7 +144,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
-      package-type: python
+      package-type: cpp
       wheel-name: libwholegraph
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))

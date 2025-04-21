@@ -15,7 +15,7 @@ EXCLUDE_ARGS=(
     --exclude libcuda.so.1
     --exclude libnvidia-ml.so.1
     --exclude librapids_logger.so
-    )
+)
 
 if [[ "${package_name}" != "libwholegraph" ]]; then
     EXCLUDE_ARGS+=(
