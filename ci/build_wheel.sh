@@ -5,6 +5,7 @@ set -euo pipefail
 
 package_name=$1
 package_dir=$2
+package_type=$3
 
 # The set of shared libraries that should be packaged differs by project.
 #
@@ -28,7 +29,7 @@ source rapids-date-string
 
 rapids-generate-version > ./VERSION
 
-RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
+RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 cd "${package_dir}"
 
@@ -56,9 +57,5 @@ else
         -w "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}" \
         dist/*
 
-    if [[ ${package_name} == "libwholegraph" ]]; then
-        RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 cpp "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
-    else
-        RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
-    fi
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 "${package_type}" "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 fi
