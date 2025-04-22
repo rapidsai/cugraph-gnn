@@ -538,6 +538,7 @@ class NewGraphStore(
         self, edge_attr: "torch_geometric.data.EdgeAttr"
     ) -> Optional["torch_geometric.typing.EdgeTensorType"]:
         # TODO Return WG edge index as duck-type for torch_geometric.EdgeIndex
+        # (rapidsai/cugraph-gnn#188)
         local_eix = self.__edge_indices[edge_attr.edge_type].local_coo
         ei = torch_geometric.EdgeIndex(local_eix)
 
