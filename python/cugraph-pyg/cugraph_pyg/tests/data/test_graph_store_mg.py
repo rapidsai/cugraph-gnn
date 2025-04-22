@@ -49,6 +49,8 @@ def run_test_graph_store_basic_api(rank, world_size):
     num_nodes = karate.number_of_nodes()
 
     # Create and populate the graph store
+    # This will always be a NewGraphStore object.  In release 25.08 the legacy
+    # GraphStore will be removed and the NewGraphStore class will be renamed.
     graph_store = GraphStore(is_multi_gpu=True)
     graph_store.put_edge_index(
         ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
