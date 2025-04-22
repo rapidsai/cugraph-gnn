@@ -17,7 +17,7 @@ import pytest
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore, WholeFeatureStore
+from cugraph_pyg.data import TensorDictFeatureStore, FeatureStore
 
 torch = import_optional("torch")
 pylibwholegraph = import_optional("pylibwholegraph")
@@ -48,7 +48,7 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     tensordict_store = TensorDictFeatureStore()
     tensordict_store["node", "fea", None] = features
 
-    whole_store = WholeFeatureStore()
+    whole_store = FeatureStore()
     whole_store["node", "fea", None] = torch.tensor_split(features, world_size)[rank]
 
     ix = torch.arange(features.shape[0])
@@ -111,7 +111,7 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
     tensordict_store = TensorDictFeatureStore()
     tensordict_store["node", "fea", None] = features
 
-    whole_store = WholeFeatureStore()
+    whole_store = FeatureStore()
     if rank == 0:
         whole_store["node", "fea", None] = features
     else:
