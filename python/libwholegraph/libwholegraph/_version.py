@@ -1,4 +1,5 @@
-# Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# Copyright (c) 2025, NVIDIA CORPORATION.
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pylibwholegraph._version import __git_commit__, __version__
+import importlib.resources
 
-# If libwholegraph was installed as a wheel, we must request it to load the
-# library symbols. Otherwise, we assume that the library was installed in a
-# system path that ld can find.
+__version__ = (
+    importlib.resources.files(__package__).joinpath("VERSION").read_text().strip()
+)
 try:
-    import libwholegraph
-except ModuleNotFoundError:
-    pass
-else:
-    libwholegraph.load_library()
-    del libwholegraph
+    __git_commit__ = (
+        importlib.resources.files(__package__)
+        .joinpath("GIT_COMMIT")
+        .read_text()
+        .strip()
+    )
+except FileNotFoundError:
+    __git_commit__ = ""
+
+__all__ = ["__git_commit__", "__version__"]

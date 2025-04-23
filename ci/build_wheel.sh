@@ -5,30 +5,31 @@ set -euo pipefail
 
 package_name=$1
 package_dir=$2
-underscore_package_name=$(echo "${package_name}" | tr "-" "_")
+package_type=$3
 
 # The set of shared libraries that should be packaged differs by project.
 #
 # Capturing that here in argument-parsing to allow this build_wheel.sh
 # script to be re-used by all wheel builds in the project.
-case "${package_dir}" in
-  python/pylibwholegraph)
-    EXCLUDE_ARGS=(
-        --exclude libcuda.so.1
-        --exclude libnvidia-ml.so.1
+#
+EXCLUDE_ARGS=(
+    --exclude libcuda.so.1
+    --exclude libnvidia-ml.so.1
+    --exclude librapids_logger.so
+)
+
+if [[ "${package_name}" != "libwholegraph" ]]; then
+    EXCLUDE_ARGS+=(
+        --exclude libwholegraph.so
     )
-  ;;
-  *)
-    EXCLUDE_ARGS=()
-  ;;
-esac
+fi
 
 source rapids-configure-sccache
 source rapids-date-string
 
 rapids-generate-version > ./VERSION
 
-RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
+RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 cd "${package_dir}"
 
@@ -56,5 +57,5 @@ else
         -w "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}" \
         dist/*
 
-    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 python "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+    RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" rapids-upload-wheels-to-s3 "${package_type}" "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
 fi

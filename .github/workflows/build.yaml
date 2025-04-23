@@ -114,7 +114,18 @@ jobs:
       date: ${{ inputs.date }}
       package-name: cugraph-pyg
       package-type: python
+  wheel-build-libwholegraph:
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
+    with:
+      build_type: pull-request
+      script: ci/build_wheel_libwholegraph.sh
+      package-type: cpp
+      wheel-name: libwholegraph
+      # build for every combination of arch and CUDA version, but only for the latest Python
+      matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
   wheel-build-pylibwholegraph:
+    needs: wheel-build-libwholegraph
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
     with:
