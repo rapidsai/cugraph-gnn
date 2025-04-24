@@ -5,5 +5,5 @@ set -euo pipefail
 
 package_dir="python/cugraph-pyg"
 
-./ci/build_wheel.sh cugraph-pyg ${package_dir}
+./ci/build_wheel.sh cugraph-pyg ${package_dir} python
 ./ci/validate_wheel.sh ${package_dir} "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"

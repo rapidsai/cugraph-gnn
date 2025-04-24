@@ -7,6 +7,7 @@ set -E          # ERR traps are inherited by subcommands
 
 mkdir -p ./dist
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
+LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github python)
 
 # determine pytorch source
@@ -26,6 +27,7 @@ rapids-logger "Installing Packages"
 rapids-pip-retry install \
     --extra-index-url ${INDEX_URL} \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
+    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     'torch>=2.3'
 
 rapids-logger "pytest pylibwholegraph"
