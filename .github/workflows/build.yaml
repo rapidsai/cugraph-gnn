@@ -75,8 +75,8 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_cugraph-dgl.sh
+      package-name: cugraph-dgl
       package-type: python
-      wheel-name: cugraph-dgl
       pure-wheel: true
   wheel-publish-cugraph-dgl:
     needs: wheel-build-cugraph-dgl
@@ -100,8 +100,8 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_cugraph-pyg.sh
+      package-name: cugraph-pyg
       package-type: python
-      wheel-name: cugraph-pyg
       pure-wheel: true
   wheel-publish-cugraph-pyg:
     needs: wheel-build-cugraph-pyg
@@ -120,8 +120,8 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
+      package-name: libwholegraph
       package-type: cpp
-      wheel-name: libwholegraph
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
   wheel-build-pylibwholegraph:
@@ -134,8 +134,8 @@ jobs:
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
       script: ci/build_wheel_pylibwholegraph.sh
+      package-name: pylibwholegraph
       package-type: python
-      wheel-name: pylibwholegraph
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit

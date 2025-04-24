@@ -144,8 +144,8 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
+      package-name: libwholegraph
       package-type: cpp
-      wheel-name: libwholegraph
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
   wheel-build-pylibwholegraph:
@@ -155,8 +155,8 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_pylibwholegraph.sh
+      package-name: pylibwholegraph
       package-type: python
-      wheel-name: pylibwholegraph
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
@@ -175,8 +175,8 @@ jobs:
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
       script: ci/build_wheel_cugraph-dgl.sh
+      package-name: cugraph-dgl
       package-type: python
-      wheel-name: cugraph-dgl
       pure-wheel: true
   wheel-tests-cugraph-dgl:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
@@ -196,8 +196,8 @@ jobs:
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
       script: ci/build_wheel_cugraph-pyg.sh
+      package-name: cugraph-pyg
       package-type: python
-      wheel-name: cugraph-pyg
       pure-wheel: true
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
