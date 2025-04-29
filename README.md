@@ -37,6 +37,10 @@ cuGraph-GNN supports the creation and manipulation of graphs followed by the exe
 -----
 ## News
 
+___WARNING!___   _cuGraph-DGL_ will be removed after release 25.06.  We recommend migrating to cuGraph-PyG, which offers the same
+functionality along with additional features like support for heterogeneous sampling and a unified API.  The cuGraph team is not planning
+any further work in the DGL ecosystem going forward.
+
 ___NEW!___   _[nx-cugraph](./python/nx-cugraph/README.md)_, a NetworkX backend that provides GPU acceleration to NetworkX with zero code change.
 ```
 > pip install nx-cugraph-cu11 --extra-index-url https://pypi.nvidia.com
@@ -82,6 +86,7 @@ cuGraph-GNN is comprised of three subprojects: [cugraph-DGL](https://github.com/
 [WholeGraph](https://github.com/rapidsai/cugraph-gnn/python/wholegraph).
 
 * cuGraph-DGL supports the Deep Graph Library (DGL) and offers duck-typed versions of DGL's native graph objects, samplers, and loaders.
+** cuGraph-DGL is slated for removal after release 25.06.  We strongly recommend migrating to cuGraph-PyG.
 * cuGraph-PyG supports PyTorch Geometric (PyG) and implements PyG's GraphStore, FeatureStore, Loader, and Sampler interfaces.
 * WholeGraph supports PyTorch and provides a distributed graph and kv store.  Both cuGraph-DGL and cuGraph-PyG can leverage WholeGraph for even greater scalability.
 
