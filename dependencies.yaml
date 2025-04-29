@@ -87,8 +87,8 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
+      - depends_on_ogb
       - py_version
       - test_python_common
       - depends_on_mkl
@@ -516,6 +516,12 @@ dependencies:
             packages:
               - pytorch>=2.3
           - {matrix: null, packages: ["pytorch>=2.3"]}
+
+  depends_on_ogb:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - ogb
 
   depends_on_dgl:
     specific:
