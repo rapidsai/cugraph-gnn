@@ -447,6 +447,9 @@ if __name__ == "__main__":
     if "LOCAL_RANK" not in os.environ:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
         exit()
+    if os.getenv("CI", "false").lower() == "true":
+        warnings.warn("Skipping MNMG example in CI due to memory limit")
+        exit()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr", type=float, default=0.001)
