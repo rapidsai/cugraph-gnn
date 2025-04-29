@@ -14,15 +14,14 @@ dependencies:
 - cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
-- cuda-version=12.4
+- cuda-version=12.8
 - cudf==25.6.*,>=0.0.0a0
 - cugraph==25.6.*,>=0.0.0a0
 - cupy>=13.2.0
 - cython>=3.0.0
 - dask-cudf==25.6.*,>=0.0.0a0
-- dglteam/label/th24_cu124::dgl
 - doxygen
-- gcc_linux-64=13.*
+- gcc_linux-aarch64=13.*
 - graphviz
 - ipython
 - libcublas-dev
@@ -53,4 +52,4 @@ dependencies:
 - setuptools>=61.0.0
 - torchdata
 - wheel
-name: all_cuda-124_arch-x86_64
+name: all_cuda-128_arch-aarch64
