@@ -524,6 +524,7 @@ dependencies:
         packages:
           - ogb
 
+  # for MovieLens example
   depends_on_sentence_transformers:
     common:
       - output_types: [conda, requirements, pyproject]
