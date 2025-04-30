@@ -89,6 +89,7 @@ files:
       - depends_on_cudf
       - depends_on_pytorch
       - depends_on_ogb
+      - depends_on_sentence_transformers
       - py_version
       - test_python_common
       - depends_on_mkl
@@ -522,6 +523,12 @@ dependencies:
       - output_types: [conda, requirements, pyproject]
         packages:
           - ogb
+
+  depends_on_sentence_transformers:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - sentence-transformers
 
   depends_on_dgl:
     specific:
