@@ -11,6 +11,9 @@ pytest --cache-clear --benchmark-disable "$@" .
 # Used to skip certain examples in CI due to memory limitations
 export CI=true
 
+# Enable legacy behavior of torch.load for examples relying on ogb
+export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
+
 # Test examples (disabled due to excessive network bandwidth usage)
 for e in "$(pwd)"/examples/*.py; do
   rapids-logger "running example $e"
