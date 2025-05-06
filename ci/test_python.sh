@@ -43,8 +43,6 @@ set +e
 # the install location, and in most cases, the source tree does not have
 # extensions built in-place and will result in ImportErrors.
 #
-# FIXME: TEMPORARILY disable MG PropertyGraph tests (experimental) tests and
-# bulk sampler IO tests (hangs in CI)
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "(cugraph-dgl) Generate Python testing dependencies"

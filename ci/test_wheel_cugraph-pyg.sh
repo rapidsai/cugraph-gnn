@@ -40,6 +40,6 @@ python -m pytest \
 # Test examples
 for e in "$(pwd)"/examples/*.py; do
   rapids-logger "running example $e"
-  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}"
+  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
 done
 popd

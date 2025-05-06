@@ -38,6 +38,18 @@ BASE_DATASET_DATA="
 https://data.rapids.ai/cugraph/test/datasets.tgz
 test
 
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbn_products.tar.gz
+ogb_datasets
+
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbl_wikikg2.tar.gz
+ogb_datasets
+
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbn_mag.tar.gz
+ogb_datasets
+
 # ~14s download
 https://data.rapids.ai/cugraph/test/ref/pagerank.tgz
 test/ref
@@ -57,16 +69,6 @@ benchmark
 # ~0.6s download
 https://data.rapids.ai/cugraph/test/tsplib/datasets.tar.gz
 tsplib
-
-https://data.rapids.ai/datasets/ogb/ogbn_products.tar.gz
-test
-
-https://data.rapids.ai/datasets/ogb/ogbl_wikikg2.tar.gz
-test
-
-https://data.rapids.ai/datasets/ogb/ogbn_mag.tar.gz
-test
-
 
 "
 
