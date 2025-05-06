@@ -118,7 +118,10 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.06
     with:
-      build_type: pull-request
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      sha: ${{ inputs.sha }}
+      date: ${{ inputs.date }}
       script: ci/build_wheel_libwholegraph.sh
       package-name: libwholegraph
       package-type: cpp
@@ -136,6 +139,17 @@ jobs:
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
+  wheel-publish-libwholegraph:
+    needs: wheel-build-libwholegraph
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.06
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      branch: ${{ inputs.branch }}
+      sha: ${{ inputs.sha }}
+      date: ${{ inputs.date }}
+      package-name: libwholegraph
+      package-type: cpp
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit
