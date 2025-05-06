@@ -28,7 +28,7 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
 pushd "${RAPIDS_DATASET_ROOT_DIR}"
-./get_test_data.sh --benchmark
+./get_test_data.sh --test
 popd
 
 EXITCODE=0
