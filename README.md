@@ -76,7 +76,7 @@ That's it.  NetworkX now leverages cuGraph for accelerated graph algorithms.
 
 -----
 
-<img src="img/Stack2.png" alt="Stack" width="800">
+<img src="img/cugraph-pyg-stack.png" alt="Stack" width="800">
 
 [RAPIDS](https://rapids.ai) cuGraph-GNN is a collection of GPU-accelerated plugins that support [DGL](https://dgl.ai), [PyG](https://pyg.org), [PyTorch](https://pytorch.org), and a variety
 of other graph and GNN frameworks.  cuGraph-GNN is built on top of RAPIDS [cuGraph](https://github.com/rapidai/cugraph), leveraging its low-level [pylibcugraph](https://github.com/rapidsai/cugraph/python/pylibcugraph) API
