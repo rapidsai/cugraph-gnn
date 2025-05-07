@@ -19,7 +19,7 @@ on:
 jobs:
   conda-cpp-tests:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -27,7 +27,7 @@ jobs:
       sha: ${{ inputs.sha }}
   conda-notebook-tests:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -48,7 +48,7 @@ jobs:
       matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not)))
   wheel-tests-pylibwholegraph:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -58,7 +58,7 @@ jobs:
       matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not)))
   wheel-tests-cugraph-dgl:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -68,7 +68,7 @@ jobs:
       matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not) and (.LINUX_VER != "rockylinux8")))
   wheel-tests-cugraph-pyg:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
