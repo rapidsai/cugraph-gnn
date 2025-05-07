@@ -69,7 +69,6 @@ benchmark
 # ~0.6s download
 https://data.rapids.ai/cugraph/test/tsplib/datasets.tar.gz
 tsplib
-
 "
 
 EXTENDED_DATASET_DATA="
