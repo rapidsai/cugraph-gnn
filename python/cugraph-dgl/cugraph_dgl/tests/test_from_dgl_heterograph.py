@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,9 +20,7 @@ except ModuleNotFoundError:
 from cugraph.utilities.utils import import_optional
 from .utils import (
     assert_same_edge_feats,
-    assert_same_edge_feats_daskapi,
     assert_same_node_feats,
-    assert_same_node_feats_daskapi,
     assert_same_num_edges_can_etypes,
     assert_same_num_edges_etypes,
     assert_same_num_nodes,
@@ -133,39 +131,6 @@ def create_heterograph4(idtype):
     g.edges["follows"].data["h"] = F.copy_to(F.tensor([1, 2], dtype=idtype), ctx=ctx)
     g.edges["plays"].data["h"] = F.copy_to(F.tensor([1, 2], dtype=idtype), ctx=ctx)
     return g
-
-
-@pytest.mark.parametrize("idxtype", [th.int32, th.int64])
-def test_heterograph_conversion_nodes_daskapi(idxtype):
-    graph_fs = [
-        create_heterograph1,
-        create_heterograph2,
-        create_heterograph3,
-        create_heterograph4,
-    ]
-    for graph_f in graph_fs:
-        g = graph_f(idxtype)
-        gs = cugraph_dgl.cugraph_storage_from_heterograph(g)
-
-        assert_same_num_nodes(gs, g)
-        assert_same_node_feats_daskapi(gs, g)
-
-
-@pytest.mark.parametrize("idxtype", [th.int32, th.int64])
-def test_heterograph_conversion_edges_daskapi(idxtype):
-    graph_fs = [
-        create_heterograph1,
-        create_heterograph2,
-        create_heterograph3,
-        create_heterograph4,
-    ]
-    for graph_f in graph_fs:
-        g = graph_f(idxtype)
-        gs = cugraph_dgl.cugraph_storage_from_heterograph(g)
-
-        assert_same_num_edges_can_etypes(gs, g)
-        assert_same_num_edges_etypes(gs, g)
-        assert_same_edge_feats_daskapi(gs, g)
 
 
 @pytest.mark.parametrize("idxtype", [th.int32, th.int64])
