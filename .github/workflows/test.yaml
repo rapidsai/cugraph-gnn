@@ -39,7 +39,7 @@ jobs:
       run_script: "ci/test_notebooks.sh"
   conda-python-tests:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@python-3.13
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
