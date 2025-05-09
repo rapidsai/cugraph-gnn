@@ -18,4 +18,4 @@ dependencies:
 - pytorch>=2.3
 - tensordict>=0.1.2,<=0.6.2
 - torchdata
-name: cugraph_dgl_dev_cuda-128_arch-aarch64
+name: cugraph_dgl_dev_cuda-129_arch-aarch64
