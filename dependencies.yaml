@@ -5,7 +5,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["11.8", "12.9"]
+      cuda: ["11.8", "12.8"]
       arch: [x86_64, aarch64]
     includes:
       - checks
@@ -87,7 +87,6 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
       - py_version
       - test_python_common
@@ -100,7 +99,6 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
       - py_version
       - test_python_common
@@ -232,7 +230,7 @@ files:
 
   cugraph_dgl_dev:
     matrix:
-      cuda: ["11.8", "12.9"]
+      cuda: ["11.8", "12.8"]
       arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-dgl/conda
@@ -245,7 +243,7 @@ files:
       - test_python_common
   cugraph_pyg_dev:
     matrix:
-      cuda: ["11.8", "12.9"]
+      cuda: ["11.8", "12.8"]
       arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
@@ -316,10 +314,6 @@ dependencies:
               cuda: "12.8"
             packages:
               - cuda-version=12.8
-          - matrix:
-              cuda: "12.9"
-            packages:
-              - cuda-version=12.9
   cuda:
     specific:
       - output_types: [conda]
