@@ -93,6 +93,7 @@ outputs:
         - ${{ stdlib("c") }}
       host:
         - cuda-version =${{ cuda_version }}
+        - librmm =${{ minor_version }}
         - nccl ${{ nccl_version }}
         - if: cuda_major == "11"
           then:

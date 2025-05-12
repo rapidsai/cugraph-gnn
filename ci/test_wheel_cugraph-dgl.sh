@@ -17,9 +17,9 @@ CUGRAPH_DGL_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_
 PKG_CUDA_VER="$(echo ${CUDA_VERSION} | cut -d '.' -f1,2 | tr -d '.')"
 PKG_CUDA_VER_MAJOR=${PKG_CUDA_VER:0:2}
 if [[ "${PKG_CUDA_VER_MAJOR}" == "12" ]]; then
-  PYTORCH_CUDA_VER="121"
+PYTORCH_CUDA_VER="121"
 else
-  PYTORCH_CUDA_VER=$PKG_CUDA_VER
+PYTORCH_CUDA_VER=$PKG_CUDA_VER
 fi
 PYTORCH_URL="https://download.pytorch.org/whl/cu${PYTORCH_CUDA_VER}"
 DGL_URL="https://data.dgl.ai/wheels/torch-2.3/cu${PYTORCH_CUDA_VER}/repo.html"
