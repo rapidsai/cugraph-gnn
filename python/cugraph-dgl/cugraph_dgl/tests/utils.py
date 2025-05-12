@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,21 +17,6 @@ from cugraph.utilities.utils import import_optional
 from cugraph.gnn import cugraph_comms_init
 
 th = import_optional("torch")
-
-
-def assert_same_node_feats_daskapi(gs, g):
-    assert set(gs.ndata.keys()) == set(g.ndata.keys())
-
-    for key in g.ndata.keys():
-        for ntype in g.ntypes:
-            indices = th.arange(0, g.num_nodes(ntype), dtype=g.idtype).cuda()
-            if len(g.ntypes) <= 1 or ntype in g.ndata[key]:
-                g_output = g.get_node_storage(key=key, ntype=ntype).fetch(
-                    indices, device="cuda"
-                )
-                gs_output = gs.get_node_storage(key=key, ntype=ntype).fetch(indices)
-                equal_t = (gs_output != g_output).sum().cpu()
-                assert equal_t == 0
 
 
 def assert_same_node_feats(gs, g):
@@ -72,20 +57,6 @@ def assert_same_num_edges_etypes(gs, g):
         assert g.num_edges(etype) == gs.num_edges(etype)
 
 
-def assert_same_edge_feats_daskapi(gs, g):
-    assert set(gs.edata.keys()) == set(g.edata.keys())
-    for key in g.edata.keys():
-        for etype in g.canonical_etypes:
-            indices = th.arange(0, g.num_edges(etype), dtype=g.idtype).cuda()
-            if len(g.etypes) <= 1 or etype in g.edata[key]:
-                g_output = g.get_edge_storage(key=key, etype=etype).fetch(
-                    indices, device="cuda"
-                )
-                gs_output = gs.get_edge_storage(key=key, etype=etype).fetch(indices)
-                equal_t = (gs_output != g_output).sum().cpu()
-                assert equal_t == 0
-
-
 def assert_same_edge_feats(gs, g):
     assert set(gs.edata.keys()) == set(g.edata.keys())
     assert set(gs.canonical_etypes) == set(g.canonical_etypes)
@@ -107,14 +78,6 @@ def assert_same_edge_feats(gs, g):
 
                 equal_t = (gs_output != g_output).sum().cpu()
                 assert equal_t == 0
-
-
-def assert_same_sampling_len(dgl_g, cugraph_gs, nodes, fanout, edge_dir):
-    dgl_o = dgl_g.sample_neighbors(nodes, fanout=fanout, edge_dir=edge_dir)
-    cugraph_o = cugraph_gs.sample_neighbors(nodes, fanout=fanout, edge_dir=edge_dir)
-    assert cugraph_o.num_edges() == dgl_o.num_edges()
-    for etype in dgl_o.canonical_etypes:
-        assert dgl_o.num_edges(etype) == cugraph_o.num_edges(etype)
 
 
 def init_pytorch_worker(rank, world_size, cugraph_id, init_wholegraph=False):

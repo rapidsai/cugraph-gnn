@@ -17,25 +17,13 @@ import warnings
 # to prevent rapids context being created when importing cugraph_dgl
 os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 from cugraph_dgl.graph import Graph
-from cugraph_dgl.cugraph_storage import CuGraphStorage as DEPRECATED__CuGraphStorage
 from cugraph_dgl.convert import (
-    cugraph_storage_from_heterograph,
     cugraph_dgl_graph_from_heterograph,
 )
 import cugraph_dgl.dataloading
 import cugraph_dgl.nn
 
 from cugraph_dgl._version import __git_commit__, __version__
-
-
-def CuGraphStorage(*args, **kwargs):
-    warnings.warn(
-        "CuGraphStorage and the rest of the dask-based API are deprecated"
-        "and will be removed in release 25.08.",
-        FutureWarning,
-    )
-    return DEPRECATED__CuGraphStorage(*args, **kwargs)
-
 
 warnings.warn(
     "cuGraph-DGL is no longer"
