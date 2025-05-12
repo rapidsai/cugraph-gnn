@@ -46,7 +46,7 @@ set +e
 # FIXME: TEMPORARILY disable MG PropertyGraph tests (experimental) tests and
 # bulk sampler IO tests (hangs in CI)
 
-if [[ "${RUNNER_ARCH}" != "ARM64" && "${RAPIDS_PY_VERSION}" != "3.13" ]]; then
+if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "(cugraph-dgl) Generate Python testing dependencies"
   rapids-dependency-file-generator \
     --output conda \
@@ -85,7 +85,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" && "${RAPIDS_PY_VERSION}" != "3.13" ]]; then
   conda deactivate
   set -u
 else
-  rapids-logger "skipping cugraph_dgl pytest on ARM64 and Python 3.13"
+  rapids-logger "skipping cugraph_dgl pytest on ARM64"
 fi
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then

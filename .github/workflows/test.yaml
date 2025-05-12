@@ -45,7 +45,7 @@ jobs:
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
-      matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not)))
+      matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not) and (.PY_VER != "3.13") ))
   wheel-tests-pylibwholegraph:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-12.9.0
