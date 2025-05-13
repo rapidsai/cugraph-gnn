@@ -9,8 +9,8 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 # Download the libcugraph wheel built in the previous step and make it
 # available for pip to find.
-RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-s3 cpp /tmp/libwholegraph_dist
-echo "libwholegraph-${RAPIDS_PY_CUDA_SUFFIX} @ file://$(echo /tmp/libwholegraph_dist/libwholegraph_*.whl)" > /tmp/constraints.txt
+LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
+echo "libwholegraph-${RAPIDS_PY_CUDA_SUFFIX} @ file://$(echo "${LIBWHOLEGRAPH_WHEELHOUSE}"/libwholegraph_*.whl)" >> /tmp/constraints.txt
 
 # Using env variable PIP_CONSTRAINT is necessary to ensure the constraints
 # are used when creating the isolated build environment.

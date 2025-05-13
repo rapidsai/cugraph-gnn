@@ -30,7 +30,7 @@ jobs:
       - wheel-build-cugraph-pyg
       - wheel-tests-cugraph-pyg
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@cuda-12.9.0
     if: always()
     with:
       needs: ${{ toJSON(needs) }}
@@ -48,7 +48,7 @@ jobs:
           repo: cugraph-gnn
   changed-files:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@cuda-12.9.0
     with:
       files_yaml: |
         test_cpp:
@@ -77,42 +77,42 @@ jobs:
           - '!readme_pages/**'
   devcontainer:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@cuda-12.9.0
     with:
       arch: '["amd64"]'
-      cuda: '["12.8"]'
+      cuda: '["12.9"]'
       build_command: |
         sccache -z;
         build-all --verbose -j$(nproc --ignore=1);
         sccache -s;
   checks:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@cuda-12.9.0
     with:
       enable_check_generated_files: false
   conda-cpp-build:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@cuda-12.9.0
     with:
       build_type: pull-request
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@cuda-12.9.0
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
     with:
       build_type: pull-request
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@cuda-12.9.0
     with:
       build_type: pull-request
   conda-notebook-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@cuda-12.9.0
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_notebooks
     with:
       build_type: pull-request
@@ -123,15 +123,15 @@ jobs:
   conda-python-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.06
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@python-3.13
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3"))
+      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
   docs-build:
     needs: conda-cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@cuda-12.9.0
     with:
       arch: "amd64"
       build_type: pull-request
@@ -140,7 +140,7 @@ jobs:
   wheel-build-libwholegraph:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@cuda-12.9.0
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
@@ -151,7 +151,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@cuda-12.9.0
     with:
       build_type: pull-request
       script: ci/build_wheel_pylibwholegraph.sh
@@ -160,7 +160,7 @@ jobs:
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-12.9.0
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
@@ -169,10 +169,11 @@ jobs:
   wheel-build-cugraph-dgl:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@cuda-12.9.0
     with:
-      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
-      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
+      # This selects "ARCH=amd64 + Python 3.12 + CUDA".
+      # Note that we don't support DGL on Python 3.13 so we don't build DGL on Python 3.13
+      matrix_filter: map(select(.ARCH == "amd64", .PY_VER == "3.12")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([.CUDA_VER]|map(split(".")|map(tonumber))))
       build_type: pull-request
       script: ci/build_wheel_cugraph-dgl.sh
       package-name: cugraph-dgl
@@ -181,16 +182,16 @@ jobs:
   wheel-tests-cugraph-dgl:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-12.9.0
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
       script: ci/test_wheel_cugraph-dgl.sh
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3"))
+      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@cuda-12.9.0
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
@@ -202,7 +203,7 @@ jobs:
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.13
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-12.9.0
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
