@@ -38,4 +38,8 @@ rapids-pip-retry install \
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 
-python -m pytest python/cugraph-dgl/cugraph_dgl/tests
+python -m pytest \
+  --import-mode=append \
+  --numprocesses=8 \
+  --dist=worksteal \
+  python/cugraph-dgl/cugraph_dgl/tests

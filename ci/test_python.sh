@@ -75,6 +75,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "pytest cugraph_dgl (single GPU)"
   ./ci/run_cugraph_dgl_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-dgl.xml" \
+    --numprocesses=8 \
+    --dist=worksteal \
     --cov-config=../../.coveragerc \
     --cov=cugraph_dgl \
     --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-dgl-coverage.xml" \
@@ -113,6 +115,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "pytest cugraph_pyg (single GPU)"
   ./ci/run_cugraph_pyg_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
+    --numprocesses=8 \
+    --dist=worksteal \
     --cov-config=../../.coveragerc \
     --cov=cugraph_pyg \
     --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
@@ -151,6 +155,8 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "pytest pylibwholegraph (single GPU)"
   ./ci/run_pylibwholegraph_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
+    --numprocesses=8 \
+    --dist=worksteal \
     --cov-config=../../.coveragerc \
     --cov=pylibwholegraph \
     --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
