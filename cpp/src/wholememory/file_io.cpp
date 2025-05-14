@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ static bool IsFileExist(const char* filename, int mode) { return access(filename
 static size_t StatFileSize(const char* filename)
 {
   auto filesize = static_cast<size_t>(-1);
-  struct stat statbuf {};
+  struct stat statbuf{};
   if (stat(filename, &statbuf) < 0) { return filesize; }
   filesize = statbuf.st_size;
   return filesize;
@@ -49,7 +49,7 @@ static size_t StatFileSize(const char* filename)
 static size_t StatFileBlockSize(const char* filename)
 {
   auto blocksize = static_cast<size_t>(-1);
-  struct stat statbuf {};
+  struct stat statbuf{};
   if (stat(filename, &statbuf) < 0) { return blocksize; }
   blocksize = statbuf.st_blksize;
   return blocksize;
