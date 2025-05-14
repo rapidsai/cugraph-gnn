@@ -22,6 +22,13 @@ rapids-pip-retry install \
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
+mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
+pushd "${RAPIDS_DATASET_ROOT_DIR}"
+./get_test_data.sh --test
+popd
+
+# Enable legacy behavior of torch.load for examples relying on ogb
+export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 rapids-logger "pytest cugraph-pyg (single GPU)"
 pushd python/cugraph-pyg/cugraph_pyg
@@ -29,9 +36,10 @@ python -m pytest \
   --cache-clear \
   --benchmark-disable \
   tests
-# Test examples (disabled due to excessive network bandwidth usage)
-#for e in "$(pwd)"/examples/*.py; do
-#  rapids-logger "running example $e"
-#  (yes || true) | python $e
-#done
+
+# Test examples
+for e in "$(pwd)"/examples/*.py; do
+  rapids-logger "running example $e"
+  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
+done
 popd

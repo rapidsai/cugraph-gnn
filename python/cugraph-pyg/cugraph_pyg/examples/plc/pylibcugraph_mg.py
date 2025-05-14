@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION.
+# Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 # is intented for users who want to extend cuGraph within a DDP workflow.
 
 import os
+import argparse
 
 import pandas
 import numpy as np
@@ -83,10 +84,19 @@ def calc_degree(rank: int, world_size: int, uid, edgelist):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--dataset_root",
+        type=str,
+        default="datasets",
+        help="Root directory for dataset storage",
+    )
+    args = parser.parse_args()
+
     world_size = torch.cuda.device_count()
     uid = cugraph_comms_create_unique_id()
 
-    dataset = NodePropPredDataset("ogbn-products", root="datasets")
+    dataset = NodePropPredDataset("ogbn-products", root=args.dataset_root)
     el = dataset[0][0]["edge_index"].astype("int64")
 
     tmp.spawn(

@@ -51,6 +51,7 @@ test = [
     "pytest-benchmark",
     "pytest-cov",
     "pytest-xdist",
+    "sentence-transformers",
     "tensordict>=0.1.2,<=0.6.2",
     "torch-geometric>=2.5,<2.7",
     "torch>=2.3",
