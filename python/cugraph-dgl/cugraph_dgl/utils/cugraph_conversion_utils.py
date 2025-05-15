@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,7 +25,7 @@ from dask.distributed import get_client
 import cupy as cp
 import numpy as np
 from cugraph.utilities.utils import import_optional
-from cugraph.gnn.dgl_extensions.dgl_uniform_sampler import src_n, dst_n
+from cugraph_dgl.utils import src_n, dst_n
 
 dgl = import_optional("dgl")
 F = import_optional("dgl.backend")
