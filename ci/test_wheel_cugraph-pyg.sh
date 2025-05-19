@@ -34,7 +34,10 @@ rapids-logger "pytest cugraph-pyg (single GPU)"
 pushd python/cugraph-pyg/cugraph_pyg
 python -m pytest \
   --cache-clear \
+  --import-mode=append \
   --benchmark-disable \
+  --numprocesses=8 \
+  --dist=worksteal \
   tests
 
 # Test examples

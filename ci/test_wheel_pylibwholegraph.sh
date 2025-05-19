@@ -36,4 +36,6 @@ python -m pytest \
   --cache-clear \
   --forked \
   --import-mode=append \
+  --numprocesses=8 \
+  --dist=worksteal \
   .
