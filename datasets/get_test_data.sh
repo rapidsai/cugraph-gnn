@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2024, NVIDIA CORPORATION.
+# Copyright (c) 2021-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -37,6 +37,18 @@ BASE_DATASET_DATA="
 # ~22s download
 https://data.rapids.ai/cugraph/test/datasets.tgz
 test
+
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbn_products.tar.gz
+ogb_datasets
+
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbl_wikikg2.tar.gz
+ogb_datasets
+
+# ~10s download
+https://data.rapids.ai/datasets/ogb/ogbn_mag.tar.gz
+ogb_datasets
 
 # ~14s download
 https://data.rapids.ai/cugraph/test/ref/pagerank.tgz

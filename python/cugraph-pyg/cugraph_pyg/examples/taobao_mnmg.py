@@ -445,7 +445,12 @@ def balance_shuffle_edge_split(edge_label_index, edge_label):
 
 if __name__ == "__main__":
     if "LOCAL_RANK" not in os.environ:
-        warnings.warn("This script should be run with 'torchrun`.  Exiting.")
+        warnings.warn(
+            f"This script ({__file__}) should be run with 'torchrun`.  Exiting."
+        )
+        exit()
+    if os.getenv("CI", "false").lower() == "true":
+        warnings.warn(f"Skipping example {__file__} in CI due to memory limit")
         exit()
 
     parser = argparse.ArgumentParser()

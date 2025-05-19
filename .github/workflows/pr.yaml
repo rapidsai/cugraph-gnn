@@ -127,7 +127,7 @@ jobs:
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
     with:
       build_type: pull-request
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3"))
+      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
   docs-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -171,8 +171,9 @@ jobs:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.08
     with:
-      # This selects "ARCH=amd64 + the latest supported Python + CUDA".
-      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
+      # This selects "ARCH=amd64 + Python 3.12 + CUDA".
+      # Note that we don't support DGL on Python 3.13 so we don't build DGL on Python 3.13
+      matrix_filter: map(select(.ARCH == "amd64", .PY_VER == "3.12")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([.CUDA_VER]|map(split(".")|map(tonumber))))
       build_type: pull-request
       script: ci/build_wheel_cugraph-dgl.sh
       package-name: cugraph-dgl
@@ -186,7 +187,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_wheel_cugraph-dgl.sh
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3"))
+      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit

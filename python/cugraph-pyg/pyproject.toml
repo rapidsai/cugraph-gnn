@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "cugraph==25.8.*,>=0.0.0a0",
@@ -50,6 +51,7 @@ test = [
     "pytest-benchmark",
     "pytest-cov",
     "pytest-xdist",
+    "sentence-transformers",
     "tensordict>=0.1.2,<=0.6.2",
     "torch-geometric>=2.5,<2.7",
     "torch>=2.3",

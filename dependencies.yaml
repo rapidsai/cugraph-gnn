@@ -64,7 +64,6 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
       - py_version
       - test_python_common
@@ -87,8 +86,9 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
+      - depends_on_ogb
+      - depends_on_sentence_transformers
       - py_version
       - test_python_common
       - depends_on_mkl
@@ -100,7 +100,6 @@ files:
       - cuda_version
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dgl
       - depends_on_pytorch
       - py_version
       - test_python_common
@@ -316,6 +315,10 @@ dependencies:
               cuda: "12.8"
             packages:
               - cuda-version=12.8
+          - matrix:
+              cuda: "12.9"
+            packages:
+              - cuda-version=12.9
   cuda:
     specific:
       - output_types: [conda]
@@ -394,8 +397,12 @@ dependencies:
             packages:
               - python=3.12
           - matrix:
+              py: "3.13"
             packages:
-              - python>=3.10,<3.13
+              - python=3.13
+          - matrix:
+            packages:
+              - python>=3.10,<3.14
   python_build_cythonize:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -469,6 +476,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - ogb
+          - sentence-transformers
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -516,6 +524,19 @@ dependencies:
             packages:
               - pytorch>=2.3
           - {matrix: null, packages: ["pytorch>=2.3"]}
+
+  depends_on_ogb:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - ogb
+
+  # for MovieLens example
+  depends_on_sentence_transformers:
+    common:
+      - output_types: [conda, requirements, pyproject]
+        packages:
+          - sentence-transformers
 
   depends_on_dgl:
     specific:

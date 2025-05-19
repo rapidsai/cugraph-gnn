@@ -13,34 +13,9 @@
 from __future__ import annotations
 from cugraph.utilities.utils import import_optional
 
-from cugraph_dgl.cugraph_storage import CuGraphStorage
 from cugraph_dgl.graph import Graph
-from cugraph_dgl.utils.cugraph_conversion_utils import (
-    get_edges_dict_from_dgl_HeteroGraph,
-    add_ndata_from_dgl_HeteroGraph,
-    add_edata_from_dgl_HeteroGraph,
-)
 
 dgl = import_optional("dgl")
-
-
-def cugraph_storage_from_heterograph(
-    g: dgl.DGLGraph, single_gpu: bool = True
-) -> CuGraphStorage:
-    """
-    Convert DGL Graph to CuGraphStorage graph
-    """
-    num_nodes_dict = {ntype: g.num_nodes(ntype) for ntype in g.ntypes}
-    edges_dict = get_edges_dict_from_dgl_HeteroGraph(g, single_gpu)
-    gs = CuGraphStorage(
-        data_dict=edges_dict,
-        num_nodes_dict=num_nodes_dict,
-        single_gpu=single_gpu,
-        idtype=g.idtype,
-    )
-    add_ndata_from_dgl_HeteroGraph(gs, g)
-    add_edata_from_dgl_HeteroGraph(gs, g)
-    return gs
 
 
 def cugraph_dgl_graph_from_heterograph(
