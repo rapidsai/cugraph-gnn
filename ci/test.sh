@@ -23,7 +23,7 @@ ARGS=$*
 THISDIR=$(cd $(dirname $0);pwd)
 CUGRAPH_ROOT=$(cd ${THISDIR}/..;pwd)
 GTEST_ARGS="--gtest_output=xml:${CUGRAPH_ROOT}/test-results/"
-DOWNLOAD_MODE=""
+DOWNLOAD_MODE="--test"
 EXITCODE=0
 
 export RAPIDS_DATASET_ROOT_DIR=${RAPIDS_DATASET_ROOT_DIR:-${CUGRAPH_ROOT}/datasets}
