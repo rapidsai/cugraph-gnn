@@ -75,9 +75,11 @@ def run_test_graph_make_homogeneous_graph_mg(rank, uid, world_size, direction):
         graph.nodes()
         == torch.arange(global_num_nodes, dtype=torch.int64, device="cuda")
     ).all()
-    ix = torch.arange(len(node_x) * rank, len(node_x) * (rank + 1), dtype=torch.int64)
+    ix = torch.tensor_split(
+        torch.arange(global_num_nodes, dtype=torch.int64, device="cuda"), world_size
+    )[rank]
     assert graph.nodes[ix]["x"] is not None
-    assert (graph.nodes[ix]["x"] == torch.as_tensor(node_x, device="cuda")).all()
+    assert (graph.nodes[ix]["x"] == ix).all()
 
     assert (
         graph.edges("eid", device="cuda")
