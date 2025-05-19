@@ -49,7 +49,6 @@ NEXT_SHORT_TAG_PEP440=$(python -c "from packaging.version import Version; print(
 DEPENDENCIES=(
   cudf
   cugraph
-  cugraph-dgl
   cugraph-pyg
   dask-cuda
   dask-cudf
@@ -65,7 +64,7 @@ DEPENDENCIES=(
   rapids-dask-dependency
 )
 for DEP in "${DEPENDENCIES[@]}"; do
-  for FILE in dependencies.yaml conda/environments/*.yaml python/cugraph-{pyg,dgl}/conda/*.yaml; do
+  for FILE in dependencies.yaml conda/environments/*.yaml python/cugraph-{pyg}/conda/*.yaml; do
     sed_runner "/-.* ${DEP}\(-cu[[:digit:]]\{2\}\)\{0,1\}==/ s/==.*/==${NEXT_SHORT_TAG_PEP440}.*,>=0.0.0a0/g" "${FILE}"
   done
   for FILE in python/**/pyproject.toml; do
