@@ -3,6 +3,8 @@
 
 set -euo pipefail
 
+source rapids-init-pip
+
 package_dir="python/cugraph-dgl"
 
 ./ci/build_wheel.sh cugraph-dgl ${package_dir} python
