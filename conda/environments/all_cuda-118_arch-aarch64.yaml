@@ -25,7 +25,6 @@ dependencies:
 - nccl>=2.19
 - ninja
 - notebook>=0.5.0
-- numba>=0.57
 - numpy>=1.23,<3.0a0
 - nvcc_linux-aarch64=11.8
 - ogb

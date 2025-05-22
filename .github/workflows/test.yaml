@@ -58,16 +58,6 @@ jobs:
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibwholegraph.sh
       matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not)))
-  wheel-tests-cugraph-dgl:
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.08
-    with:
-      build_type: ${{ inputs.build_type }}
-      branch: ${{ inputs.branch }}
-      date: ${{ inputs.date }}
-      sha: ${{ inputs.sha }}
-      script: ci/test_wheel_cugraph-dgl.sh
-      matrix_filter: map(select((.ARCH == "amd64") and (.CUDA_VER | startswith("11.4") | not) and (.LINUX_VER != "rockylinux8") and (.PY_VER != "3.13")))
   wheel-tests-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.08

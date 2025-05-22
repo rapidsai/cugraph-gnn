@@ -25,8 +25,6 @@ jobs:
       - wheel-build-libwholegraph
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
-      - wheel-build-cugraph-dgl
-      - wheel-tests-cugraph-dgl
       - wheel-build-cugraph-pyg
       - wheel-tests-cugraph-pyg
     secrets: inherit
@@ -173,28 +171,6 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
       matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3"))
-  wheel-build-cugraph-dgl:
-    needs: checks
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.08
-    with:
-      # This selects "ARCH=amd64 + Python 3.12 + CUDA".
-      # Note that we don't support DGL on Python 3.13 so we don't build DGL on Python 3.13
-      matrix_filter: map(select(.ARCH == "amd64", .PY_VER == "3.12")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([.CUDA_VER]|map(split(".")|map(tonumber))))
-      build_type: pull-request
-      script: ci/build_wheel_cugraph-dgl.sh
-      package-name: cugraph-dgl
-      package-type: python
-      pure-wheel: true
-  wheel-tests-cugraph-dgl:
-    needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-dgl, changed-files]
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.08
-    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python
-    with:
-      build_type: pull-request
-      script: ci/test_wheel_cugraph-dgl.sh
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit

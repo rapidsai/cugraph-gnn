@@ -20,9 +20,7 @@ files:
       - depends_on_dask_cudf
       - depends_on_cupy
       - depends_on_pytorch
-      - depends_on_dgl
       - depends_on_pyg
-      - python_run_cugraph_dgl
       - python_run_cugraph_pyg
       - rapids_build_setuptools
       - rapids_build_skbuild
@@ -66,19 +64,7 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-  test_cugraph_dgl:
-    output: none
-    includes:
-      - cuda_version
-      - depends_on_cugraph
-      - depends_on_cudf
-      - depends_on_dgl
-      - depends_on_pytorch
-      - py_version
-      - test_python_common
-      - depends_on_mkl
-      - depends_on_pylibwholegraph
-      - depends_on_cugraph_dgl
+
   test_cugraph_pyg:
     output: none
     includes:
@@ -173,31 +159,6 @@ files:
       - test_python_common
       - test_python_pylibwholegraph
 
-  py_build_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: build-system
-    includes:
-      - rapids_build_setuptools
-  py_run_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: project
-    includes:
-      - depends_on_cugraph
-      - python_run_cugraph_dgl
-  py_test_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - depends_on_pylibwholegraph
-      - depends_on_pytorch
-      - test_python_common
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -228,19 +189,6 @@ files:
       - test_python_common
       - test_python_cugraph_pyg
 
-  cugraph_dgl_dev:
-    matrix:
-      cuda: ["11.8", "12.8"]
-      arch: [x86_64, aarch64]
-    output: conda
-    conda_dir: python/cugraph-dgl/conda
-    includes:
-      - checks
-      - depends_on_cugraph
-      - depends_on_dgl
-      - depends_on_pytorch
-      - cugraph_dgl_dev
-      - test_python_common
   cugraph_pyg_dev:
     matrix:
       cuda: ["11.8", "12.8"]
@@ -254,6 +202,7 @@ files:
       - depends_on_pytorch
       - cugraph_pyg_dev
       - test_python_common
+
 channels:
   - rapidsai
   - rapidsai-nightly
@@ -417,17 +366,10 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - &numpy numpy>=1.23,<3.0a0
-  python_run_cugraph_dgl:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - &numba numba>=0.57
-          - *numpy
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - *numba
           - *numpy
           - pandas
   rapids_build_skbuild:
@@ -482,17 +424,11 @@ dependencies:
         packages:
           - pytest-forked
           - scipy
-  cugraph_dgl_dev:
-    common:
-      - output_types: [conda]
-        packages:
-          - dgl>=2.4.0.cu*
-          - &tensordict tensordict>=0.1.2,<=0.6.2
   cugraph_pyg_dev:
     common:
       - output_types: [conda]
         packages:
-          - *tensordict
+          - &tensordict tensordict>=0.1.2,<=0.6.2
 
   depends_on_pytorch:
     common:
@@ -503,7 +439,7 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - tensordict>=0.1.2,<=0.6.2
+          - *tensordict
     specific:
       - output_types: [requirements]
         matrices:
@@ -536,18 +472,6 @@ dependencies:
       - output_types: [conda, requirements, pyproject]
         packages:
           - sentence-transformers
-
-  depends_on_dgl:
-    specific:
-      - output_types: [conda]
-        matrices:
-          - matrix: {arch: x86_64, cuda: "12.*"}
-            packages:
-              - "dglteam/label/th24_cu124::dgl"
-          - matrix: {arch: x86_64, cuda: "11.*"}
-            packages:
-              - "dglteam/label/th24_cu118::dgl"
-          - {matrix: null, packages: null}
 
   depends_on_pyg:
     common:
@@ -724,12 +648,6 @@ dependencies:
             packages:
               - cugraph-cu11==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cugraph_unsuffixed]}
-
-  depends_on_cugraph_dgl:
-    common:
-      - output_types: conda
-        packages:
-          - cugraph-dgl==25.8.*,>=0.0.0a0
 
   depends_on_cudf:
     common:
