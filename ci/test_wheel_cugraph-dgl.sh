@@ -3,9 +3,10 @@
 
 set -eoxu pipefail
 
+source rapids-init-pip
+
 package_name="cugraph-dgl"
 
-mkdir -p ./dist
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-dgl built in the previous step

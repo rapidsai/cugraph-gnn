@@ -56,6 +56,7 @@ jobs:
           - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
+          - '!ci/release/update-version.sh'
           - '!img/**'
           - '!mg_utils/**'
           - '!notebooks/**'
@@ -66,12 +67,14 @@ jobs:
           - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
+          - '!ci/release/update-version.sh'
           - '!readme_pages/**'
         test_python:
           - '**'
           - '!.devcontainer/**'
           - '!CONTRIBUTING.md'
           - '!README.md'
+          - '!ci/release/update-version.sh'
           - '!img/**'
           - '!notebooks/**'
           - '!readme_pages/**'
@@ -96,6 +99,7 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-25.08
     with:
       build_type: pull-request
+      script: ci/build_cpp.sh
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
@@ -103,12 +107,14 @@ jobs:
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
     with:
       build_type: pull-request
+      script: ci/test_cpp.sh
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.08
     with:
       build_type: pull-request
+      script: ci/build_python.sh
   conda-notebook-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
@@ -119,7 +125,7 @@ jobs:
       node_type: "gpu-l4-latest-1"
       arch: "amd64"
       container_image: "rapidsai/ci-conda:latest"
-      run_script: "ci/test_notebooks.sh"
+      script: "ci/test_notebooks.sh"
   conda-python-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
@@ -128,6 +134,7 @@ jobs:
     with:
       build_type: pull-request
       matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "11.4.3" and .PY_VER != "3.13" ))
+      script: ci/test_python.sh
   docs-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -136,7 +143,7 @@ jobs:
       arch: "amd64"
       build_type: pull-request
       container_image: "rapidsai/ci-conda:latest"
-      run_script: "ci/build_docs.sh"
+      script: "ci/build_docs.sh"
   wheel-build-libwholegraph:
     needs: checks
     secrets: inherit
