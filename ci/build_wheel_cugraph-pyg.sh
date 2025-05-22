@@ -3,6 +3,8 @@
 
 set -euo pipefail
 
+source rapids-init-pip
+
 package_dir="python/cugraph-pyg"
 
 ./ci/build_wheel.sh cugraph-pyg ${package_dir} python
