@@ -47,8 +47,7 @@ rapids-pip-retry wheel \
 sccache --show-adv-stats
 
 # pure-python packages should be marked as pure, and not have auditwheel run on them.
-if [[ ${package_name} == "cugraph-dgl" ]] || \
-   [[ ${package_name} == "cugraph-pyg" ]]; then
+if [[ ${package_name} == "cugraph-pyg" ]]; then
     cp dist/* "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}/"
 else
     # repair wheels and write to the location that artifact-uploading code expects to find them

@@ -66,32 +66,6 @@ jobs:
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
-  wheel-build-cugraph-dgl:
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.08
-    with:
-      # This selects "ARCH=amd64 + Python 3.12 + CUDA".
-      # Note that we don't support DGL on Python 3.13 so we don't build DGL on Python 3.13
-      matrix_filter: map(select(.ARCH == "amd64", .PY_VER == "3.12")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([.CUDA_VER]|map(split(".")|map(tonumber))))
-      build_type: ${{ inputs.build_type || 'branch' }}
-      branch: ${{ inputs.branch }}
-      sha: ${{ inputs.sha }}
-      date: ${{ inputs.date }}
-      script: ci/build_wheel_cugraph-dgl.sh
-      package-name: cugraph-dgl
-      package-type: python
-      pure-wheel: true
-  wheel-publish-cugraph-dgl:
-    needs: wheel-build-cugraph-dgl
-    secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@gha-artifacts/uploads
-    with:
-      build_type: ${{ inputs.build_type || 'branch' }}
-      branch: ${{ inputs.branch }}
-      sha: ${{ inputs.sha }}
-      date: ${{ inputs.date }}
-      package-name: cugraph-dgl
-      package-type: python
   wheel-build-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.08

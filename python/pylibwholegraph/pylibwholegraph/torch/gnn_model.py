@@ -16,7 +16,6 @@ from .graph_structure import GraphStructure
 from .embedding import WholeMemoryEmbedding, WholeMemoryEmbeddingModule
 from .common_options import parse_max_neighbors
 import torch.nn.functional as F
-from .graph_ops import add_csr_self_loop
 
 
 framework_name = None
@@ -27,11 +26,7 @@ def set_framework(framework: str):
     assert framework_name is None
     framework_name = framework
     global SAGEConv, GATConv
-    if framework_name == "dgl":
-        global dgl
-        import dgl
-        from dgl.nn.pytorch.conv import SAGEConv, GATConv
-    elif framework_name == "pyg":
+    if framework_name == "pyg":
         global SparseTensor
         from torch_sparse import SparseTensor
         from torch_geometric.nn import SAGEConv, GATConv
@@ -66,21 +61,6 @@ def create_gnn_layers(
                 gnn_layers.append(
                     SAGEConv(layer_input_dim, layer_output_dim, root_weight=False)
                 )
-        elif framework_name == "dgl":
-            if model_type == "sage":
-                gnn_layers.append(SAGEConv(layer_input_dim, layer_output_dim, "mean"))
-            elif model_type == "gat":
-                gnn_layers.append(
-                    GATConv(
-                        layer_input_dim,
-                        layer_output_dim,
-                        num_heads=num_head,
-                        allow_zero_in_degree=True,
-                    )
-                )
-            else:
-                assert model_type == "gcn"
-                gnn_layers.append(SAGEConv(layer_input_dim, layer_output_dim, "gcn"))
         elif framework_name == "wg":
             if model_type == "sage":
                 gnn_layers.append(SAGEConv(layer_input_dim, layer_output_dim))
@@ -134,22 +114,6 @@ def create_sub_graph(
                 sparse_sizes=(target_gid_1.size()[0], target_neighbor_count),
             )
         return edge_index
-    elif framework_name == "dgl":
-        if add_self_loop:
-            csr_row_ptr, csr_col_ind = add_csr_self_loop(csr_row_ptr, csr_col_ind)
-        block = dgl.create_block(
-            (
-                "csc",
-                (
-                    csr_row_ptr,
-                    csr_col_ind,
-                    torch.empty(0, dtype=torch.int),
-                ),
-            ),
-            num_src_nodes=target_gid.size(0),
-            num_dst_nodes=target_gid_1.size(0),
-        )
-        return block
     else:
         assert framework_name == "wg"
         return [csr_row_ptr, csr_col_ind]
@@ -160,8 +124,6 @@ def layer_forward(layer, x_feat, x_target_feat, sub_graph):
     global framework_name
     if framework_name == "pyg":
         x_feat = layer((x_feat, x_target_feat), sub_graph)
-    elif framework_name == "dgl":
-        x_feat = layer(sub_graph, (x_feat, x_target_feat))
     elif framework_name == "wg":
         x_feat = layer(sub_graph[0], sub_graph[1], x_feat, x_target_feat)
     return x_feat
@@ -233,12 +195,8 @@ class HomoGNNModel(torch.nn.Module):
                 sub_graph,
             )
             if i != self.num_layer - 1:
-                if framework_name == "dgl":
-                    x_feat = x_feat.flatten(1)
                 x_feat = F.relu(x_feat)
                 x_feat = F.dropout(x_feat, self.dropout, training=self.training)
-        if framework_name == "dgl" and self.mean_output:
-            out_feat = x_feat.mean(1)
-        else:
-            out_feat = x_feat
+
+        out_feat = x_feat
         return out_feat
