@@ -136,7 +136,7 @@ def add_common_model_options(argparser: ArgumentParser):
         "--framework",
         dest="framework",
         default="wg",
-        help="framework type, valid values are: dgl, pyg, wg",
+        help="framework type, valid values are: pyg, wg",
     )
     argparser.add_argument(
         "--heads", type=int, dest="heads", default=4, help="num heads"

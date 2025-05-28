@@ -14,12 +14,12 @@ dependencies:
 - cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
-- cuda-version=12.9
-- cudf==25.6.*,>=0.0.0a0
-- cugraph==25.6.*,>=0.0.0a0
+- cuda-version=12.8
+- cudf==25.8.*,>=0.0.0a0
+- cugraph==25.8.*,>=0.0.0a0
 - cupy>=13.2.0
 - cython>=3.0.0
-- dask-cudf==25.6.*,>=0.0.0a0
+- dask-cudf==25.8.*,>=0.0.0a0
 - doxygen
 - gcc_linux-aarch64=13.*
 - graphviz
@@ -32,7 +32,6 @@ dependencies:
 - nccl>=2.19
 - ninja
 - notebook>=0.5.0
-- numba>=0.57
 - numpy>=1.23,<3.0a0
 - ogb
 - pandas
@@ -46,10 +45,10 @@ dependencies:
 - pytorch>=2.3
 - pytorch_geometric>=2.5,<2.7
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
-- rmm==25.6.*,>=0.0.0a0
+- rmm==25.8.*,>=0.0.0a0
 - scikit-build-core>=0.10.0
 - scipy
 - setuptools>=61.0.0
 - torchdata
 - wheel
-name: all_cuda-129_arch-aarch64
+name: all_cuda-128_arch-aarch64

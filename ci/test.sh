@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,7 +23,7 @@ ARGS=$*
 THISDIR=$(cd $(dirname $0);pwd)
 CUGRAPH_ROOT=$(cd ${THISDIR}/..;pwd)
 GTEST_ARGS="--gtest_output=xml:${CUGRAPH_ROOT}/test-results/"
-DOWNLOAD_MODE=""
+DOWNLOAD_MODE="--test"
 EXITCODE=0
 
 export RAPIDS_DATASET_ROOT_DIR=${RAPIDS_DATASET_ROOT_DIR:-${CUGRAPH_ROOT}/datasets}
@@ -76,10 +76,6 @@ if hasArg "--run-python-tests"; then
     pytest -sv -m sg --cache-clear --junitxml=${CUGRAPH_ROOT}/junit-cugraph-pytests.xml -v --cov-config=.coveragerc --cov=cugraph_pyg --cov-report=xml:${WORKSPACE}/python/cugraph_pyg/cugraph-coverage.xml --cov-report term --ignore=raft --benchmark-disable
     echo "Ran Python pytest for cugraph_pyg : return code was: $?, test script exit code is now: $EXITCODE"
 
-    echo "Python pytest for cugraph-dgl (single-GPU only)..."
-    cd ${CUGRAPH_ROOT}/python/cugraph-dgl
-    pytest -sv --cache-clear --junitxml=${CUGRAPH_ROOT}/junit-cugraph-dgl-pytests.xml --benchmark-disable -k "not mg" ./tests
-    echo "Ran Python pytest for cugraph-dgl : return code was: $?, test script exit code is now: $EXITCODE"
 fi
 
 echo "Test script exiting with value: $EXITCODE"

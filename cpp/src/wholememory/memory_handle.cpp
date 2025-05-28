@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -746,9 +746,7 @@ class continuous_device_wholememory_impl : public wholememory_impl {
   static int ipc_open_socket(const std::string& name)
   {
     int sock = -1;
-    struct sockaddr_un skt_addr {
-      0
-    };
+    struct sockaddr_un skt_addr{0};
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
       WHOLEMEMORY_FATAL("IPC failure: Socket creation error.");
     }
@@ -830,7 +828,7 @@ class continuous_device_wholememory_impl : public wholememory_impl {
                                        const ipc_sharable_cu_handle& sent_handle,
                                        const std::string& dst_name)
   {
-    struct msghdr message_header {};
+    struct msghdr message_header{};
     struct iovec iov[1];
 
     union {
@@ -839,7 +837,7 @@ class continuous_device_wholememory_impl : public wholememory_impl {
     } control_un{};
 
     struct cmsghdr* cmptr;
-    struct sockaddr_un cliaddr {};
+    struct sockaddr_un cliaddr{};
 
     // Construct client address to send this Shareable handle to
     bzero(&cliaddr, sizeof(cliaddr));

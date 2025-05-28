@@ -54,20 +54,6 @@ rattler-build build --recipe conda/recipes/cugraph-pyg \
 sccache --show-adv-stats
 sccache --zero-stats
 
-rapids-logger "Building cugraph-dgl"
-
-# --no-build-id allows for caching with `sccache`
-# more info is available at
-# https://rattler.build/latest/tips_and_tricks/#using-sccache-or-ccache-with-rattler-build
-rattler-build build --recipe conda/recipes/cugraph-dgl \
-                    --test skip \
-                    "${RATTLER_ARGS[@]}" \
-                    "${RATTLER_CHANNELS[@]}"
-
-sccache --show-adv-stats
-
 # remove build_cache directory to avoid uploading the entire source tree
 # tracked in https://github.com/prefix-dev/rattler-build/issues/1424
 rm -rf "$RAPIDS_CONDA_BLD_OUTPUT_DIR"/build_cache
-
-rapids-upload-conda-to-s3 python
