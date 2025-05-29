@@ -56,20 +56,19 @@ requirements:
     - python =${{ py_version }}
     - rapids-build-backend >=0.3.0,<0.4.0.dev0
     - scikit-build-core >=0.10.0
-    - if: cuda_major == "11"
-      then: cudatoolkit
   run:
     - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
     - libwholegraph =${{ version }}
     - numpy >=1.23,<3.0a0
     - python
-    - if: cuda_major == "11"
-      then: cudatoolkit
   ignore_run_exports:
+    from_package:
+      - ${{ compiler("c") }}
+      - ${{ compiler("cxx") }}
+      - ${{ compiler("cuda") }}
+      - ${{ stdlib("c") }}
     by_name:
       - cuda-version
-      - if: cuda_major == "11"
-        then: cudatoolkit
 
 about:
   homepage: https://rapids.ai/
