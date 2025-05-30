@@ -100,10 +100,7 @@ outputs:
         - nccl ${{ nccl_version }}
       ignore_run_exports:
         from_package:
-          - ${{ compiler("c") }}
-          - ${{ compiler("cxx") }}
           - ${{ compiler("cuda") }}
-          - ${{ stdlib("c") }}
         by_name:
           - cuda-cudart
           - cuda-version
@@ -137,10 +134,7 @@ outputs:
         - cuda-cudart
       ignore_run_exports:
         from_package:
-          - ${{ compiler("c") }}
-          - ${{ compiler("cxx") }}
           - ${{ compiler("cuda") }}
-          - ${{ stdlib("c") }}
         by_name:
           - cuda-cudart
           - cuda-version
