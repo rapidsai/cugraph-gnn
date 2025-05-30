@@ -99,8 +99,6 @@ outputs:
         - libraft =${{ minor_version }}
         - nccl ${{ nccl_version }}
       ignore_run_exports:
-        from_package:
-          - ${{ compiler("cuda") }}
         by_name:
           - cuda-cudart
           - cuda-version
@@ -133,8 +131,6 @@ outputs:
         - ${{ pin_subpackage('libwholegraph', exact=True) }}
         - cuda-cudart
       ignore_run_exports:
-        from_package:
-          - ${{ compiler("cuda") }}
         by_name:
           - cuda-cudart
           - cuda-version

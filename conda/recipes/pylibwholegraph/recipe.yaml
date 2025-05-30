@@ -62,8 +62,6 @@ requirements:
     - numpy >=1.23,<3.0a0
     - python
   ignore_run_exports:
-    from_package:
-      - ${{ compiler("cuda") }}
     by_name:
       - cuda-version
 
