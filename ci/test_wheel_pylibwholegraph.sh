@@ -12,13 +12,7 @@ LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github python)
 
 # determine pytorch source
-PKG_CUDA_VER="$(echo ${CUDA_VERSION} | cut -d '.' -f1,2 | tr -d '.')"
-PKG_CUDA_VER_MAJOR=${PKG_CUDA_VER:0:2}
-if [[ "${PKG_CUDA_VER_MAJOR}" == "12" ]]; then
-  INDEX_URL="https://download.pytorch.org/whl/cu121"
-else
-  INDEX_URL="https://download.pytorch.org/whl/cu${PKG_CUDA_VER}"
-fi
+PYTORCH_INDEX_URL="https://download.pytorch.org/whl/cu126"
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
@@ -26,7 +20,7 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
 rapids-pip-retry install \
-    --extra-index-url ${INDEX_URL} \
+    --extra-index-url ${PYTORCH_INDEX_URL} \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     'torch>=2.3'
