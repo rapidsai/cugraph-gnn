@@ -11,6 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This example trains a GNN model on the EllipticBitcoin dataset
+# using cuGraph-PyG.
+# If an embedding directory is specified, the embeddings will be saved to a
+# parquet file.  The "bitcoin_rf.py" script can then be used to train a
+# random forest model on the embeddings.
+
 import os
 import argparse
 
@@ -72,8 +78,8 @@ if __name__ == "__main__":
     parser.add_argument("--hidden_channels", type=int, default=128)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=0.01)
-    parser.add_argument("--num_epochs", type=int, default=4)
-    parser.add_argument("--output_dir", type=str, default="./results")
+    parser.add_argument("--epochs", type=int, default=4)
+    parser.add_argument("--embedding_dir", type=str, default=None, required=False)
     args = parser.parse_args()
 
     torch.distributed.init_process_group(backend="nccl")
@@ -87,6 +93,8 @@ if __name__ == "__main__":
     dataset = EllipticBitcoinDataset(root=args.dataset_root)
     data = dataset[0]
     assert dataset.num_classes == 2
+
+    data.x = data.x[:, :94]  # Remove pre-generated graph embeddings
 
     from cugraph_pyg.data import GraphStore, FeatureStore
     from cugraph_pyg.tensor import empty
@@ -141,6 +149,10 @@ if __name__ == "__main__":
         torch.arange(data.num_nodes, device="cuda")[data.train_mask], world_size
     )[rank]
 
+    ix_test = torch.tensor_split(
+        torch.arange(data.num_nodes, device="cuda")[data.test_mask], world_size
+    )[rank]
+
     loader_kwargs = {
         "batch_size": args.batch_size,
         "num_neighbors": [25, 10],
@@ -158,11 +170,11 @@ if __name__ == "__main__":
 
     test_loader = NeighborLoader(
         (feature_store, graph_store),
-        input_nodes=ix_train,
+        input_nodes=ix_test,
         **loader_kwargs,
     )
 
-    for epoch in range(1, args.num_epochs + 1):
+    for epoch in range(1, args.epochs + 1):
         for it, batch in enumerate(train_loader):
             optimizer.zero_grad()
             out = encoder(batch.x, batch.edge_index)
@@ -197,44 +209,65 @@ if __name__ == "__main__":
 
     torch.distributed.barrier()
 
-    inf_loader = NeighborLoader(
-        (feature_store, graph_store),
-        input_nodes=ix_train,
-        num_neighbors=[-1],
-        batch_size=args.batch_size,
-        shuffle=True,
-        drop_last=True,
-    )
-
-    feature_store["entity", "emb", None] = (
-        torch.zeros(
-            (data.num_nodes, args.hidden_channels), dtype=torch.float32, device="cuda"
+    if args.embedding_dir is not None:
+        inf_loader = NeighborLoader(
+            (feature_store, graph_store),
+            input_nodes=torch.tensor_split(
+                torch.arange(data.num_nodes, device="cuda"), world_size
+            )[rank],
+            num_neighbors=[-1],
+            batch_size=args.batch_size,
+            shuffle=True,
+            drop_last=True,
         )
-        if rank == 0
-        else empty(dim=2)
-    )
 
-    with torch.no_grad():
-        total_correct = total_examples = 0
-        for batch in inf_loader:
-            x = batch.x
-            for layer in range(encoder.module.num_layers - 1):
-                x = encoder.module.inference_per_layer(
-                    layer, x, batch.edge_index, batch.batch_size
-                )
-            x = x[: batch.batch_size]
-            feature_store["entity", "emb", None][batch.n_id[: batch.batch_size]] = x
+        feature_store["entity", "emb", None] = (
+            torch.zeros(
+                (data.num_nodes, args.hidden_channels),
+                dtype=torch.float32,
+                device="cuda",
+            )
+            if rank == 0
+            else empty(dim=2)
+        )
 
-    import cudf
+        feature_store["entity", "z", None] = (
+            torch.zeros((data.num_nodes,), dtype=torch.float32, device="cuda")
+            if rank == 0
+            else empty(dim=1)
+        )
 
-    df = cudf.DataFrame(
-        feature_store["entity", "emb", None].get_local_tensor(),
-        index=None,
-        columns=[f"emb_{i}" for i in range(args.hidden_channels)],
-    )
-    df["y"] = (feature_store["entity", "y", None]).get_local_tensor()
+        with torch.no_grad():
+            total_correct = total_examples = 0
+            for batch in inf_loader:
+                x = batch.x
+                z = encoder(x, batch.edge_index)[: batch.batch_size].softmax(dim=-1)[
+                    :, 0
+                ]
+                for layer in range(encoder.module.num_layers - 1):
+                    x = encoder.module.inference_per_layer(
+                        layer, x, batch.edge_index, batch.batch_size
+                    )
 
-    df.to_parquet(
-        f"{args.output_dir}/emb_{args.encoder}_{args.hidden_channels}"
-        f"_{args.batch_size}_{args.lr}_{args.num_epochs}_{rank}.parquet"
-    )
+                x = x[: batch.batch_size]
+                feature_store["entity", "emb", None][batch.n_id[: batch.batch_size]] = x
+                feature_store["entity", "z", None][batch.n_id[: batch.batch_size]] = z
+
+        import cudf
+
+        df = cudf.DataFrame(
+            feature_store["entity", "emb", None].get_local_tensor(),
+            index=None,
+            columns=[f"emb_{i}" for i in range(args.hidden_channels)],
+        )
+        df["y"] = (feature_store["entity", "y", None]).get_local_tensor()
+        df["z"] = (feature_store["entity", "z", None]).get_local_tensor()
+        df.to_parquet(
+            f"{args.embedding_dir}/emb_{args.encoder}_{args.hidden_channels}"
+            f"_{args.batch_size}_{args.lr}_{args.epochs}_{rank}.parquet"
+        )
+
+    from cugraph.gnn import cugraph_comms_shutdown
+
+    cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
