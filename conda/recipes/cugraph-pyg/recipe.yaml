@@ -43,7 +43,6 @@ requirements:
     - python
     - pytorch >=2.3
     - pytorch_geometric >=2.5,<2.7
-    - tensordict >=0.1.2
   ignore_run_exports:
     by_name:
       - cuda-version

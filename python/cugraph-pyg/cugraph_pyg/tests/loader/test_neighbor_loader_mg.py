@@ -18,7 +18,7 @@ import os
 from cugraph.datasets import karate
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore, GraphStore
+from cugraph_pyg.data import GraphStore
 from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
 
 from cugraph.gnn import (
@@ -74,7 +74,7 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
     graph_store = GraphStore(is_multi_gpu=True)
     graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo", False, sz)
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
     feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     ix_train = torch.tensor_split(torch.arange(34), world_size, axis=0)[rank]
@@ -132,7 +132,7 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     graph_store = GraphStore(is_multi_gpu=True)
     graph_store.put_edge_index(eix, ("person", "knows", "person"), "coo")
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
     feature_store["person", "feat", None] = torch.randint(128, (6 * world_size, 12))
     feature_store[("person", "knows", "person"), "bias", None] = torch.concat(
         [torch.tensor([0, 1, 1], dtype=torch.float32) for _ in range(world_size)]
@@ -199,7 +199,7 @@ def run_test_link_neighbor_loader_basic_mg(
     init_pytorch_worker(rank, world_size, uid)
 
     graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -267,7 +267,7 @@ def run_test_link_neighbor_loader_uneven_mg(
     init_pytorch_worker(rank, world_size, uid)
 
     graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     batch_size = 1
     graph_store[
@@ -333,7 +333,7 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
     init_pytorch_worker(rank, world_size, uid)
 
     graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo"] = torch.stack(

@@ -17,7 +17,7 @@ from cugraph.datasets import karate
 from cugraph.utilities.utils import import_optional, MissingModule
 
 import cugraph_pyg
-from cugraph_pyg.data import TensorDictFeatureStore, GraphStore
+from cugraph_pyg.data import GraphStore
 from cugraph_pyg.loader import NeighborLoader
 
 torch = import_optional("torch")
@@ -44,7 +44,7 @@ def test_neighbor_loader():
         ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
     feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     loader = NeighborLoader(
@@ -75,7 +75,7 @@ def test_neighbor_loader_biased():
         eix, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
     feature_store["person", "feat", None] = torch.randint(128, (6, 12))
     feature_store[("person", "knows", "person"), "bias", None] = torch.tensor(
         [0, 12, 14], dtype=torch.float32
@@ -109,7 +109,7 @@ def test_link_neighbor_loader_basic(
     num_nodes, num_edges, batch_size, select_edges, num_neighbors, depth
 ):
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -145,7 +145,7 @@ def test_link_neighbor_loader_negative_sampling_basic(batch_size):
     select_edges = 17
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -179,7 +179,7 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
     select_edges = 17
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -217,7 +217,7 @@ def test_neighbor_loader_hetero_basic():
     num_papers = 6
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
         src,
@@ -255,7 +255,7 @@ def test_neighbor_loader_hetero_single_etype():
     num_papers = 6
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
         src,

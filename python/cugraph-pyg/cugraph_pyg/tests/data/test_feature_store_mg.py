@@ -17,9 +17,10 @@ import pytest
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore, FeatureStore
+from cugraph_pyg.data import FeatureStore
 
 torch = import_optional("torch")
+torch_geometric = import_optional("torch_geometric")
 pylibwholegraph = import_optional("pylibwholegraph")
 
 
@@ -45,8 +46,8 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     features = torch.arange(0, world_size * 2000)
     features = features.reshape((features.numel() // 100, 100)).to(torch_dtype)
 
-    tensordict_store = TensorDictFeatureStore()
-    tensordict_store["node", "fea", None] = features
+    local_feature_store = torch_geometric.data.HeteroData()
+    local_feature_store["node", "fea", None] = features
 
     whole_store = FeatureStore()
     whole_store["node", "fea", None] = torch.tensor_split(features, world_size)[rank]
@@ -54,16 +55,16 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     ix = torch.arange(features.shape[0])
     assert (
         whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
+        == local_feature_store["node", "fea", None][ix]
     ).all()
 
     label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    tensordict_store["node", "label", None] = label
+    local_feature_store["node", "label", None] = label
     whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
 
     assert (
         whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
+        == local_feature_store["node", "fea", None][ix]
     ).all()
 
     pylibwholegraph.torch.initialize.finalize()
@@ -108,8 +109,8 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
     features = torch.arange(0, world_size * 2000)
     features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
 
-    tensordict_store = TensorDictFeatureStore()
-    tensordict_store["node", "fea", None] = features
+    local_feature_store = torch_geometric.data.HeteroData()
+    local_feature_store["node", "fea", None] = features
 
     whole_store = FeatureStore()
     if rank == 0:
@@ -120,22 +121,22 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
     ix = torch.arange(features.shape[0])
     assert (
         whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
+        == local_feature_store["node", "fea", None][ix]
     ).all()
     assert (
         whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
+        == local_feature_store["node", "fea", None][ix]
     ).all()
 
     ix = torch.randperm(features.shape[0])
 
     label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    tensordict_store["node", "label", None] = label
+    local_feature_store["node", "label", None] = label
     whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
 
     assert (
         whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
+        == local_feature_store["node", "fea", None][ix]
     ).all()
 
     pylibwholegraph.torch.initialize.finalize()
