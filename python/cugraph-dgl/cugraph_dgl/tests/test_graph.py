@@ -158,9 +158,7 @@ def test_graph_make_heterogeneous_graph(direction, karate_bipartite):
         h_fan_out=np.array([1, 1], dtype="int32"),
         with_replacement=False,
         do_expensive_check=True,
-        with_edge_properties=True,
         prior_sources_behavior="exclude",
-        return_dict=True,
     )
 
     expected_etypes = {

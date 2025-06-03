@@ -246,9 +246,7 @@ def run_test_graph_make_heterogeneous_graph_mg(rank, uid, world_size, direction)
         h_fan_out=np.array([-1], dtype="int32"),
         with_replacement=False,
         do_expensive_check=True,
-        with_edge_properties=True,
         prior_sources_behavior="exclude",
-        return_dict=True,
     )
 
     sdf = cudf.DataFrame(
