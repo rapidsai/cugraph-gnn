@@ -651,10 +651,9 @@ dependencies:
     specific:
       - output_types: [requirements, pyproject]
         matrices:
-          - matrix: {cuda: "12.*"}
-            packages: &cupy_packages_cu12
+          - matrix: # All CUDA 12 versions
+            packages:
               - cupy-cuda12x>=13.2.0
-          - {matrix: null, packages: *cupy_packages_cu12}
   depends_on_cugraph_pyg:
     common:
       - output_types: conda
