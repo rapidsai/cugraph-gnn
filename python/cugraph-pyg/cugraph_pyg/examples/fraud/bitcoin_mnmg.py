@@ -122,6 +122,7 @@ if __name__ == "__main__":
             hidden_channels=args.hidden_channels,
             out_channels=dataset.num_classes,
             num_layers=2,
+            jk="last",
         )
     elif args.encoder.lower() == "gcn":
         encoder = GCN(
@@ -129,6 +130,7 @@ if __name__ == "__main__":
             hidden_channels=args.hidden_channels,
             out_channels=dataset.num_classes,
             num_layers=2,
+            jk="last",
         )
     elif args.encoder.lower() == "gat":
         encoder = GAT(
@@ -136,6 +138,7 @@ if __name__ == "__main__":
             hidden_channels=args.hidden_channels,
             out_channels=dataset.num_classes,
             num_layers=2,
+            jk="last",
         )
     else:
         raise ValueError(f"Invalid encoder: {args.encoder}")
@@ -241,13 +244,15 @@ if __name__ == "__main__":
             total_correct = total_examples = 0
             for batch in inf_loader:
                 x = batch.x
-                z = encoder(x, batch.edge_index)[: batch.batch_size].softmax(dim=-1)[
-                    :, 0
-                ]
-                for layer in range(encoder.module.num_layers - 1):
-                    x = encoder.module.inference_per_layer(
-                        layer, x, batch.edge_index, batch.batch_size
-                    )
+                edge_index = batch.edge_index
+                for layer, (conv, norm) in enumerate(
+                    zip(encoder.module.convs, encoder.module.norms)
+                ):
+                    x = conv(x, edge_index)
+                    x = norm(x)
+                    x = encoder.module.act(x)
+
+                z = encoder.module.lin(x)[: batch.batch_size].softmax(dim=-1)[:, 0]
 
                 x = x[: batch.batch_size]
                 feature_store["entity", "emb", None][batch.n_id[: batch.batch_size]] = x
