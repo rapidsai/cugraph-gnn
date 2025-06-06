@@ -267,6 +267,8 @@ if __name__ == "__main__":
         )
         df["y"] = (feature_store["entity", "y", None]).get_local_tensor()
         df["z"] = (feature_store["entity", "z", None]).get_local_tensor()
+
+        os.makedirs(args.embedding_dir, exist_ok=True)
         df.to_parquet(
             f"{args.embedding_dir}/emb_{args.encoder}_{args.hidden_channels}"
             f"_{args.batch_size}_{args.lr}_{args.epochs}_{rank}.parquet"
