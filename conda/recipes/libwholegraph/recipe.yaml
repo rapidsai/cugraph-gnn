@@ -61,13 +61,9 @@ cache:
       - libraft-headers =${{ minor_version }}
       - librmm =${{ minor_version }}
       - nccl ${{ nccl_version }}
-      - if: cuda_major == "11"
-        then:
-          - cudatoolkit
-        else:
-          - cuda-cudart-dev
-          - cuda-driver-dev
-          - cuda-nvml-dev
+      - cuda-cudart-dev
+      - cuda-driver-dev
+      - cuda-nvml-dev
 
 outputs:
   - package:
@@ -95,19 +91,11 @@ outputs:
         - cuda-version =${{ cuda_version }}
         - librmm =${{ minor_version }}
         - nccl ${{ nccl_version }}
-        - if: cuda_major == "11"
-          then:
-            - cudatoolkit
-          else:
-            - cuda-cudart-dev
-            - cuda-driver-dev
+        - cuda-cudart-dev
+        - cuda-driver-dev
       run:
         - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
-        - if: cuda_major == "11"
-          then:
-            - cudatoolkit
-          else:
-            - cuda-cudart
+        - cuda-cudart
         - libraft =${{ minor_version }}
         - nccl ${{ nccl_version }}
       ignore_run_exports:
@@ -116,9 +104,6 @@ outputs:
           - cuda-version
           - librmm
           - nccl
-          - if: cuda_major == "11"
-            then:
-              - cudatoolkit
     about:
       homepage: https://rapids.ai
       license: Apache-2.0
@@ -139,25 +124,18 @@ outputs:
       host:
         - cuda-version =${{ cuda_version }}
         - ${{ pin_subpackage('libwholegraph', exact=True) }}
-        - if: cuda_major == "11"
-          then: cudatoolkit
-          else:
-            - cuda-cudart-dev
-            - cuda-driver-dev
+        - cuda-cudart-dev
+        - cuda-driver-dev
       run:
         - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
         - ${{ pin_subpackage('libwholegraph', exact=True) }}
-        - if: cuda_major == "11"
-          then: cudatoolkit
-          else: cuda-cudart
+        - cuda-cudart
       ignore_run_exports:
         by_name:
           - cuda-cudart
           - cuda-version
           - librmm
           - nccl
-          - if: cuda_major == "11"
-            then: cudatoolkit
     about:
       homepage: https://rapids.ai
       license: Apache-2.0
