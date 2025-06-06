@@ -21,16 +21,12 @@ from cugraph_dgl.dataloading.dataset import (
 from cugraph_dgl.dataloading.sampler import Sampler
 from cugraph_dgl.dataloading.neighbor_sampler import NeighborSampler
 
-from cugraph_dgl.dataloading.dask_dataloader import (
-    DaskDataLoader as DEPRECATED__DaskDataLoader,
-)
-from cugraph_dgl.dataloading.dataloader import DataLoader as FutureDataLoader
+from cugraph_dgl.dataloading.dataloader import DataLoader
 
 
-def DataLoader(*args, **kwargs):
+def FutureDataLoader(*args, **kwargs):
     warnings.warn(
-        "CuGraphStorage and the rest of the dask-based API are deprecated"
-        "and will be removed in release 25.08.",
+        "FutureDataLoader has been renamed to DataLoader",
         FutureWarning,
     )
-    return DEPRECATED__DaskDataLoader(*args, **kwargs)
+    return DataLoader(*args, **kwargs)

@@ -17,8 +17,8 @@ fi
 RAPIDS_VERSION="$(rapids-version)"
 
 rapids-logger "Downloading artifacts from previous jobs"
-CPP_CHANNEL=$(rapids-download-conda-from-s3 cpp)
-PYTHON_CHANNEL=$(rapids-download-conda-from-s3 python)
+CPP_CHANNEL=$(rapids-download-conda-from-github cpp)
+PYTHON_CHANNEL=$(rapids-download-conda-from-github python)
 
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
@@ -28,7 +28,7 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
 pushd "${RAPIDS_DATASET_ROOT_DIR}"
-./get_test_data.sh --benchmark
+./get_test_data.sh --test
 popd
 
 EXITCODE=0
@@ -43,8 +43,6 @@ set +e
 # the install location, and in most cases, the source tree does not have
 # extensions built in-place and will result in ImportErrors.
 #
-# FIXME: TEMPORARILY disable MG PropertyGraph tests (experimental) tests and
-# bulk sampler IO tests (hangs in CI)
 
 if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "(cugraph-dgl) Generate Python testing dependencies"
