@@ -82,11 +82,6 @@ and C++ primitives for sampling and other GNN operations ([libcugraph](https://g
 cuGraph-GNN is comprised of two subprojects: [cugraph-PyG](https://github.com/rapidsai/cugraph-gnn/python/cugraph-pyg) and
 [WholeGraph](https://github.com/rapidsai/cugraph-gnn/python/wholegraph).
 
-<<<<<<< HEAD
-=======
-* cuGraph-DGL supports the Deep Graph Library (DGL) and offers duck-typed versions of DGL's native graph objects, samplers, and loaders.
-** cuGraph-DGL is slated for removal after release 25.06.  We strongly recommend migrating to cuGraph-PyG.
->>>>>>> origin/branch-25.06
 * cuGraph-PyG supports PyTorch Geometric (PyG) and implements PyG's GraphStore, FeatureStore, Loader, and Sampler interfaces.
 * WholeGraph supports PyTorch and provides a distributed graph and kv store.  cuGraph-PyG can leverage WholeGraph for even greater scalability.
 
