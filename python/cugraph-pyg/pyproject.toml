@@ -44,6 +44,7 @@ Documentation = "https://docs.rapids.ai/api/cugraph/stable/"
 
 [project.optional-dependencies]
 test = [
+    "cuml==25.8.*,>=0.0.0a0",
     "ogb",
     "pylibwholegraph==25.8.*,>=0.0.0a0",
     "pytest",
