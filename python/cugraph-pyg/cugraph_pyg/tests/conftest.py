@@ -12,8 +12,14 @@
 # limitations under the License.
 
 import pytest
-
+import os
 import torch
+
+from cugraph.gnn import (
+    cugraph_comms_init,
+    cugraph_comms_create_unique_id,
+    cugraph_comms_shutdown,
+)
 
 
 # module-wide fixtures
@@ -29,6 +35,21 @@ except ImportError:
     import pytest_benchmark
 
     gpubenchmark = pytest_benchmark.plugin.benchmark
+
+
+@pytest.fixture(scope="module")
+def single_pytorch_worker():
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    os.environ["LOCAL_RANK"] = "0"
+    os.environ["LOCAL_WORLD_SIZE"] = "1"
+    torch.distributed.init_process_group("nccl", rank=0, world_size=1)
+    cugraph_comms_init(
+        rank=0, world_size=1, uid=cugraph_comms_create_unique_id(), device=0
+    )
+    yield
+    cugraph_comms_shutdown()
+    torch.distributed.destroy_process_group()
 
 
 @pytest.fixture

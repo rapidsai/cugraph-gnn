@@ -36,36 +36,19 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     os.environ["MASTER_PORT"] = "12355"
     torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
 
-    pylibwholegraph.torch.initialize.init(
-        rank,
-        world_size,
-        rank,
-        world_size,
-    )
-
     features = torch.arange(0, world_size * 2000)
     features = features.reshape((features.numel() // 100, 100)).to(torch_dtype)
-
-    local_feature_store = torch_geometric.data.HeteroData()
-    local_feature_store["node", "fea", None] = features
 
     whole_store = FeatureStore()
     whole_store["node", "fea", None] = torch.tensor_split(features, world_size)[rank]
 
     ix = torch.arange(features.shape[0])
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == local_feature_store["node", "fea", None][ix]
-    ).all()
+    assert (whole_store["node", "fea", None][ix].cpu() == features[ix]).all()
 
     label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    local_feature_store["node", "label", None] = label
     whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
 
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == local_feature_store["node", "fea", None][ix]
-    ).all()
+    assert (whole_store["node", "label", None][ix].cpu() == label[ix]).all()
 
     pylibwholegraph.torch.initialize.finalize()
 
@@ -99,18 +82,8 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
     os.environ["MASTER_PORT"] = "12355"
     torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
 
-    pylibwholegraph.torch.initialize.init(
-        rank,
-        world_size,
-        rank,
-        world_size,
-    )
-
     features = torch.arange(0, world_size * 2000)
     features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
-
-    local_feature_store = torch_geometric.data.HeteroData()
-    local_feature_store["node", "fea", None] = features
 
     whole_store = FeatureStore()
     if rank == 0:
@@ -119,25 +92,14 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
         whole_store["node", "fea", None] = torch.empty_like(features)
 
     ix = torch.arange(features.shape[0])
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == local_feature_store["node", "fea", None][ix]
-    ).all()
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == local_feature_store["node", "fea", None][ix]
-    ).all()
+    assert (whole_store["node", "fea", None][ix].cpu() == features[ix]).all()
 
     ix = torch.randperm(features.shape[0])
 
     label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    local_feature_store["node", "label", None] = label
     whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
 
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == local_feature_store["node", "fea", None][ix]
-    ).all()
+    assert (whole_store["node", "label", None][ix].cpu() == label[ix]).all()
 
     pylibwholegraph.torch.initialize.finalize()
 

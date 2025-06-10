@@ -99,7 +99,7 @@ if __name__ == "__main__":
     from cugraph_pyg.data import GraphStore, FeatureStore
     from cugraph_pyg.tensor import empty
 
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     feature_store = FeatureStore()
 
     # Distribute data (will evenly distribute from rank 0;

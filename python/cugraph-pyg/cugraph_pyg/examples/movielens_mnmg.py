@@ -79,11 +79,11 @@ def write_edges(edge_index, path):
         )
 
 
-def cugraph_pyg_from_heterodata(data, wg_mem_type):
+def cugraph_pyg_from_heterodata(data):
     from cugraph_pyg.data import GraphStore, FeatureStore
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = FeatureStore(memory_type=wg_mem_type)
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     graph_store[
         ("user", "rates", "movie"),
@@ -345,7 +345,6 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=16)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--skip_partition", action="store_true")
-    parser.add_argument("--wg_mem_type", type=str, default="distributed")
     args = parser.parse_args()
 
     dataset_name = "movielens"
@@ -397,9 +396,7 @@ if __name__ == "__main__":
     )
     torch.distributed.barrier()
 
-    feature_store, graph_store = cugraph_pyg_from_heterodata(
-        data, wg_mem_type=args.wg_mem_type
-    )
+    feature_store, graph_store = cugraph_pyg_from_heterodata(data)
     eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
     eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
     num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}

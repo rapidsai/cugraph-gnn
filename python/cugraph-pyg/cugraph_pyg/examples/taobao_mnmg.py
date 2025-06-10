@@ -209,11 +209,11 @@ def pre_transform(data):
     return data
 
 
-def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
+def cugraph_pyg_from_heterodata(data, return_edge_label=True):
     from cugraph_pyg.data import GraphStore, FeatureStore
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = FeatureStore(memory_type=wg_mem_type)
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     graph_store[
         ("user", "to", "item"),
@@ -253,7 +253,7 @@ def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
     return out
 
 
-def load_partitions(edge_path, meta_path, wg_mem_type):
+def load_partitions(edge_path, meta_path):
     rank = torch.distributed.get_rank()
     world_size = torch.distributed.get_world_size()
     data = HeteroData()
@@ -316,11 +316,9 @@ def load_partitions(edge_path, meta_path, wg_mem_type):
 
     print(f"Finished loading graph data on rank {rank}")
     return {
-        "train": cugraph_pyg_from_heterodata(
-            train_data, wg_mem_type, return_edge_label=False
-        ),
-        "test": cugraph_pyg_from_heterodata(test_data, wg_mem_type),
-        "val": cugraph_pyg_from_heterodata(val_data, wg_mem_type),
+        "train": cugraph_pyg_from_heterodata(train_data, return_edge_label=False),
+        "test": cugraph_pyg_from_heterodata(test_data),
+        "val": cugraph_pyg_from_heterodata(val_data),
     }, meta
 
 
@@ -459,7 +457,6 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=2048)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--skip_partition", action="store_true")
-    parser.add_argument("--wg_mem_type", type=str, default="distributed")
     args = parser.parse_args()
 
     dataset_name = "taobao"
@@ -510,7 +507,7 @@ if __name__ == "__main__":
         print("Data partitioning complete!")
 
     torch.distributed.barrier()
-    data_dict, meta = load_partitions(edge_path, meta_path, args.wg_mem_type)
+    data_dict, meta = load_partitions(edge_path, meta_path)
     torch.distributed.barrier()
 
     from cugraph_pyg.loader import LinkNeighborLoader

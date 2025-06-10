@@ -135,6 +135,8 @@ class GraphStore(
                 self.__edge_indices[edge_attr.edge_type]._row = edge_index[0]
                 self.__edge_indices[edge_attr.edge_type]._col = edge_index[1]
             else:
+                if isinstance(edge_index, list):
+                    edge_index = torch.stack(edge_index)
                 self.__edge_indices[edge_attr.edge_type][
                     offset : offset + local_size
                 ] = edge_index

@@ -313,7 +313,7 @@ if __name__ == "__main__":
         edge_feature_store = FeatureStore()
         splits_storage = FeatureStore()
         feature_store = torch_geometric.data.HeteroData()
-        graph_store = GraphStore(is_multi_gpu=True)
+        graph_store = GraphStore()
         torch.distributed.barrier()
 
         print(f"broadcasting edge rel type (rank {global_rank})", flush=True)
