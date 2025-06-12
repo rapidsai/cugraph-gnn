@@ -12,20 +12,20 @@
 # limitations under the License.
 
 import pytest
-import os
 
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore, FeatureStore
+from cugraph_pyg.data import FeatureStore
 
 torch = import_optional("torch")
+torch_geometric = import_optional("torch_geometric")
 pylibwholegraph = import_optional("pylibwholegraph")
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_tensordict_feature_store_basic_api():
-    feature_store = TensorDictFeatureStore()
+def test_feature_store_basic_api(single_pytorch_worker):
+    feature_store = FeatureStore()
 
     node_features_0 = torch.randint(128, (100, 1000))
     node_features_1 = torch.randint(256, (100, 10))
@@ -36,9 +36,20 @@ def test_tensordict_feature_store_basic_api():
     feature_store["node", "feat1", None] = node_features_1
     feature_store["other", "feat", None] = other_features
 
-    assert (feature_store["node"]["feat0"][:] == node_features_0).all()
-    assert (feature_store["node"]["feat1"][:] == node_features_1).all()
-    assert (feature_store["other"]["feat"][:] == other_features).all()
+    assert (
+        feature_store["node", "feat0", None].get_local_tensor().cpu() == node_features_0
+    ).all()
+    assert (
+        feature_store["node", "feat1", None].get_local_tensor().cpu() == node_features_1
+    ).all()
+    assert (
+        feature_store["other", "feat", None].get_local_tensor().cpu() == other_features
+    ).all()
+
+    ixr = torch.randperm(node_features_0.shape[0])
+    assert (
+        feature_store["node", "feat0", None][ixr].cpu() == node_features_0[ixr]
+    ).all()
 
     assert len(feature_store.get_all_tensor_attrs()) == 3
 
@@ -46,69 +57,25 @@ def test_tensordict_feature_store_basic_api():
     assert len(feature_store.get_all_tensor_attrs()) == 2
 
 
-def run_test_wholegraph_feature_store_basic_api(rank, world_size):
-    torch.cuda.set_device(rank)
-
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
-    torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
-
-    pylibwholegraph.torch.initialize.init(
-        rank,
-        world_size,
-        rank,
-        world_size,
-    )
-
-    features = torch.arange(0, world_size * 2000)
-    features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
-
-    tensordict_store = TensorDictFeatureStore()
-    tensordict_store["node", "fea", None] = features
-
-    whole_store = FeatureStore()
-    if rank == 0:
-        whole_store["node", "fea", None] = features
-    else:
-        whole_store["node", "fea", None] = torch.empty_like(features)
-
-    ix = torch.arange(features.shape[0])
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
-    ).all()
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
-    ).all()
-
-    ix = torch.randperm(features.shape[0])
-
-    label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
-    tensordict_store["node", "label", None] = label
-    whole_store["node", "label", None] = torch.tensor_split(label, world_size)[rank]
-
-    assert (
-        whole_store["node", "fea", None][ix].cpu()
-        == tensordict_store["node", "fea", None][ix]
-    ).all()
-
-    pylibwholegraph.torch.initialize.finalize()
-
-
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
-@pytest.mark.mg
-def test_wholegraph_feature_store_basic_api():
-    world_size = torch.cuda.device_count()
+@pytest.mark.sg
+def test_feature_store_basic_api_float(single_pytorch_worker):
+    features = torch.arange(0, 2000)
+    features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
 
-    # simulate torchrun call
-    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+    whole_store = FeatureStore()
+    whole_store["node", "fea", None] = features
 
-    torch.multiprocessing.spawn(
-        run_test_wholegraph_feature_store_basic_api,
-        args=(world_size,),
-        nprocs=world_size,
-    )
+    ix = torch.arange(features.shape[0])
+    assert (whole_store["node", "fea", None][ix].cpu() == features[ix]).all()
+    assert (whole_store["node", "fea", None][ix].cpu() == features[ix]).all()
+
+    ix = torch.randperm(features.shape[0])
+
+    label = torch.arange(0, features.shape[0]).reshape((features.shape[0], 1))
+    whole_store["node", "label", None] = label
+
+    assert (whole_store["node", "label", None][ix].cpu() == label[ix]).all()

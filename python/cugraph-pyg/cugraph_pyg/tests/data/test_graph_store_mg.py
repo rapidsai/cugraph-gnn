@@ -49,9 +49,7 @@ def run_test_graph_store_basic_api(rank, world_size):
     num_nodes = karate.number_of_nodes()
 
     # Create and populate the graph store
-    # This will always be a NewGraphStore object.  In release 25.08 the legacy
-    # GraphStore will be removed and the NewGraphStore class will be renamed.
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     graph_store.put_edge_index(
         ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
@@ -69,6 +67,8 @@ def run_test_graph_store_basic_api(rank, world_size):
     graph_store.remove_edge_index(("person", "knows", "person"), "coo")
     edge_attrs = graph_store.get_all_edge_attrs()
     assert len(edge_attrs) == 0
+
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")

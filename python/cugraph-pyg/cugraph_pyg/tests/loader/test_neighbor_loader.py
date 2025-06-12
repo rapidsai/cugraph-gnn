@@ -17,7 +17,7 @@ from cugraph.datasets import karate
 from cugraph.utilities.utils import import_optional, MissingModule
 
 import cugraph_pyg
-from cugraph_pyg.data import TensorDictFeatureStore, GraphStore
+from cugraph_pyg.data import GraphStore, FeatureStore
 from cugraph_pyg.loader import NeighborLoader
 
 torch = import_optional("torch")
@@ -26,7 +26,7 @@ torch_geometric = import_optional("torch_geometric")
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_neighbor_loader():
+def test_neighbor_loader(single_pytorch_worker):
     """
     Basic e2e test that covers loading and sampling.
     """
@@ -44,7 +44,7 @@ def test_neighbor_loader():
         ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = FeatureStore()
     feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     loader = NeighborLoader(
@@ -60,7 +60,8 @@ def test_neighbor_loader():
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_neighbor_loader_biased():
+def test_neighbor_loader_biased(single_pytorch_worker):
+
     eix = torch.tensor(
         [
             [3, 4, 5],
@@ -75,7 +76,7 @@ def test_neighbor_loader_biased():
         eix, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = FeatureStore()
     feature_store["person", "feat", None] = torch.randint(128, (6, 12))
     feature_store[("person", "knows", "person"), "bias", None] = torch.tensor(
         [0, 12, 14], dtype=torch.float32
@@ -106,10 +107,16 @@ def test_neighbor_loader_biased():
 @pytest.mark.parametrize("depth", [1, 3])
 @pytest.mark.parametrize("num_neighbors", [1, 4])
 def test_link_neighbor_loader_basic(
-    num_nodes, num_edges, batch_size, select_edges, num_neighbors, depth
+    num_nodes,
+    num_edges,
+    batch_size,
+    select_edges,
+    num_neighbors,
+    depth,
+    single_pytorch_worker,
 ):
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -133,19 +140,21 @@ def test_link_neighbor_loader_basic(
         assert (
             batch.input_id.cpu() == torch.arange(i * batch_size, (i + 1) * batch_size)
         ).all()
-        assert (elx[i] == batch.n_id[batch.edge_label_index.cpu()]).all()
+        assert (elx[i].cpu() == batch.n_id[batch.edge_label_index.cpu()].cpu()).all()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("batch_size", [1, 2])
-def test_link_neighbor_loader_negative_sampling_basic(batch_size):
+def test_link_neighbor_loader_negative_sampling_basic(
+    batch_size, single_pytorch_worker
+):
     num_edges = 62
     num_nodes = 19
     select_edges = 17
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -173,13 +182,15 @@ def test_link_neighbor_loader_negative_sampling_basic(batch_size):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("batch_size", [1, 2])
-def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
+def test_link_neighbor_loader_negative_sampling_uneven(
+    batch_size, single_pytorch_worker
+):
     num_edges = 62
     num_nodes = 19
     select_edges = 17
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -206,7 +217,7 @@ def test_link_neighbor_loader_negative_sampling_uneven(batch_size):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_neighbor_loader_hetero_basic():
+def test_neighbor_loader_hetero_basic(single_pytorch_worker):
     src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
     dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
 
@@ -217,7 +228,7 @@ def test_neighbor_loader_hetero_basic():
     num_papers = 6
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = FeatureStore()
 
     graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
         src,
@@ -231,7 +242,10 @@ def test_neighbor_loader_hetero_basic():
 
     loader = NeighborLoader(
         (feature_store, graph_store),
-        num_neighbors=[1, 1, 1, 1],
+        num_neighbors={
+            ("paper", "cites", "paper"): [1, 1],
+            ("author", "writes", "paper"): [1, 1],
+        },
         input_nodes=("paper", torch.tensor([0, 1])),
         batch_size=2,
     )
@@ -244,7 +258,7 @@ def test_neighbor_loader_hetero_basic():
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_neighbor_loader_hetero_single_etype():
+def test_neighbor_loader_hetero_single_etype(single_pytorch_worker):
     src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
     dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
 
@@ -255,7 +269,7 @@ def test_neighbor_loader_hetero_single_etype():
     num_papers = 6
 
     graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
+    feature_store = torch_geometric.data.HeteroData()
 
     graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
         src,

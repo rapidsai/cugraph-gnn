@@ -204,7 +204,6 @@ files:
       - depends_on_cugraph
       - depends_on_pyg
       - depends_on_pytorch
-      - cugraph_pyg_dev
       - test_python_common
 
 channels:
@@ -395,11 +394,6 @@ dependencies:
         packages:
           - pytest-forked
           - scipy
-  cugraph_pyg_dev:
-    common:
-      - output_types: [conda]
-        packages:
-          - &tensordict tensordict>=0.1.2,<=0.6.2
 
   depends_on_pytorch:
     common:
@@ -410,7 +404,6 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - *tensordict
     specific:
       - output_types: [requirements]
         matrices:

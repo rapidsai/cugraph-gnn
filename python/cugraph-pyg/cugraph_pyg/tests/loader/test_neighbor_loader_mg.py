@@ -18,7 +18,7 @@ import os
 from cugraph.datasets import karate
 from cugraph.utilities.utils import import_optional, MissingModule
 
-from cugraph_pyg.data import TensorDictFeatureStore, GraphStore
+from cugraph_pyg.data import GraphStore, FeatureStore
 from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
 
 from cugraph.gnn import (
@@ -31,6 +31,7 @@ os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
+pylibwholegraph = import_optional("pylibwholegraph")
 
 
 def init_pytorch_worker(rank, world_size, cugraph_id):
@@ -71,10 +72,10 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
     ei = torch.tensor_split(ei.clone(), world_size, axis=1)[rank]
 
     sz = (34, 34) if specify_size else None
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     graph_store.put_edge_index(ei, ("person", "knows", "person"), "coo", False, sz)
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = FeatureStore()
     feature_store["person", "feat", None] = torch.randint(128, (34, 16))
 
     ix_train = torch.tensor_split(torch.arange(34), world_size, axis=0)[rank]
@@ -90,7 +91,7 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
         assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
 
     cugraph_comms_shutdown()
-    torch.distributed.destroy_process_group()
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.parametrize("specify_size", [True, False])
@@ -129,10 +130,10 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
         ]
     )
 
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     graph_store.put_edge_index(eix, ("person", "knows", "person"), "coo")
 
-    feature_store = TensorDictFeatureStore()
+    feature_store = FeatureStore()
     feature_store["person", "feat", None] = torch.randint(128, (6 * world_size, 12))
     feature_store[("person", "knows", "person"), "bias", None] = torch.concat(
         [torch.tensor([0, 1, 1], dtype=torch.float32) for _ in range(world_size)]
@@ -163,7 +164,7 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
     ).all()
 
     cugraph_comms_shutdown()
-    torch.distributed.destroy_process_group()
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -198,8 +199,8 @@ def run_test_link_neighbor_loader_basic_mg(
 ):
     init_pytorch_worker(rank, world_size, uid)
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = torch.stack(
@@ -226,7 +227,7 @@ def run_test_link_neighbor_loader_basic_mg(
         assert (elx[i].cpu() == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
-    torch.distributed.destroy_process_group()
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -266,8 +267,8 @@ def run_test_link_neighbor_loader_uneven_mg(
 ):
     init_pytorch_worker(rank, world_size, uid)
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     batch_size = 1
     graph_store[
@@ -291,7 +292,7 @@ def run_test_link_neighbor_loader_uneven_mg(
         assert (elx[:, [i]] == batch.n_id[batch.edge_label_index.cpu()]).all()
 
     cugraph_comms_shutdown()
-    torch.distributed.destroy_process_group()
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.skip(reason="broken")
@@ -332,8 +333,8 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
 
     init_pytorch_worker(rank, world_size, uid)
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = TensorDictFeatureStore()
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     eix = torch.randperm(num_edges)[:select_edges]
     graph_store[("n", "e", "n"), "coo"] = torch.stack(
@@ -358,7 +359,7 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
         assert batch.edge_label[0] == 1.0
 
     cugraph_comms_shutdown()
-    torch.distributed.destroy_process_group()
+    pylibwholegraph.torch.initialize.finalize()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
