@@ -19,6 +19,7 @@ files:
       - depends_on_cudf
       - depends_on_dask_cudf
       - depends_on_cupy
+      - depends_on_cuml
       - depends_on_pytorch
       - depends_on_pyg
       - python_run_cugraph_pyg
@@ -62,6 +63,7 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
+      - depends_on_cuml
       - py_version
       - test_python_common
 
@@ -72,6 +74,7 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
+      - depends_on_cuml
       - depends_on_ogb
       - depends_on_sentence_transformers
       - py_version
@@ -186,6 +189,7 @@ files:
       - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pytorch
+      - depends_on_cuml
       - test_python_common
       - test_python_cugraph_pyg
 
@@ -579,6 +583,26 @@ dependencies:
             packages:
               - cugraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cugraph_unsuffixed]}
+
+  depends_on_cuml:
+    common:
+      - output_types: conda
+        packages:
+          - &cuml_unsuffixed cuml==25.8.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - cuml-cu12==25.8.*,>=0.0.0a0
+          - {matrix: null, packages: [*cuml_unsuffixed]}
 
   depends_on_cudf:
     common:
