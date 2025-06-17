@@ -20,7 +20,7 @@ dependencies:
 - cython>=3.0.0
 - dask-cudf==25.8.*,>=0.0.0a0
 - doxygen
-- gcc_linux-64=13.*
+- gcc_linux-64=14.*
 - graphviz
 - ipython
 - libcublas-dev
