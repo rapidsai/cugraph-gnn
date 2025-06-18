@@ -34,6 +34,8 @@ from torch_geometric.data import HeteroData
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+from cugraph_pyg.data import GraphStore, FeatureStore
+
 from pylibwholegraph.torch.initialize import (
     init as wm_init,
     finalize as wm_finalize,
@@ -82,10 +84,9 @@ def write_edges(edge_index, path):
 
 
 def cugraph_pyg_from_heterodata(data, wg_mem_type):
-    from cugraph_pyg.data import GraphStore, WholeFeatureStore
 
-    graph_store = GraphStore()  # is_multi_gpu=True)
-    feature_store = WholeFeatureStore()  # memory_type=wg_mem_type)
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     graph_store[
         ("user", "rates", "movie"),
@@ -219,11 +220,13 @@ def load_partitions(edge_path, features_path, meta_path):
 
 
 class Encoder(torch.nn.Module):
-    def __init__(self, hidden_channels, out_channels):
+    def __init__(
+        self, user_in_channels, movie_in_channels, hidden_channels, out_channels
+    ):
         super().__init__()
-        self.conv1 = SAGEConv((-1, -1), hidden_channels)
-        self.conv2 = SAGEConv((-1, -1), hidden_channels)
-        self.conv3 = SAGEConv((-1, -1), hidden_channels)
+        self.conv1 = SAGEConv((movie_in_channels, user_in_channels), hidden_channels)
+        self.conv2 = SAGEConv((user_in_channels, movie_in_channels), hidden_channels)
+        self.conv3 = SAGEConv((hidden_channels, hidden_channels), hidden_channels)
         self.lin1 = Linear(hidden_channels, out_channels)
         self.lin2 = Linear(hidden_channels, out_channels)
 
@@ -269,9 +272,14 @@ class EdgeDecoder(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
-    def __init__(self, hidden_channels, metadata):
+    def __init__(self, hidden_channels, metadata, num_features):
         super().__init__()
-        self.encoder = Encoder(hidden_channels, hidden_channels)
+        self.encoder = Encoder(
+            user_in_channels=num_features["user"],
+            movie_in_channels=num_features["movie"],
+            hidden_channels=hidden_channels,
+            out_channels=hidden_channels,
+        )
         self.decoder = EdgeDecoder(hidden_channels)
 
     def forward(self, x_dict, edge_index_dict, num_samples):
@@ -405,6 +413,13 @@ if __name__ == "__main__":
     eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
     eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
     num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
+
+    # Extract feature dimensions
+    num_features = {
+        "user": data["user"].x.shape[-1] if data["user"].x is not None else 1,
+        "movie": data["movie"].x.shape[-1] if data["movie"].x is not None else 1,
+    }
+
     metadata = data.metadata()
     del data
 
@@ -447,28 +462,15 @@ if __name__ == "__main__":
         sparse_size=sparse_size,
     ).sort_by("row")[0]
 
-    model = Model(hidden_channels=64, metadata=metadata).to(device)
-
-    # Add dummy forward pass to initialize parameters
-    # This is needed to avoid a warning from DDP
-    # https://pytorch.org/docs/stable/distributed.html#torch.nn.parallel.DistributedDataParallel
-    dummy_batch = next(iter(train_loader))
-    dummy_batch = dummy_batch.to(device)
-    with torch.no_grad():
-        _ = model(
-            dummy_batch.x_dict,
-            dummy_batch.edge_index_dict,
-            dummy_batch["user", "rates", "movie"].edge_label.shape[0],
-        )
+    model = Model(hidden_channels=64, metadata=metadata, num_features=num_features).to(
+        device
+    )
 
     model = DDP(model, device_ids=[local_rank], find_unused_parameters=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     for epoch in range(1, args.epochs + 1):
         train_loss = train(local_rank, train_loader, model, optimizer)
-        # train_loss = mp.spawn(train,
-        #  args=(train_loader, model, optimizer),
-        #  nprocs=num_gpus)
         print(f"Epoch: {epoch:02d}, Loss: {train_loss:.4f}")
         auc = test(test_loader, model)
         print(f"Test AUC: {auc:.4f} ")
