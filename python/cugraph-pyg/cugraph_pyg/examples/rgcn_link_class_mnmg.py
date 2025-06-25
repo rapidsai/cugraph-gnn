@@ -307,13 +307,13 @@ if __name__ == "__main__":
         )
         torch.distributed.barrier()
 
-        from cugraph_pyg.data import WholeFeatureStore, GraphStore
+        from cugraph_pyg.data import FeatureStore, GraphStore
         from cugraph_pyg.tensor import empty
 
-        edge_feature_store = WholeFeatureStore()
-        splits_storage = WholeFeatureStore()
+        edge_feature_store = FeatureStore()
+        splits_storage = FeatureStore()
         feature_store = torch_geometric.data.HeteroData()
-        graph_store = GraphStore(is_multi_gpu=True)
+        graph_store = GraphStore()
         torch.distributed.barrier()
 
         print(f"broadcasting edge rel type (rank {global_rank})", flush=True)

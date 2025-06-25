@@ -37,7 +37,6 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from cugraph_pyg.data import GraphStore, FeatureStore
 
 from pylibwholegraph.torch.initialize import (
-    init as wm_init,
     finalize as wm_finalize,
 )
 
@@ -68,7 +67,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
         rank=global_rank, world_size=world_size, uid=cugraph_id, device=local_rank
     )
 
-    wm_init(global_rank, world_size, local_rank, torch.cuda.device_count())
+    # WholeGraph is initialized automatically.
 
 
 def write_edges(edge_index, path):
@@ -83,7 +82,7 @@ def write_edges(edge_index, path):
         )
 
 
-def cugraph_pyg_from_heterodata(data, wg_mem_type):
+def cugraph_pyg_from_heterodata(data):
 
     graph_store = GraphStore()
     feature_store = FeatureStore()
@@ -289,7 +288,7 @@ class Model(torch.nn.Module):
         )
 
 
-def train(rank, train_loader, model, optimizer):
+def train(train_loader, model, optimizer):
     model.train()
 
     total_loss = total_examples = 0
@@ -355,7 +354,6 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=16)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--skip_partition", action="store_true")
-    parser.add_argument("--wg_mem_type", type=str, default="distributed")
     args = parser.parse_args()
 
     dataset_name = "movielens"
@@ -407,9 +405,7 @@ if __name__ == "__main__":
     )
     torch.distributed.barrier()
 
-    feature_store, graph_store = cugraph_pyg_from_heterodata(
-        data, wg_mem_type=args.wg_mem_type
-    )
+    feature_store, graph_store = cugraph_pyg_from_heterodata(data)
     eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
     eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
     num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
@@ -466,11 +462,11 @@ if __name__ == "__main__":
         device
     )
 
-    model = DDP(model, device_ids=[local_rank], find_unused_parameters=True)
+    model = DDP(model, device_ids=[local_rank])
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     for epoch in range(1, args.epochs + 1):
-        train_loss = train(local_rank, train_loader, model, optimizer)
+        train_loss = train(train_loader, model, optimizer)
         print(f"Epoch: {epoch:02d}, Loss: {train_loss:.4f}")
         auc = test(test_loader, model)
         print(f"Test AUC: {auc:.4f} ")
