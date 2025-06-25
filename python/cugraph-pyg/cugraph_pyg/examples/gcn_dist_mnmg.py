@@ -125,7 +125,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
 def load_partitioned_data(rank, edge_path, feature_path, label_path, meta_path):
     from cugraph_pyg.data import GraphStore, FeatureStore
 
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     feature_store = FeatureStore()
 
     # Load metadata
