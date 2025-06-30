@@ -29,7 +29,6 @@ files:
       - test_notebook
       - test_python_common
       - test_python_pylibwholegraph
-
   checks:
     output: none
     includes:
@@ -66,7 +65,6 @@ files:
       - depends_on_cuml
       - py_version
       - test_python_common
-
   test_cugraph_pyg:
     output: none
     includes:
@@ -94,7 +92,6 @@ files:
       - depends_on_mkl
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
-
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -102,7 +99,6 @@ files:
       table: build-system
     includes:
       - rapids_build_skbuild
-
   py_rapids_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -113,7 +109,6 @@ files:
       - common_build
       - depends_on_libraft
       - depends_on_librmm
-
   py_run_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -122,7 +117,6 @@ files:
     includes:
       - depends_on_rapids_logger
       - depends_on_libraft
-
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -130,7 +124,6 @@ files:
       table: build-system
     includes:
       - rapids_build_skbuild
-
   py_rapids_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -143,7 +136,6 @@ files:
       - depends_on_libwholegraph
       - depends_on_libraft
       - depends_on_librmm
-
   py_run_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -161,7 +153,6 @@ files:
     includes:
       - test_python_common
       - test_python_pylibwholegraph
-
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -192,7 +183,6 @@ files:
       - depends_on_cuml
       - test_python_common
       - test_python_cugraph_pyg
-
   cugraph_pyg_dev:
     matrix:
       cuda: ["12.8"]
@@ -204,15 +194,11 @@ files:
       - depends_on_cugraph
       - depends_on_pyg
       - depends_on_pytorch
-      - cugraph_pyg_dev
       - test_python_common
-
 channels:
   - rapidsai
   - rapidsai-nightly
-  - dask/label/dev
   - conda-forge
-  - nvidia
 dependencies:
   checks:
     common:
@@ -291,7 +277,6 @@ dependencies:
             packages:
               - gcc_linux-aarch64=14.*
               - cuda-nvcc
-
   docs:
     common:
       - output_types: [conda]
@@ -395,12 +380,6 @@ dependencies:
         packages:
           - pytest-forked
           - scipy
-  cugraph_pyg_dev:
-    common:
-      - output_types: [conda]
-        packages:
-          - &tensordict tensordict>=0.1.2,<=0.6.2
-
   depends_on_pytorch:
     common:
       - output_types: [conda]
@@ -410,7 +389,6 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - *tensordict
     specific:
       - output_types: [requirements]
         matrices:
@@ -424,20 +402,17 @@ dependencies:
             packages:
               - pytorch>=2.3
           - {matrix: null, packages: ["pytorch>=2.3"]}
-
   depends_on_ogb:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - ogb
-
   # for MovieLens example
   depends_on_sentence_transformers:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - sentence-transformers
-
   depends_on_pyg:
     common:
       - output_types: [conda]
@@ -446,7 +421,6 @@ dependencies:
       - output_types: [pyproject, requirements]
         packages:
           - torch-geometric>=2.5,<2.7
-
   depends_on_pylibwholegraph:
     common:
       - output_types: conda
@@ -466,7 +440,6 @@ dependencies:
             packages:
               - pylibwholegraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}
-
   depends_on_libraft:
     common:
       - output_types: conda
@@ -486,7 +459,6 @@ dependencies:
             packages:
               - libraft-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*libraft_unsuffixed]}
-
   depends_on_librmm:
     common:
       - output_types: conda
@@ -507,7 +479,6 @@ dependencies:
             packages:
               - librmm-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*librmm_unsuffixed]}
-
   depends_on_rapids_logger:
     common:
       - output_types: [conda, requirements, pyproject]
@@ -517,7 +488,6 @@ dependencies:
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-
   depends_on_libwholegraph:
     common:
       - output_types: conda
@@ -537,13 +507,11 @@ dependencies:
             packages:
               - libwholegraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*libwholegraph_unsuffixed]}
-
   depends_on_libwholegraph_tests:
     common:
       - output_types: conda
         packages:
           - libwholegraph-tests==25.8.*,>=0.0.0a0
-
   depends_on_rmm:
     common:
       - output_types: conda
@@ -563,7 +531,6 @@ dependencies:
             packages:
               - rmm-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*rmm_unsuffixed]}
-
   depends_on_cugraph:
     common:
       - output_types: conda
@@ -583,7 +550,6 @@ dependencies:
             packages:
               - cugraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cugraph_unsuffixed]}
-
   depends_on_cuml:
     common:
       - output_types: conda
@@ -603,7 +569,6 @@ dependencies:
             packages:
               - cuml-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cuml_unsuffixed]}
-
   depends_on_cudf:
     common:
       - output_types: conda
@@ -623,7 +588,6 @@ dependencies:
             packages:
               - cudf-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cudf_unsuffixed]}
-
   depends_on_dask_cudf:
     common:
       - output_types: conda
@@ -643,7 +607,6 @@ dependencies:
             packages:
               - dask-cudf-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*dask_cudf_unsuffixed]}
-
   depends_on_pylibcugraph:
     common:
       - output_types: conda
@@ -663,7 +626,6 @@ dependencies:
             packages:
               - pylibcugraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
-
   depends_on_cupy:
     common:
       - output_types: conda
