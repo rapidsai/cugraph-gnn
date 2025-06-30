@@ -26,6 +26,7 @@
 #include "wholememory/initialize.hpp"
 #include <wholememory/graph_op.h>
 #include <wholememory/tensor_description.h>
+#include <wholememory/compat.hpp>
 
 typedef struct GraphAppendUniqueTestParam {
   GraphAppendUniqueTestParam& set_target_node_count(int new_target_node_count)

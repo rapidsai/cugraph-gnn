@@ -26,6 +26,7 @@
 #include <raft/random/rng_device.cuh>
 #include <raft/random/rng_state.hpp>
 #include <wholememory_ops/register.hpp>
+#include <wholememory/compat.hpp>
 
 namespace wholegraph_ops {
 namespace testing {
@@ -100,7 +101,7 @@ void host_get_csr_graph(int64_t graph_node_count,
       array_in[i] = i;
     }
 
-    std::sample(array_in.begin(), array_in.end(), array_out.begin(), edge_count, gen);
+    std_sample_impl(array_in.begin(), array_in.end(), array_out.begin(), edge_count, gen);
     for (int j = 0; j < edge_count; j++) {
       csr_col_ptr[start + j] = (DataType)array_out[j];
     }

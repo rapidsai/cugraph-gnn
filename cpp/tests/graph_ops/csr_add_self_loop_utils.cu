@@ -20,6 +20,7 @@
 #include <random>
 #include <wholememory/graph_op.h>
 #include <wholememory_ops/register.hpp>
+#include <wholememory/compat.hpp>
 
 namespace graph_ops {
 namespace testing {
@@ -90,7 +91,7 @@ void host_get_local_csr_graph(int row_num,
     for (int i = 0; i < col_num; i++) {
       array_in[i] = i;
     }
-    std::sample(array_in.begin(), array_in.end(), &csr_col_ptr[start], edge_count, gen);
+    std_sample_impl(array_in.begin(), array_in.end(), &csr_col_ptr[start], edge_count, gen);
   }
 }
 

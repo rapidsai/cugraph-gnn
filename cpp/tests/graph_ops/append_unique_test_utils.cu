@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 #include <wholememory/tensor_description.h>
+#include <wholememory/compat.hpp>
 
 namespace graph_ops {
 namespace testing {
@@ -42,7 +43,7 @@ void host_get_random_node_ids(void* nodes, int64_t node_count, int64_t range, bo
       tmp_array_in[i] = i;
     }
 
-    std::sample(tmp_array_in.begin(), tmp_array_in.end(), nodes_ptr, node_count, gen);
+    std_sample_impl(tmp_array_in.begin(), tmp_array_in.end(), nodes_ptr, node_count, gen);
   }
 }
 
