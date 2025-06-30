@@ -17,6 +17,7 @@
 #include "csr_add_self_loop_utils.hpp"
 #include <experimental/random>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <random>
 #include <wholememory/graph_op.h>
 #include <wholememory_ops/register.hpp>

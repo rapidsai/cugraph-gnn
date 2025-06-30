@@ -16,6 +16,7 @@
 #include "append_unique_test_utils.hpp"
 #include <cstdint>
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <iterator>
 #include <random>
 #include <unordered_map>
