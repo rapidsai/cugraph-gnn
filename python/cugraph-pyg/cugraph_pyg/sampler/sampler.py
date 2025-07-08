@@ -301,7 +301,7 @@ class HeterogeneousSampleReader(SampleReader):
         col = {}
         edge = {}
 
-        input_type = None
+        input_type = raw_sample_data["input_type"]
 
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
@@ -363,14 +363,21 @@ class HeterogeneousSampleReader(SampleReader):
                         vy.max() + 1,
                     )
 
-            ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
-            if ux.numel() > 0:
-                # can only ever be 1
-                if "edge_inverse" in raw_sample_data:
-                    input_type = pyg_can_etype
-                else:
-                    input_type = pyg_can_etype[2]
-
+            if input_type == pyg_can_etype:
+                # heterogeneous edges as input, two node types per edge type
+                ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                uy = row[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
+                    num_sampled_nodes[self.__dst_types[etype]][0],
+                    (ux.max() + 1).reshape((1,)),
+                )
+                num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
+                    num_sampled_nodes[self.__src_types[etype]][0],
+                    (uy.max() + 1).reshape((1,)),
+                )
+            elif isinstance(input_type, str) and input_type == pyg_can_etype[2]:
+                # homogeneous nodes as input
+                ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
                     (ux.max() + 1).reshape((1,)),
@@ -710,8 +717,16 @@ class BaseSampler:
             "torch_geometric.sampler.SamplerOutput",
         ]
     ]:
+        metadata = {
+            "input_type": index.input_type,
+        }
+
         reader = self.__sampler.sample_from_nodes(
-            index.node, batch_size=self.__batch_size, input_id=index.input_id, **kwargs
+            index.node,
+            batch_size=self.__batch_size,
+            input_id=index.input_id,
+            metadata=metadata,
+            **kwargs,
         )
 
         edge_attrs = self.__graph_store.get_all_edge_attrs()
@@ -778,6 +793,10 @@ class BaseSampler:
                 self.__batch_size,
             )
 
+        metadata = {
+            "input_type": index.input_type,
+        }
+
         # TODO for temporal sampling, node times have to be
         # adjusted here.
         reader = self.__sampler.sample_from_edges(
@@ -785,6 +804,7 @@ class BaseSampler:
             input_id=input_id,
             input_label=index.label,
             batch_size=self.__batch_size + neg_batch_size,
+            metadata=metadata,
             **kwargs,
         )
 
