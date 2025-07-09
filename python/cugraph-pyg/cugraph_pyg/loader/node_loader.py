@@ -77,7 +77,8 @@ class NodeLoader:
 
         """
         if not isinstance(data, (list, tuple)) or not isinstance(
-            data[1], cugraph_pyg.data.GraphStore
+            data[1],
+            (cugraph_pyg.data.graph_store.GraphStore,),
         ):
             # Will eventually automatically convert these objects to cuGraph objects.
             raise NotImplementedError("Currently can't accept non-cugraph graphs")

@@ -13,9 +13,7 @@
 
 # Configuration file for Python coverage tests
 [run]
-include = cugraph-dgl/cugraph_dgl/*
-          cugraph-pyg/cugraph_pyg/*
+include = cugraph-pyg/cugraph_pyg/*
           pylibwholegraph/pylibwholegraph/*
-omit = cugraph-dgl/cugraph_dgl/tests/*
-       cugraph-pyg/cugraph_pyg/tests/*
+omit = cugraph-pyg/cugraph_pyg/tests/*
        pylibwholegraph/pylibwholegraph/tests/*

@@ -13,7 +13,6 @@
     <img src="https://img.shields.io/github/stars/rapidsai/cugraph-gnn"></a>
 <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/rapidsai/cugraph-gnn">
 
-<img alt="Conda [cuGraph-DGL]" src="https://img.shields.io/conda/pn/rapidsai/cugraph-dgl" />
 <img alt="Conda [cuGraph-PyG]" src="https://img.shields.io/conda/pn/rapidsai/cugraph-pyg" />
 <img alt="Conda [WholeGraph]" src="https://img.shields.io/conda/pn/rapidsai/wholegraph" />
 
@@ -37,6 +36,10 @@ cuGraph-GNN supports the creation and manipulation of graphs followed by the exe
 -----
 ## News
 
+___WARNING!___   _cuGraph-DGL_ has been removed in release 25.08.  We recommend migrating to cuGraph-PyG, which offers the same
+functionality along with additional features like support for heterogeneous sampling and a unified API.  The cuGraph team is not planning
+any further work in the DGL ecosystem going forward.
+
 ___NEW!___   _[nx-cugraph](./python/nx-cugraph/README.md)_, a NetworkX backend that provides GPU acceleration to NetworkX with zero code change.
 ```
 > pip install nx-cugraph-cu11 --extra-index-url https://pypi.nvidia.com
@@ -57,33 +60,30 @@ That's it.  NetworkX now leverages cuGraph for accelerated graph algorithms.
   - [Blogs and Presentation](./docs/cugraph/source/tutorials/cugraph_blogs.rst)
   - [Performance](./readme_pages/performance/performance.md)
 - Packages
-  - [cugraph-dgl](./readme_pages/cugraph_dgl.md)
-  - [cugraph-pyg](./readme_pages/cugraph_dgl.md)
+  - [cugraph-pyg](./readme_pages/cugraph_pyg.md)
 - API Docs
   - Python
     - [Python Nightly](https://docs.rapids.ai/api/cugraph/nightly/)
     - [Python Stable](https://docs.rapids.ai/api/cugraph/stable/)
 - References
   - [RAPIDS](https://rapids.ai/)
-  - [DGL](https://dgl.ai)
   - [PyG](https://pyg.org)
 
 <br><br>
 
 -----
 
-<img src="img/Stack2.png" alt="Stack" width="800">
+<img src="img/cugraph-pyg-stack.png" alt="Stack" width="800">
 
-[RAPIDS](https://rapids.ai) cuGraph-GNN is a collection of GPU-accelerated plugins that support [DGL](https://dgl.ai), [PyG](https://pyg.org), [PyTorch](https://pytorch.org), and a variety
+[RAPIDS](https://rapids.ai) cuGraph-GNN is a collection of GPU-accelerated plugins that support [PyG](https://pyg.org), [PyTorch](https://pytorch.org), and a variety
 of other graph and GNN frameworks.  cuGraph-GNN is built on top of RAPIDS [cuGraph](https://github.com/rapidai/cugraph), leveraging its low-level [pylibcugraph](https://github.com/rapidsai/cugraph/python/pylibcugraph) API
 and C++ primitives for sampling and other GNN operations ([libcugraph](https://github.com/rapidai/cugraph/python/libcugraph))
 
-cuGraph-GNN is comprised of three subprojects: [cugraph-DGL](https://github.com/rapidsai/cugraph-gnn/python/cugraph-dgl), [cugraph-PyG](https://github.com/rapidsai/cugraph-gnn/python/cugraph-pyg), and
+cuGraph-GNN is comprised of two subprojects: [cugraph-PyG](https://github.com/rapidsai/cugraph-gnn/python/cugraph-pyg) and
 [WholeGraph](https://github.com/rapidsai/cugraph-gnn/python/wholegraph).
 
-* cuGraph-DGL supports the Deep Graph Library (DGL) and offers duck-typed versions of DGL's native graph objects, samplers, and loaders.
 * cuGraph-PyG supports PyTorch Geometric (PyG) and implements PyG's GraphStore, FeatureStore, Loader, and Sampler interfaces.
-* WholeGraph supports PyTorch and provides a distributed graph and kv store.  Both cuGraph-DGL and cuGraph-PyG can leverage WholeGraph for even greater scalability.
+* WholeGraph supports PyTorch and provides a distributed graph and kv store.  cuGraph-PyG can leverage WholeGraph for even greater scalability.
 
 ------
 # Projects that use cuGraph

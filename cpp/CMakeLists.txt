@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
-include(../rapids_config.cmake)
+include(../cmake/rapids_config.cmake)
 include(rapids-cmake)
 include(rapids-cpm)
 include(rapids-cuda)
@@ -94,6 +94,15 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 message("-- Building for GPU_ARCHS = ${CMAKE_CUDA_ARCHITECTURES}")
+
+# Enable device code compression to reduce binary sizes
+list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xfatbin=-compress-all)
+if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA"
+   AND (CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 12.9 AND CMAKE_CUDA_COMPILER_VERSION
+                                                                   VERSION_LESS 13.0)
+)
+  list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xfatbin=--compress-level=3)
+endif()
 
 # Option to enable line info in CUDA device compilation to allow introspection when profiling /
 # memchecking
