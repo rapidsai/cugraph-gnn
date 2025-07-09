@@ -45,7 +45,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     rmm.reinitialize(
         devices=local_rank,
         managed_memory=True,
-        pool_allocator=True,
+        pool_allocator=False,
     )
 
     import cupy
