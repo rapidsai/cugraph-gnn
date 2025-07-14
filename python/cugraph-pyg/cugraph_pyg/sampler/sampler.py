@@ -364,6 +364,7 @@ class HeterogeneousSampleReader(SampleReader):
                     )
 
             if input_type == pyg_can_etype:
+                integer_input_type = etype
                 # heterogeneous edges as input, two node types per edge type
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 uy = row[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
@@ -376,6 +377,7 @@ class HeterogeneousSampleReader(SampleReader):
                     (uy.max() + 1).reshape((1,)),
                 )
             elif isinstance(input_type, str) and input_type == pyg_can_etype[2]:
+                integer_input_type = self.__src_types[etype]
                 # homogeneous nodes as input
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
@@ -383,7 +385,7 @@ class HeterogeneousSampleReader(SampleReader):
                     (ux.max() + 1).reshape((1,)),
                 )
 
-        if input_type is None:
+        if input_type is None or integer_input_type is None:
             raise ValueError("No input type found!")
 
         num_sampled_nodes = {
@@ -450,10 +452,10 @@ class HeterogeneousSampleReader(SampleReader):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
                 edge_inverse[0] -= self.__vertex_offsets[
-                    self.__src_types[input_type[0]]
+                    self.__src_types[integer_input_type]
                 ]
                 edge_inverse[1] -= self.__vertex_offsets[
-                    self.__dst_types[input_type[2]]
+                    self.__dst_types[integer_input_type]
                 ]
 
             metadata = (
