@@ -42,7 +42,7 @@ os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 def init_pytorch_worker(global_rank, local_rank, world_size, uid):
     import rmm
 
-    rmm.reinitialize(devices=[local_rank], pool_allocator=True, managed_memory=True)
+    rmm.reinitialize(devices=[local_rank], pool_allocator=False, managed_memory=True)
 
     import cupy
     from rmm.allocators.cupy import rmm_cupy_allocator
@@ -275,108 +275,117 @@ if __name__ == "__main__":
 
         init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id)
 
-        if global_rank == 0:
-            with torch.serialization.safe_globals(
-                [
-                    torch_geometric.data.data.DataEdgeAttr,
-                    torch_geometric.data.data.DataTensorAttr,
-                    torch_geometric.data.storage.GlobalStorage,
-                    numpy.core.multiarray._reconstruct,
-                    numpy.ndarray,
-                    numpy.dtype,
-                    numpy.dtypes.Int64DType,
-                ]
-            ):
-                data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
-                dataset = data[0]
-                print(dataset, flush=True)
-
-                splits = data.get_edge_split()
-
-            nr = [dataset.num_nodes, int(dataset.edge_reltype.max()) + 1]
-        else:
-            nr = [0, 0]
-
         torch.distributed.barrier()
-        torch.distributed.broadcast_object_list(nr, src=0, device=device)
-        num_nodes, num_rels = nr
+        from rmm.allocators.torch import rmm_torch_allocator
 
-        print(
-            f"num_nodes: {num_nodes}, num_rels: {num_rels}, rank: {global_rank}",
-            flush=True,
-        )
-        torch.distributed.barrier()
+        with torch.cuda.use_mem_pool(
+            torch.cuda.MemPool(rmm_torch_allocator.allocator())
+        ):
 
-        from cugraph_pyg.data import FeatureStore, GraphStore
-        from cugraph_pyg.tensor import empty
+            if global_rank == 0:
+                with torch.serialization.safe_globals(
+                    [
+                        torch_geometric.data.data.DataEdgeAttr,
+                        torch_geometric.data.data.DataTensorAttr,
+                        torch_geometric.data.storage.GlobalStorage,
+                        numpy.core.multiarray._reconstruct,
+                        numpy.ndarray,
+                        numpy.dtype,
+                        numpy.dtypes.Int64DType,
+                    ]
+                ):
+                    data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
+                    dataset = data[0]
+                    print(dataset, flush=True)
 
-        edge_feature_store = FeatureStore()
-        splits_storage = FeatureStore()
-        feature_store = torch_geometric.data.HeteroData()
-        graph_store = GraphStore()
-        torch.distributed.barrier()
+                    splits = data.get_edge_split()
 
-        print(f"broadcasting edge rel type (rank {global_rank})", flush=True)
-        edge_feature_store[("n", "e", "n"), "rel", None] = (
-            dataset.edge_reltype.to(torch.int32) if global_rank == 0 else empty(dim=2)
-        )
+                nr = [dataset.num_nodes, int(dataset.edge_reltype.max()) + 1]
+            else:
+                nr = [0, 0]
 
-        print(f"broadcasting edge index (rank {global_rank})", flush=True)
-        graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
-            dataset.edge_index if global_rank == 0 else empty(dim=2)
-        )
+            torch.distributed.barrier()
+            torch.distributed.broadcast_object_list(nr, src=0, device=device)
+            num_nodes, num_rels = nr
 
-        print("broadcasting splits", flush=True)
-        for stage in ["train", "test", "valid"]:
-            splits_storage[stage, "head", None] = (
-                splits[stage]["head"].to(torch.int64)
-                if global_rank == 0
-                else empty(dim=1)
+            print(
+                f"num_nodes: {num_nodes}, num_rels: {num_rels}, rank: {global_rank}",
+                flush=True,
             )
-            splits_storage[stage, "tail", None] = (
-                splits[stage]["tail"].to(torch.int64)
-                if global_rank == 0
-                else empty(dim=1)
-            )
+            torch.distributed.barrier()
 
-        print("broadcasting negative splits", flush=True)
-        for stage in ["test", "valid"]:
-            splits_storage[stage, "head_neg", None] = (
-                splits[stage]["head_neg"].to(torch.int64)
+            from cugraph_pyg.data import FeatureStore, GraphStore
+            from cugraph_pyg.tensor import empty
+
+            edge_feature_store = FeatureStore()
+            splits_storage = FeatureStore()
+            feature_store = torch_geometric.data.HeteroData()
+            graph_store = GraphStore()
+            torch.distributed.barrier()
+
+            print(f"broadcasting edge rel type (rank {global_rank})", flush=True)
+            edge_feature_store[("n", "e", "n"), "rel", None] = (
+                dataset.edge_reltype.to(torch.int32)
                 if global_rank == 0
                 else empty(dim=2)
             )
-            splits_storage[stage, "tail_neg", None] = (
-                splits[stage]["tail_neg"].to(torch.int64)
-                if global_rank == 0
-                else empty(dim=2)
-            )
-            splits_storage[stage, "relation", None] = (
-                splits[stage]["relation"].to(torch.int32)
-                if global_rank == 0
-                else empty(dim=1)
+
+            print(f"broadcasting edge index (rank {global_rank})", flush=True)
+            graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
+                dataset.edge_index if global_rank == 0 else empty(dim=2)
             )
 
-        print("reached barrier", flush=True)
-        torch.distributed.barrier()
+            print("broadcasting splits", flush=True)
+            for stage in ["train", "test", "valid"]:
+                splits_storage[stage, "head", None] = (
+                    splits[stage]["head"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
+                splits_storage[stage, "tail", None] = (
+                    splits[stage]["tail"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
 
-        model = RGCNEncoder(
-            num_nodes,
-            hidden_channels=args.hidden_channels,
-            num_relations=num_rels,
-        )
+            print("broadcasting negative splits", flush=True)
+            for stage in ["test", "valid"]:
+                splits_storage[stage, "head_neg", None] = (
+                    splits[stage]["head_neg"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=2)
+                )
+                splits_storage[stage, "tail_neg", None] = (
+                    splits[stage]["tail_neg"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=2)
+                )
+                splits_storage[stage, "relation", None] = (
+                    splits[stage]["relation"].to(torch.int32)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
 
-        if global_rank == 0:
-            del data
+            print("reached barrier", flush=True)
+            torch.distributed.barrier()
 
-        run_train(
-            global_rank,
-            local_rank,
-            model,
-            (feature_store, graph_store),
-            edge_feature_store,
-            splits_storage,
-            args,
-        )
+            model = RGCNEncoder(
+                num_nodes,
+                hidden_channels=args.hidden_channels,
+                num_relations=num_rels,
+            )
+
+            if global_rank == 0:
+                del data
+
+            run_train(
+                global_rank,
+                local_rank,
+                model,
+                (feature_store, graph_store),
+                edge_feature_store,
+                splits_storage,
+                args,
+            )
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")
