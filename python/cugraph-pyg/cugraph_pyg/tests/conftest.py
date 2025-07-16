@@ -14,7 +14,6 @@
 import pytest
 import os
 import torch
-import tempfile
 
 import cugraph
 
@@ -95,17 +94,3 @@ def sample_pyg_hetero_data():
             hetero_data_dict[key] = {"x": value}
 
     return hetero_data_dict
-
-
-@pytest.fixture(scope="module")
-def scratch_dir():
-    # This should always be set if doing MG testing, since temporary
-    # directories are only accessible from the current process.
-    tempdir_object = tempfile.TemporaryDirectory()
-
-    if isinstance(tempdir_object, tempfile.TemporaryDirectory):
-        yield tempdir_object.name
-    else:
-        yield tempdir_object
-
-    del tempdir_object
