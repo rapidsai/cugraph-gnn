@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# Copyright (c) 2022-2025, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,3 +12,21 @@
 # limitations under the License.
 
 from cugraph_pyg.sampler.sampler import BaseSampler, SampleIterator
+
+from .dist_sampler import NeighborSampler, DistSampler
+
+
+def UniformNeighborSampler(*args, **kwargs):
+    return NeighborSampler(
+        *args,
+        **kwargs,
+        biased=False,
+    )
+
+
+def BiasedNeighborSampler(*args, **kwargs):
+    return NeighborSampler(
+        *args,
+        **kwargs,
+        biased=True,
+    )

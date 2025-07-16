@@ -11,11 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cugraph.gnn.data_loading.dist_sampler import (
+from cugraph_pyg.data_loading.dist_sampler import (
     NeighborSampler,
     DistSampler,
 )
-from cugraph.gnn.data_loading.dist_io import (
+from cugraph_pyg.data_loading.dist_io import (
     DistSampleWriter,
     DistSampleReader,
     BufferedSampleReader,

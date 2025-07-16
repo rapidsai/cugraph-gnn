@@ -26,8 +26,7 @@ from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
 
-from cugraph.gnn.data_loading.dist_io import BufferedSampleReader
-from cugraph.gnn.data_loading.dist_io import DistSampleWriter
+from cugraph_pyg.sampler.io import BufferedSampleReader
 
 torch = MissingModule("torch")
 TensorType = Union["torch.Tensor", cupy.ndarray, cudf.Series]
@@ -37,7 +36,6 @@ class DistSampler:
     def __init__(
         self,
         graph: Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph],
-        writer: Optional[DistSampleWriter],
         local_seeds_per_call: int,
         retain_original_seeds: bool = False,
     ):
@@ -46,10 +44,6 @@ class DistSampler:
         ----------
         graph: SGGraph or MGGraph (required)
             The pylibcugraph graph object that will be sampled.
-        writer: DistSampleWriter (required)
-            The writer responsible for writing samples to disk
-            or; if None, then samples will be written to memory
-            instead.
         local_seeds_per_call: int
             The number of seeds on this rank this sampler will
             process in a single sampling call.  Batches will
@@ -67,7 +61,6 @@ class DistSampler:
             if applicable.
         """
         self.__graph = graph
-        self.__writer = writer
         self.__local_seeds_per_call = local_seeds_per_call
         self.__handle = None
         self.__retain_original_seeds = retain_original_seeds
@@ -194,29 +187,24 @@ class DistSampler:
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_offsets"] = input_offsets
 
-        if self.__writer is None:
-            # rename renumber_map -> map to match unbuffered format
-            minibatch_dict["map"] = minibatch_dict["renumber_map"]
-            del minibatch_dict["renumber_map"]
-            minibatch_dict = {
-                k: torch.as_tensor(v, device="cuda")
-                for k, v in minibatch_dict.items()
-                if v is not None
-            }
+        # rename renumber_map -> map to match unbuffered format
+        minibatch_dict["map"] = minibatch_dict["renumber_map"]
+        del minibatch_dict["renumber_map"]
+        minibatch_dict = {
+            k: torch.as_tensor(v, device="cuda")
+            for k, v in minibatch_dict.items()
+            if v is not None
+        }
 
-            return iter(
-                [
-                    (
-                        minibatch_dict,
-                        batch_id_start,
-                        batch_id_start + input_offsets.numel() - 2,
-                    )
-                ]
-            )
-        else:
-            minibatch_dict["batch_start"] = batch_id_start
-            self.__writer.write_minibatches(minibatch_dict)
-            return batch_id_start + input_offsets.numel() - 1
+        return iter(
+            [
+                (
+                    minibatch_dict,
+                    batch_id_start,
+                    batch_id_start + input_offsets.numel() - 2,
+                )
+            ]
+        )
 
     def __get_call_groups(
         self,
@@ -331,27 +319,12 @@ class DistSampler:
             input_size_is_equal,
         ]
 
-        if self.__writer is None:
-            # Buffered sampling
-            return BufferedSampleReader(
-                zip(nodes_call_groups, index_call_groups),
-                self.__sample_from_nodes_func,
-                *sample_args,
-            )
-        else:
-            # Unbuffered sampling
-            for i, current_seeds_and_ix in enumerate(
-                zip(nodes_call_groups, index_call_groups)
-            ):
-                sample_args[0] = self.__sample_from_nodes_func(
-                    i,
-                    current_seeds_and_ix,
-                    *sample_args,
-                )
-
-            # Return a reader that points to the stored samples
-            rank = torch.distributed.get_rank() if self.is_multi_gpu else None
-            return self.__writer.get_reader(rank)
+        # Buffered sampling
+        return BufferedSampleReader(
+            zip(nodes_call_groups, index_call_groups),
+            self.__sample_from_nodes_func,
+            *sample_args,
+        )
 
     def __sample_from_edges_func(
         self,
@@ -486,29 +459,24 @@ class DistSampler:
             "edge_inverse"
         ] = current_inv  # (2 * batch_size) entries per batch
 
-        if self.__writer is None:
-            # rename renumber_map -> map to match unbuffered format
-            minibatch_dict["map"] = minibatch_dict["renumber_map"]
-            del minibatch_dict["renumber_map"]
-            minibatch_dict = {
-                k: torch.as_tensor(v, device="cuda")
-                for k, v in minibatch_dict.items()
-                if v is not None
-            }
+        # rename renumber_map -> map to match unbuffered format
+        minibatch_dict["map"] = minibatch_dict["renumber_map"]
+        del minibatch_dict["renumber_map"]
+        minibatch_dict = {
+            k: torch.as_tensor(v, device="cuda")
+            for k, v in minibatch_dict.items()
+            if v is not None
+        }
 
-            return iter(
-                [
-                    (
-                        minibatch_dict,
-                        batch_id_start,
-                        batch_id_start + current_batch_offsets.numel() - 2,
-                    )
-                ]
-            )
-        else:
-            minibatch_dict["batch_start"] = batch_id_start
-            self.__writer.write_minibatches(minibatch_dict)
-            return batch_id_start + current_batch_offsets.numel() - 1
+        return iter(
+            [
+                (
+                    minibatch_dict,
+                    batch_id_start,
+                    batch_id_start + current_batch_offsets.numel() - 2,
+                )
+            ]
+        )
 
     def sample_from_edges(
         self,
@@ -586,27 +554,12 @@ class DistSampler:
             input_size_is_equal,
         ]
 
-        if self.__writer is None:
-            # Buffered sampling
-            return BufferedSampleReader(
-                zip(edges_call_groups, index_call_groups, label_call_groups),
-                self.__sample_from_edges_func,
-                *sample_args,
-            )
-        else:
-            # Unbuffered sampling
-            for i, current_seeds_and_ix in enumerate(
-                zip(edges_call_groups, index_call_groups, label_call_groups)
-            ):
-                sample_args[0] = self.__sample_from_edges_func(
-                    i,
-                    current_seeds_and_ix,
-                    *sample_args,
-                )
-
-            # Return a reader that points to the stored samples
-            rank = torch.distributed.get_rank() if self.is_multi_gpu else None
-            return self.__writer.get_reader(rank)
+        # Buffered sampling
+        return BufferedSampleReader(
+            zip(edges_call_groups, index_call_groups, label_call_groups),
+            self.__sample_from_edges_func,
+            *sample_args,
+        )
 
     @property
     def is_multi_gpu(self):
@@ -648,7 +601,6 @@ class NeighborSampler(DistSampler):
     def __init__(
         self,
         graph: Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph],
-        writer: DistSampleWriter,
         *,
         local_seeds_per_call: Optional[int] = None,
         retain_original_seeds: bool = False,
@@ -707,7 +659,6 @@ class NeighborSampler(DistSampler):
 
         super().__init__(
             graph,
-            writer,
             local_seeds_per_call=self.__calc_local_seeds_per_call(
                 local_seeds_per_call,
                 heterogeneous=heterogeneous,
