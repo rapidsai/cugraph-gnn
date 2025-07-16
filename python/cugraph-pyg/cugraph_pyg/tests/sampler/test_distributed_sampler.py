@@ -15,7 +15,7 @@ import pytest
 
 import cupy
 
-from cugraph_pyg.sampler import UniformNeighborSampler
+from cugraph_pyg.sampler import DistributedNeighborSampler
 
 from pylibcugraph import SGGraph, ResourceHandle, GraphProperties
 
@@ -51,7 +51,7 @@ def test_dist_sampler_hetero_from_nodes():
         weight_array=cupy.ones((14,), dtype="float32"),
     )
 
-    sampler = UniformNeighborSampler(
+    sampler = DistributedNeighborSampler(
         graph,
         fanout=[-1, -1, -1, -1],
         compression="COO",
@@ -59,6 +59,7 @@ def test_dist_sampler_hetero_from_nodes():
         vertex_type_offsets=cupy.array([0, 4, 10]),
         num_edge_types=2,
         deduplicate_sources=True,
+        biased=False,
     )
 
     out = sampler.sample_from_nodes(
