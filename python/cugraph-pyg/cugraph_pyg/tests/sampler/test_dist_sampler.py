@@ -23,13 +23,6 @@ from cugraph.utilities.utils import import_optional, MissingModule
 
 
 torch = import_optional("torch")
-if not isinstance(torch, MissingModule):
-    if torch.cuda.is_available():
-        from rmm.allocators.torch import rmm_torch_allocator
-
-        torch.cuda.change_current_allocator(rmm_torch_allocator)
-    else:
-        pytest.skip("CUDA-enabled PyTorch is unavailable", allow_module_level=True)
 
 
 @pytest.mark.sg
