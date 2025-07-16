@@ -11,22 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cugraph_pyg.sampler.sampler import BaseSampler, SampleIterator
+from .sampler import BaseSampler, SampleIterator
 
-from .dist_sampler import NeighborSampler, DistSampler
-
-
-def UniformNeighborSampler(*args, **kwargs):
-    return NeighborSampler(
-        *args,
-        **kwargs,
-        biased=False,
-    )
-
-
-def BiasedNeighborSampler(*args, **kwargs):
-    return NeighborSampler(
-        *args,
-        **kwargs,
-        biased=True,
-    )
+from .distributed_sampler import DistributedNeighborSampler, BaseDistributedSampler
