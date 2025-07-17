@@ -333,7 +333,6 @@ def test_neighbor_loader_hetero_linkpred(single_pytorch_worker):
     )
 
     out = next(iter(loader))
-    print(out["author"].n_id)
 
     assert out["paper"].n_id.numel() == 6
     assert out["paper"].n_id.tolist() == [0, 1, 2, 3, 4, 5]
