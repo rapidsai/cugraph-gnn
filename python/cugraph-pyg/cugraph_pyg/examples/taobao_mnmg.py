@@ -322,19 +322,22 @@ def load_partitions(edge_path, meta_path):
     }, meta
 
 
-def train(model, optimizer, loader):
+def train(model, optimizer, loader, max_iter=None):
     start_time = perf_counter()
     rank = torch.distributed.get_rank()
     model.train()
 
     total_loss = total_examples = 0
     for i, batch in enumerate(loader):
+        if max_iter is not None and i >= max_iter:
+            break
+
         batch = batch.cuda()
         optimizer.zero_grad()
 
         if i % 10 == 0 and rank == 0:
             curr_time = perf_counter()
-            print(f"iter {i}, {curr_time - start_time} sec elapsed.")
+            print(f"iter {i}, {curr_time - start_time:.4f} sec elapsed.")
 
         pred = model(
             batch.x_dict,
@@ -347,7 +350,7 @@ def train(model, optimizer, loader):
 
         loss.backward()
         optimizer.step()
-        total_loss += float(loss)
+        total_loss += float(loss.detach())
         total_examples += pred.numel()
 
     return total_loss / total_examples
@@ -454,6 +457,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--epochs", type=int, default=21)
+    parser.add_argument("--max_iter", type=int, default=None)
     parser.add_argument("--batch_size", type=int, default=2048)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--skip_partition", action="store_true")
@@ -587,7 +591,7 @@ if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
         train_start = perf_counter()
         print("Train")
-        loss = train(model, optimizer, train_loader)
+        loss = train(model, optimizer, train_loader, args.max_iter)
         train_end = perf_counter()
 
         if global_rank == 0:
