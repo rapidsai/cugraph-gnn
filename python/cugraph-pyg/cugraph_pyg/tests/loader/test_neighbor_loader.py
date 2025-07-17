@@ -283,7 +283,9 @@ def test_neighbor_loader_hetero_single_etype(single_pytorch_worker):
 
     loader = NeighborLoader(
         (feature_store, graph_store),
-        num_neighbors=[0, 1, 0, 1],
+        num_neighbors={
+            ("paper", "cites", "paper"): [1, 1],
+        },
         input_nodes=("paper", torch.tensor([0, 1])),
         batch_size=2,
     )
@@ -293,3 +295,77 @@ def test_neighbor_loader_hetero_single_etype(single_pytorch_worker):
     assert out["author"].n_id.numel() == 0
     assert out["author", "writes", "paper"].edge_index.numel() == 0
     assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [0, 0]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_linkpred(single_pytorch_worker):
+    src = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    num_authors = 4
+    num_papers = 6
+
+    graph_store = GraphStore()
+    feature_store = torch_geometric.data.HeteroData()
+
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src,
+        dst,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
+
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    loader = LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors={
+            ("paper", "cites", "paper"): [2, 2],
+            ("author", "writes", "paper"): [2, 2],
+        },
+        edge_label_index=(("author", "writes", "paper"), torch.stack([asrc, adst])),
+        batch_size=5,
+    )
+
+    out = next(iter(loader))
+
+    assert out["paper"].n_id.numel() == 6
+    assert out["paper"].n_id.tolist() == [0, 1, 2, 3, 4, 5]
+    # FIXME test for the num_nodes attribute
+    # assert out['author'].num_nodes == 4
+
+    assert out["author"].n_id.numel() == 4
+    assert out["author"].n_id.tolist() == [0, 1, 2, 3]
+    # FIXME test for the num_nodes attribute
+    # assert out["paper"].num_nodes == 4
+
+    assert out["paper"].num_sampled_nodes.tolist() == [5, 1, 0]
+    assert out["author"].num_sampled_nodes.tolist() == [4, 0, 0]
+
+    assert out["paper", "cites", "paper"].edge_index.shape == torch.Size([2, 8])
+    assert out["paper", "cites", "paper"].num_sampled_edges.tolist() == [7, 1]
+    assert "edge_label_index" not in out["paper", "cites", "paper"]
+
+    assert out["author", "writes", "paper"].edge_index.shape == torch.Size([2, 6])
+    assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [5, 1]
+
+    assert list(out["author", "writes", "paper"].edge_label_index.shape) == [2, 5]
+    assert out["author", "writes", "paper"].edge_label_index.tolist()[0] == [
+        0,
+        1,
+        2,
+        3,
+        3,
+    ]
+    assert out["author", "writes", "paper"].edge_label_index.tolist()[1] == [
+        0,
+        1,
+        2,
+        3,
+        4,
+    ]

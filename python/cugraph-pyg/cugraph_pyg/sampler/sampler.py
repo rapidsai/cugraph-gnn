@@ -301,7 +301,9 @@ class HeterogeneousSampleReader(SampleReader):
         col = {}
         edge = {}
 
-        input_type = None
+        input_type = raw_sample_data["input_type"]
+        if input_type is None:
+            raise ValueError("No input type found!")
 
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
@@ -363,21 +365,31 @@ class HeterogeneousSampleReader(SampleReader):
                         vy.max() + 1,
                     )
 
-            ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
-            if ux.numel() > 0:
-                # can only ever be 1
-                if "edge_inverse" in raw_sample_data:
-                    input_type = pyg_can_etype
-                else:
-                    input_type = pyg_can_etype[2]
-
+            if input_type == pyg_can_etype:
+                integer_input_type = etype
+                # heterogeneous edges as input, two node types per edge type
+                ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                uy = row[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
                     (ux.max() + 1).reshape((1,)),
                 )
+                num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
+                    num_sampled_nodes[self.__src_types[etype]][0],
+                    (uy.max() + 1).reshape((1,)),
+                )
+            elif isinstance(input_type, str) and input_type == pyg_can_etype[2]:
+                integer_input_type = self.__src_types[etype]
+                # homogeneous nodes as input
+                ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                if ux.numel() > 0:
+                    num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
+                        num_sampled_nodes[self.__dst_types[etype]][0],
+                        (ux.max() + 1).reshape((1,)),
+                    )
 
-        if input_type is None:
-            raise ValueError("No input type found!")
+        if integer_input_type is None:
+            raise ValueError("Input type did not match any edge type!")
 
         num_sampled_nodes = {
             self.__vertex_types[i]: z.diff(
@@ -438,9 +450,20 @@ class HeterogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
+            edge_inverse = edge_inverse.view(2, -1)
+            if isinstance(input_type, str):
+                raise ValueError("Input type should be a tuple for edge input.")
+            else:
+                edge_inverse[0] -= self.__vertex_offsets[
+                    self.__src_types[integer_input_type]
+                ]
+                edge_inverse[1] -= self.__vertex_offsets[
+                    self.__dst_types[integer_input_type]
+                ]
+
             metadata = (
                 input_index,
-                edge_inverse.view(2, -1),
+                edge_inverse,
                 edge_label,
                 None,  # TODO this will eventually include time
             )
@@ -456,7 +479,11 @@ class HeterogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def _decode(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def _decode(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         if "major_offsets" in raw_sample_data:
             raise ValueError(
                 "CSR format not currently supported for heterogeneous graphs"
@@ -485,7 +512,11 @@ class HomogeneousSampleReader(SampleReader):
         """
         super().__init__(base_reader)
 
-    def __decode_csc(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def __decode_csc(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         fanout_length = (raw_sample_data["label_hop_offsets"].numel() - 1) // (
             raw_sample_data["renumber_map_offsets"].numel() - 1
         )
@@ -597,7 +628,11 @@ class HomogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def __decode_coo(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def __decode_coo(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         fanout_length = (raw_sample_data["label_hop_offsets"].numel() - 1) // (
             raw_sample_data["renumber_map_offsets"].numel() - 1
         )
@@ -682,7 +717,11 @@ class HomogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def _decode(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def _decode(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         if "major_offsets" in raw_sample_data:
             return self.__decode_csc(raw_sample_data, index)
         else:
@@ -710,8 +749,20 @@ class BaseSampler:
             "torch_geometric.sampler.SamplerOutput",
         ]
     ]:
+        metadata = (
+            {
+                "input_type": index.input_type,
+            }
+            if index.input_type is not None
+            else None
+        )
+
         reader = self.__sampler.sample_from_nodes(
-            index.node, batch_size=self.__batch_size, input_id=index.input_id, **kwargs
+            index.node,
+            batch_size=self.__batch_size,
+            input_id=index.input_id,
+            metadata=metadata,
+            **kwargs,
         )
 
         edge_attrs = self.__graph_store.get_all_edge_attrs()
@@ -778,6 +829,14 @@ class BaseSampler:
                 self.__batch_size,
             )
 
+        metadata = (
+            {
+                "input_type": index.input_type,
+            }
+            if index.input_type is not None
+            else None
+        )
+
         # TODO for temporal sampling, node times have to be
         # adjusted here.
         reader = self.__sampler.sample_from_edges(
@@ -785,6 +844,7 @@ class BaseSampler:
             input_id=input_id,
             input_label=index.label,
             batch_size=self.__batch_size + neg_batch_size,
+            metadata=metadata,
             **kwargs,
         )
 
