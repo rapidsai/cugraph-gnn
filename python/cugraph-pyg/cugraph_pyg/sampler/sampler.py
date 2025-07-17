@@ -380,10 +380,11 @@ class HeterogeneousSampleReader(SampleReader):
                 integer_input_type = self.__src_types[etype]
                 # homogeneous nodes as input
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
-                num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
-                    num_sampled_nodes[self.__dst_types[etype]][0],
-                    (ux.max() + 1).reshape((1,)),
-                )
+                if ux.numel() > 0:
+                    num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
+                        num_sampled_nodes[self.__dst_types[etype]][0],
+                        (ux.max() + 1).reshape((1,)),
+                    )
 
         if input_type is None or integer_input_type is None:
             raise ValueError("No input type found!")
@@ -730,9 +731,13 @@ class BaseSampler:
             "torch_geometric.sampler.SamplerOutput",
         ]
     ]:
-        metadata = {
-            "input_type": index.input_type,
-        }
+        metadata = (
+            {
+                "input_type": index.input_type,
+            }
+            if index.input_type is not None
+            else None
+        )
 
         reader = self.__sampler.sample_from_nodes(
             index.node,
@@ -806,9 +811,13 @@ class BaseSampler:
                 self.__batch_size,
             )
 
-        metadata = {
-            "input_type": index.input_type,
-        }
+        metadata = (
+            {
+                "input_type": index.input_type,
+            }
+            if index.input_type is not None
+            else None
+        )
 
         # TODO for temporal sampling, node times have to be
         # adjusted here.

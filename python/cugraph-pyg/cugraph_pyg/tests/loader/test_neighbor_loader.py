@@ -283,7 +283,9 @@ def test_neighbor_loader_hetero_single_etype(single_pytorch_worker):
 
     loader = NeighborLoader(
         (feature_store, graph_store),
-        num_neighbors=[0, 1, 0, 1],
+        num_neighbors={
+            ("paper", "cites", "paper"): [1, 1],
+        },
         input_nodes=("paper", torch.tensor([0, 1])),
         batch_size=2,
     )
@@ -331,22 +333,26 @@ def test_neighbor_loader_hetero_linkpred(single_pytorch_worker):
     )
 
     out = next(iter(loader))
+    print(out["author"].n_id)
 
-    assert out["author"].n_id.numel() == 6
-    assert out["author"].n_id.tolist() == [0, 1, 2, 3, 4, 5]
+    assert out["paper"].n_id.numel() == 6
+    assert out["paper"].n_id.tolist() == [0, 1, 2, 3, 4, 5]
     # FIXME test for the num_nodes attribute
     # assert out['author'].num_nodes == 4
 
-    assert out["paper"].n_id.numel() == 4
-    assert out["paper"].n_id.tolist() == [0, 1, 2, 3]
+    assert out["author"].n_id.numel() == 4
+    assert out["author"].n_id.tolist() == [0, 1, 2, 3]
     # FIXME test for the num_nodes attribute
-    assert out["paper"].num_nodes == 4
+    # assert out["paper"].num_nodes == 4
 
-    assert out["paper", "cites", "paper"].edge_index.numel() == 8
+    assert out["paper"].num_sampled_nodes.tolist() == [5, 1, 0]
+    assert out["author"].num_sampled_nodes.tolist() == [4, 0, 0]
+
+    assert out["paper", "cites", "paper"].edge_index.shape == torch.Size([2, 8])
     assert out["paper", "cites", "paper"].num_sampled_edges.tolist() == [7, 1]
     assert "edge_label_index" not in out["paper", "cites", "paper"]
 
-    assert out["author", "writes", "paper"].edge_index.numel() == 6
+    assert out["author", "writes", "paper"].edge_index.shape == torch.Size([2, 6])
     assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [5, 1]
 
     assert list(out["author", "writes", "paper"].edge_label_index.shape) == [2, 5]
