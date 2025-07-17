@@ -12,7 +12,7 @@
 # limitations under the License.
 
 
-from typing import Tuple
+from typing import Tuple, Optional, Dict, Union
 
 from math import ceil
 
@@ -26,6 +26,27 @@ torch_geometric = import_optional("torch_geometric")
 
 torch = import_optional("torch")
 HeteroSamplerOutput = torch_geometric.sampler.base.HeteroSamplerOutput
+
+
+def verify_metadata(metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]):
+    if metadata is not None:
+        for k, v in metadata.items():
+            assert isinstance(k, str), "Metadata keys must be strings."
+            if isinstance(v, tuple):
+                assert len(v) == 3, "Metadata tuples must be of length 3."
+                assert isinstance(
+                    v[0], str
+                ), "Metadata tuple must be of type (str, str, str)."
+                assert isinstance(
+                    v[1], str
+                ), "Metadata tuple must be of type (str, str, str)."
+                assert isinstance(
+                    v[2], str
+                ), "Metadata tuple must be of type (str, str, str)."
+            else:
+                assert isinstance(
+                    v, str
+                ), "Metadata values must be strings or tuples of strings."
 
 
 def filter_cugraph_pyg_store(

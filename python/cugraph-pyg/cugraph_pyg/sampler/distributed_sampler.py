@@ -25,7 +25,7 @@ from typing import Union, List, Dict, Tuple, Iterator, Optional
 from cugraph.utilities.utils import import_optional, MissingModule
 from cugraph.gnn.comms import cugraph_comms_get_raft_handle
 
-
+from cugraph_pyg.sampler.sampler_utils import verify_metadata
 from cugraph_pyg.sampler.io import BufferedSampleReader
 
 torch = MissingModule("torch")
@@ -97,6 +97,7 @@ class BaseDistributedSampler:
         batch_id_offsets: TensorType,
         random_state: int = 0,
         assume_equal_input_size: bool = False,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Dict[str, TensorType]:
         """
         For a single call group of seeds and associated batch ids, performs
@@ -116,6 +117,10 @@ class BaseDistributedSampler:
             If True, will assume all ranks have the same number of inputs,
             and will skip the synchronization/gather steps to check for
             and handle uneven inputs.
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
+            Metadata for the graph.  This is used to determine the
+            type of the graph and the edge types.  This is only
+            used for heterogeneous graphs.
 
         Returns
         -------
@@ -185,6 +190,7 @@ class BaseDistributedSampler:
         batches_per_call: int,
         random_state: int,
         assume_equal_input_size: bool,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
         torch = import_optional("torch")
 
@@ -208,6 +214,7 @@ class BaseDistributedSampler:
             seeds=current_seeds,
             batch_id_offsets=input_offsets,
             random_state=random_state,
+            metadata=metadata,
         )
 
         minibatch_dict["input_index"] = current_ix.cuda()
@@ -217,7 +224,7 @@ class BaseDistributedSampler:
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
         del minibatch_dict["renumber_map"]
         minibatch_dict = {
-            k: torch.as_tensor(v, device="cuda")
+            k: v if isinstance(v, (str, tuple)) else torch.as_tensor(v, device="cuda")
             for k, v in minibatch_dict.items()
             if v is not None
         }
@@ -288,6 +295,7 @@ class BaseDistributedSampler:
         random_state: int = 62,
         assume_equal_input_size: bool = False,
         input_id: Optional[TensorType] = None,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]:
         """
         Performs node-based sampling.  Accepts a list of seed nodes, and batch size.
@@ -311,8 +319,14 @@ class BaseDistributedSampler:
             Input ids corresponding to the original batch tensor, if it
             was permuted prior to calling this function.  If present,
             will be saved with the samples.
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
+            Metadata for the graph.  This is used to determine the
+            type of the graph and the edge types.  This is only
+            used for heterogeneous graphs.
         """
         torch = import_optional("torch")
+
+        verify_metadata(metadata)
 
         nodes = torch.as_tensor(nodes, device="cuda")
         num_seeds = nodes.numel()
@@ -343,6 +357,7 @@ class BaseDistributedSampler:
             batches_per_call,
             random_state,
             input_size_is_equal,
+            metadata,
         ]
 
         # Buffered sampling
@@ -361,6 +376,7 @@ class BaseDistributedSampler:
         batches_per_call: int,
         random_state: int,
         assume_equal_input_size: bool,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
         torch = import_optional("torch")
 
@@ -477,6 +493,7 @@ class BaseDistributedSampler:
             seeds=current_seeds,
             batch_id_offsets=current_batch_offsets,
             random_state=random_state,
+            metadata=metadata,
         )
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_label"] = current_label.cuda()
@@ -489,7 +506,7 @@ class BaseDistributedSampler:
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
         del minibatch_dict["renumber_map"]
         minibatch_dict = {
-            k: torch.as_tensor(v, device="cuda")
+            k: v if isinstance(v, (str, tuple)) else torch.as_tensor(v, device="cuda")
             for k, v in minibatch_dict.items()
             if v is not None
         }
@@ -513,6 +530,7 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         input_id: Optional[TensorType] = None,
         input_label: Optional[TensorType] = None,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]:
         """
         Performs sampling starting from seed edges.
@@ -539,6 +557,10 @@ class BaseDistributedSampler:
             Input labels corresponding to the input seeds.  Typically used
             for link prediction sampling.  If present, will be saved with
             the samples.  Generally not compatible with negative sampling.
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
+            Metadata for the graph.  This is used to determine the
+            type of the graph and the edge types.  This is only
+            used for heterogeneous graphs.
         """
 
         torch = import_optional("torch")
@@ -578,6 +600,7 @@ class BaseDistributedSampler:
             batches_per_call,
             random_state,
             input_size_is_equal,
+            metadata,
         ]
 
         # Buffered sampling
@@ -731,6 +754,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         seeds: TensorType,
         batch_id_offsets: TensorType,
         random_state: int = 0,
+        metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Dict[str, TensorType]:
         torch = import_optional("torch")
         rank = torch.distributed.get_rank() if self.is_multi_gpu else 0
@@ -750,4 +774,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")
         sampling_results_dict["rank"] = rank
+        if metadata is not None:
+            sampling_results_dict.update(metadata)
         return sampling_results_dict
