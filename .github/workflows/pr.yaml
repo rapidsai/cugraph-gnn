@@ -119,7 +119,7 @@ jobs:
       build_type: pull-request
       node_type: "gpu-l4-latest-1"
       arch: "amd64"
-      container_image: "rapidsai/ci-conda:latest"
+      container_image: "rapidsai/ci-conda:25.08-latest"
       script: "ci/test_notebooks.sh"
   conda-python-tests:
     needs: [conda-python-build, changed-files]
@@ -137,7 +137,7 @@ jobs:
     with:
       arch: "amd64"
       build_type: pull-request
-      container_image: "rapidsai/ci-conda:latest"
+      container_image: "rapidsai/ci-conda:25.08-latest"
       script: "ci/build_docs.sh"
   wheel-build-libwholegraph:
     needs: checks
