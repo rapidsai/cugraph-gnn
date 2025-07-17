@@ -302,6 +302,8 @@ class HeterogeneousSampleReader(SampleReader):
         edge = {}
 
         input_type = raw_sample_data["input_type"]
+        if input_type is None:
+            raise ValueError("No input type found!")
 
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
@@ -386,8 +388,8 @@ class HeterogeneousSampleReader(SampleReader):
                         (ux.max() + 1).reshape((1,)),
                     )
 
-        if input_type is None or integer_input_type is None:
-            raise ValueError("No input type found!")
+        if integer_input_type is None:
+            raise ValueError("Input type did not match any edge type!")
 
         num_sampled_nodes = {
             self.__vertex_types[i]: z.diff(
@@ -477,7 +479,11 @@ class HeterogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def _decode(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def _decode(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         if "major_offsets" in raw_sample_data:
             raise ValueError(
                 "CSR format not currently supported for heterogeneous graphs"
@@ -506,7 +512,11 @@ class HomogeneousSampleReader(SampleReader):
         """
         super().__init__(base_reader)
 
-    def __decode_csc(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def __decode_csc(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         fanout_length = (raw_sample_data["label_hop_offsets"].numel() - 1) // (
             raw_sample_data["renumber_map_offsets"].numel() - 1
         )
@@ -618,7 +628,11 @@ class HomogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def __decode_coo(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def __decode_coo(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         fanout_length = (raw_sample_data["label_hop_offsets"].numel() - 1) // (
             raw_sample_data["renumber_map_offsets"].numel() - 1
         )
@@ -703,7 +717,11 @@ class HomogeneousSampleReader(SampleReader):
             metadata=metadata,
         )
 
-    def _decode(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
+    def _decode(
+        self,
+        raw_sample_data: Dict[str, Union["torch.Tensor", str, Tuple[str, str, str]]],
+        index: int,
+    ):
         if "major_offsets" in raw_sample_data:
             return self.__decode_csc(raw_sample_data, index)
         else:
