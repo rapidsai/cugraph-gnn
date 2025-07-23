@@ -267,13 +267,12 @@ class DistTensor:
             The requested node embeddings.
         """
         assert self._tensor is not None, "Please create WholeGraph tensor first."
-        if not idx.is_cuda:
-            idx = idx.pin_memory()
+        idx = idx.cuda()
         if not val.is_cuda:
             val = val.pin_memory()
 
         if val.dtype != self.dtype:
-            val = val.to(self.dtype)
+            val = val.to(self.dtype).pin_memory()
         self._tensor.scatter(val, idx)
 
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
@@ -289,8 +288,7 @@ class DistTensor:
             The requested node embeddings.
         """
         assert self._tensor is not None, "Please create WholeGraph tensor first."
-        if not idx.is_cuda:
-            idx = idx.pin_memory()
+        idx = idx.cuda()
         output_tensor = self._tensor.gather(idx)  # output_tensor is on cuda by default
         return output_tensor
 
@@ -504,13 +502,12 @@ class DistEmbedding(DistTensor):
             The requested node embeddings.
         """
         assert self._tensor is not None, "Please create WholeGraph tensor first."
-        if not idx.is_cuda:
-            idx = idx.pin_memory()
+        idx = idx.cuda()
         if not val.is_cuda:
             val = val.pin_memory()
 
         if val.dtype != self.dtype:
-            val = val.to(self.dtype)
+            val = val.to(self.dtype).pin_memory()
         self._embedding.get_embedding_tensor().scatter(val, idx)
 
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
@@ -526,8 +523,7 @@ class DistEmbedding(DistTensor):
             The requested node embeddings.
         """
         assert self._tensor is not None, "Please create WholeGraph tensor first."
-        if not idx.is_cuda:
-            idx = idx.pin_memory()
+        idx = idx.cuda()
         output_tensor = self._embedding.gather(
             idx
         )  # output_tensor is on cuda by default
