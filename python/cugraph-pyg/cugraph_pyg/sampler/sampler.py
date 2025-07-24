@@ -454,12 +454,7 @@ class HeterogeneousSampleReader(SampleReader):
             if isinstance(input_type, str):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
-                edge_inverse[0] -= self.__vertex_offsets[
-                    self.__src_types[integer_input_type]
-                ]
-                edge_inverse[1] -= self.__vertex_offsets[
-                    self.__dst_types[integer_input_type]
-                ]
+                edge_inverse[0] -= edge_inverse.shape[-1]
 
             metadata = (
                 input_index,
@@ -610,6 +605,7 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
+            edge_inverse[0] -= edge_inverse.shape[-1]
             metadata = (
                 input_index,
                 edge_inverse.view(2, -1),
