@@ -255,15 +255,15 @@ def test_neighbor_loader_hetero_basic(single_pytorch_worker):
     out = next(iter(loader))
 
     ei_out = out["paper"].n_id[out["paper", "cites", "paper"].edge_index]
-    assert src[out["paper", "cites", "paper"].e_id] == ei_out[0]
-    assert dst[out["paper", "cites", "paper"].e_id] == ei_out[1]
+    assert (src[out["paper", "cites", "paper"].e_id].cpu() == ei_out[0].cpu()).all()
+    assert (dst[out["paper", "cites", "paper"].e_id].cpu() == ei_out[1].cpu()).all()
 
     ej_out = torch.stack(
         out["author"].n_id[out["author", "writes", "paper"].edge_index[0]],
         out["paper"].n_id[out["author", "writes", "paper"].edge_index[1]],
     )
-    assert asrc[out["author", "writes", "paper"].e_id] == ej_out[0]
-    assert adst[out["author", "writes", "paper"].e_id] == ej_out[1]
+    assert (asrc[out["author", "writes", "paper"].e_id].cpu() == ej_out[0].cpu()).all()
+    assert (adst[out["author", "writes", "paper"].e_id].cpu() == ej_out[1].cpu()).all()
 
     print(out)
 
