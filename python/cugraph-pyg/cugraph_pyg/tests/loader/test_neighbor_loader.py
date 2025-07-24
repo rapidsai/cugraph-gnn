@@ -433,6 +433,8 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
 
     for i, batch in enumerate(loader):
         eli_i = eli[:, i * 2 : (i + 1) * 2]
+        print(batch["user"].n_id)
+        print(batch["merchant"].n_id)
         print(batch["user", "to", "merchant"].edge_label_index)
 
         r_i = torch.stack(
