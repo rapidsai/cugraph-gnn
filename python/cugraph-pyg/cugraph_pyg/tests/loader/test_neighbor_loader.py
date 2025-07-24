@@ -135,10 +135,8 @@ def test_link_neighbor_loader_basic(
         shuffle=False,
     )
 
-    print(elx)
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
-        print(batch.edge_label_index)
         assert (
             batch.input_id.cpu() == torch.arange(i * batch_size, (i + 1) * batch_size)
         ).all()
@@ -274,8 +272,6 @@ def test_neighbor_loader_hetero_basic(single_pytorch_worker):
     assert (
         adst[out["author", "writes", "paper"].e_id.cpu()].cpu() == ej_out[1].cpu()
     ).all()
-
-    print(out)
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -433,9 +429,6 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
 
     for i, batch in enumerate(loader):
         eli_i = eli[:, i * 2 : (i + 1) * 2]
-        print(batch["user"].n_id)
-        print(batch["merchant"].n_id)
-        print(batch["user", "to", "merchant"].edge_label_index)
 
         r_i = torch.stack(
             [
@@ -447,9 +440,6 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
                 .cpu(),
             ]
         )
-
-        print(eli_i)
-        print(r_i)
 
         assert (r_i == eli_i).all()
 
