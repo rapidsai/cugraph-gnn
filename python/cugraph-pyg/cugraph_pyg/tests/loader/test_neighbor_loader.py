@@ -438,10 +438,10 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
         r_i = torch.stack(
             [
                 batch["user"]
-                .n_id[batch["user", "to", "merchant"].edge_index[0].cpu()]
+                .n_id[batch["user", "to", "merchant"].edge_label_index[0].cpu()]
                 .cpu(),
                 batch["merchant"]
-                .n_id[batch["user", "to", "merchant"].edge_index[1].cpu()]
+                .n_id[batch["user", "to", "merchant"].edge_label_index[1].cpu()]
                 .cpu(),
             ]
         )
