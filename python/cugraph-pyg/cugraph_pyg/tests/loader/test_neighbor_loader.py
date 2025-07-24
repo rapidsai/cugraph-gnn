@@ -135,8 +135,10 @@ def test_link_neighbor_loader_basic(
         shuffle=False,
     )
 
+    print(elx)
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
+        print(batch.edge_label_index)
         assert (
             batch.input_id.cpu() == torch.arange(i * batch_size, (i + 1) * batch_size)
         ).all()
@@ -369,3 +371,46 @@ def test_neighbor_loader_hetero_linkpred(single_pytorch_worker):
         3,
         4,
     ]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
+    num_users = 9
+    num_merchants = 5
+
+    src = torch.tensor([1, 5, 5, 8, 1, 1], dtype=torch.long)
+    dst = torch.tensor([4, 2, 3, 1, 0, 4], dtype=torch.long)
+
+    feature_store = FeatureStore()
+    graph_store = GraphStore()
+
+    graph_store[
+        ("user", "to", "merchant"), "coo", False, (num_users, num_merchants)
+    ] = torch.stack([src, dst], dim=0)
+    graph_store[
+        ("merchant", "rev_to", "user"), "coo", False, (num_merchants, num_users)
+    ] = torch.stack([dst, src], dim=0)
+
+    # use nonexistent edges for more robustness
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    loader = LinkNeighborLoader(
+        data=(feature_store, graph_store),
+        num_neighbors={
+            ("user", "to", "merchant"): [2, 2],
+            ("merchant", "rev_to", "user"): [2, 2],
+        },
+        edge_label_index=(
+            ("user", "to", "merchant"),
+            torch.tensor([[0, 5, 8, 1, 7, 2], [4, 4, 2, 3, 1, 0]]),
+        ),
+        edge_label=None,
+        batch_size=2,
+        shuffle=False,
+    )
+
+    for i, batch in enumerate(loader):
+        print(batch["user", "to", "merchant"].edge_label_index)
+
+    assert i == 2

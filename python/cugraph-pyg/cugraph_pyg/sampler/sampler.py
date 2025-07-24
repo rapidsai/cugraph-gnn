@@ -454,7 +454,11 @@ class HeterogeneousSampleReader(SampleReader):
             if isinstance(input_type, str):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
-                edge_inverse[0] -= edge_inverse.shape[-1]
+                # De-offset the type based on lexicographic order
+                if input_type[0] < input_type[2]:
+                    edge_inverse[1] -= node[input_type[0]].numel()
+                else:
+                    edge_inverse[0] -= node[input_type[2]].numel()
 
             metadata = (
                 input_index,
@@ -605,10 +609,10 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
-            edge_inverse[0] -= edge_inverse.shape[-1]
+            edge_inverse = edge_inverse.view(2, -1)
             metadata = (
                 input_index,
-                edge_inverse.view(2, -1),
+                edge_inverse,
                 edge_label,
                 None,  # TODO this will eventually include time
             )
@@ -695,9 +699,10 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
+            edge_inverse = edge_inverse.view(2, -1)
             metadata = (
                 input_index,
-                edge_inverse.view(2, -1),
+                edge_inverse,
                 None,
                 None,  # TODO this will eventually include time
             )
