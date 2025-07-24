@@ -448,6 +448,9 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
             ]
         )
 
+        print(eli_i)
+        print(r_i)
+
         assert (r_i == eli_i).all()
 
     assert i == 2
