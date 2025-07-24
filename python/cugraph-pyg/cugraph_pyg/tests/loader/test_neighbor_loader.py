@@ -263,8 +263,10 @@ def test_neighbor_loader_hetero_basic(single_pytorch_worker):
     ).all()
 
     ej_out = torch.stack(
-        out["author"].n_id[out["author", "writes", "paper"].edge_index[0].cpu()],
-        out["paper"].n_id[out["author", "writes", "paper"].edge_index[1].cpu()],
+        [
+            out["author"].n_id[out["author", "writes", "paper"].edge_index[0].cpu()],
+            out["paper"].n_id[out["author", "writes", "paper"].edge_index[1].cpu()],
+        ]
     )
     assert (
         asrc[out["author", "writes", "paper"].e_id.cpu()].cpu() == ej_out[0].cpu()
