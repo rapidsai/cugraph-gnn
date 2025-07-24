@@ -415,6 +415,7 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
     # use nonexistent edges for more robustness
     from cugraph_pyg.loader import LinkNeighborLoader
 
+    eli = torch.tensor([[0, 5, 8, 1, 7, 2], [4, 4, 2, 3, 1, 0]])
     loader = LinkNeighborLoader(
         data=(feature_store, graph_store),
         num_neighbors={
@@ -423,7 +424,7 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
         },
         edge_label_index=(
             ("user", "to", "merchant"),
-            torch.tensor([[0, 5, 8, 1, 7, 2], [4, 4, 2, 3, 1, 0]]),
+            eli,
         ),
         edge_label=None,
         batch_size=2,
@@ -431,6 +432,20 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
     )
 
     for i, batch in enumerate(loader):
+        eli_i = eli[:, i * 2 : (i + 1) * 2]
         print(batch["user", "to", "merchant"].edge_label_index)
+
+        r_i = torch.stack(
+            [
+                batch["user"]
+                .n_id[batch["user", "to", "merchant"].edge_index[0].cpu()]
+                .cpu(),
+                batch["merchant"]
+                .n_id[batch["user", "to", "merchant"].edge_index[1].cpu()]
+                .cpu(),
+            ]
+        )
+
+        assert (r_i == eli_i).all()
 
     assert i == 2
