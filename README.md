@@ -40,13 +40,6 @@ ___WARNING!___   _cuGraph-DGL_ has been removed in release 25.08.  We recommend 
 functionality along with additional features like support for heterogeneous sampling and a unified API.  The cuGraph team is not planning
 any further work in the DGL ecosystem going forward.
 
-___NEW!___   _[nx-cugraph](./python/nx-cugraph/README.md)_, a NetworkX backend that provides GPU acceleration to NetworkX with zero code change.
-```
-> pip install nx-cugraph-cu11 --extra-index-url https://pypi.nvidia.com
-> export NETWORKX_AUTOMATIC_BACKENDS=cugraph
-```
-That's it.  NetworkX now leverages cuGraph for accelerated graph algorithms.
-
 -----
 
 ## Table of contents

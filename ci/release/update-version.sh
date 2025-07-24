@@ -50,6 +50,7 @@ DEPENDENCIES=(
   cudf
   cugraph
   cugraph-pyg
+  cuml
   dask-cuda
   dask-cudf
   libcudf
@@ -64,7 +65,7 @@ DEPENDENCIES=(
   rapids-dask-dependency
 )
 for DEP in "${DEPENDENCIES[@]}"; do
-  for FILE in dependencies.yaml conda/environments/*.yaml python/cugraph-{pyg}/conda/*.yaml; do
+  for FILE in dependencies.yaml conda/environments/*.yaml python/cugraph-pyg/conda/*.yaml; do
     sed_runner "/-.* ${DEP}\(-cu[[:digit:]]\{2\}\)\{0,1\}==/ s/==.*/==${NEXT_SHORT_TAG_PEP440}.*,>=0.0.0a0/g" "${FILE}"
   done
   for FILE in python/**/pyproject.toml; do
@@ -75,6 +76,7 @@ done
 # CI files
 for FILE in .github/workflows/*.yaml; do
   sed_runner "/shared-workflows/ s/@.*/@branch-${NEXT_SHORT_TAG}/g" "${FILE}"
+  sed_runner "s/:[0-9]*\\.[0-9]*-/:${NEXT_SHORT_TAG}-/g" "${FILE}"
 done
 
 # .devcontainer files
