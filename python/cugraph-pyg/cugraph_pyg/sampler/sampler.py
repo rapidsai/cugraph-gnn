@@ -455,10 +455,11 @@ class HeterogeneousSampleReader(SampleReader):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
                 # De-offset the type based on lexicographic order
-                if input_type[0] < input_type[2]:
-                    edge_inverse[1] -= node[input_type[0]].numel()
-                else:
-                    edge_inverse[0] -= node[input_type[2]].numel()
+                if input_type[0] != input_type[2]:
+                    if input_type[0] < input_type[2]:
+                        edge_inverse[1] -= num_sampled_nodes[input_type[0]][0]
+                    else:
+                        edge_inverse[0] -= num_sampled_nodes[input_type[2]][0]
 
             metadata = (
                 input_index,
