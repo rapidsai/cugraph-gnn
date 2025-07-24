@@ -130,6 +130,7 @@ class LinkLoader:
             if isinstance(edge_label_index, torch.Tensor)
             else edge_label_index,
         )
+        edge_label_index = edge_label_index.detach().clone()
 
         # Note reverse of standard convention here
         if input_type is not None:
