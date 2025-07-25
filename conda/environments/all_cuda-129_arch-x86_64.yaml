@@ -6,7 +6,7 @@ channels:
 - conda-forge
 dependencies:
 - breathe
-- cmake>=3.30.4
+- cmake>=3.30.4,<4.0.0
 - cuda-cudart-dev
 - cuda-nvcc
 - cuda-nvml-dev
@@ -20,7 +20,7 @@ dependencies:
 - cython>=3.0.0
 - dask-cudf==25.10.*,>=0.0.0a0
 - doxygen
-- gcc_linux-64=13.*
+- gcc_linux-64=14.*
 - graphviz
 - ipython
 - libcublas-dev
