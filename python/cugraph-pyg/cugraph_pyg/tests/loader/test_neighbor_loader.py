@@ -507,3 +507,89 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
         assert (r_i == eli_i).all()
 
     assert i == 7
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
+    single_pytorch_worker,
+):
+    num_nodes_n1 = 15
+    num_nodes_n2 = 8
+    num_nodes_n3 = 10
+
+    ei = torch.tensor(
+        [
+            [14, 14, 0, 7, 8, 7, 13, 13, 3, 13, 14, 6, 3, 14, 3, 1, 11, 11, 13, 4],
+            [7, 0, 3, 1, 0, 0, 0, 4, 2, 3, 3, 1, 4, 3, 0, 6, 5, 1, 4, 4],
+        ]
+    )
+    ei_13 = torch.tensor(
+        [
+            [1, 3, 5, 6, 8, 14, 14],
+            [2, 4, 6, 8, 9, 0, 1],
+        ]
+    )
+    ei_23 = torch.tensor(
+        [
+            [7, 0, 3, 2, 2, 1, 1, 5, 4, 2],
+            [9, 8, 1, 2, 3, 9, 8, 4, 6, 5],
+        ]
+    )
+
+    feature_store = FeatureStore()
+    graph_store = GraphStore()
+
+    graph_store[("n1", "e", "n2"), "coo", False, (num_nodes_n1, num_nodes_n2)] = ei
+    graph_store[
+        ("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)
+    ] = ei.flip(0)
+    graph_store[("n1", "g", "n3"), "coo", False, (num_nodes_n1, num_nodes_n3)] = ei_13
+    graph_store[("n2", "h", "n3"), "coo", False, (num_nodes_n2, num_nodes_n3)] = ei_23
+    graph_store[
+        ("n3", "i", "n1"), "coo", False, (num_nodes_n3, num_nodes_n1)
+    ] = ei_13.flip(0)
+    graph_store[
+        ("n3", "j", "n2"), "coo", False, (num_nodes_n3, num_nodes_n2)
+    ] = ei_23.flip(0)
+
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    eli = torch.tensor(
+        [
+            [3, 14, 4, 0, 14, 13, 8, 13, 6, 11, 14, 13, 13, 1, 11, 7],
+            [2, 0, 4, 3, 3, 4, 0, 0, 1, 1, 3, 4, 3, 6, 5, 0],
+        ]
+    )
+    loader = LinkNeighborLoader(
+        data=(feature_store, graph_store),
+        num_neighbors={
+            ("n1", "e", "n2"): [2, 2],
+            ("n2", "f", "n1"): [2, 2],
+        },
+        edge_label_index=(
+            ("n1", "e", "n2"),
+            eli,
+        ),
+        edge_label=None,
+        batch_size=2,
+        shuffle=False,
+    )
+
+    for i, batch in enumerate(loader):
+        eli_i = eli[:, i * 2 : (i + 1) * 2]
+
+        r_i = torch.stack(
+            [
+                batch["n1"]
+                .n_id[batch["n1", "e", "n2"].edge_label_index[0].cpu()]
+                .cpu(),
+                batch["n2"]
+                .n_id[batch["n1", "e", "n2"].edge_label_index[1].cpu()]
+                .cpu(),
+            ]
+        )
+
+        assert (r_i == eli_i).all()
+
+    assert i == 7
