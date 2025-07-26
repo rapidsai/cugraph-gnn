@@ -479,11 +479,11 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
     loader = LinkNeighborLoader(
         data=(feature_store, graph_store),
         num_neighbors={
-            ("user", "to", "merchant"): [2, 2],
-            ("merchant", "rev_to", "user"): [2, 2],
+            ("n1", "e", "n2"): [2, 2],
+            ("n2", "f", "n1"): [2, 2],
         },
         edge_label_index=(
-            ("user", "to", "merchant"),
+            ("n1", "e", "n2"),
             eli,
         ),
         edge_label=None,
@@ -496,11 +496,11 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
 
         r_i = torch.stack(
             [
-                batch["user"]
-                .n_id[batch["user", "to", "merchant"].edge_label_index[0].cpu()]
+                batch["n1"]
+                .n_id[batch["n1", "e", "n2"].edge_label_index[0].cpu()]
                 .cpu(),
-                batch["merchant"]
-                .n_id[batch["user", "to", "merchant"].edge_label_index[1].cpu()]
+                batch["n2"]
+                .n_id[batch["n1", "e", "n2"].edge_label_index[1].cpu()]
                 .cpu(),
             ]
         )
