@@ -457,9 +457,9 @@ class HeterogeneousSampleReader(SampleReader):
                 # De-offset the type based on lexicographic order
                 if input_type[0] != input_type[2]:
                     if input_type[0] < input_type[2]:
-                        edge_inverse[1] -= num_sampled_nodes[input_type[0]][0]
+                        edge_inverse[1] -= edge_inverse[0].max() + 1
                     else:
-                        edge_inverse[0] -= num_sampled_nodes[input_type[2]][0]
+                        edge_inverse[0] -= edge_inverse[1].max() + 1
 
             metadata = (
                 input_index,

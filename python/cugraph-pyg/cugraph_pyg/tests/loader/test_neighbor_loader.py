@@ -467,7 +467,6 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
         ("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)
     ] = ei.flip(0)
 
-    # use nonexistent edges for more robustness
     from cugraph_pyg.loader import LinkNeighborLoader
 
     eli = torch.tensor(
@@ -504,11 +503,6 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
                 .cpu(),
             ]
         )
-
-        print(batch["n1"].n_id)
-        print(batch["n2"].n_id)
-        print(eli_i)
-        print(batch["n1", "e", "n2"].edge_label_index)
 
         assert (r_i == eli_i).all()
 
