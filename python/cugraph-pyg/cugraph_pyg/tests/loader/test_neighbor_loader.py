@@ -505,6 +505,11 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
             ]
         )
 
+        print(batch["n1"].n_id)
+        print(batch["n2"].n_id)
+        print(eli_i)
+        print(batch["n1", "e", "n2"].edge_label_index)
+
         assert (r_i == eli_i).all()
 
     assert i == 2
