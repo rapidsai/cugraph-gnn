@@ -449,8 +449,8 @@ def test_neighbor_loader_hetero_linkpred_bidirectional(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker):
-    num_nodes_n1 = 15
-    num_nodes_n2 = 8
+    num_nodes_u = 15
+    num_nodes_m = 8
 
     ei = torch.tensor(
         [
@@ -462,10 +462,8 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
     feature_store = FeatureStore()
     graph_store = GraphStore()
 
-    graph_store[("n1", "e", "n2"), "coo", False, (num_nodes_n1, num_nodes_n2)] = ei
-    graph_store[
-        ("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)
-    ] = ei.flip(0)
+    graph_store[("u", "e", "m"), "coo", False, (num_nodes_u, num_nodes_m)] = ei
+    graph_store[("m", "f", "u"), "coo", False, (num_nodes_m, num_nodes_u)] = ei.flip(0)
 
     # use nonexistent edges for more robustness
     from cugraph_pyg.loader import LinkNeighborLoader
@@ -479,11 +477,11 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
     loader = LinkNeighborLoader(
         data=(feature_store, graph_store),
         num_neighbors={
-            ("n1", "e", "n2"): [2, 2],
-            ("n2", "f", "n1"): [2, 2],
+            ("u", "e", "m"): [2, 2],
+            ("m", "f", "u"): [2, 2],
         },
         edge_label_index=(
-            ("n1", "e", "n2"),
+            ("u", "e", "m"),
             eli,
         ),
         edge_label=None,
@@ -496,19 +494,15 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
 
         r_i = torch.stack(
             [
-                batch["n1"]
-                .n_id[batch["n1", "e", "n2"].edge_label_index[0].cpu()]
-                .cpu(),
-                batch["n2"]
-                .n_id[batch["n1", "e", "n2"].edge_label_index[1].cpu()]
-                .cpu(),
+                batch["u"].n_id[batch["u", "e", "m"].edge_label_index[0].cpu()].cpu(),
+                batch["m"].n_id[batch["u", "e", "m"].edge_label_index[1].cpu()].cpu(),
             ]
         )
 
-        print(batch["n1"].n_id)
-        print(batch["n2"].n_id)
+        print(batch["u"].n_id)
+        print(batch["m"].n_id)
         print(eli_i)
-        print(batch["n1", "e", "n2"].edge_label_index)
+        print(batch["u", "e", "m"].edge_label_index)
 
         assert (r_i == eli_i).all()
 
