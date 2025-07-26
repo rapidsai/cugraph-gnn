@@ -581,6 +581,7 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
     )
 
     for i, batch in enumerate(loader):
+        print(batch)
         eli_i = eli[:, i * 2 : (i + 1) * 2]
 
         r_i = torch.stack(
