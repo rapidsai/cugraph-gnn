@@ -566,6 +566,10 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
         num_neighbors={
             ("n1", "e", "n2"): [2, 2],
             ("n2", "f", "n1"): [2, 2],
+            ("n1", "g", "n3"): [2, 2],
+            ("n2", "h", "n3"): [2, 2],
+            ("n3", "i", "n1"): [2, 2],
+            ("n3", "j", "n2"): [2, 2],
         },
         edge_label_index=(
             ("n1", "e", "n2"),
