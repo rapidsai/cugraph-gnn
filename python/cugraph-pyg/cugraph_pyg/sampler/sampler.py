@@ -305,6 +305,7 @@ class HeterogeneousSampleReader(SampleReader):
         if input_type is None:
             raise ValueError("No input type found!")
 
+        integer_input_type = None
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
