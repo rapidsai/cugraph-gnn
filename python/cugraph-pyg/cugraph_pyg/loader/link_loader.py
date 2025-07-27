@@ -206,6 +206,8 @@ class LinkLoader:
             input_type=self.__input_data.input_type,
         )
 
+        print("input_data:", input_data)
+
         return cugraph_pyg.sampler.SampleIterator(
             self.__data,
             self.__link_sampler.sample_from_edges(
