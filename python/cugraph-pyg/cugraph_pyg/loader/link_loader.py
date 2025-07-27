@@ -132,6 +132,14 @@ class LinkLoader:
         )
         edge_label_index = edge_label_index.detach().clone()
 
+        if edge_label_index.shape[1] < batch_size and drop_last:
+            raise ValueError(
+                "The number of input edges is less than the batch size"
+                " and drop_last is True. This will result in all batches"
+                " being dropped. Either set drop_last to False or increase"
+                " the number of edges in edge_label_index."
+            )
+
         # Note reverse of standard convention here
         if input_type is not None:
             edge_label_index[0] += data[1]._vertex_offsets[input_type[0]]
@@ -205,8 +213,6 @@ class LinkLoader:
             else self.__input_data.time[perm],
             input_type=self.__input_data.input_type,
         )
-
-        print("input_data:", input_data)
 
         return cugraph_pyg.sampler.SampleIterator(
             self.__data,
