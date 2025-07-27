@@ -645,7 +645,8 @@ def test_neighbor_loader_hetero_linkpred_uneven(
         ),
         edge_label=None,
         batch_size=16,
-        shuffle=False,
+        shuffle=True,
+        random_state=42,
         drop_last=drop_last,
     )
 
