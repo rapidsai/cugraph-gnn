@@ -602,9 +602,11 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("drop_last", [True, False])
+@pytest.mark.parametrize("batch_size", [16, 32])
 def test_neighbor_loader_hetero_linkpred_uneven(
     single_pytorch_worker,
     drop_last,
+    batch_size,
 ):
     num_nodes_n1 = 15
     num_nodes_n2 = 8
@@ -644,7 +646,7 @@ def test_neighbor_loader_hetero_linkpred_uneven(
             eli,
         ),
         edge_label=None,
-        batch_size=16,
+        batch_size=batch_size,
         shuffle=True,
         random_state=42,
         drop_last=drop_last,
