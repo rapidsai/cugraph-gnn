@@ -110,6 +110,16 @@ class NodeLoader:
             input_nodes,
             input_id,
         )
+        input_nodes = input_nodes.detach().clone()
+
+        if input_nodes.numel() < batch_size and drop_last:
+            raise ValueError(
+                "The number of input nodes is less than the batch size"
+                " and drop_last is True. This will result in all batches"
+                " being dropped. Either set drop_last to False or increase"
+                " the number of nodes in input_nodes."
+            )
+
         if input_type is not None:
             input_nodes += data[1]._vertex_offsets[input_type]
 
