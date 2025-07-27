@@ -578,6 +578,7 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
         edge_label=None,
         batch_size=2,
         shuffle=False,
+        drop_last=True,
     )
 
     for i, batch in enumerate(loader):
