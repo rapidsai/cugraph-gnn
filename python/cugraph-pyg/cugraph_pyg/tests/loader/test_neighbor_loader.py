@@ -638,7 +638,7 @@ def test_neighbor_loader_hetero_linkpred_uneven(
             ("n2", "rev_to", "n1"): [3],
         },
         edge_label_index=(
-            ("n1", "e", "n2"),
+            ("n1", "to", "n2"),
             eli,
         ),
         edge_label=None,
@@ -652,10 +652,10 @@ def test_neighbor_loader_hetero_linkpred_uneven(
         r_i = torch.stack(
             [
                 batch["n1"]
-                .n_id[batch["n1", "e", "n2"].edge_label_index[0].cpu()]
+                .n_id[batch["n1", "to", "n2"].edge_label_index[0].cpu()]
                 .cpu(),
                 batch["n2"]
-                .n_id[batch["n1", "e", "n2"].edge_label_index[1].cpu()]
+                .n_id[batch["n1", "to", "n2"].edge_label_index[1].cpu()]
                 .cpu(),
             ]
         )
