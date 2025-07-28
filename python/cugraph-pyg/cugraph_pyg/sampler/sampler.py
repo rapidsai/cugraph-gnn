@@ -305,6 +305,7 @@ class HeterogeneousSampleReader(SampleReader):
         if input_type is None:
             raise ValueError("No input type found!")
 
+        integer_input_type = None
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
@@ -454,12 +455,12 @@ class HeterogeneousSampleReader(SampleReader):
             if isinstance(input_type, str):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
-                edge_inverse[0] -= self.__vertex_offsets[
-                    self.__src_types[integer_input_type]
-                ]
-                edge_inverse[1] -= self.__vertex_offsets[
-                    self.__dst_types[integer_input_type]
-                ]
+                # De-offset the type based on lexicographic order
+                if input_type[0] != input_type[2]:
+                    if input_type[0] < input_type[2]:
+                        edge_inverse[1] -= edge_inverse[0].max() + 1
+                    else:
+                        edge_inverse[0] -= edge_inverse[1].max() + 1
 
             metadata = (
                 input_index,
@@ -610,9 +611,10 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
+            edge_inverse = edge_inverse.view(2, -1)
             metadata = (
                 input_index,
-                edge_inverse.view(2, -1),
+                edge_inverse,
                 edge_label,
                 None,  # TODO this will eventually include time
             )
@@ -699,9 +701,10 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
         else:
+            edge_inverse = edge_inverse.view(2, -1)
             metadata = (
                 input_index,
-                edge_inverse.view(2, -1),
+                edge_inverse,
                 None,
                 None,  # TODO this will eventually include time
             )
