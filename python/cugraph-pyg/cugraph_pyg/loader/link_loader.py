@@ -17,6 +17,7 @@ import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
 from cugraph.utilities.utils import import_optional
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -219,5 +220,6 @@ class LinkLoader:
             self.__link_sampler.sample_from_edges(
                 input_data,
                 neg_sampling=self.__neg_sampling,
+                random_state=generate_seed(),
             ),
         )
