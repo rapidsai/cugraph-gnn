@@ -49,6 +49,7 @@ jobs:
         test_cpp:
           - '**'
           - '!.devcontainer/**'
+          - '!.github/CODEOWNERS'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!ci/release/update-version.sh'
@@ -60,6 +61,7 @@ jobs:
         test_notebooks:
           - '**'
           - '!.devcontainer/**'
+          - '!.github/CODEOWNERS'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!ci/release/update-version.sh'
@@ -67,6 +69,7 @@ jobs:
         test_python:
           - '**'
           - '!.devcontainer/**'
+          - '!.github/CODEOWNERS'
           - '!CONTRIBUTING.md'
           - '!README.md'
           - '!ci/release/update-version.sh'
