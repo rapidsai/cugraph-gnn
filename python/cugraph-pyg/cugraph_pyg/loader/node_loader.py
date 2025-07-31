@@ -17,6 +17,7 @@ import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
 from cugraph.utilities.utils import import_optional
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -161,5 +162,8 @@ class NodeLoader:
         )
 
         return cugraph_pyg.sampler.SampleIterator(
-            self.__data, self.__node_sampler.sample_from_nodes(input_data)
+            self.__data,
+            self.__node_sampler.sample_from_nodes(
+                input_data, random_state=generate_seed()
+            ),
         )
