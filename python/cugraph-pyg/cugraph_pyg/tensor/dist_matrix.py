@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cugraph.utilities.utils import import_optional
 from typing import Optional, Union, Tuple, List, Literal
 
+from cugraph_pyg.utils.imports import import_optional
 from cugraph_pyg.tensor import DistTensor
 
 torch = import_optional("torch")

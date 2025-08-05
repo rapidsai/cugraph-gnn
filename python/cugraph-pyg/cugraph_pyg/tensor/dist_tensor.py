@@ -20,8 +20,7 @@ from cugraph_pyg.tensor.utils import (
     create_wg_dist_tensor,
     create_wg_dist_tensor_from_files,
 )
-
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
 
 torch = import_optional("torch")
 wgth = import_optional("pylibwholegraph.torch")
