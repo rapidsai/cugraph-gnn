@@ -15,6 +15,7 @@ files:
       - docs
       - python_build_cythonize
       - depends_on_rmm
+      - depends_on_pylibcugraph
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_dask_cudf
@@ -168,6 +169,7 @@ files:
     includes:
       - depends_on_pyg
       - depends_on_pylibwholegraph
+      - depends_on_pylibcugraph
       - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
@@ -178,6 +180,7 @@ files:
     includes:
       - depends_on_pyg
       - depends_on_pylibwholegraph
+      - depends_on_pylibcugraph
       - depends_on_pytorch
       - depends_on_cuml
       - test_python_common
@@ -190,7 +193,7 @@ files:
     conda_dir: python/cugraph-pyg/conda
     includes:
       - checks
-      - depends_on_cugraph
+      - depends_on_pylibcugraph
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
@@ -530,6 +533,25 @@ dependencies:
             packages:
               - rmm-cu12==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*rmm_unsuffixed]}
+  depends_on_pylibcugraph:
+    common:
+      - output_types: conda
+        packages:
+          - &pylibcugraph_unsuffixed pylibcugraph==25.10.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - pylibcugraph-cu12==25.8.*,>=0.0.0a0
+          - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
   depends_on_cugraph:
     common:
       - output_types: conda
@@ -610,7 +632,7 @@ dependencies:
     common:
       - output_types: conda
         packages:
-          - &pylibcugraph_unsuffixed pylibcugraph==25.10.*,>=0.0.0a0
+          - *pylibcugraph_unsuffixed
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
