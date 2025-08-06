@@ -78,10 +78,7 @@ class NodeLoader:
         """
         if not isinstance(data, (list, tuple)) or not isinstance(
             data[1],
-            (
-                cugraph_pyg.data.graph_store.GraphStore,
-                cugraph_pyg.data.graph_store.NewGraphStore,
-            ),
+            (cugraph_pyg.data.graph_store.GraphStore,),
         ):
             # Will eventually automatically convert these objects to cuGraph objects.
             raise NotImplementedError("Currently can't accept non-cugraph graphs")
@@ -113,6 +110,16 @@ class NodeLoader:
             input_nodes,
             input_id,
         )
+        input_nodes = input_nodes.detach().clone()
+
+        if input_nodes.numel() < batch_size and drop_last:
+            raise ValueError(
+                "The number of input nodes is less than the batch size"
+                " and drop_last is True. This will result in all batches"
+                " being dropped. Either set drop_last to False or increase"
+                " the number of nodes in input_nodes."
+            )
+
         if input_type is not None:
             input_nodes += data[1]._vertex_offsets[input_type]
 

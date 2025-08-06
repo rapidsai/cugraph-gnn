@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# Copyright (c) 2019-2025, NVIDIA CORPORATION.
 
 # cugraph build script
 
@@ -25,7 +25,6 @@ VALIDARGS="
    clean
    uninstall
    cugraph-pyg
-   cugraph-dgl
    pylibwholegraph
    libwholegraph
    tests
@@ -47,7 +46,6 @@ HELP="$0 [<target> ...] [<flag> ...]
    clean                      - remove all existing build artifacts and configuration (start over)
    uninstall                  - uninstall libwholegraph and GNN Python packages from a prior build/install (see also -n)
    cugraph-pyg                - build the cugraph-pyg Python package
-   cugraph-dgl                - build the cugraph-dgl extensions for DGL
    pylibwholegraph            - build the pylibwholegraph Python package
    libwholegraph              - build the libwholegraph library
    tests                      - build the C++ tests
@@ -64,17 +62,15 @@ HELP="$0 [<target> ...] [<flag> ...]
    --clean                    - clean an individual target (note: to do a complete rebuild, use the clean target described above)
    -h                         - print this text
 
- default action (no args) is to build and install 'libwholegraph' then 'pylibwholegraph' then 'cugraph-pyg' then 'cugraph-dgl'
+ default action (no args) is to build and install 'libwholegraph' then 'pylibwholegraph' then 'cugraph-pyg'
 
 "
 
 CUGRAPH_PYG_BUILD_DIR=${REPODIR}/python/cugraph-pyg/build
-CUGRAPH_DGL_BUILD_DIR=${REPODIR}/python/cugraph-dgl/build
 PYLIBWHOLEGRAPH_BUILD_DIR=${REPODIR}/python/pylibwholegraph/build
 LIBWHOLEGRAPH_BUILD_DIR=${REPODIR}/cpp/build
 
 BUILD_DIRS="${CUGRAPH_PYG_BUILD_DIR}
-            ${CUGRAPH_DGL_BUILD_DIR}
             ${PYLIBWHOLEGRAPH_BUILD_DIR}
             ${LIBWHOLEGRAPH_BUILD_DIR}
 "
@@ -175,11 +171,11 @@ if hasArg uninstall; then
         xargs rm -f < ${LIBWHOLEGRAPH_BUILD_DIR}/install_manifest.txt > /dev/null 2>&1
     fi
 
-    # uninstall cugraph-dgl/cugraph-pyg/wholegraph installed from a prior install
+    # uninstall cugraph-pyg/wholegraph installed from a prior install
     # FIXME: if multiple versions of these packages are installed, this only
     # removes the latest one and leaves the others installed. build.sh uninstall
     # can be run multiple times to remove all of them, but that is not obvious.
-    pip uninstall -y  cugraph-dgl cugraph-pyg pylibwholegraph libwholegraph
+    pip uninstall -y  cugraph-pyg pylibwholegraph libwholegraph
 fi
 
 if hasArg clean; then
@@ -263,14 +259,5 @@ if hasArg cugraph-pyg || buildDefault || hasArg all; then
         cleanPythonDir ${REPODIR}/python/cugraph-pyg
     else
         python ${PYTHON_ARGS_FOR_INSTALL} ${REPODIR}/python/cugraph-pyg
-    fi
-fi
-
-# Build and install the cugraph-dgl Python package
-if hasArg cugraph-dgl || buildDefault ||hasArg all; then
-    if hasArg --clean; then
-        cleanPythonDir ${REPODIR}/python/cugraph-dgl
-    else
-        python ${PYTHON_ARGS_FOR_INSTALL} ${REPODIR}/python/cugraph-dgl
     fi
 fi

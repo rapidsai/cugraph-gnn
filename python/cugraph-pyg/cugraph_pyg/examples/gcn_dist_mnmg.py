@@ -45,7 +45,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     rmm.reinitialize(
         devices=local_rank,
         managed_memory=True,
-        pool_allocator=True,
+        pool_allocator=False,
     )
 
     import cupy
@@ -125,7 +125,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
 def load_partitioned_data(rank, edge_path, feature_path, label_path, meta_path):
     from cugraph_pyg.data import GraphStore, FeatureStore
 
-    graph_store = GraphStore(is_multi_gpu=True)
+    graph_store = GraphStore()
     feature_store = FeatureStore()
 
     # Load metadata
@@ -391,35 +391,40 @@ if __name__ == "__main__":
             )
 
         dist.barrier()
-        data, split_idx, meta = load_partitioned_data(
-            rank=global_rank,
-            edge_path=edge_path,
-            feature_path=feature_path,
-            label_path=label_path,
-            meta_path=meta_path,
-        )
-        dist.barrier()
+        from rmm.allocators.torch import rmm_torch_allocator
 
-        model = torch_geometric.nn.models.GCN(
-            meta["num_features"],
-            args.hidden_channels,
-            args.num_layers,
-            meta["num_classes"],
-        ).to(device)
-        model = DistributedDataParallel(model, device_ids=[local_rank])
+        with torch.cuda.use_mem_pool(
+            torch.cuda.MemPool(rmm_torch_allocator.allocator())
+        ):
+            data, split_idx, meta = load_partitioned_data(
+                rank=global_rank,
+                edge_path=edge_path,
+                feature_path=feature_path,
+                label_path=label_path,
+                meta_path=meta_path,
+            )
+            dist.barrier()
 
-        run_train(
-            global_rank,
-            data,
-            split_idx,
-            device,
-            model,
-            args.epochs,
-            args.batch_size,
-            args.fan_out,
-            wall_clock_start,
-            args.num_layers,
-            args.seeds_per_call,
-        )
+            model = torch_geometric.nn.models.GCN(
+                meta["num_features"],
+                args.hidden_channels,
+                args.num_layers,
+                meta["num_classes"],
+            ).to(device)
+            model = DistributedDataParallel(model, device_ids=[local_rank])
+
+            run_train(
+                global_rank,
+                data,
+                split_idx,
+                device,
+                model,
+                args.epochs,
+                args.batch_size,
+                args.fan_out,
+                wall_clock_start,
+                args.num_layers,
+                args.seeds_per_call,
+            )
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")

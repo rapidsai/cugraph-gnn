@@ -29,5 +29,3 @@ rattler-build build --recipe conda/recipes/libwholegraph \
                     "${RATTLER_CHANNELS[@]}"
 
 sccache --show-adv-stats
-
-rapids-upload-conda-to-s3 cpp

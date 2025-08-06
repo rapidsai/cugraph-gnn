@@ -4,8 +4,6 @@ schema_version: 1
 context:
   version: ${{ env.get("RAPIDS_PACKAGE_VERSION") }}
   minor_version: ${{ (version | split("."))[:2] | join(".") }}
-  cuda_version: ${{ (env.get("RAPIDS_CUDA_VERSION") | split("."))[:2] | join(".") }}
-  cuda_major: '${{ (env.get("RAPIDS_CUDA_VERSION") | split("."))[0] }}'
   date_string: '${{ env.get("RAPIDS_DATE_STRING") }}'
   py_version: ${{ env.get("RAPIDS_PY_VERSION") }}
   py_buildstring: ${{ py_version | version_to_buildstring }}
@@ -25,10 +23,7 @@ build:
       ./build.sh cugraph-pyg --allgpuarch
 
 requirements:
-  build:
-    - ${{ stdlib("c") }}
   host:
-    - cython >=3.0.0
     - pip
     - python =${{ py_version }}
     - rapids-build-backend >=0.3.0,<0.4.0.dev0
@@ -43,10 +38,6 @@ requirements:
     - python
     - pytorch >=2.3
     - pytorch_geometric >=2.5,<2.7
-    - tensordict >=0.1.2
-  ignore_run_exports:
-    by_name:
-      - cuda-version
 
 tests:
   - python:

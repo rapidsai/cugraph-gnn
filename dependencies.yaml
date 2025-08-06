@@ -5,7 +5,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["11.8", "12.8"]
+      cuda: ["12.9"]
       arch: [x86_64, aarch64]
     includes:
       - checks
@@ -19,10 +19,9 @@ files:
       - depends_on_cudf
       - depends_on_dask_cudf
       - depends_on_cupy
+      - depends_on_cuml
       - depends_on_pytorch
-      - depends_on_dgl
       - depends_on_pyg
-      - python_run_cugraph_dgl
       - python_run_cugraph_pyg
       - rapids_build_setuptools
       - rapids_build_skbuild
@@ -30,7 +29,6 @@ files:
       - test_notebook
       - test_python_common
       - test_python_pylibwholegraph
-
   checks:
     output: none
     includes:
@@ -64,21 +62,9 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
+      - depends_on_cuml
       - py_version
       - test_python_common
-  test_cugraph_dgl:
-    output: none
-    includes:
-      - cuda_version
-      - depends_on_cugraph
-      - depends_on_cudf
-      - depends_on_dgl
-      - depends_on_pytorch
-      - py_version
-      - test_python_common
-      - depends_on_mkl
-      - depends_on_pylibwholegraph
-      - depends_on_cugraph_dgl
   test_cugraph_pyg:
     output: none
     includes:
@@ -86,6 +72,7 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
+      - depends_on_cuml
       - depends_on_ogb
       - depends_on_sentence_transformers
       - py_version
@@ -105,7 +92,6 @@ files:
       - depends_on_mkl
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
-
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -113,7 +99,6 @@ files:
       table: build-system
     includes:
       - rapids_build_skbuild
-
   py_rapids_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -124,7 +109,6 @@ files:
       - common_build
       - depends_on_libraft
       - depends_on_librmm
-
   py_run_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -133,7 +117,6 @@ files:
     includes:
       - depends_on_rapids_logger
       - depends_on_libraft
-
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -141,7 +124,6 @@ files:
       table: build-system
     includes:
       - rapids_build_skbuild
-
   py_rapids_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -154,7 +136,6 @@ files:
       - depends_on_libwholegraph
       - depends_on_libraft
       - depends_on_librmm
-
   py_run_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -172,32 +153,6 @@ files:
     includes:
       - test_python_common
       - test_python_pylibwholegraph
-
-  py_build_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: build-system
-    includes:
-      - rapids_build_setuptools
-  py_run_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: project
-    includes:
-      - depends_on_cugraph
-      - python_run_cugraph_dgl
-  py_test_cugraph_dgl:
-    output: pyproject
-    pyproject_dir: python/cugraph-dgl
-    extras:
-      table: project.optional-dependencies
-      key: test
-    includes:
-      - depends_on_pylibwholegraph
-      - depends_on_pytorch
-      - test_python_common
   py_build_cugraph_pyg:
     output: pyproject
     pyproject_dir: python/cugraph-pyg
@@ -225,25 +180,12 @@ files:
       - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pytorch
+      - depends_on_cuml
       - test_python_common
       - test_python_cugraph_pyg
-
-  cugraph_dgl_dev:
-    matrix:
-      cuda: ["11.8", "12.8"]
-      arch: [x86_64, aarch64]
-    output: conda
-    conda_dir: python/cugraph-dgl/conda
-    includes:
-      - checks
-      - depends_on_cugraph
-      - depends_on_dgl
-      - depends_on_pytorch
-      - cugraph_dgl_dev
-      - test_python_common
   cugraph_pyg_dev:
     matrix:
-      cuda: ["11.8", "12.8"]
+      cuda: ["12.9"]
       arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
@@ -252,14 +194,11 @@ files:
       - depends_on_cugraph
       - depends_on_pyg
       - depends_on_pytorch
-      - cugraph_pyg_dev
       - test_python_common
 channels:
   - rapidsai
   - rapidsai-nightly
-  - dask/label/dev
   - conda-forge
-  - nvidia
 dependencies:
   checks:
     common:
@@ -270,22 +209,6 @@ dependencies:
     specific:
       - output_types: conda
         matrices:
-          - matrix:
-              cuda: "11.2"
-            packages:
-              - cuda-version=11.2
-          - matrix:
-              cuda: "11.4"
-            packages:
-              - cuda-version=11.4
-          - matrix:
-              cuda: "11.5"
-            packages:
-              - cuda-version=11.5
-          - matrix:
-              cuda: "11.8"
-            packages:
-              - cuda-version=11.8
           - matrix:
               cuda: "12.0"
             packages:
@@ -333,11 +256,6 @@ dependencies:
               - libcurand-dev
               - libcusolver-dev
               - libcusparse-dev
-          - matrix:
-              cuda: "11.*"
-            packages:
-              - cudatoolkit
-              - cuda-nvtx
   common_build:
     common:
       - output_types: [conda, pyproject]
@@ -347,18 +265,6 @@ dependencies:
     specific:
       - output_types: [conda]
         matrices:
-          - matrix:
-              arch: x86_64
-              cuda: "11.*"
-            packages:
-              - gcc_linux-64=11.*
-              - nvcc_linux-64=11.8
-          - matrix:
-              arch: aarch64
-              cuda: "11.*"
-            packages:
-              - gcc_linux-aarch64=11.*
-              - nvcc_linux-aarch64=11.8
           - matrix:
               arch: x86_64
               cuda: "12.*"
@@ -371,7 +277,6 @@ dependencies:
             packages:
               - gcc_linux-aarch64=13.*
               - cuda-nvcc
-
   docs:
     common:
       - output_types: [conda]
@@ -417,17 +322,10 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - &numpy numpy>=1.23,<3.0a0
-  python_run_cugraph_dgl:
-    common:
-      - output_types: [conda, pyproject]
-        packages:
-          - &numba numba>=0.57
-          - *numpy
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject]
         packages:
-          - *numba
           - *numpy
           - pandas
   rapids_build_skbuild:
@@ -482,18 +380,6 @@ dependencies:
         packages:
           - pytest-forked
           - scipy
-  cugraph_dgl_dev:
-    common:
-      - output_types: [conda]
-        packages:
-          - dgl>=2.4.0.cu*
-          - &tensordict tensordict>=0.1.2,<=0.6.2
-  cugraph_pyg_dev:
-    common:
-      - output_types: [conda]
-        packages:
-          - *tensordict
-
   depends_on_pytorch:
     common:
       - output_types: [conda]
@@ -503,52 +389,30 @@ dependencies:
       - output_types: [requirements, pyproject]
         packages:
           - torch>=2.3
-          - tensordict>=0.1.2,<=0.6.2
     specific:
       - output_types: [requirements]
         matrices:
           - matrix: {cuda: "12.*"}
             packages:
               - --extra-index-url=https://download.pytorch.org/whl/cu126
-          - matrix: {cuda: "11.*"}
-            packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu118
           - {matrix: null, packages: null}
       - output_types: [conda]
         matrices:
-          - matrix: {cuda: "11.*"}
-            packages:
-              - pytorch>=2.3,<=2.5.1 # This is the final CUDA 11 build on conda-forge.
           - matrix: {cuda: "12.*"}
             packages:
               - pytorch>=2.3
           - {matrix: null, packages: ["pytorch>=2.3"]}
-
   depends_on_ogb:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - ogb
-
   # for MovieLens example
   depends_on_sentence_transformers:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - sentence-transformers
-
-  depends_on_dgl:
-    specific:
-      - output_types: [conda]
-        matrices:
-          - matrix: {arch: x86_64, cuda: "12.*"}
-            packages:
-              - "dglteam/label/th24_cu124::dgl"
-          - matrix: {arch: x86_64, cuda: "11.*"}
-            packages:
-              - "dglteam/label/th24_cu118::dgl"
-          - {matrix: null, packages: null}
-
   depends_on_pyg:
     common:
       - output_types: [conda]
@@ -557,12 +421,11 @@ dependencies:
       - output_types: [pyproject, requirements]
         packages:
           - torch-geometric>=2.5,<2.7
-
   depends_on_pylibwholegraph:
     common:
       - output_types: conda
         packages:
-          - &pylibwholegraph_unsuffixed pylibwholegraph==25.6.*
+          - &pylibwholegraph_unsuffixed pylibwholegraph==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -575,19 +438,13 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - pylibwholegraph-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibwholegraph-cu11==25.6.*
+              - pylibwholegraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibwholegraph_unsuffixed]}
-
   depends_on_libraft:
     common:
       - output_types: conda
         packages:
-          - &libraft_unsuffixed libraft==25.6.*
+          - &libraft_unsuffixed libraft==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -600,20 +457,14 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - libraft-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - libraft-cu11==25.6.*
+              - libraft-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*libraft_unsuffixed]}
-
   depends_on_librmm:
     common:
       - output_types: conda
         packages:
-          - librmm==25.6.*
-          - &librmm_unsuffixed librmm==25.6.*
+          - librmm==25.8.*,>=0.0.0a0
+          - &librmm_unsuffixed librmm==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -626,14 +477,8 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - librmm-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - librmm-cu11==25.6.*
+              - librmm-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*librmm_unsuffixed]}
-
   depends_on_rapids_logger:
     common:
       - output_types: [conda, requirements, pyproject]
@@ -643,12 +488,11 @@ dependencies:
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-
   depends_on_libwholegraph:
     common:
       - output_types: conda
         packages:
-          - &libwholegraph_unsuffixed libwholegraph==25.6.*
+          - &libwholegraph_unsuffixed libwholegraph==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -661,25 +505,18 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - libwholegraph-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - libwholegraph-cu11==25.6.*
+              - libwholegraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*libwholegraph_unsuffixed]}
-
   depends_on_libwholegraph_tests:
     common:
       - output_types: conda
         packages:
-          - libwholegraph-tests==25.6.*,>=0.0.0a0
-
+          - libwholegraph-tests==25.8.*,>=0.0.0a0
   depends_on_rmm:
     common:
       - output_types: conda
         packages:
-          - &rmm_unsuffixed rmm==25.6.*
+          - &rmm_unsuffixed rmm==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -692,19 +529,13 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - rmm-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - rmm-cu11==25.6.*
+              - rmm-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*rmm_unsuffixed]}
-
   depends_on_cugraph:
     common:
       - output_types: conda
         packages:
-          - &cugraph_unsuffixed cugraph==25.6.*
+          - &cugraph_unsuffixed cugraph==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -717,25 +548,32 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - cugraph-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu11==25.6.*
+              - cugraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cugraph_unsuffixed]}
-
-  depends_on_cugraph_dgl:
+  depends_on_cuml:
     common:
       - output_types: conda
         packages:
-          - cugraph-dgl==25.6.*
-
+          - &cuml_unsuffixed cuml==25.8.*,>=0.0.0a0
+      - output_types: requirements
+        packages:
+          # pip recognizes the index as a global option for the requirements.txt file
+          - --extra-index-url=https://pypi.nvidia.com
+          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - cuml-cu12==25.8.*,>=0.0.0a0
+          - {matrix: null, packages: [*cuml_unsuffixed]}
   depends_on_cudf:
     common:
       - output_types: conda
         packages:
-          - &cudf_unsuffixed cudf==25.6.*
+          - &cudf_unsuffixed cudf==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -748,19 +586,13 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - cudf-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - cudf-cu11==25.6.*
+              - cudf-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*cudf_unsuffixed]}
-
   depends_on_dask_cudf:
     common:
       - output_types: conda
         packages:
-          - &dask_cudf_unsuffixed dask-cudf==25.6.*
+          - &dask_cudf_unsuffixed dask-cudf==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -773,19 +605,13 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - dask-cudf-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu11==25.6.*
+              - dask-cudf-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*dask_cudf_unsuffixed]}
-
   depends_on_pylibcugraph:
     common:
       - output_types: conda
         packages:
-          - &pylibcugraph_unsuffixed pylibcugraph==25.6.*
+          - &pylibcugraph_unsuffixed pylibcugraph==25.8.*,>=0.0.0a0
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
@@ -798,14 +624,8 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - pylibcugraph-cu12==25.6.*
-          - matrix:
-              cuda: "11.*"
-              cuda_suffixed: "true"
-            packages:
-              - pylibcugraph-cu11==25.6.*
+              - pylibcugraph-cu12==25.8.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
-
   depends_on_cupy:
     common:
       - output_types: conda
@@ -817,18 +637,14 @@ dependencies:
     specific:
       - output_types: [requirements, pyproject]
         matrices:
-          - matrix: {cuda: "12.*"}
+          - matrix: # All CUDA 12 versions
             packages:
               - cupy-cuda12x>=13.2.0
-          - matrix: {cuda: "11.*"}
-            packages: &cupy_packages_cu11
-              - cupy-cuda11x>=13.2.0
-          - {matrix: null, packages: *cupy_packages_cu11}
   depends_on_cugraph_pyg:
     common:
       - output_types: conda
         packages:
-          - cugraph-pyg==25.6.*
+          - cugraph-pyg==25.8.*,>=0.0.0a0
   depends_on_mkl:
     common:
       - output_types: conda
