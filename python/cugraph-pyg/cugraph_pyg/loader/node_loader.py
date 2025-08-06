@@ -12,11 +12,11 @@
 # limitations under the License.
 
 import warnings
-
-import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
-from cugraph.utilities.utils import import_optional
+import cugraph_pyg
+from cugraph_pyg.utils.imports import import_optional
+
 from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")

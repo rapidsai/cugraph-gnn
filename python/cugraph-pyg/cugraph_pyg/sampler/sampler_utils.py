@@ -18,7 +18,7 @@ from math import ceil
 
 from cugraph_pyg.data import GraphStore
 
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
 import cupy
 import pylibcugraph
 

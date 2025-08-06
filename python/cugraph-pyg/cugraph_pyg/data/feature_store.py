@@ -18,8 +18,7 @@ from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
 from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
-
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 
 # Have to use import_optional even though these are required

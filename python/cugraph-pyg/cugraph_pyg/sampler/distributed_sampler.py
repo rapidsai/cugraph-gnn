@@ -22,8 +22,8 @@ import cudf
 
 from typing import Union, List, Dict, Tuple, Iterator, Optional
 
-from cugraph.utilities.utils import import_optional, MissingModule
-from cugraph.gnn.comms import cugraph_comms_get_raft_handle
+from cugraph_pyg.utils.imports import import_optional, MissingModule
+from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.sampler.sampler_utils import verify_metadata
 from cugraph_pyg.sampler.io import BufferedSampleReader
