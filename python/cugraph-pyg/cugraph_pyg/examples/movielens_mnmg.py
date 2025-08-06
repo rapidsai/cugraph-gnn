@@ -371,7 +371,7 @@ if __name__ == "__main__":
 
     # Create the uid needed for cuGraph comms
     if global_rank == 0:
-        from cugraph.gnn import (
+        from pylibcugraph.comms import (
             cugraph_comms_create_unique_id,
         )
 

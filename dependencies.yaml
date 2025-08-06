@@ -166,7 +166,6 @@ files:
     extras:
       table: project
     includes:
-      - depends_on_cugraph
       - depends_on_pyg
       - depends_on_pylibwholegraph
       - python_run_cugraph_pyg
