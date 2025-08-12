@@ -19,7 +19,6 @@ import os
 import warnings
 import time
 import json
-import gc
 
 import torch
 import torch.distributed as dist
@@ -169,6 +168,10 @@ def run_train(
     num_layers=3,
     seeds_per_call=-1,
 ):
+    if os.getenv("CI", "false").lower() == "true" and seeds_per_call <= 0:
+        warnings.warn("Detected CI environment; setting seeds_per_call to 20000")
+        seeds_per_call = 20000
+
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0005)
 
     kwargs = dict(
@@ -194,7 +197,9 @@ def run_train(
         input_nodes=ix_test,
         shuffle=True,
         drop_last=True,
-        local_seeds_per_call=80000,
+        local_seeds_per_call=min(seeds_per_call, 80000)
+        if seeds_per_call > 0
+        else 80000,
         **kwargs,
     )
 
@@ -216,9 +221,6 @@ def run_train(
         prep_time = round(time.perf_counter() - wall_clock_start, 2)
         print("Total time before training begins (prep_time) =", prep_time, "seconds")
         print("Beginning training...")
-
-    torch.cuda.empty_cache()
-    gc.collect()
 
     total_train_time = 0
     total_val_time = 0
