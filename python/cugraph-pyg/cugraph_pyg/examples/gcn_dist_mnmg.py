@@ -19,7 +19,7 @@ import os
 import warnings
 import time
 import json
-
+import gc
 
 import torch
 import torch.distributed as dist
@@ -216,6 +216,9 @@ def run_train(
         prep_time = round(time.perf_counter() - wall_clock_start, 2)
         print("Total time before training begins (prep_time) =", prep_time, "seconds")
         print("Beginning training...")
+
+    torch.cuda.empty_cache()
+    gc.collect()
 
     total_train_time = 0
     total_val_time = 0
