@@ -32,7 +32,7 @@ popd
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 # Enable expandable segments for PyTorch, helps prevent OOM
-# on machines with limited CPU/GPU memory.
+# on machines with limited GPU memory.
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
 rapids-logger "pytest cugraph-pyg (single GPU)"
