@@ -279,7 +279,7 @@ if __name__ == "__main__":
         from rmm.allocators.torch import rmm_torch_allocator
 
         with torch.cuda.use_mem_pool(
-            torch.cuda.MemPool(rmm_torch_allocator.allocator())
+            torch.cuda.MemPool(rmm_torch_allocator.allocator(), use_on_oom=True)
         ):
 
             if global_rank == 0:
