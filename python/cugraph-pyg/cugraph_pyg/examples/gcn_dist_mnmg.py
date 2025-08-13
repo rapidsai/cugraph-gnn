@@ -364,40 +364,6 @@ if __name__ == "__main__":
 
         init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id)
 
-        # Split the data
-        edge_path = os.path.join(args.dataset_root, args.dataset + "_eix_part")
-        feature_path = os.path.join(args.dataset_root, args.dataset + "_fea_part")
-        label_path = os.path.join(args.dataset_root, args.dataset + "_label_part")
-        meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
-
-        # We partition the data to avoid loading it in every worker, which will
-        # waste memory and can lead to an out of memory exception.
-        # cugraph_pyg.GraphStore and cugraph_pyg.FeatureStore are always
-        # constructed from partitions of the edge index and features, respectively,
-        # so this works well.
-        if not args.skip_partition and global_rank == 0:
-            with torch.serialization.safe_globals(
-                [
-                    torch_geometric.data.data.DataEdgeAttr,
-                    torch_geometric.data.data.DataTensorAttr,
-                    torch_geometric.data.storage.GlobalStorage,
-                ]
-            ):
-                dataset = PygNodePropPredDataset(
-                    name=args.dataset, root=args.dataset_root
-                )
-                split_idx = dataset.get_idx_split()
-
-            partition_data(
-                dataset,
-                split_idx,
-                meta_path=meta_path,
-                label_path=label_path,
-                feature_path=feature_path,
-                edge_path=edge_path,
-            )
-
-        dist.barrier()
         from rmm.allocators.torch import rmm_torch_allocator
 
         pool_kwargs = (
@@ -406,6 +372,41 @@ if __name__ == "__main__":
         with torch.cuda.use_mem_pool(
             torch.cuda.MemPool(rmm_torch_allocator.allocator(), **pool_kwargs)
         ):
+            # Split the data
+            edge_path = os.path.join(args.dataset_root, args.dataset + "_eix_part")
+            feature_path = os.path.join(args.dataset_root, args.dataset + "_fea_part")
+            label_path = os.path.join(args.dataset_root, args.dataset + "_label_part")
+            meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
+
+            # We partition the data to avoid loading it in every worker, which will
+            # waste memory and can lead to an out of memory exception.
+            # cugraph_pyg.GraphStore and cugraph_pyg.FeatureStore are always
+            # constructed from partitions of the edge index and features, respectively,
+            # so this works well.
+            if not args.skip_partition and global_rank == 0:
+                with torch.serialization.safe_globals(
+                    [
+                        torch_geometric.data.data.DataEdgeAttr,
+                        torch_geometric.data.data.DataTensorAttr,
+                        torch_geometric.data.storage.GlobalStorage,
+                    ]
+                ):
+                    dataset = PygNodePropPredDataset(
+                        name=args.dataset, root=args.dataset_root
+                    )
+                    split_idx = dataset.get_idx_split()
+
+                partition_data(
+                    dataset,
+                    split_idx,
+                    meta_path=meta_path,
+                    label_path=label_path,
+                    feature_path=feature_path,
+                    edge_path=edge_path,
+                )
+
+            dist.barrier(device_ids=[local_rank])
+
             data, split_idx, meta = load_partitioned_data(
                 rank=global_rank,
                 edge_path=edge_path,
@@ -413,7 +414,7 @@ if __name__ == "__main__":
                 label_path=label_path,
                 meta_path=meta_path,
             )
-            dist.barrier()
+            dist.barrier(device_ids=[local_rank])
 
             model = torch_geometric.nn.models.GCN(
                 meta["num_features"],
