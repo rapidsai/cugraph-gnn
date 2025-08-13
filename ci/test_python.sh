@@ -25,6 +25,10 @@ pushd "${RAPIDS_DATASET_ROOT_DIR}"
 ./get_test_data.sh --test
 popd
 
+# Enable expandable segments for PyTorch, helps prevent OOM
+# on machines with limited CPU/GPU memory.
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+
 EXITCODE=0
 trap "EXITCODE=1" ERR
 set +e

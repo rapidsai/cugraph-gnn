@@ -31,6 +31,10 @@ popd
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
+# Enable expandable segments for PyTorch, helps prevent OOM
+# on machines with limited CPU/GPU memory.
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+
 rapids-logger "pytest cugraph-pyg (single GPU)"
 pushd python/cugraph-pyg/cugraph_pyg
 python -m pytest \

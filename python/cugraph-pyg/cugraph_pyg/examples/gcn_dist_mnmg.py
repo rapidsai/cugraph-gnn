@@ -169,8 +169,8 @@ def run_train(
     seeds_per_call=-1,
 ):
     if os.getenv("CI", "false").lower() == "true" and seeds_per_call <= 0:
-        warnings.warn("Detected CI environment; setting seeds_per_call to 20000")
-        seeds_per_call = 20000
+        warnings.warn("Detected CI environment; setting seeds_per_call to 8192")
+        seeds_per_call = 8192
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0005)
 
