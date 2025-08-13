@@ -137,7 +137,7 @@ class LinkNeighborLoader(LinkLoader):
             per sampling call is equal to the sum of this parameter across
             all workers.  If not provided, it will be automatically
             calculated.
-            See cugraph.gnn.DistSampler.
+            See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.
         """

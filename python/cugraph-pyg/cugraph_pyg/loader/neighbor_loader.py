@@ -120,15 +120,6 @@ class NeighborLoader(NodeLoader):
         batch_size: int (optional, default=16)
             The number of input nodes per output minibatch.
             See torch.utils.dataloader.
-        batches_per_partition: int (optional, default=256)
-            The number of batches per partition if writing samples to
-            disk.  Manually tuning this parameter is not recommended
-            but reducing it may help conserve GPU memory.
-            See cugraph.gnn.DistSampleWriter.
-        format: str (optional, default='parquet')
-            If writing samples to disk, they will be written in this
-            file format.
-            See cugraph.gnn.DistSampleWriter.
         compression: str (optional, default=None)
             The compression type to use if writing samples to disk.
             If not provided, it is automatically chosen.
@@ -139,7 +130,7 @@ class NeighborLoader(NodeLoader):
             per sampling call is equal to the sum of this parameter across
             all workers.  If not provided, it will be automatically
             calculated.
-            See cugraph.gnn.DistSampler.
+            See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.
         """
