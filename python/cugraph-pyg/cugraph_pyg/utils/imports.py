@@ -60,7 +60,7 @@ def import_optional(mod, default_mod_class=MissingModule):
 
     Example
     -------
-    >> from cugraph.utils import import_optional
+    >> from cugraph_pyg.utils.imports import import_optional
     >> nx = import_optional("networkx")  # networkx is not installed
     >> G = nx.Graph()
     Traceback (most recent call last):
