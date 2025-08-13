@@ -28,6 +28,8 @@ from torch.nn.parallel import DistributedDataParallel
 
 import torch_geometric
 
+from packaging.version import Version
+
 from pylibwholegraph.torch.initialize import (
     init as wm_init,
     finalize as wm_finalize,
@@ -398,8 +400,11 @@ if __name__ == "__main__":
         dist.barrier()
         from rmm.allocators.torch import rmm_torch_allocator
 
+        pool_kwargs = (
+            {"use_on_oom": True} if Version(torch.__version__) >= Version("2.8") else {}
+        )
         with torch.cuda.use_mem_pool(
-            torch.cuda.MemPool(rmm_torch_allocator.allocator(), use_on_oom=True)
+            torch.cuda.MemPool(rmm_torch_allocator.allocator(), **pool_kwargs)
         ):
             data, split_idx, meta = load_partitioned_data(
                 rank=global_rank,
