@@ -20,7 +20,6 @@ import warnings
 import time
 import json
 
-
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
@@ -169,6 +168,10 @@ def run_train(
     num_layers=3,
     seeds_per_call=-1,
 ):
+    if os.getenv("CI", "false").lower() == "true" and seeds_per_call <= 0:
+        warnings.warn("Detected CI environment; setting seeds_per_call to 20000")
+        seeds_per_call = 20000
+
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0005)
 
     kwargs = dict(
@@ -194,7 +197,9 @@ def run_train(
         input_nodes=ix_test,
         shuffle=True,
         drop_last=True,
-        local_seeds_per_call=80000,
+        local_seeds_per_call=min(seeds_per_call, 80000)
+        if seeds_per_call > 0
+        else 80000,
         **kwargs,
     )
 
