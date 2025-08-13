@@ -182,6 +182,7 @@ files:
       - depends_on_pylibcugraph
       - depends_on_pytorch
       - depends_on_cuml
+      - depends_on_cugraph
       - test_python_common
       - test_python_cugraph_pyg
   cugraph_pyg_dev:
