@@ -56,6 +56,33 @@ files:
       - depends_on_pytorch
       - py_version
       - test_notebook
+  test_cugraph_pyg:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_pytorch
+      - depends_on_cuml
+      - depends_on_ogb
+      - depends_on_sentence_transformers
+      - py_version
+      - test_python_common
+      - depends_on_mkl
+      - depends_on_pylibwholegraph
+      - depends_on_cugraph_pyg
+  test_pylibwholegraph:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_cugraph
+      - depends_on_cudf
+      - depends_on_pytorch
+      - py_version
+      - test_python_common
+      - depends_on_mkl
+      - depends_on_pylibwholegraph
+      - test_python_pylibwholegraph
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
