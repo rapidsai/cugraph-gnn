@@ -19,7 +19,7 @@ from cugraph_pyg.sampler import DistributedNeighborSampler
 
 from pylibcugraph import SGGraph, ResourceHandle, GraphProperties
 
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 
 torch = import_optional("torch")

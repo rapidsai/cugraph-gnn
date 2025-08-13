@@ -16,7 +16,7 @@ import pytest
 import os
 
 from cugraph.datasets import karate
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import GraphStore, FeatureStore
 from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
