@@ -75,7 +75,6 @@ files:
     output: none
     includes:
       - cuda_version
-      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
       - py_version
