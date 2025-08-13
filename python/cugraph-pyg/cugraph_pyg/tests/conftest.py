@@ -16,7 +16,11 @@ import os
 import torch
 
 
-import cugraph
+from pylibcugraph.comms import (
+    cugraph_comms_init,
+    cugraph_comms_shutdown,
+    cugraph_comms_create_unique_id,
+)
 
 
 # module-wide fixtures
@@ -41,11 +45,11 @@ def single_pytorch_worker():
     os.environ["LOCAL_RANK"] = "0"
     os.environ["LOCAL_WORLD_SIZE"] = "1"
     torch.distributed.init_process_group("nccl", rank=0, world_size=1)
-    cugraph.gnn.cugraph_comms_init(
-        rank=0, world_size=1, uid=cugraph.gnn.cugraph_comms_create_unique_id(), device=0
+    cugraph_comms_init(
+        rank=0, world_size=1, uid=cugraph_comms_create_unique_id(), device=0
     )
     yield
-    cugraph.gnn.cugraph_comms_shutdown()
+    cugraph_comms_shutdown()
     torch.distributed.destroy_process_group()
 
 
