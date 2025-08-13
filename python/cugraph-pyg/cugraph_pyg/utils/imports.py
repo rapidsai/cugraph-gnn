@@ -60,7 +60,7 @@ def import_optional(mod, default_mod_class=MissingModule):
 
     Example
     -------
-    >> from cugraph.utils import import_optional
+    >> from cugraph_pyg.utils.imports import import_optional
     >> nx = import_optional("networkx")  # networkx is not installed
     >> G = nx.Graph()
     Traceback (most recent call last):
@@ -78,7 +78,7 @@ def import_optional(mod, default_mod_class=MissingModule):
     ..     import pandas
     ..     return getattr(pandas, attr)
     ...
-    >> from cugraph.utils import import_optional
+    >> from from cugraph_pyg.utils.imports import import_optional
     >> df_mod = import_optional("cudf", default_mod_class=CuDFFallback)
     <stdin>:4: UserWarning: cudf could not be imported, using pandas instead!
     >> df = df_mod.DataFrame()
