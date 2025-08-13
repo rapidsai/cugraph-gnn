@@ -49,6 +49,118 @@ files:
       - test_cpp
       - depends_on_libwholegraph
       - depends_on_libwholegraph_tests
+  test_notebooks:
+    output: none
+    includes:
+      - cuda_version
+      - depends_on_pytorch
+      - py_version
+      - test_notebook
+  py_build_libwholegraph:
+    output: pyproject
+    pyproject_dir: python/libwholegraph
+    extras:
+      table: build-system
+    includes:
+      - rapids_build_skbuild
+  py_rapids_build_libwholegraph:
+    output: pyproject
+    pyproject_dir: python/libwholegraph
+    extras:
+      table: tool.rapids-build-backend
+      key: requires
+    includes:
+      - common_build
+      - depends_on_libraft
+      - depends_on_librmm
+  py_run_libwholegraph:
+    output: pyproject
+    pyproject_dir: python/libwholegraph
+    extras:
+      table: project
+    includes:
+      - depends_on_rapids_logger
+      - depends_on_libraft
+  py_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: build-system
+    includes:
+      - rapids_build_skbuild
+  py_rapids_build_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: tool.rapids-build-backend
+      key: requires
+    includes:
+      - common_build
+      - python_build_cythonize
+      - depends_on_libwholegraph
+      - depends_on_libraft
+      - depends_on_librmm
+  py_run_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project
+    includes:
+      - python_run_pylibwholegraph
+      - depends_on_libwholegraph
+  py_test_pylibwholegraph:
+    output: pyproject
+    pyproject_dir: python/pylibwholegraph
+    extras:
+      table: project.optional-dependencies
+      key: test
+    includes:
+      - test_python_common
+      - test_python_pylibwholegraph
+  py_build_cugraph_pyg:
+    output: pyproject
+    pyproject_dir: python/cugraph-pyg
+    extras:
+      table: build-system
+    includes:
+      - rapids_build_setuptools
+  py_run_cugraph_pyg:
+    output: pyproject
+    pyproject_dir: python/cugraph-pyg
+    extras:
+      table: project
+    includes:
+      - depends_on_pyg
+      - depends_on_pylibwholegraph
+      - depends_on_pylibcugraph
+      - python_run_cugraph_pyg
+  py_test_cugraph_pyg:
+    output: pyproject
+    pyproject_dir: python/cugraph-pyg
+    extras:
+      table: project.optional-dependencies
+      key: test
+    includes:
+      - depends_on_pyg
+      - depends_on_pylibwholegraph
+      - depends_on_pylibcugraph
+      - depends_on_pytorch
+      - depends_on_cuml
+      - depends_on_cugraph
+      - test_python_common
+      - test_python_cugraph_pyg
+  cugraph_pyg_dev:
+    matrix:
+      cuda: ["12.9"]
+      arch: [x86_64, aarch64]
+    output: conda
+    conda_dir: python/cugraph-pyg/conda
+    includes:
+      - checks
+      - depends_on_pylibcugraph
+      - depends_on_pyg
+      - depends_on_pytorch
+      - test_python_common
 channels:
   - rapidsai
   - rapidsai-nightly
