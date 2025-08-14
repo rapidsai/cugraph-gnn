@@ -27,7 +27,7 @@ import torch.distributed as dist
 
 import cudf
 
-from cugraph.gnn import (
+from pylibcugraph.comms import (
     cugraph_comms_init,
     cugraph_comms_shutdown,
     cugraph_comms_create_unique_id,

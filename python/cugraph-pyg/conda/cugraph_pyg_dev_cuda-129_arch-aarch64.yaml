@@ -5,9 +5,9 @@ channels:
 - rapidsai-nightly
 - conda-forge
 dependencies:
-- cugraph==25.10.*,>=0.0.0a0
 - pre-commit
 - pydantic
+- pylibcugraph==25.10.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov
