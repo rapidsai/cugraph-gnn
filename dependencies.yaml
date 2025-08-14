@@ -156,7 +156,6 @@ files:
     extras:
       table: project
     includes:
-      - depends_on_cudf
       - depends_on_cupy
       - depends_on_pyg
       - depends_on_pylibwholegraph
