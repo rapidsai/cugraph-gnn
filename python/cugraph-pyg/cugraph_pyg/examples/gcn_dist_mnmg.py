@@ -20,7 +20,6 @@ import warnings
 import time
 import json
 
-
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
@@ -57,7 +56,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     torch.cuda.set_device(local_rank)
 
-    from cugraph.gnn import cugraph_comms_init
+    from pylibcugraph.comms import cugraph_comms_init
 
     cugraph_comms_init(
         rank=global_rank, world_size=world_size, uid=cugraph_id, device=local_rank
@@ -169,6 +168,10 @@ def run_train(
     num_layers=3,
     seeds_per_call=-1,
 ):
+    if os.getenv("CI", "false").lower() == "true" and seeds_per_call <= 0:
+        warnings.warn("Detected CI environment; setting seeds_per_call to 20000")
+        seeds_per_call = 20000
+
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0005)
 
     kwargs = dict(
@@ -194,7 +197,9 @@ def run_train(
         input_nodes=ix_test,
         shuffle=True,
         drop_last=True,
-        local_seeds_per_call=80000,
+        local_seeds_per_call=min(seeds_per_call, 80000)
+        if seeds_per_call > 0
+        else 80000,
         **kwargs,
     )
 
@@ -310,7 +315,7 @@ def run_train(
 
     wm_finalize()
 
-    from cugraph.gnn import cugraph_comms_shutdown
+    from pylibcugraph.comms import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()
 
@@ -345,7 +350,7 @@ if __name__ == "__main__":
 
         # Create the uid needed for cuGraph comms
         if global_rank == 0:
-            from cugraph.gnn import (
+            from pylibcugraph.comms import (
                 cugraph_comms_create_unique_id,
             )
 
