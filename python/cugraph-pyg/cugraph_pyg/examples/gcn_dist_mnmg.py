@@ -19,6 +19,7 @@ import os
 import warnings
 import time
 import json
+import gc
 
 import torch
 import torch.distributed as dist
@@ -406,6 +407,9 @@ if __name__ == "__main__":
                 )
 
             dist.barrier(device_ids=[local_rank])
+
+            del dataset
+            gc.collect()
 
             data, split_idx, meta = load_partitioned_data(
                 rank=global_rank,
