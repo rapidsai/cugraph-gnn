@@ -21,8 +21,8 @@ import cugraph_pyg
 from cugraph_pyg.loader import LinkLoader
 from cugraph_pyg.sampler import BaseSampler
 
-from cugraph.gnn import NeighborSampler, DistSampleWriter
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.sampler.distributed_sampler import DistributedNeighborSampler
+from cugraph_pyg.utils.imports import import_optional
 
 torch_geometric = import_optional("torch_geometric")
 
@@ -67,9 +67,6 @@ class LinkNeighborLoader(LinkLoader):
         neighbor_sampler: Optional["torch_geometric.sampler.NeighborSampler"] = None,
         directed: bool = True,  # Deprecated.
         batch_size: int = 16,  # Refers to number of edges per batch.
-        directory: Optional[str] = None,
-        batches_per_partition=256,
-        format: str = "parquet",
         compression: Optional[str] = None,
         local_seeds_per_call: Optional[int] = None,
         **kwargs,
@@ -130,25 +127,6 @@ class LinkNeighborLoader(LinkLoader):
         batch_size: int (optional, default=16)
             The number of input nodes per output minibatch.
             See torch.utils.dataloader.
-        directory: str (optional, default=None)
-            The directory where samples will be temporarily stored,
-            if spilling samples to disk.  If None, this loader
-            will perform buffered in-memory sampling.
-            If writing to disk, setting this argument
-            to a tempfile.TemporaryDirectory with a context
-            manager is a good option but depending on the filesystem,
-            you may want to choose an alternative location with fast I/O
-            intead.
-            See cugraph.gnn.DistSampleWriter.
-        batches_per_partition: int (optional, default=256)
-            The number of batches per partition if writing samples to
-            disk.  Manually tuning this parameter is not recommended
-            but reducing it may help conserve GPU memory.
-            See cugraph.gnn.DistSampleWriter.
-        format: str (optional, default='parquet')
-            If writing samples to disk, they will be written in this
-            file format.
-            See cugraph.gnn.DistSampleWriter.
         compression: str (optional, default=None)
             The compression type to use if writing samples to disk.
             If not provided, it is automatically chosen.
@@ -159,19 +137,12 @@ class LinkNeighborLoader(LinkLoader):
             per sampling call is equal to the sum of this parameter across
             all workers.  If not provided, it will be automatically
             calculated.
-            See cugraph.gnn.DistSampler.
+            See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.
         """
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
-
-        if directory is not None:
-            warnings.warn(
-                "Unbuffered sampling, where samples are dumped to disk"
-                ", is deprecated in cuGraph-PyG and will be removed in release 25.06.",
-                FutureWarning,
-            )
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -210,20 +181,6 @@ class LinkNeighborLoader(LinkLoader):
                 raise ValueError(
                     "Only COO format is supported for heterogeneous graphs!"
                 )
-            if directory is not None:
-                raise ValueError(
-                    "Writing to disk is not supported for heterogeneous graphs!"
-                )
-
-        writer = (
-            None
-            if directory is None
-            else DistSampleWriter(
-                directory=directory,
-                batches_per_partition=batches_per_partition,
-                format=format,
-            )
-        )
 
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
@@ -240,9 +197,8 @@ class LinkNeighborLoader(LinkLoader):
             num_neighbors = na
 
         sampler = BaseSampler(
-            NeighborSampler(
+            DistributedNeighborSampler(
                 graph_store._graph,
-                writer,
                 retain_original_seeds=True,
                 fanout=num_neighbors,
                 prior_sources_behavior="exclude",

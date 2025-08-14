@@ -16,12 +16,12 @@ import pytest
 import os
 
 from cugraph.datasets import karate
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import GraphStore, FeatureStore
 from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
 
-from cugraph.gnn import (
+from pylibcugraph.comms import (
     cugraph_comms_init,
     cugraph_comms_shutdown,
     cugraph_comms_create_unique_id,

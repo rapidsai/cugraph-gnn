@@ -53,7 +53,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, uid):
 
     torch.cuda.set_device(local_rank)
 
-    from cugraph.gnn import cugraph_comms_init
+    from pylibcugraph.comms import cugraph_comms_init
 
     cugraph_comms_init(
         global_rank,
@@ -249,7 +249,7 @@ def run_train(global_rank, local_rank, model, data, edge_feature_store, splits, 
 
     wm_finalize()
 
-    from cugraph.gnn import cugraph_comms_shutdown
+    from pylibcugraph.comms import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()
 
@@ -266,7 +266,7 @@ if __name__ == "__main__":
 
         # Create the uid needed for cuGraph comms
         if global_rank == 0:
-            from cugraph.gnn import cugraph_comms_create_unique_id
+            from pylibcugraph.comms import cugraph_comms_create_unique_id
 
             cugraph_id = [cugraph_comms_create_unique_id()]
         else:
