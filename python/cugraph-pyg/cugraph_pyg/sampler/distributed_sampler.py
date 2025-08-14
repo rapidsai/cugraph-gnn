@@ -18,7 +18,6 @@ from functools import reduce
 import pylibcugraph
 import numpy as np
 import cupy
-import cudf
 
 from typing import Union, List, Dict, Tuple, Iterator, Optional
 
@@ -29,7 +28,7 @@ from cugraph_pyg.sampler.sampler_utils import verify_metadata
 from cugraph_pyg.sampler.io import BufferedSampleReader
 
 torch = MissingModule("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, cudf.Series]
+TensorType = Union["torch.Tensor", cupy.ndarray, "cudf.Series"]
 
 
 class BaseDistributedSampler:
