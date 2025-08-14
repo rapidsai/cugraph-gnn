@@ -15,7 +15,7 @@ from typing import Union, List
 
 import os
 
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
 
 torch = import_optional("torch")
 wgth = import_optional("pylibwholegraph.torch")

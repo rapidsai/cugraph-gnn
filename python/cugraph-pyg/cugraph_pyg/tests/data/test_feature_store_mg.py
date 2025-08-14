@@ -15,7 +15,7 @@ import os
 
 import pytest
 
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import FeatureStore
 

@@ -19,9 +19,9 @@ import pandas
 
 import pylibcugraph
 
-from cugraph.utilities.utils import import_optional, MissingModule
-from cugraph.gnn.comms import cugraph_comms_get_raft_handle
+from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
 from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
