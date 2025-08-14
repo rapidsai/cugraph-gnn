@@ -134,6 +134,7 @@ files:
     includes:
       - python_run_pylibwholegraph
       - depends_on_libwholegraph
+
   py_test_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -156,6 +157,8 @@ files:
     extras:
       table: project
     includes:
+      - depends_on_cudf
+      - depends_on_cupy
       - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pylibcugraph
@@ -167,9 +170,6 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - depends_on_pyg
-      - depends_on_pylibwholegraph
-      - depends_on_pylibcugraph
       - depends_on_pytorch
       - depends_on_cuml
       - depends_on_cugraph
@@ -316,9 +316,10 @@ dependencies:
           - &numpy numpy>=1.23,<3.0a0
   python_run_cugraph_pyg:
     common:
-      - output_types: [conda, pyproject]
+      - output_types: [conda, pyproject, requirements]
         packages:
           - *numpy
+          - packaging
           - pandas
   rapids_build_skbuild:
     common:
