@@ -34,7 +34,9 @@ cudf = import_optional("cudf")
 # dependencies in order to build properly.
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, np.ndarray, "cudf.Series", pandas.Series]
+TensorType = Union[
+    "torch.Tensor", cupy.ndarray, np.ndarray, "cudf.Series", pandas.Series
+]
 
 
 class GraphStore(
