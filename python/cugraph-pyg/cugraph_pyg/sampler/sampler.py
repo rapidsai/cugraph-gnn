@@ -13,8 +13,8 @@
 
 from typing import Optional, Iterator, Union, Dict, Tuple, List
 
-from cugraph.utilities.utils import import_optional
-from cugraph.gnn import DistSampler
+from cugraph_pyg.utils.imports import import_optional
+from cugraph_pyg.sampler.distributed_sampler import DistributedNeighborSampler
 
 from .sampler_utils import filter_cugraph_pyg_store, neg_sample, neg_cat
 
@@ -734,7 +734,7 @@ class HomogeneousSampleReader(SampleReader):
 class BaseSampler:
     def __init__(
         self,
-        sampler: DistSampler,
+        sampler: DistributedNeighborSampler,
         data: Tuple[
             "torch_geometric.data.FeatureStore", "torch_geometric.data.GraphStore"
         ],

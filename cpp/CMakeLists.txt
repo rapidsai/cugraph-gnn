@@ -96,13 +96,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 message("-- Building for GPU_ARCHS = ${CMAKE_CUDA_ARCHITECTURES}")
 
 # Enable device code compression to reduce binary sizes
-list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xfatbin=-compress-all)
-if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA"
-   AND (CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 12.9 AND CMAKE_CUDA_COMPILER_VERSION
-                                                                   VERSION_LESS 13.0)
-)
-  list(APPEND WHOLEGRAPH_CUDA_FLAGS -Xfatbin=--compress-level=3)
-endif()
+include(${rapids-cmake-dir}/cuda/enable_fatbin_compression.cmake)
+rapids_cuda_enable_fatbin_compression(VARIABLE WHOLEGRAPH_CUDA_FLAGS TUNE_FOR rapids)
 
 # Option to enable line info in CUDA device compilation to allow introspection when profiling /
 # memchecking
