@@ -15,7 +15,6 @@ import os
 
 import numpy as np
 import cupy
-import cudf
 import pandas
 
 import pylibcugraph
@@ -26,15 +25,18 @@ from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
 from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
-
 from typing import Union, Optional, List, Dict, Tuple
 
+# cudf is an optional dependency.  It is only imported here for typing.
+cudf = import_optional("cudf")
 
 # Have to use import_optional even though these are required
 # dependencies in order to build properly.
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, np.ndarray, cudf.Series, pandas.Series]
+TensorType = Union[
+    "torch.Tensor", cupy.ndarray, np.ndarray, "cudf.Series", pandas.Series
+]
 
 
 class GraphStore(

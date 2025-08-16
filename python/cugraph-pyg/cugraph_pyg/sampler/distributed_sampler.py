@@ -18,18 +18,18 @@ from functools import reduce
 import pylibcugraph
 import numpy as np
 import cupy
-import cudf
 
 from typing import Union, List, Dict, Tuple, Iterator, Optional
 
-from cugraph_pyg.utils.imports import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional
 from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.sampler.sampler_utils import verify_metadata
 from cugraph_pyg.sampler.io import BufferedSampleReader
 
-torch = MissingModule("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, cudf.Series]
+torch = import_optional("torch")
+cudf = import_optional("cudf")
+TensorType = Union["torch.Tensor", cupy.ndarray, "cudf.Series"]
 
 
 class BaseDistributedSampler:
@@ -149,7 +149,6 @@ class BaseDistributedSampler:
             and whether the input sizes on each rank are equal (bool).
 
         """
-        torch = import_optional("torch")
 
         input_size_is_equal = True
         if self.is_multi_gpu:
@@ -192,7 +191,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        torch = import_optional("torch")
 
         current_seeds, current_ix = current_seeds_and_ix
 
@@ -247,7 +245,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
     ):
-        torch = import_optional("torch")
 
         # Split the input seeds into call groups.  Each call group
         # corresponds to one sampling call.  A call group contains
@@ -324,7 +321,6 @@ class BaseDistributedSampler:
             type of the graph and the edge types.  This is only
             used for heterogeneous graphs.
         """
-        torch = import_optional("torch")
 
         verify_metadata(metadata)
 
@@ -378,7 +374,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        torch = import_optional("torch")
 
         current_seeds, current_ix, current_label = current_seeds_and_ix
         num_seed_edges = current_ix.numel()

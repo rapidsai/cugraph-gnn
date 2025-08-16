@@ -11,7 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
+from cugraph_pyg.utils.imports import import_optional
+
+torch = import_optional("torch")
 
 
 def generate_seed():
