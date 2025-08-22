@@ -23,12 +23,6 @@ torchrun \
   --nnodes 1 \
   --nproc-per-node 2 \
   python/cugraph-pyg/cugraph_pyg/examples/movielens_mnmg.py
-
-torchrun \
-  --nnodes 1 \
-  --nproc-per-node 2 \
-  python/cugraph-pyg/cugraph_pyg/examples/gcn_dist_mnmg.py
-
 ```
 
 - `--nnodes` sets the number of nodes (in this case just 1 since you're training on a single node)
