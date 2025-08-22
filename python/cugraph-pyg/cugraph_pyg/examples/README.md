@@ -10,8 +10,10 @@ docker run \
   -it \
   --gpus all \
   -v $PWD:/workspace/cugraph-gnn \
-  nvcr.io/nvidia/pyg:25.10-py3 \
+  rapidsai/ci-conda:25.10-cuda12.0.1-rockylinux8-py3.12 \
   bash
+
+mamba install -c conda-forge -c rapidsai-nightly   "pytorch" "cuda-version=12.9"   "cugraph-pyg=25.10.*" "pylibwholegraph=25.10.*" "cudf=25.10.*"   "cuml=25.10.*" "ogb" "sentence-transformers"
 ```
 
 ```bash
