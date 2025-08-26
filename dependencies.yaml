@@ -302,11 +302,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - cython>=3.0.0
-  python_run_libwholegraph:
-    common:
-      - output_types: [conda, pyproject, requirements]
-        packages:
-          - depends_on_rapids_logger
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
