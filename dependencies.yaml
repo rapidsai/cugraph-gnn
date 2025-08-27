@@ -21,6 +21,7 @@ files:
       - depends_on_dask_cudf
       - depends_on_cupy
       - depends_on_cuml
+      - depends_on_nccl
       - depends_on_pytorch
       - depends_on_pyg
       - python_run_cugraph_pyg
@@ -49,6 +50,7 @@ files:
       - test_cpp
       - depends_on_libwholegraph
       - depends_on_libwholegraph_tests
+      - depends_on_nccl
   test_notebooks:
     output: none
     includes:
@@ -106,6 +108,8 @@ files:
       table: project
     includes:
       - depends_on_libraft
+      - depends_on_nccl
+      - depends_on_rapids_logger
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -336,7 +340,6 @@ dependencies:
       - output_types: conda
         packages:
           - *cmake_ver
-          - nccl>=2.19
   test_notebook:
     common:
       - output_types: [conda, requirements]
@@ -387,6 +390,21 @@ dependencies:
             packages:
               - pytorch>=2.3
           - {matrix: null, packages: ["pytorch>=2.3"]}
+  depends_on_nccl:
+    common:
+      - output_types: conda
+        packages:
+          - nccl>=2.19
+    specific:
+      - output_types: [pyproject, requirements]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - nvidia-nccl-cu12>=2.19
+          - matrix:
+            packages:
   depends_on_ogb:
     common:
       - output_types: [conda, requirements, pyproject]
