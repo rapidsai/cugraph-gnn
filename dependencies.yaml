@@ -109,7 +109,6 @@ files:
     includes:
       - depends_on_libraft
       - depends_on_nccl
-      - depends_on_rapids_logger
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
