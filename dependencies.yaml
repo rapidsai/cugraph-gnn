@@ -18,7 +18,6 @@ files:
       - depends_on_pylibcugraph
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dask_cudf
       - depends_on_cupy
       - depends_on_cuml
       - depends_on_nccl
@@ -600,25 +599,6 @@ dependencies:
             packages:
               - cudf-cu12==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*cudf_unsuffixed]}
-  depends_on_dask_cudf:
-    common:
-      - output_types: conda
-        packages:
-          - &dask_cudf_unsuffixed dask-cudf==25.10.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu12==25.10.*,>=0.0.0a0
-          - {matrix: null, packages: [*dask_cudf_unsuffixed]}
   depends_on_pylibcugraph:
     common:
       - output_types: conda
