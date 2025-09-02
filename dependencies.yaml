@@ -18,9 +18,9 @@ files:
       - depends_on_pylibcugraph
       - depends_on_cugraph
       - depends_on_cudf
-      - depends_on_dask_cudf
       - depends_on_cupy
       - depends_on_cuml
+      - depends_on_nccl
       - depends_on_pytorch
       - depends_on_pyg
       - python_run_cugraph_pyg
@@ -49,6 +49,7 @@ files:
       - test_cpp
       - depends_on_libwholegraph
       - depends_on_libwholegraph_tests
+      - depends_on_nccl
   test_notebooks:
     output: none
     includes:
@@ -105,8 +106,8 @@ files:
     extras:
       table: project
     includes:
-      - depends_on_rapids_logger
       - depends_on_libraft
+      - depends_on_nccl
   py_build_pylibwholegraph:
     output: pyproject
     pyproject_dir: python/pylibwholegraph
@@ -302,11 +303,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - cython>=3.0.0
-  python_run_libwholegraph:
-    common:
-      - output_types: [conda, pyproject, requirements]
-        packages:
-          - depends_on_rapids_logger
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -342,7 +338,6 @@ dependencies:
       - output_types: conda
         packages:
           - *cmake_ver
-          - nccl>=2.19
   test_notebook:
     common:
       - output_types: [conda, requirements]
@@ -391,7 +386,23 @@ dependencies:
               cuda: "13.*"
             packages:
               - --extra-index-url=https://download.pytorch.org/whl/cu130
-          - {matrix: null, packages: null}
+          - matrix:
+            packages:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+            packages:
+              - torch>=2.3
+          - matrix:
+              cuda: "13.*"
+            packages:
+              # TODO: remove this 'a0' (which allows nightlies) once there are pytorch CUDA 13 released packages
+              #  ref: https://github.com/pytorch/pytorch/issues/159779
+              - &pytorch_pip torch>=2.9.0a0
+          - matrix:
+            packages:
+              - *pytorch_pip
       - output_types: [conda]
         matrices:
           - matrix:
@@ -402,6 +413,22 @@ dependencies:
           - matrix:
             packages:
               - pytorch>=2.9
+          - {matrix: null, packages: ["pytorch>=2.3"]}
+  depends_on_nccl:
+    common:
+      - output_types: conda
+        packages:
+          - nccl>=2.19
+    specific:
+      - output_types: [pyproject, requirements]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - nvidia-nccl-cu12>=2.19
+          - matrix:
+            packages:
   depends_on_ogb:
     common:
       - output_types: [conda, requirements, pyproject]
@@ -494,15 +521,6 @@ dependencies:
             packages:
               - librmm-cu13==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*librmm_unsuffixed]}
-  depends_on_rapids_logger:
-    common:
-      - output_types: [conda, requirements, pyproject]
-        packages:
-          - rapids-logger==0.1.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
   depends_on_libwholegraph:
     common:
       - output_types: conda
@@ -652,6 +670,7 @@ dependencies:
             packages:
               - cudf-cu13==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*cudf_unsuffixed]}
+<<<<<<< HEAD
   depends_on_dask_cudf:
     common:
       - output_types: conda
@@ -676,6 +695,8 @@ dependencies:
             packages:
               - dask-cudf-cu13==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*dask_cudf_unsuffixed]}
+=======
+>>>>>>> branch-25.10
   depends_on_pylibcugraph:
     common:
       - output_types: conda

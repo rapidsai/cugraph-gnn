@@ -5,6 +5,12 @@ set -e          # abort the script on error
 set -o pipefail # piped commands propagate their error
 set -E          # ERR traps are inherited by subcommands
 
+# Delete system libnccl.so to ensure the wheel is used.
+# (but only do this in CI, to avoid breaking local dev environments)
+if [[ "${CI:-}" == "true" ]]; then
+  rm -rf /usr/lib64/libnccl*
+fi
+
 source rapids-init-pip
 
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
