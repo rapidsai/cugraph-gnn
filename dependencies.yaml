@@ -397,23 +397,12 @@ dependencies:
           - matrix:
               cuda: "13.*"
             packages:
-              # TODO: remove this 'a0' (which allows nightlies) once there are pytorch CUDA 13 released packages
+              # TODO: remove this 'dev0' (which allows nightlies) once there are pytorch CUDA 13 released packages
               #  ref: https://github.com/pytorch/pytorch/issues/159779
-              - &pytorch_pip torch>=2.9.0a0
+              - &pytorch_pip torch>=2.9.0.dev0
           - matrix:
             packages:
               - *pytorch_pip
-      - output_types: [conda]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-            packages:
-              - pytorch>=2.3
-          # fallback for CUDA 13 or if 'cuda' filter is not supplied
-          - matrix:
-            packages:
-              - pytorch>=2.9
-          - {matrix: null, packages: ["pytorch>=2.3"]}
   depends_on_nccl:
     common:
       - output_types: conda
@@ -670,33 +659,6 @@ dependencies:
             packages:
               - cudf-cu13==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*cudf_unsuffixed]}
-<<<<<<< HEAD
-  depends_on_dask_cudf:
-    common:
-      - output_types: conda
-        packages:
-          - &dask_cudf_unsuffixed dask-cudf==25.10.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu12==25.10.*,>=0.0.0a0
-          - matrix:
-              cuda: "13.*"
-              cuda_suffixed: "true"
-            packages:
-              - dask-cudf-cu13==25.10.*,>=0.0.0a0
-          - {matrix: null, packages: [*dask_cudf_unsuffixed]}
-=======
->>>>>>> branch-25.10
   depends_on_pylibcugraph:
     common:
       - output_types: conda

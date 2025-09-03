@@ -18,7 +18,6 @@ dependencies:
 - cuml==25.10.*,>=0.0.0a0
 - cupy>=13.6.0
 - cython>=3.0.0
-- dask-cudf==25.10.*,>=0.0.0a0
 - doxygen
 - gcc_linux-64=14.*
 - graphviz
@@ -43,7 +42,6 @@ dependencies:
 - pytest-cov
 - pytest-forked
 - pytest-xdist
-- pytorch>=2.9
 - pytorch_geometric>=2.5,<2.7
 - rapids-build-backend>=0.4.0,<0.5.0.dev0
 - rmm==25.10.*,>=0.0.0a0
