@@ -372,9 +372,6 @@ dependencies:
         packages:
           - torchdata
           - pydantic
-      - output_types: [requirements, pyproject]
-        packages:
-          - torch>=2.3
     specific:
       - output_types: [requirements]
         matrices:
