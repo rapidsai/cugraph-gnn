@@ -372,9 +372,6 @@ dependencies:
         packages:
           - torchdata
           - pydantic
-      - output_types: [requirements, pyproject]
-        packages:
-          - torch>=2.3
     specific:
       - output_types: [requirements]
         matrices:
@@ -385,7 +382,9 @@ dependencies:
           - matrix:
               cuda: "13.*"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu130
+              # TODO: switch from nightlies to releases when there are pytorch CUDA 13 released packages
+              #  ref: https://github.com/pytorch/pytorch/issues/159779
+              - --extra-index-url=https://download.pytorch.org/whl/nightly/cu130
           - matrix:
             packages:
       - output_types: [requirements, pyproject]
