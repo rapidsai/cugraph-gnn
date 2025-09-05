@@ -12,7 +12,7 @@ dependencies:
 - cuda-nvml-dev
 - cuda-nvtx-dev
 - cuda-profiler-api
-- cuda-version=12.9
+- cuda-version=13.0
 - cudf==25.10.*,>=0.0.0a0
 - cugraph==25.10.*,>=0.0.0a0
 - cuml==25.10.*,>=0.0.0a0
@@ -50,4 +50,4 @@ dependencies:
 - setuptools>=61.0.0
 - torchdata
 - wheel
-name: all_cuda-129_arch-aarch64
+name: all_cuda-130_arch-aarch64
