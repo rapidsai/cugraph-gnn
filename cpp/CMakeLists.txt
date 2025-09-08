@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
-include(../rapids_config.cmake)
+include(../cmake/rapids_config.cmake)
 include(rapids-cmake)
 include(rapids-cpm)
 include(rapids-cuda)
@@ -45,6 +45,7 @@ option(WHOLEGRAPH_EXCLUDE_NVSHMEM_FROM_ALL "Exclude nvshmem targets from wholeGr
        ON
 )
 option(BUILD_BENCHMARKS "Configure CMake to build benchmark" ON)
+option(USE_NCCL_RUNTIME_WHEEL "Use the NCCL wheel at runtime instead of the system library" OFF)
 
 # ##################################################################################################
 # * Set options based on user defined one  -----------------------------------
@@ -94,6 +95,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 message("-- Building for GPU_ARCHS = ${CMAKE_CUDA_ARCHITECTURES}")
+
+# Enable device code compression to reduce binary sizes
+include(${rapids-cmake-dir}/cuda/enable_fatbin_compression.cmake)
+rapids_cuda_enable_fatbin_compression(VARIABLE WHOLEGRAPH_CUDA_FLAGS TUNE_FOR rapids)
 
 # Option to enable line info in CUDA device compilation to allow introspection when profiling /
 # memchecking

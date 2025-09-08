@@ -13,14 +13,13 @@
 # =============================================================================
 
 set(WHOLEGRAPH_MIN_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}.00")
-set(WHOLEGRAPH_BRANCH_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}")
 
 function(find_and_configure_raft)
 
   set(oneValueArgs VERSION FORK PINNED_TAG CLONE_ON_PIN)
   cmake_parse_arguments(PKG "" "${oneValueArgs}" "" ${ARGN})
 
-  if(PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "branch-${WHOLEGRAPH_BRANCH_VERSION_raft}")
+  if(PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "${rapids-cmake-checkout-tag}")
     message("Pinned tag found: ${PKG_PINNED_TAG}. Cloning raft locally.")
     set(CPM_DOWNLOAD_raft ON)
   endif()
@@ -54,7 +53,7 @@ find_and_configure_raft(
   FORK
   rapidsai
   PINNED_TAG
-  branch-${WHOLEGRAPH_BRANCH_VERSION_raft}
+  ${rapids-cmake-checkout-tag}
   # When PINNED_TAG above doesn't match wholegraph, force local raft clone in build directory even
   # if it's already installed.
   CLONE_ON_PIN

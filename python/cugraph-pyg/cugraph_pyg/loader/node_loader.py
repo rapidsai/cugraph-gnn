@@ -12,11 +12,12 @@
 # limitations under the License.
 
 import warnings
-
-import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
-from cugraph.utilities.utils import import_optional
+import cugraph_pyg
+from cugraph_pyg.utils.imports import import_optional
+
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -77,7 +78,8 @@ class NodeLoader:
 
         """
         if not isinstance(data, (list, tuple)) or not isinstance(
-            data[1], cugraph_pyg.data.GraphStore
+            data[1],
+            (cugraph_pyg.data.graph_store.GraphStore,),
         ):
             # Will eventually automatically convert these objects to cuGraph objects.
             raise NotImplementedError("Currently can't accept non-cugraph graphs")
@@ -109,6 +111,16 @@ class NodeLoader:
             input_nodes,
             input_id,
         )
+        input_nodes = input_nodes.detach().clone()
+
+        if input_nodes.numel() < batch_size and drop_last:
+            raise ValueError(
+                "The number of input nodes is less than the batch size"
+                " and drop_last is True. This will result in all batches"
+                " being dropped. Either set drop_last to False or increase"
+                " the number of nodes in input_nodes."
+            )
+
         if input_type is not None:
             input_nodes += data[1]._vertex_offsets[input_type]
 
@@ -150,5 +162,8 @@ class NodeLoader:
         )
 
         return cugraph_pyg.sampler.SampleIterator(
-            self.__data, self.__node_sampler.sample_from_nodes(input_data)
+            self.__data,
+            self.__node_sampler.sample_from_nodes(
+                input_data, random_state=generate_seed()
+            ),
         )

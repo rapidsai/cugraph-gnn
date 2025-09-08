@@ -13,37 +13,10 @@
 
 import warnings
 
-from cugraph_pyg.data.dask_graph_store import (
-    DaskGraphStore as DEPRECATED__DaskGraphStore,
+from cugraph_pyg.data.graph_store import (
+    GraphStore,
 )
-from cugraph_pyg.data.graph_store import GraphStore
+
 from cugraph_pyg.data.feature_store import (
-    TensorDictFeatureStore as DEPRECATED__TensorDictFeatureStore,
-    WholeFeatureStore,
+    FeatureStore,
 )
-
-
-def TensorDictFeatureStore(*args, **kwargs):
-    warnings.warn(
-        "TensorDictFeatureStore is deprecated.  Consider changing your "
-        "workflow to launch using 'torchrun' and store data in "
-        "the faster and more memory-efficient WholeFeatureStore instead.",
-        FutureWarning,
-    )
-
-    return DEPRECATED__TensorDictFeatureStore(*args, **kwargs)
-
-
-def DaskGraphStore(*args, **kwargs):
-    warnings.warn(
-        "DaskGraphStore and the Dask API are deprecated."
-        " Please switch over to the new API (cugraph_pyg.data.GraphStore)",
-        FutureWarning,
-    )
-
-    return DEPRECATED__DaskGraphStore(*args, **kwargs)
-
-
-def CuGraphStore(*args, **kwargs):
-    warnings.warn("CuGraphStore has been renamed to DaskGraphStore", FutureWarning)
-    return DaskGraphStore(*args, **kwargs)

@@ -14,7 +14,7 @@
 import pytest
 
 from cugraph.datasets import karate
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import GraphStore
 
@@ -23,7 +23,7 @@ torch = import_optional("torch")
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_graph_store_basic_api():
+def test_graph_store_basic_api(single_pytorch_worker):
     df = karate.get_edgelist()
     src = torch.as_tensor(df["src"], device="cuda")
     dst = torch.as_tensor(df["dst"], device="cuda")

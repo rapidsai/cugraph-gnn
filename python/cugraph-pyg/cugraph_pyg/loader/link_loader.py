@@ -16,7 +16,8 @@ import warnings
 import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -89,7 +90,8 @@ class LinkLoader:
 
         """
         if not isinstance(data, (list, tuple)) or not isinstance(
-            data[1], cugraph_pyg.data.GraphStore
+            data[1],
+            (cugraph_pyg.data.graph_store.GraphStore,),
         ):
             # Will eventually automatically convert these objects to cuGraph objects.
             raise NotImplementedError("Currently can't accept non-cugraph graphs")
@@ -129,6 +131,15 @@ class LinkLoader:
             if isinstance(edge_label_index, torch.Tensor)
             else edge_label_index,
         )
+        edge_label_index = edge_label_index.detach().clone()
+
+        if edge_label_index.shape[1] < batch_size and drop_last:
+            raise ValueError(
+                "The number of input edges is less than the batch size"
+                " and drop_last is True. This will result in all batches"
+                " being dropped. Either set drop_last to False or increase"
+                " the number of edges in edge_label_index."
+            )
 
         # Note reverse of standard convention here
         if input_type is not None:
@@ -209,5 +220,6 @@ class LinkLoader:
             self.__link_sampler.sample_from_edges(
                 input_data,
                 neg_sampling=self.__neg_sampling,
+                random_state=generate_seed(),
             ),
         )

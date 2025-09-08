@@ -14,7 +14,6 @@
 # This example illustrates link classification using the ogbl-wikikg2 dataset.
 
 import os
-import json
 import argparse
 import warnings
 
@@ -43,14 +42,17 @@ os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 def init_pytorch_worker(global_rank, local_rank, world_size, uid):
     import rmm
 
-    rmm.reinitialize(devices=[local_rank], pool_allocator=True, managed_memory=True)
+    rmm.reinitialize(devices=[local_rank], pool_allocator=False, managed_memory=True)
 
     import cupy
     from rmm.allocators.cupy import rmm_cupy_allocator
 
+    cupy.cuda.Device(local_rank).use()
     cupy.cuda.set_allocator(rmm_cupy_allocator)
 
-    from cugraph.gnn import cugraph_comms_init
+    torch.cuda.set_device(local_rank)
+
+    from pylibcugraph.comms import cugraph_comms_init
 
     cugraph_comms_init(
         global_rank,
@@ -60,10 +62,6 @@ def init_pytorch_worker(global_rank, local_rank, world_size, uid):
     )
 
     wm_init(global_rank, world_size, local_rank, torch.cuda.device_count())
-
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
 
 
 class RGCNEncoder(torch.nn.Module):
@@ -91,6 +89,14 @@ class RGCNEncoder(torch.nn.Module):
         return x
 
 
+def get_local_split(t):
+    rank = torch.distributed.get_rank()
+    world_size = torch.distributed.get_world_size()
+
+    u = t()
+    return u[torch.tensor_split(torch.arange(u.shape[0]), world_size, dim=0)[rank]]
+
+
 def train(epoch, model, optimizer, train_loader, edge_feature_store, num_steps=None):
     model.train()
     optimizer.zero_grad()
@@ -100,7 +106,7 @@ def train(epoch, model, optimizer, train_loader, edge_feature_store, num_steps=N
             edge_feature_store[("n", "e", "n"), "rel", None][batch.e_id]
             .flatten()
             .cuda()
-        )
+        ).to(torch.int64)
         z = model.encode(batch.edge_index, r)
 
         loss = model.recon_loss(z, batch.edge_index)
@@ -133,7 +139,11 @@ def test(stage, epoch, model, loader, num_steps=None):
             dim=-1,
         )
 
-        r = torch.concatenate([r, torch.repeat_interleave(r, h_neg.shape[-1])]).cuda()
+        r = (
+            torch.concatenate([r, torch.repeat_interleave(r, h_neg.shape[-1])])
+            .cuda()
+            .to(torch.int64)
+        )
 
         z = model.encode(ei, r)
         q = model.decode(z, ei)
@@ -146,7 +156,7 @@ def test(stage, epoch, model, loader, num_steps=None):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--hidden_channels", type=int, default=128)
+    parser.add_argument("--hidden_channels", type=int, default=32)
     parser.add_argument("--num_layers", type=int, default=1)
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--epochs", type=int, default=4)
@@ -158,20 +168,25 @@ def parse_args():
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--seeds_per_call", type=int, default=-1)
     parser.add_argument("--n_devices", type=int, default=-1)
-    parser.add_argument("--skip_partition", action="store_true")
 
     return parser.parse_args()
 
 
-def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, args):
-    model = model.to(rank)
-    model = GAE(DistributedDataParallel(model, device_ids=[rank]))
+def run_train(global_rank, local_rank, model, data, edge_feature_store, splits, args):
+    model = model.to(torch.device(local_rank))
+    model = GAE(DistributedDataParallel(model, device_ids=[local_rank]))
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    eli = torch.stack([splits["train"]["head"], splits["train"]["tail"]])
+    eli = torch.stack(
+        [
+            get_local_split(splits["train"]["head"]).cpu(),
+            get_local_split(splits["train"]["tail"]).cpu(),
+        ]
+    )
 
     from cugraph_pyg.loader import LinkNeighborLoader
 
+    print("creating train loader...", flush=True)
     train_loader = LinkNeighborLoader(
         data,
         [args.fan_out] * args.num_layers,
@@ -183,21 +198,30 @@ def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, a
     )
 
     def get_eval_loader(stage: str):
-        head = splits[stage]["head"]
-        tail = splits[stage]["tail"]
+        head = get_local_split(splits[stage]["head"]).cpu()
+        tail = get_local_split(splits[stage]["tail"]).cpu()
 
-        head_neg = splits[stage]["head_neg"][:, : args.num_neg]
-        tail_neg = splits[stage]["tail_neg"][:, : args.num_neg]
+        head_neg = get_local_split(splits[stage]["head_neg"])[:, : args.num_neg].cpu()
+        tail_neg = get_local_split(splits[stage]["tail_neg"])[:, : args.num_neg].cpu()
 
-        rel = splits[stage]["relation"]
+        rel = get_local_split(splits[stage]["relation"]).cpu()
+
+        print(
+            head.shape,
+            head_neg.shape,
+            tail.shape,
+            tail_neg.shape,
+            rel.shape,
+            flush=True,
+        )
 
         return torch.utils.data.DataLoader(
             torch.utils.data.TensorDataset(
-                head.pin_memory(),
-                head_neg.pin_memory(),
-                tail.pin_memory(),
-                tail_neg.pin_memory(),
-                rel.pin_memory(),
+                head,
+                head_neg,
+                tail,
+                tail_neg,
+                rel,
             ),
             batch_size=1,
             shuffle=False,
@@ -224,128 +248,9 @@ def run_train(rank, world_size, model, data, edge_feature_store, meta, splits, a
 
     wm_finalize()
 
-    from cugraph.gnn import cugraph_comms_shutdown
+    from pylibcugraph.comms import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()
-
-
-def partition_data(
-    data, splits, meta, edge_path, rel_path, pos_path, neg_path, meta_path
-):
-    # Split and save edge index
-    os.makedirs(
-        edge_path,
-        exist_ok=True,
-    )
-    for (r, e) in enumerate(torch.tensor_split(data.edge_index, world_size, dim=1)):
-        rank_path = os.path.join(edge_path, f"rank={r}.pt")
-        torch.save(
-            e.clone(),
-            rank_path,
-        )
-
-    # Split and save edge reltypes
-    os.makedirs(
-        rel_path,
-        exist_ok=True,
-    )
-    for (r, f) in enumerate(torch.tensor_split(data.edge_reltype, world_size)):
-        rank_path = os.path.join(rel_path, f"rank={r}.pt")
-        torch.save(
-            f.clone(),
-            rank_path,
-        )
-
-    # Split and save positive edges
-    os.makedirs(
-        pos_path,
-        exist_ok=True,
-    )
-    for stage in ["train", "test", "valid"]:
-        for (r, n) in enumerate(
-            torch.tensor_split(
-                torch.stack([splits[stage]["head"], splits[stage]["tail"]]),
-                world_size,
-                dim=-1,
-            )
-        ):
-            rank_path = os.path.join(pos_path, f"rank={r}_{stage}.pt")
-            torch.save(
-                n.clone(),
-                rank_path,
-            )
-
-    # Split and save negative edges
-    os.makedirs(
-        neg_path,
-        exist_ok=True,
-    )
-    for stage in ["test", "valid"]:
-        for (r, n) in enumerate(
-            torch.tensor_split(
-                torch.stack([splits[stage]["head_neg"], splits[stage]["tail_neg"]]),
-                world_size,
-                dim=1,
-            )
-        ):
-            rank_path = os.path.join(neg_path, f"rank={r}_{stage}.pt")
-            torch.save(n.clone(), rank_path)
-        for (r, n) in enumerate(
-            torch.tensor_split(splits[stage]["relation"], world_size, dim=-1)
-        ):
-            print(n)
-            rank_path = os.path.join(neg_path, f"rank={r}_{stage}_relation.pt")
-            torch.save(n.clone(), rank_path)
-
-    with open(meta_path, "w") as f:
-        json.dump(meta, f)
-
-
-def load_partitioned_data(rank, edge_path, rel_path, pos_path, neg_path, meta_path):
-    from cugraph_pyg.data import GraphStore, WholeFeatureStore, TensorDictFeatureStore
-
-    graph_store = GraphStore()
-    feature_store = TensorDictFeatureStore()
-    edge_feature_store = WholeFeatureStore()
-
-    with open(meta_path, "r") as f:
-        meta = json.load(f)
-
-    print("num nodes:", meta["num_nodes"])
-
-    # Load edge index
-    graph_store[
-        ("n", "e", "n"), "coo", False, (meta["num_nodes"], meta["num_nodes"])
-    ] = torch.load(os.path.join(edge_path, f"rank={rank}.pt"))
-
-    # Load edge rel type
-    edge_feature_store[("n", "e", "n"), "rel", None] = torch.load(
-        os.path.join(rel_path, f"rank={rank}.pt")
-    )
-
-    splits = {}
-
-    # Load positive edges
-    for stage in ["train", "test", "valid"]:
-        head, tail = torch.load(os.path.join(pos_path, f"rank={rank}_{stage}.pt"))
-        splits[stage] = {
-            "head": head,
-            "tail": tail,
-        }
-
-    # Load negative edges
-    for stage in ["test", "valid"]:
-        head_neg, tail_neg = torch.load(
-            os.path.join(neg_path, f"rank={rank}_{stage}.pt")
-        )
-        relation = torch.load(
-            os.path.join(neg_path, f"rank={rank}_{stage}_relation.pt")
-        )
-        splits[stage]["head_neg"] = head_neg
-        splits[stage]["tail_neg"] = tail_neg
-        splits[stage]["relation"] = relation
-
-    return (feature_store, graph_store), edge_feature_store, splits, meta
 
 
 if __name__ == "__main__":
@@ -360,7 +265,7 @@ if __name__ == "__main__":
 
         # Create the uid needed for cuGraph comms
         if global_rank == 0:
-            from cugraph.gnn import cugraph_comms_create_unique_id
+            from pylibcugraph.comms import cugraph_comms_create_unique_id
 
             cugraph_id = [cugraph_comms_create_unique_id()]
         else:
@@ -370,68 +275,117 @@ if __name__ == "__main__":
 
         init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id)
 
-        # Split the data
-        edge_path = os.path.join(args.dataset_root, args.dataset + "_eix_part")
-        rel_path = os.path.join(args.dataset_root, args.dataset + "_rel_part")
-        pos_path = os.path.join(args.dataset_root, args.dataset + "_e_pos_part")
-        neg_path = os.path.join(args.dataset_root, args.dataset + "_e_neg_part")
-        meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
+        torch.distributed.barrier()
+        from rmm.allocators.torch import rmm_torch_allocator
 
-        if not args.skip_partition and global_rank == 0:
-            with torch.serialization.safe_globals(
-                [
-                    torch_geometric.data.data.DataEdgeAttr,
-                    torch_geometric.data.data.DataTensorAttr,
-                    torch_geometric.data.storage.GlobalStorage,
-                    numpy.core.multiarray._reconstruct,
-                    numpy.ndarray,
-                    numpy.dtype,
-                    numpy.dtypes.Int64DType,
-                ]
-            ):
-                data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
-                dataset = data[0]
+        with torch.cuda.use_mem_pool(
+            torch.cuda.MemPool(rmm_torch_allocator.allocator())
+        ):
 
-                splits = data.get_edge_split()
+            if global_rank == 0:
+                with torch.serialization.safe_globals(
+                    [
+                        torch_geometric.data.data.DataEdgeAttr,
+                        torch_geometric.data.data.DataTensorAttr,
+                        torch_geometric.data.storage.GlobalStorage,
+                        numpy.core.multiarray._reconstruct,
+                        numpy.ndarray,
+                        numpy.dtype,
+                        numpy.dtypes.Int64DType,
+                    ]
+                ):
+                    data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
+                    dataset = data[0]
+                    print(dataset, flush=True)
 
-            meta = {}
-            meta["num_nodes"] = int(dataset.num_nodes)
-            meta["num_rels"] = int(dataset.edge_reltype.max()) + 1
+                    splits = data.get_edge_split()
 
-            partition_data(
-                dataset,
-                splits,
-                meta,
-                edge_path=edge_path,
-                rel_path=rel_path,
-                pos_path=pos_path,
-                neg_path=neg_path,
-                meta_path=meta_path,
+                nr = [dataset.num_nodes, int(dataset.edge_reltype.max()) + 1]
+            else:
+                nr = [0, 0]
+
+            torch.distributed.barrier()
+            torch.distributed.broadcast_object_list(nr, src=0, device=device)
+            num_nodes, num_rels = nr
+
+            print(
+                f"num_nodes: {num_nodes}, num_rels: {num_rels}, rank: {global_rank}",
+                flush=True,
             )
-            del data
-            del dataset
-            del splits
-        torch.distributed.barrier()
+            torch.distributed.barrier()
 
-        # Load partitions
-        data, edge_feature_store, splits, meta = load_partitioned_data(
-            rank=global_rank,
-            edge_path=edge_path,
-            rel_path=rel_path,
-            pos_path=pos_path,
-            neg_path=neg_path,
-            meta_path=meta_path,
-        )
-        torch.distributed.barrier()
+            from cugraph_pyg.data import FeatureStore, GraphStore
+            from cugraph_pyg.tensor import empty
 
-        model = RGCNEncoder(
-            meta["num_nodes"],
-            hidden_channels=args.hidden_channels,
-            num_relations=meta["num_rels"],
-        )
+            edge_feature_store = FeatureStore()
+            splits_storage = FeatureStore()
+            feature_store = torch_geometric.data.HeteroData()
+            graph_store = GraphStore()
+            torch.distributed.barrier()
 
-        run_train(
-            global_rank, world_size, model, data, edge_feature_store, meta, splits, args
-        )
+            print(f"broadcasting edge rel type (rank {global_rank})", flush=True)
+            edge_feature_store[("n", "e", "n"), "rel", None] = (
+                dataset.edge_reltype.to(torch.int32)
+                if global_rank == 0
+                else empty(dim=2)
+            )
+
+            print(f"broadcasting edge index (rank {global_rank})", flush=True)
+            graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
+                dataset.edge_index if global_rank == 0 else empty(dim=2)
+            )
+
+            print("broadcasting splits", flush=True)
+            for stage in ["train", "test", "valid"]:
+                splits_storage[stage, "head", None] = (
+                    splits[stage]["head"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
+                splits_storage[stage, "tail", None] = (
+                    splits[stage]["tail"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
+
+            print("broadcasting negative splits", flush=True)
+            for stage in ["test", "valid"]:
+                splits_storage[stage, "head_neg", None] = (
+                    splits[stage]["head_neg"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=2)
+                )
+                splits_storage[stage, "tail_neg", None] = (
+                    splits[stage]["tail_neg"].to(torch.int64)
+                    if global_rank == 0
+                    else empty(dim=2)
+                )
+                splits_storage[stage, "relation", None] = (
+                    splits[stage]["relation"].to(torch.int32)
+                    if global_rank == 0
+                    else empty(dim=1)
+                )
+
+            print("reached barrier", flush=True)
+            torch.distributed.barrier()
+
+            model = RGCNEncoder(
+                num_nodes,
+                hidden_channels=args.hidden_channels,
+                num_relations=num_rels,
+            )
+
+            if global_rank == 0:
+                del data
+
+            run_train(
+                global_rank,
+                local_rank,
+                model,
+                (feature_store, graph_store),
+                edge_feature_store,
+                splits_storage,
+                args,
+            )
     else:
         warnings.warn("This script should be run with 'torchrun`.  Exiting.")

@@ -11,8 +11,15 @@ pytest --cache-clear --benchmark-disable "$@" .
 # Used to skip certain examples in CI due to memory limitations
 export CI=true
 
-# Test examples (disabled due to excessive network bandwidth usage)
+# Enable legacy behavior of torch.load for examples relying on ogb
+export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
+
+# Test examples (disabled due to lack of memory)
 #for e in "$(pwd)"/examples/*.py; do
-#  rapids-logger "running example $e"
-#  (yes || true) | python $e
+#  echo "running example $e"
+#  (yes || true) | torchrun --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
 #done
+
+# echo "running bitcoin example"
+# (yes || true) | torchrun --nnodes 1 --nproc_per_node 1 "$(pwd)"/examples/fraud/bitcoin_mnmg.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
+# python "$(pwd)"/examples/fraud/bitcoin_rf.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"

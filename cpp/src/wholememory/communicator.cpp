@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -481,7 +481,7 @@ void get_boot_id(char* host_id, size_t len)
 
 void get_shm_devid(dev_t* shm_dev)
 {
-  struct stat statbuf {};
+  struct stat statbuf{};
   WHOLEMEMORY_CHECK(stat("/dev/shm", &statbuf) == 0);
   *shm_dev = statbuf.st_dev;
 }

@@ -1,3 +1,105 @@
+# cugraph-gnn 25.08.00 (6 Aug 2025)
+
+## 🚨 Breaking Changes
+
+- Remove CUDA 11 from dependencies.yaml ([#224](https://github.com/rapidsai/cugraph-gnn/pull/224)) [@KyleFromNVIDIA](https://github.com/KyleFromNVIDIA)
+- Remove Non-Unified API and Remaining TensorDict Code ([#222](https://github.com/rapidsai/cugraph-gnn/pull/222)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- stop uploading packages to downloads.rapids.ai ([#215](https://github.com/rapidsai/cugraph-gnn/pull/215)) [@jameslamb](https://github.com/jameslamb)
+- Remove cuGraph-DGL ([#210](https://github.com/rapidsai/cugraph-gnn/pull/210)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🐛 Bug Fixes
+
+- [BUG] Correct De-Offset of Edge Label Index ([#258](https://github.com/rapidsai/cugraph-gnn/pull/258)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [BUG] Pin CPU Memory Instead of Copying to Device ([#255](https://github.com/rapidsai/cugraph-gnn/pull/255)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Fix update-version ([#250](https://github.com/rapidsai/cugraph-gnn/pull/250)) [@AyodeAwe](https://github.com/AyodeAwe)
+- Use PyTorch MemPool and Disable RMM Pool Allocator to Fix Broken Tests ([#237](https://github.com/rapidsai/cugraph-gnn/pull/237)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [BUG] Specify Input Type and Assign Output to Correct Input Type ([#236](https://github.com/rapidsai/cugraph-gnn/pull/236)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Temporarily Disable Bitcoin Example Tests ([#230](https://github.com/rapidsai/cugraph-gnn/pull/230)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Branch 25.08 merge 25.06 ([#226](https://github.com/rapidsai/cugraph-gnn/pull/226)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 📖 Documentation
+
+- Remove `nx-cugraph` reference that mentioned CUDA 11 ([#243](https://github.com/rapidsai/cugraph-gnn/pull/243)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- add docs on CI workflow inputs ([#235](https://github.com/rapidsai/cugraph-gnn/pull/235)) [@jameslamb](https://github.com/jameslamb)
+
+## 🚀 New Features
+
+- [FEA] Add Elliptic Bitcoin fraud example ([#221](https://github.com/rapidsai/cugraph-gnn/pull/221)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🛠️ Improvements
+
+- remove cugraph-dgl CODEOWNERS rule, skip most CI on CODEOWNERS-only PRs ([#264](https://github.com/rapidsai/cugraph-gnn/pull/264)) [@jameslamb](https://github.com/jameslamb)
+- Disable codecov comments ([#256](https://github.com/rapidsai/cugraph-gnn/pull/256)) [@bdice](https://github.com/bdice)
+- Expose cugraph_pyg.tensor Subpackage ([#253](https://github.com/rapidsai/cugraph-gnn/pull/253)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- fix(docker): use versioned `-latest` tag for all `rapidsai` images ([#246](https://github.com/rapidsai/cugraph-gnn/pull/246)) [@gforsyth](https://github.com/gforsyth)
+- Propagate Changes from cuGraph Distributed Sampler (metadata addition) ([#245](https://github.com/rapidsai/cugraph-gnn/pull/245)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Migrate cugraph gnn packages to cugraph-pyg ([#241](https://github.com/rapidsai/cugraph-gnn/pull/241)) [@nv-rliu](https://github.com/nv-rliu)
+- Improving the `taobao_mnmg` example. ([#238](https://github.com/rapidsai/cugraph-gnn/pull/238)) [@drivanov](https://github.com/drivanov)
+- Use CUDA 12.9 in Conda, Devcontainers, Spark, GHA, etc. ([#232](https://github.com/rapidsai/cugraph-gnn/pull/232)) [@jakirkham](https://github.com/jakirkham)
+- Remove nvidia and dask channels ([#231](https://github.com/rapidsai/cugraph-gnn/pull/231)) [@vyasr](https://github.com/vyasr)
+- Updates movielens_mnmg.py to use DDP ([#229](https://github.com/rapidsai/cugraph-gnn/pull/229)) [@rlratzel](https://github.com/rlratzel)
+- Remove CUDA 11 from dependencies.yaml ([#224](https://github.com/rapidsai/cugraph-gnn/pull/224)) [@KyleFromNVIDIA](https://github.com/KyleFromNVIDIA)
+- Remove Non-Unified API and Remaining TensorDict Code ([#222](https://github.com/rapidsai/cugraph-gnn/pull/222)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- refactor(rattler): remove cuda11 options and general cleanup ([#219](https://github.com/rapidsai/cugraph-gnn/pull/219)) [@gforsyth](https://github.com/gforsyth)
+- Remove CUDA 11 devcontainers and update CI scripts ([#218](https://github.com/rapidsai/cugraph-gnn/pull/218)) [@bdice](https://github.com/bdice)
+- use branch-25.08 of shared-workflows ([#216](https://github.com/rapidsai/cugraph-gnn/pull/216)) [@jameslamb](https://github.com/jameslamb)
+- stop uploading packages to downloads.rapids.ai ([#215](https://github.com/rapidsai/cugraph-gnn/pull/215)) [@jameslamb](https://github.com/jameslamb)
+- Remove cuGraph-DGL ([#210](https://github.com/rapidsai/cugraph-gnn/pull/210)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+# cugraph-gnn 25.06.00 (5 Jun 2025)
+
+## 🚨 Breaking Changes
+
+- Remove Dask API from cuGraph-DGL ([#199](https://github.com/rapidsai/cugraph-gnn/pull/199)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [IMP] Make WholeGraph a Hard Dependency of cuGraph-PyG, Remove cuDF Spilling from Examples ([#172](https://github.com/rapidsai/cugraph-gnn/pull/172)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [IMP] Remove SG and SNMG Examples ([#171](https://github.com/rapidsai/cugraph-gnn/pull/171)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Remove Dask API from cuGraph-PyG ([#166](https://github.com/rapidsai/cugraph-gnn/pull/166)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [FEA] Support Unified WholeGraph FeatureStore and GraphStore ([#156](https://github.com/rapidsai/cugraph-gnn/pull/156)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🐛 Bug Fixes
+
+- [BUG] Fix Broken DGL Test ([#223](https://github.com/rapidsai/cugraph-gnn/pull/223)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [BUG] Fix DGL Test ([#209](https://github.com/rapidsai/cugraph-gnn/pull/209)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [BUG] Remove FeatureStore tests about to break ([#207](https://github.com/rapidsai/cugraph-gnn/pull/207)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Branch 25.06 forward resolve (fix) ([#165](https://github.com/rapidsai/cugraph-gnn/pull/165)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 📖 Documentation
+
+- [DOC] Add warning of pending DGL removal ([#191](https://github.com/rapidsai/cugraph-gnn/pull/191)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [DOC] Update the README to show the current stack ([#190](https://github.com/rapidsai/cugraph-gnn/pull/190)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🚀 New Features
+
+- Branch 25.06 forward resolve ([#163](https://github.com/rapidsai/cugraph-gnn/pull/163)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
+## 🛠️ Improvements
+
+- use &#39;rapids-init-pip&#39; in wheel CI, other CI changes ([#212](https://github.com/rapidsai/cugraph-gnn/pull/212)) [@jameslamb](https://github.com/jameslamb)
+- Finish CUDA 12.9 migration and use branch-25.06 workflows ([#208](https://github.com/rapidsai/cugraph-gnn/pull/208)) [@bdice](https://github.com/bdice)
+- Update to clang 20 ([#205](https://github.com/rapidsai/cugraph-gnn/pull/205)) [@bdice](https://github.com/bdice)
+- Quote head_rev in conda recipes ([#204](https://github.com/rapidsai/cugraph-gnn/pull/204)) [@bdice](https://github.com/bdice)
+- use GitHub Actions artifacts ([#203](https://github.com/rapidsai/cugraph-gnn/pull/203)) [@jameslamb](https://github.com/jameslamb)
+- Enable device code compression ([#202](https://github.com/rapidsai/cugraph-gnn/pull/202)) [@robertmaynard](https://github.com/robertmaynard)
+- chore: skip DGL tests on Python 3.13 ([#201](https://github.com/rapidsai/cugraph-gnn/pull/201)) [@gforsyth](https://github.com/gforsyth)
+- Build and test with CUDA 12.9.0 ([#200](https://github.com/rapidsai/cugraph-gnn/pull/200)) [@bdice](https://github.com/bdice)
+- Remove Dask API from cuGraph-DGL ([#199](https://github.com/rapidsai/cugraph-gnn/pull/199)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Add support for Python 3.13 ([#197](https://github.com/rapidsai/cugraph-gnn/pull/197)) [@gforsyth](https://github.com/gforsyth)
+- fix(libwholegraph): pass branch, sha, and date ([#195](https://github.com/rapidsai/cugraph-gnn/pull/195)) [@gforsyth](https://github.com/gforsyth)
+- fix(libwholegraph): set build_type to &quot;nightly&quot; and also publish wheel ([#193](https://github.com/rapidsai/cugraph-gnn/pull/193)) [@gforsyth](https://github.com/gforsyth)
+- Reenable example tests ([#192](https://github.com/rapidsai/cugraph-gnn/pull/192)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- added downloads from github ([#189](https://github.com/rapidsai/cugraph-gnn/pull/189)) [@VenkateshJaya](https://github.com/VenkateshJaya)
+- feat: add libwholegraph wheel ([#182](https://github.com/rapidsai/cugraph-gnn/pull/182)) [@gforsyth](https://github.com/gforsyth)
+- feat(rattler): port conda build recipe to rattler build ([#178](https://github.com/rapidsai/cugraph-gnn/pull/178)) [@gforsyth](https://github.com/gforsyth)
+- Vendor RAPIDS.cmake ([#177](https://github.com/rapidsai/cugraph-gnn/pull/177)) [@bdice](https://github.com/bdice)
+- Add ARM conda environments ([#176](https://github.com/rapidsai/cugraph-gnn/pull/176)) [@bdice](https://github.com/bdice)
+- restrict dgl dependency to x86 ([#175](https://github.com/rapidsai/cugraph-gnn/pull/175)) [@trxcllnt](https://github.com/trxcllnt)
+- [IMP] Make WholeGraph a Hard Dependency of cuGraph-PyG, Remove cuDF Spilling from Examples ([#172](https://github.com/rapidsai/cugraph-gnn/pull/172)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- [IMP] Remove SG and SNMG Examples ([#171](https://github.com/rapidsai/cugraph-gnn/pull/171)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- cugraph-pyg: remove Dask dependencies and related test code ([#168](https://github.com/rapidsai/cugraph-gnn/pull/168)) [@jameslamb](https://github.com/jameslamb)
+- Remove Dask API from cuGraph-PyG ([#166](https://github.com/rapidsai/cugraph-gnn/pull/166)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+- Moving wheel builds to specified location and uploading build artifacts to Github ([#162](https://github.com/rapidsai/cugraph-gnn/pull/162)) [@VenkateshJaya](https://github.com/VenkateshJaya)
+- [FEA] Support Unified WholeGraph FeatureStore and GraphStore ([#156](https://github.com/rapidsai/cugraph-gnn/pull/156)) [@alexbarghi-nv](https://github.com/alexbarghi-nv)
+
 # cugraph-gnn 25.04.00 (9 Apr 2025)
 
 ## 🚨 Breaking Changes

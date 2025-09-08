@@ -209,11 +209,11 @@ def pre_transform(data):
     return data
 
 
-def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
-    from cugraph_pyg.data import GraphStore, WholeFeatureStore
+def cugraph_pyg_from_heterodata(data, return_edge_label=True):
+    from cugraph_pyg.data import GraphStore, FeatureStore
 
-    graph_store = GraphStore(is_multi_gpu=True)
-    feature_store = WholeFeatureStore(memory_type=wg_mem_type)
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
 
     graph_store[
         ("user", "to", "item"),
@@ -253,7 +253,7 @@ def cugraph_pyg_from_heterodata(data, wg_mem_type, return_edge_label=True):
     return out
 
 
-def load_partitions(edge_path, meta_path, wg_mem_type):
+def load_partitions(edge_path, meta_path):
     rank = torch.distributed.get_rank()
     world_size = torch.distributed.get_world_size()
     data = HeteroData()
@@ -316,27 +316,28 @@ def load_partitions(edge_path, meta_path, wg_mem_type):
 
     print(f"Finished loading graph data on rank {rank}")
     return {
-        "train": cugraph_pyg_from_heterodata(
-            train_data, wg_mem_type, return_edge_label=False
-        ),
-        "test": cugraph_pyg_from_heterodata(test_data, wg_mem_type),
-        "val": cugraph_pyg_from_heterodata(val_data, wg_mem_type),
+        "train": cugraph_pyg_from_heterodata(train_data, return_edge_label=False),
+        "test": cugraph_pyg_from_heterodata(test_data),
+        "val": cugraph_pyg_from_heterodata(val_data),
     }, meta
 
 
-def train(model, optimizer, loader):
+def train(model, optimizer, loader, max_iter=None):
     start_time = perf_counter()
     rank = torch.distributed.get_rank()
     model.train()
 
     total_loss = total_examples = 0
     for i, batch in enumerate(loader):
+        if max_iter is not None and i >= max_iter:
+            break
+
         batch = batch.cuda()
         optimizer.zero_grad()
 
         if i % 10 == 0 and rank == 0:
             curr_time = perf_counter()
-            print(f"iter {i}, {curr_time - start_time} sec elapsed.")
+            print(f"iter {i}, {curr_time - start_time:.4f} sec elapsed.")
 
         pred = model(
             batch.x_dict,
@@ -349,7 +350,7 @@ def train(model, optimizer, loader):
 
         loss.backward()
         optimizer.step()
-        total_loss += float(loss)
+        total_loss += float(loss.detach())
         total_examples += pred.numel()
 
     return total_loss / total_examples
@@ -445,16 +446,21 @@ def balance_shuffle_edge_split(edge_label_index, edge_label):
 
 if __name__ == "__main__":
     if "LOCAL_RANK" not in os.environ:
-        warnings.warn("This script should be run with 'torchrun`.  Exiting.")
+        warnings.warn(
+            f"This script ({__file__}) should be run with 'torchrun`.  Exiting."
+        )
+        exit()
+    if os.getenv("CI", "false").lower() == "true":
+        warnings.warn(f"Skipping example {__file__} in CI due to memory limit")
         exit()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--epochs", type=int, default=21)
+    parser.add_argument("--max_iter", type=int, default=None)
     parser.add_argument("--batch_size", type=int, default=2048)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--skip_partition", action="store_true")
-    parser.add_argument("--wg_mem_type", type=str, default="distributed")
     args = parser.parse_args()
 
     dataset_name = "taobao"
@@ -505,7 +511,7 @@ if __name__ == "__main__":
         print("Data partitioning complete!")
 
     torch.distributed.barrier()
-    data_dict, meta = load_partitions(edge_path, meta_path, args.wg_mem_type)
+    data_dict, meta = load_partitions(edge_path, meta_path)
     torch.distributed.barrier()
 
     from cugraph_pyg.loader import LinkNeighborLoader
@@ -585,7 +591,7 @@ if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
         train_start = perf_counter()
         print("Train")
-        loss = train(model, optimizer, train_loader)
+        loss = train(model, optimizer, train_loader, args.max_iter)
         train_end = perf_counter()
 
         if global_rank == 0:

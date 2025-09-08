@@ -5,7 +5,7 @@
 exclude: '^thirdparty'
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: debug-statements
@@ -35,13 +35,13 @@ repos:
         additional_dependencies:
           - flake8==7.1.1
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v16.0.6
+    rev: v20.1.4
     hooks:
       - id: clang-format
         types_or: [c, c++, cuda]
         args: ["-fallback-style=none", "-style=file", "-i"]
   - repo: https://github.com/rapidsai/pre-commit-hooks
-    rev: v0.4.0
+    rev: v0.7.0
     hooks:
       - id: verify-copyright
         files: |
@@ -54,10 +54,10 @@ repos:
               setup[.]cfg$
       - id: verify-alpha-spec
   - repo: https://github.com/rapidsai/dependency-file-generator
-    rev: v1.17.0
+    rev: v1.20.0
     hooks:
         - id: rapids-dependency-file-generator
-          args: ["--clean"]
+          args: ["--clean", "--warn-all", "--strict"]
   - repo: local
     hooks:
         - id: cmake-format
