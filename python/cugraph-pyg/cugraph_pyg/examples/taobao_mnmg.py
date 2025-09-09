@@ -526,7 +526,7 @@ if __name__ == "__main__":
 
         return LinkNeighborLoader(
             data=data_l[0],
-            edge_label_index=edge_label_index,
+            edge_label_index=(("user", "to", "item"), edge_label_index),
             edge_label=edge_label,
             neg_sampling="binary" if edge_label is None else None,
             batch_size=args.batch_size,
