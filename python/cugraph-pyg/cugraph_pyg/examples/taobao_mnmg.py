@@ -412,12 +412,9 @@ def balance_shuffle_edge_split(edge_label_index, edge_label):
     if world_size == 1:
         local_rank_t = dst_rank
     else:
-        if rank > 0 and rank < world_size - 1:
-            local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
-        elif rank == 0:
-            local_rank_t = dst_rank[0 : edge_offsets[0]]
-        else:
-            local_rank_t = dst_rank[edge_offsets[-1] :]
+        start = 0 if rank == 0 else edge_offsets[rank - 1]
+        end = edge_offsets[rank] if rank < world_size - 1 else None
+        local_rank_t = dst_rank[start:end]
 
     s = [edge_label_index[0].cuda()[local_rank_t == r] for r in range(world_size)]
 
