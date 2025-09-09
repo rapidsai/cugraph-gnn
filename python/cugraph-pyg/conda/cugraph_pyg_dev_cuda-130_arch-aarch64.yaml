@@ -14,4 +14,4 @@ dependencies:
 - pytest-xdist
 - pytorch_geometric>=2.5,<2.7
 - torchdata
-name: cugraph_pyg_dev_cuda-129_arch-aarch64
+name: cugraph_pyg_dev_cuda-130_arch-aarch64

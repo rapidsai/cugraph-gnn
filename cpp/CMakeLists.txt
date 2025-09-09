@@ -45,6 +45,7 @@ option(WHOLEGRAPH_EXCLUDE_NVSHMEM_FROM_ALL "Exclude nvshmem targets from wholeGr
        ON
 )
 option(BUILD_BENCHMARKS "Configure CMake to build benchmark" ON)
+option(USE_NCCL_RUNTIME_WHEEL "Use the NCCL wheel at runtime instead of the system library" OFF)
 
 # ##################################################################################################
 # * Set options based on user defined one  -----------------------------------

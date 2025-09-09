@@ -14,6 +14,7 @@ package_type=$3
 #
 EXCLUDE_ARGS=(
     --exclude libcuda.so.1
+    --exclude "libnccl.so.*"
     --exclude libnvidia-ml.so.1
     --exclude librapids_logger.so
     --exclude librmm.so

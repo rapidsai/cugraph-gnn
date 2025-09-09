@@ -48,10 +48,8 @@ def load_library():
         # these libraries must be loaded before libwholegraph because
         # libwholegraph references their symbols
         import libraft
-        import rapids_logger
 
         libraft.load_library()
-        rapids_logger.load_library()
     except ModuleNotFoundError:
         # 'libwholegraph' has a runtime dependency on 'libraft' et al.. However,
         # that dependency might be satisfied by a conda package
