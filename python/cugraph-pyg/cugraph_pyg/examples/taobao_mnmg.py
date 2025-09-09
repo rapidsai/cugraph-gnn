@@ -170,6 +170,7 @@ def write_edges(edge_index, path):
 
 def preprocess_and_partition(data, edge_path, meta_path):
     # Only interested in user/item edges
+    print(data)
     del data["category"]
     del data["item", "category"]
     del data["user", "item"].time
@@ -408,12 +409,15 @@ def balance_shuffle_edge_split(edge_label_index, edge_label):
 
     torch.distributed.broadcast(dst_rank, src=0)
 
-    if rank > 0 and rank < world_size - 1:
-        local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
-    elif rank == 0:
-        local_rank_t = dst_rank[0 : edge_offsets[0]]
+    if world_size == 1:
+        local_rank_t = dst_rank
     else:
-        local_rank_t = dst_rank[edge_offsets[-1] :]
+        if rank > 0 and rank < world_size - 1:
+            local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
+        elif rank == 0:
+            local_rank_t = dst_rank[0 : edge_offsets[0]]
+        else:
+            local_rank_t = dst_rank[edge_offsets[-1] :]
 
     s = [edge_label_index[0].cuda()[local_rank_t == r] for r in range(world_size)]
 
