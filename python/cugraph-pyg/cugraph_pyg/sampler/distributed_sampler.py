@@ -420,6 +420,9 @@ class BaseDistributedSampler:
         # unique_consecutive in order to support negative sampling.  This is
         # because if we put positive edges after negative ones, then we may
         # inadvertently turn a true positive into a false negative.
+        a = current_seeds[0].reshape((2, -1))
+        print("a shape:", a.shape)
+        print("values:", a[0].min(), a[0].max(), a[1].min(), a[1].max())
         y = (
             torch.sort(
                 t,

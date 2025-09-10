@@ -455,12 +455,25 @@ class HeterogeneousSampleReader(SampleReader):
             if isinstance(input_type, str):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
+                print("inv before de-offset:", edge_inverse)
+                print("input_type:", input_type)
+                print(
+                    "range:",
+                    edge_inverse[0].min(),
+                    edge_inverse[0].max(),
+                    edge_inverse[1].min(),
+                    edge_inverse[1].max(),
+                )
+                print("customer:", node["customer"].numel())
+                print("article:", node["article"].numel())
                 # De-offset the type based on lexicographic order
                 if input_type[0] != input_type[2]:
                     if input_type[0] < input_type[2]:
                         edge_inverse[1] -= edge_inverse[0].max() + 1
                     else:
                         edge_inverse[0] -= edge_inverse[1].max() + 1
+
+                print("inv after de-offset:", edge_inverse)
 
             metadata = (
                 input_index,
@@ -808,6 +821,7 @@ class BaseSampler:
                 self.__graph_store,
                 index.row,
                 index.col,
+                index.input_type,
                 self.__batch_size,
                 neg_sampling,
                 None,  # src_time,
