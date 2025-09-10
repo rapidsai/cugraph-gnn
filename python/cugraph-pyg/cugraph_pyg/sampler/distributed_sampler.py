@@ -191,7 +191,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-
         current_seeds, current_ix = current_seeds_and_ix
 
         # do qr division to get the number of batch_size batches and the
@@ -245,7 +244,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
     ):
-
         # Split the input seeds into call groups.  Each call group
         # corresponds to one sampling call.  A call group contains
         # many batches.
@@ -374,7 +372,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-
         current_seeds, current_ix, current_label = current_seeds_and_ix
         num_seed_edges = current_ix.numel()
 
@@ -493,9 +490,9 @@ class BaseDistributedSampler:
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_label"] = current_label.cuda()
         minibatch_dict["input_offsets"] = input_offsets
-        minibatch_dict[
-            "edge_inverse"
-        ] = current_inv  # (2 * batch_size) entries per batch
+        minibatch_dict["edge_inverse"] = (
+            current_inv  # (2 * batch_size) entries per batch
+        )
 
         # rename renumber_map -> map to match unbuffered format
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
@@ -567,7 +564,7 @@ class BaseDistributedSampler:
         actual_seed_edges_per_call = batches_per_call * batch_size
 
         if input_id is None:
-            input_id = torch.arange(len(edges), dtype=torch.int64, device="cpu")
+            input_id = torch.arange(edges.shape[-1], dtype=torch.int64, device="cpu")
 
         local_num_batches = int(ceil(num_seed_edges / batch_size))
         batch_id_start, input_size_is_equal = self.get_start_batch_offset(
@@ -659,7 +656,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
-
         self.__fanout = fanout
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),
