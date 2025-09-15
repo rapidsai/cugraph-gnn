@@ -455,25 +455,12 @@ class HeterogeneousSampleReader(SampleReader):
             if isinstance(input_type, str):
                 raise ValueError("Input type should be a tuple for edge input.")
             else:
-                print("inv before de-offset:", edge_inverse)
-                print("input_type:", input_type)
-                print(
-                    "range:",
-                    edge_inverse[0].min(),
-                    edge_inverse[0].max(),
-                    edge_inverse[1].min(),
-                    edge_inverse[1].max(),
-                )
-                print("customer:", node["customer"].numel())
-                print("article:", node["article"].numel())
                 # De-offset the type based on lexicographic order
                 if input_type[0] != input_type[2]:
                     if input_type[0] < input_type[2]:
                         edge_inverse[1] -= edge_inverse[0].max() + 1
                     else:
                         edge_inverse[0] -= edge_inverse[1].max() + 1
-
-                print("inv after de-offset:", edge_inverse)
 
             metadata = (
                 input_index,
@@ -832,7 +819,11 @@ class BaseSampler:
             else:
                 # triplet, cat dst to src so length is the same; will
                 # result in the same set of unique vertices
-                src, _ = neg_cat(src.cuda(), dst_neg, self.__batch_size)
+                scu = src.cuda()
+                per = torch.randint(
+                    0, scu.numel(), (dst_neg.numel(),), device=scu.device
+                )
+                src, _ = neg_cat(scu, scu[per], self.__batch_size)
             dst, neg_batch_size = neg_cat(dst.cuda(), dst_neg, self.__batch_size)
 
             # Concatenate -1s so the input id tensor lines up and can

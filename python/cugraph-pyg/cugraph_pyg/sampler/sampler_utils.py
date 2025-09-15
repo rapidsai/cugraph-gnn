@@ -100,24 +100,44 @@ def neg_sample(
     )
 
     # The weights need to match the expected number of nodes
-    num_src_nodes = graph_store._num_vertices()[input_type[0]]
-    num_dst_nodes = graph_store._num_vertices()[input_type[2]]
+    if graph_store.is_homogeneous:
+        num_src_nodes = num_dst_nodes = list(graph_store._num_vertices().values())[0]
+    else:
+        num_src_nodes = graph_store._num_vertices()[input_type[0]]
+        num_dst_nodes = graph_store._num_vertices()[input_type[2]]
+
+    if src_weight is not None and dst_weight is not None:
+        if src_weight.dtype != dst_weight.dtype:
+            raise ValueError(
+                f"The 'src_weight' and 'dst_weight' attributes need to have the same"
+                f" dtype (got {src_weight.dtype} and {dst_weight.dtype})"
+            )
+    weight_dtype = (
+        torch.float32
+        if (src_weight is None and dst_weight is None)
+        else (src_weight.dtype if src_weight is not None else dst_weight.dtype)
+    )
+
     if src_weight is None:
-        src_weight = torch.ones(num_src_nodes, dtype=torch.int64, device="cuda")
+        src_weight = torch.ones(num_src_nodes, dtype=weight_dtype, device="cuda")
     else:
         if src_weight.numel() != num_src_nodes:
             raise ValueError(
-                f"The 'src_weight' attribute needs to match the number of source nodes {num_src_nodes} (got {src_weight.numel()})"
+                f"The 'src_weight' attribute needs to match the number of source nodes"
+                f" {num_src_nodes} (got {src_weight.numel()})"
             )
+
     if dst_weight is None:
-        dst_weight = torch.ones(num_dst_nodes, dtype=torch.int64, device="cuda")
+        dst_weight = torch.ones(num_dst_nodes, dtype=weight_dtype, device="cuda")
     else:
         if dst_weight.numel() != num_dst_nodes:
             raise ValueError(
-                f"The 'dst_weight' attribute needs to match the number of destination nodes {num_dst_nodes} (got {dst_weight.numel()})"
+                f"The 'dst_weight' attribute needs to match the number of destination"
+                f" nodes {num_dst_nodes} (got {dst_weight.numel()})"
             )
 
-    # If the graph is heterogeneous, the weights need to be concatenated together and offsetted.
+    # If the graph is heterogeneous, the weights need to be concatenated together
+    # and offsetted.
     if not graph_store.is_homogeneous:
         if input_type[0] != input_type[2]:
             vertices = torch.concat(
@@ -135,10 +155,10 @@ def neg_sample(
             )
 
         src_weight = torch.concat(
-            [src_weight, torch.zeros(num_dst_nodes, dtype=torch.int64, device="cuda")]
+            [src_weight, torch.zeros(num_dst_nodes, dtype=weight_dtype, device="cuda")]
         )
         dst_weight = torch.concat(
-            [torch.zeros(num_src_nodes, dtype=torch.int64, device="cuda"), dst_weight]
+            [torch.zeros(num_src_nodes, dtype=weight_dtype, device="cuda"), dst_weight]
         )
     elif src_weight is None and dst_weight is None:
         vertices = None

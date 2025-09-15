@@ -597,3 +597,104 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
         assert (r_i == eli_i).all()
 
     assert i == 7
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize("batch_size", [1, 2])
+@pytest.mark.parametrize("neg_sampling_mode", ["binary", "triplet"])
+@pytest.mark.parametrize("amount", [1, 2])
+def test_link_neighbor_loader_hetero_negative_sampling(
+    batch_size, neg_sampling_mode, amount, single_pytorch_worker
+):
+    """
+    Test negative sampling for heterogeneous graphs with different edge types.
+    """
+    # Create a heterogeneous graph with paper-author relationships
+    src_paper = torch.tensor([0, 1, 2, 4, 3, 4, 5, 5])  # paper
+    dst_paper = torch.tensor([4, 5, 4, 3, 2, 1, 0, 1])  # paper
+
+    asrc = torch.tensor([0, 1, 2, 3, 3, 0])  # author
+    adst = torch.tensor([0, 1, 2, 3, 4, 5])  # paper
+
+    num_authors = 4
+    num_papers = 6
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+
+    # Add paper-paper citations
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        src_paper,
+        dst_paper,
+    ]
+    # Add author-paper relationships
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [asrc, adst]
+
+    # Create edge label index for author-paper relationships
+    edge_label_index = torch.stack([asrc, adst])
+
+    # Test both binary and triplet negative sampling
+    if neg_sampling_mode == "binary":
+        neg_sampling = torch_geometric.sampler.NegativeSampling(
+            "binary", amount=float(amount)
+        )
+    else:
+        neg_sampling = torch_geometric.sampler.NegativeSampling(
+            "triplet", amount=float(amount)
+        )
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors={
+            ("paper", "cites", "paper"): [2, 2],
+            ("author", "writes", "paper"): [2, 2],
+        },
+        edge_label_index=(("author", "writes", "paper"), edge_label_index),
+        batch_size=batch_size,
+        neg_sampling=neg_sampling,
+        shuffle=False,
+    )
+
+    # Test that the loader produces batches with proper negative sampling
+    for i, batch in enumerate(loader):
+        # Check that we have the expected edge label index structure
+        assert [("author", "writes", "paper")] == list(
+            batch.edge_label_index_dict.keys()
+        )
+        assert [("author", "writes", "paper")] == list(batch.edge_label_dict.keys())
+
+        # Should have both positive (1.0) and negative (0.0) labels
+        edge_labels = batch["author", "writes", "paper"].edge_label
+        assert torch.any(edge_labels == 1.0)
+        assert torch.any(edge_labels == 0.0)
+        assert (edge_labels == 0.0).sum() == amount * (edge_labels == 1.0).sum()
+
+        # Verify that the edge label index has the correct shape
+        edge_label_idx = batch["author", "writes", "paper"].edge_label_index
+        assert edge_label_idx.shape[0] == 2  # Should be [2, num_edges]
+        assert edge_label_idx.shape[1] > 0  # Should have some edges
+
+        # Verify that the edge labels correspond to the edge label index
+        assert edge_labels.shape[0] == edge_label_idx.shape[1]
+
+        # Check that node IDs are valid
+        assert batch["author"].n_id.numel() > 0
+        assert batch["paper"].n_id.numel() > 0
+
+        # Verify that edge label index uses valid node IDs
+        author_n_ids = batch["author"].n_id
+        paper_n_ids = batch["paper"].n_id
+
+        # All source nodes in edge_label_index should be in author.n_id
+        src_nodes = edge_label_idx[0]
+        assert torch.all(torch.isin(src_nodes.cpu(), torch.arange(len(author_n_ids))))
+
+        # All destination nodes in edge_label_index should be in paper.n_id
+        dst_nodes = edge_label_idx[1]
+        assert torch.all(torch.isin(dst_nodes.cpu(), torch.arange(len(paper_n_ids))))
+
+    # Verify we processed all batches
+    assert i >= 0  # At least one batch should be processed
