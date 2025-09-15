@@ -371,13 +371,23 @@ class HeterogeneousSampleReader(SampleReader):
                 # heterogeneous edges as input, two node types per edge type
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 uy = row[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                uxn = (
+                    (ux.max() + 1)
+                    if ux.numel() > 0
+                    else torch.tensor(0, device=ux.device)
+                )
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
-                    (ux.max() + 1).reshape((1,)),
+                    uxn.reshape((1,)),
+                )
+                uyn = (
+                    (uy.max() + 1)
+                    if uy.numel() > 0
+                    else torch.tensor(0, device=uy.device)
                 )
                 num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__src_types[etype]][0],
-                    (uy.max() + 1).reshape((1,)),
+                    uyn.reshape((1,)),
                 )
             elif isinstance(input_type, str) and input_type == pyg_can_etype[2]:
                 integer_input_type = self.__src_types[etype]
