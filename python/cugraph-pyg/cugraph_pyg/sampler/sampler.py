@@ -817,8 +817,8 @@ class BaseSampler:
             if neg_sampling.is_binary():
                 src, _ = neg_cat(src.cuda(), src_neg, self.__batch_size)
             else:
-                # triplet, cat dst to src so length is the same; will
-                # result in the same set of unique vertices
+                # triplet, cat rand subset of src to src so length is the
+                # same; will result in the same set of unique vertices
                 scu = src.cuda()
                 per = torch.randint(
                     0, scu.numel(), (dst_neg.numel(),), device=scu.device
