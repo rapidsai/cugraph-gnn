@@ -818,6 +818,7 @@ class BaseSampler:
                 self.__graph_store,
                 index.row,
                 index.col,
+                index.input_type,
                 self.__batch_size,
                 neg_sampling,
                 None,  # src_time,
@@ -826,9 +827,13 @@ class BaseSampler:
             if neg_sampling.is_binary():
                 src, _ = neg_cat(src.cuda(), src_neg, self.__batch_size)
             else:
-                # triplet, cat dst to src so length is the same; will
-                # result in the same set of unique vertices
-                src, _ = neg_cat(src.cuda(), dst_neg, self.__batch_size)
+                # triplet, cat random subset of src to src so length is the
+                # same; will result in the same set of unique vertices
+                scu = src.cuda()
+                per = torch.randint(
+                    0, scu.numel(), (dst_neg.numel(),), device=scu.device
+                )
+                src, _ = neg_cat(scu, scu[per], self.__batch_size)
             dst, neg_batch_size = neg_cat(dst.cuda(), dst_neg, self.__batch_size)
 
             # Concatenate -1s so the input id tensor lines up and can
