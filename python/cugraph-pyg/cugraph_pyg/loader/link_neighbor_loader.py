@@ -158,8 +158,6 @@ class LinkNeighborLoader(LinkLoader):
             warnings.warn("Only the uniform temporal strategy is currently supported")
         if neighbor_sampler is not None:
             raise ValueError("Passing a neighbor sampler is currently unsupported")
-        if time_attr is not None:
-            raise ValueError("Temporal sampling is currently unsupported")
         if is_sorted:
             warnings.warn("The 'is_sorted' argument is ignored by cuGraph.")
         if not isinstance(data, (list, tuple)) or not isinstance(
@@ -182,8 +180,14 @@ class LinkNeighborLoader(LinkLoader):
                     "Only COO format is supported for heterogeneous graphs!"
                 )
 
+        is_temporal = (edge_label_time is not None) and (time_attr is not None)
+
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
+        if is_temporal:
+            # TODO Confirm that time is an edge attribute
+            # TODO Add support for time override (see rapidsai/cugraph#5263)
+            graph_store._set_etime_attr((feature_store, time_attr))
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
@@ -209,13 +213,13 @@ class LinkNeighborLoader(LinkLoader):
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),
+                temporal=is_temporal,
                 vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
             (feature_store, graph_store),
             batch_size=batch_size,
         )
-        # TODO add heterogeneous support and pass graph_store._vertex_offsets
 
         super().__init__(
             (feature_store, graph_store),

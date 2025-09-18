@@ -656,6 +656,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         with_replacement: bool = False,
         biased: bool = False,
         heterogeneous: bool = False,
+        temporal: bool = False,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
@@ -680,21 +681,34 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         if heterogeneous:
             if vertex_type_offsets is None:
                 raise ValueError("Heterogeneous sampling requires vertex type offsets.")
-            self.__func = (
-                pylibcugraph.heterogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.heterogeneous_uniform_neighbor_sample
-            )
+            if biased:
+                self.__func = (
+                    pylibcugraph.heterogeneous_biased_neighbor_sample
+                    if not temporal
+                    else pylibcugraph.heterogeneous_biased_temporal_neighbor_sample
+                )
+            elif temporal:
+                self.__func = (
+                    pylibcugraph.heterogeneous_uniform_temporal_neighbor_sample
+                )
+            else:
+                self.__func = pylibcugraph.heterogeneous_uniform_neighbor_sample
+
             self.__func_kwargs["num_edge_types"] = num_edge_types
             self.__func_kwargs["vertex_type_offsets"] = cupy.asarray(
                 vertex_type_offsets
             )
         else:
-            self.__func = (
-                pylibcugraph.homogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.homogeneous_uniform_neighbor_sample
-            )
+            if biased:
+                self.__func = (
+                    pylibcugraph.homogeneous_biased_neighbor_sample
+                    if not temporal
+                    else pylibcugraph.homogeneous_biased_temporal_neighbor_sample
+                )
+            elif temporal:
+                self.__func = pylibcugraph.homogeneous_uniform_temporal_neighbor_sample
+            else:
+                self.__func = pylibcugraph.homogeneous_uniform_neighbor_sample
 
         if num_edge_types > 1 and not heterogeneous:
             raise ValueError(
