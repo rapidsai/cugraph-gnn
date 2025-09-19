@@ -80,6 +80,7 @@ class GraphStore(
         self.__graph = None
         self.__vertex_offsets = None
         self.__weight_attr = None
+        self.__etime_attr = None
         self.__numeric_edge_types = None
 
     def _put_edge_index(
