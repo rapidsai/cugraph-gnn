@@ -724,6 +724,8 @@ def test_neighbor_loader_temporal_simple(single_pytorch_worker):
 
     feature_store[("paper", "cites", "paper"), "time", None] = tme_cite
 
+    # FIXME the default behavior in PyG should be sampling backward in time
+    # instead of forward.
     # FIXME when input_time is fixed, add another edge to make
     # sure it is properly repected.
     loader = cugraph_pyg.loader.NeighborLoader(
