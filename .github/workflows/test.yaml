@@ -55,7 +55,7 @@ jobs:
       sha: ${{ inputs.sha }}
       # TODO: remove the CUDA 13 exclusion here once there are pytorch CUDA 13 packages
       #  ref: https://github.com/pytorch/pytorch/issues/159779
-      matrix_filter: map(select(.ARCH == "amd64" and (!.CUDA_VER | startswith("13")))
+      matrix_filter: map(select(.ARCH == "amd64" and (.CUDA_VER | startswith("12"))))
   wheel-tests-pylibwholegraph:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.10
