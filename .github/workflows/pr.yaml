@@ -143,7 +143,7 @@ jobs:
       build_type: pull-request
       # TODO: remove the CUDA 13 exclusion here once there are pytorch CUDA 13 packages
       #  ref: https://github.com/pytorch/pytorch/issues/159779
-      matrix_filter: map(select(.ARCH == "amd64" and .CUDA_VER != "13.0.0" ))
+      matrix_filter: map(select(.ARCH == "amd64" and (!.CUDA_VER | startswith("13")))
       script: ci/test_python.sh
   docs-build:
     needs: conda-cpp-build
