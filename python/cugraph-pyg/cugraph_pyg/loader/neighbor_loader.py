@@ -207,6 +207,7 @@ class NeighborLoader(NodeLoader):
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),
+                temporal=is_temporal,
                 vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),

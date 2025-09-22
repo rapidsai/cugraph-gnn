@@ -698,3 +698,46 @@ def test_link_neighbor_loader_hetero_negative_sampling(
 
     # Verify we processed all batches
     assert i >= 0  # At least one batch should be processed
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_temporal_simple(single_pytorch_worker):
+    """
+    Test negative sampling for heterogeneous graphs with different edge types.
+    """
+    # Create a homogeneous graph with paper-paper citations
+    src_cite = torch.tensor([3, 2, 1, 2])  # paper
+    dst_cite = torch.tensor([2, 1, 0, 0])  # paper
+    tme_cite = torch.tensor([0, 1, 2, 0])  # time
+
+    num_papers = 4
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+
+    # Add paper-paper citations
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        dst_cite,
+        src_cite,
+    ]
+
+    feature_store[("paper", "cites", "paper"), "time", None] = tme_cite
+
+    # FIXME when input_time is fixed, add another edge to make
+    # sure it is properly repected.
+    loader = cugraph_pyg.loader.NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[2, 2, 2],
+        batch_size=1,
+        input_nodes=torch.tensor([3]),
+        input_time=torch.tensor([0]),
+        time_attr="time",
+        shuffle=False,
+    )
+
+    out = next(iter(loader))
+    assert out.n_id.tolist() == [3, 2, 1, 0]
+    assert out.e_id.tolist() == [0, 1, 2]
+    assert out.num_sampled_nodes.tolist() == [1, 1, 1, 1]
+    assert out.num_sampled_edges.tolist() == [1, 1, 1]

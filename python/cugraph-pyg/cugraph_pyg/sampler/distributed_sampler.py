@@ -678,6 +678,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         # change.
         # TODO allow func to be a call to a future remote sampling API
         # if the provided graph is in another process (rapidsai/cugraph#4623).
+
+        if temporal:
+            self.__func_kwargs["temporal_property_name"] = "time"
+
         if heterogeneous:
             if vertex_type_offsets is None:
                 raise ValueError("Heterogeneous sampling requires vertex type offsets.")
