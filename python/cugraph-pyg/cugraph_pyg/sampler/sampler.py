@@ -209,7 +209,6 @@ class SampleReader:
                 if "label_type_hop_offsets" in self.__raw_sample_data
                 else "label_hop_offsets"
             )
-            print(list(self.__raw_sample_data.keys()))
 
             self.__raw_sample_data["input_offsets"] -= self.__raw_sample_data[
                 "input_offsets"
@@ -368,6 +367,11 @@ class HeterogeneousSampleReader(SampleReader):
                     )
 
             if input_type == pyg_can_etype:
+                # FIXME this is technically not the correct way to calculate the
+                # number of sampled nodes for hop 0, but it should not cause any
+                # issues during training since (presumably) the extra nodes will
+                # get pruned out (rapidsai/cugraph#5270).
+
                 integer_input_type = etype
                 # heterogeneous edges as input, two node types per edge type
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
@@ -377,6 +381,7 @@ class HeterogeneousSampleReader(SampleReader):
                     if ux.numel() > 0
                     else torch.tensor(0, device=ux.device)
                 )
+
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
                     uxn.reshape((1,)),
@@ -386,6 +391,7 @@ class HeterogeneousSampleReader(SampleReader):
                     if uy.numel() > 0
                     else torch.tensor(0, device=uy.device)
                 )
+
                 num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__src_types[etype]][0],
                     uyn.reshape((1,)),

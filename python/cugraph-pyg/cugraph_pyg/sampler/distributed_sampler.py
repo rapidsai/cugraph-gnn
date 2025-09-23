@@ -788,6 +788,12 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "random_state": random_state + rank,
         }
         kwargs.update(self.__func_kwargs)
+
+        from inspect import signature
+
+        print(signature(self.__func))
+
+        print(kwargs)
         sampling_results_dict = self.__func(**kwargs)
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")
