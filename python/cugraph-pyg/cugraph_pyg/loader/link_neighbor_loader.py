@@ -188,6 +188,11 @@ class LinkNeighborLoader(LinkLoader):
             # TODO Confirm that time is an edge attribute
             # TODO Add support for time override (see rapidsai/cugraph#5263)
             graph_store._set_etime_attr((feature_store, time_attr))
+            warnings.warn(
+                "Temporal sampling in cuGraph-PyG is currently only forward in time"
+                " instead of the expected backward in time.  This will be fixed in a"
+                " future release."
+            )
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
