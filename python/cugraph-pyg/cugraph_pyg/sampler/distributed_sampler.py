@@ -567,7 +567,7 @@ class BaseDistributedSampler:
         actual_seed_edges_per_call = batches_per_call * batch_size
 
         if input_id is None:
-            input_id = torch.arange(len(edges), dtype=torch.int64, device="cpu")
+            input_id = torch.arange(edges.shape[-1], dtype=torch.int64, device="cpu")
 
         local_num_batches = int(ceil(num_seed_edges / batch_size))
         batch_id_start, input_size_is_equal = self.get_start_batch_offset(
