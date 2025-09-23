@@ -329,13 +329,17 @@ class GraphStore(
 
     def _set_etime_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
         if attr != self.__etime_attr:
+            weight_attr = self.__weight_attr
             self.__clear_graph()
             self.__etime_attr = attr
+            self.__weight_attr = weight_attr
 
     def _set_weight_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
         if attr != self.__weight_attr:
+            etime_attr = self.__etime_attr
             self.__clear_graph()
             self.__weight_attr = attr
+            self.__etime_attr = etime_attr
 
     def __get_etime_tensor(
         self,
@@ -352,7 +356,12 @@ class GraphStore(
                 dtype=torch.int64,
                 device="cpu",
             )
-            etimes.append(feature_store[et, attr_name][ix])
+            etime = feature_store[et, attr_name][ix]
+
+            if etime is None:
+                raise ValueError("Time property must be present for all edge types.")
+            etimes.append(etime)
+
         return torch.concat(etimes)
 
     def __get_weight_tensor(

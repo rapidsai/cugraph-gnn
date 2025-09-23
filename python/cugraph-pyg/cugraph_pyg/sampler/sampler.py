@@ -209,6 +209,7 @@ class SampleReader:
                 if "label_type_hop_offsets" in self.__raw_sample_data
                 else "label_hop_offsets"
             )
+            print(list(self.__raw_sample_data.keys()))
 
             self.__raw_sample_data["input_offsets"] -= self.__raw_sample_data[
                 "input_offsets"
