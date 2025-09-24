@@ -719,11 +719,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                 "Heterogeneous sampling must be selected if there is > 1 edge type."
             )
 
-        print(
-            "?",
-            self.__func == pylibcugraph.heterogeneous_uniform_temporal_neighbor_sample,
-        )
-
         super().__init__(
             graph,
             local_seeds_per_call=self.__calc_local_seeds_per_call(
@@ -789,11 +784,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         }
         kwargs.update(self.__func_kwargs)
 
-        from inspect import signature
-
-        print(signature(self.__func))
-
-        print(kwargs)
         sampling_results_dict = self.__func(**kwargs)
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")
