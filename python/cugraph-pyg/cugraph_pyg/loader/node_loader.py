@@ -87,9 +87,6 @@ class NodeLoader:
         if not isinstance(node_sampler, cugraph_pyg.sampler.BaseSampler):
             raise NotImplementedError("Must provide a cuGraph sampler")
 
-        if input_time is not None:
-            raise ValueError("Temporal sampling is currently unsupported")
-
         if filter_per_worker:
             warnings.warn("filter_per_worker is currently ignored")
 

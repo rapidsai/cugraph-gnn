@@ -59,6 +59,50 @@ class BaseDistributedSampler:
     ...     pass
     """
 
+    # homogeneous/heterogeneous, uniform/biased, temporal?
+    _func_table = {
+        (
+            "homogeneous",
+            "uniform",
+            True,
+        ): pylibcugraph.homogeneous_uniform_temporal_neighbor_sample,
+        (
+            "homogeneous",
+            "uniform",
+            False,
+        ): pylibcugraph.homogeneous_uniform_neighbor_sample,
+        (
+            "homogeneous",
+            "biased",
+            True,
+        ): pylibcugraph.homogeneous_biased_temporal_neighbor_sample,
+        (
+            "homogeneous",
+            "biased",
+            False,
+        ): pylibcugraph.homogeneous_biased_neighbor_sample,
+        (
+            "heterogeneous",
+            "uniform",
+            True,
+        ): pylibcugraph.heterogeneous_uniform_temporal_neighbor_sample,
+        (
+            "heterogeneous",
+            "uniform",
+            False,
+        ): pylibcugraph.heterogeneous_uniform_neighbor_sample,
+        (
+            "heterogeneous",
+            "biased",
+            True,
+        ): pylibcugraph.heterogeneous_biased_temporal_neighbor_sample,
+        (
+            "heterogeneous",
+            "biased",
+            False,
+        ): pylibcugraph.heterogeneous_biased_neighbor_sample,
+    }
+
     def __init__(
         self,
         graph: Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph],
@@ -601,7 +645,7 @@ class BaseDistributedSampler:
         actual_seed_edges_per_call = batches_per_call * batch_size
 
         if input_id is None:
-            input_id = torch.arange(len(edges), dtype=torch.int64, device="cpu")
+            input_id = torch.arange(edges.shape[-1], dtype=torch.int64, device="cpu")
 
         local_num_batches = int(ceil(num_seed_edges / batch_size))
         batch_id_start, input_size_is_equal = self.get_start_batch_offset(
@@ -690,6 +734,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         with_replacement: bool = False,
         biased: bool = False,
         heterogeneous: bool = False,
+        temporal: bool = False,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
@@ -711,23 +756,25 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         # change.
         # TODO allow func to be a call to a future remote sampling API
         # if the provided graph is in another process (rapidsai/cugraph#4623).
+
+        if temporal:
+            self.__func_kwargs["temporal_property_name"] = "time"
+
+        self.__func = self._func_table[
+            (
+                "heterogeneous" if heterogeneous else "homogeneous",
+                "uniform" if not biased else "biased",
+                temporal,
+            )
+        ]
+
         if heterogeneous:
             if vertex_type_offsets is None:
                 raise ValueError("Heterogeneous sampling requires vertex type offsets.")
-            self.__func = (
-                pylibcugraph.heterogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.heterogeneous_uniform_neighbor_sample
-            )
+
             self.__func_kwargs["num_edge_types"] = num_edge_types
             self.__func_kwargs["vertex_type_offsets"] = cupy.asarray(
                 vertex_type_offsets
-            )
-        else:
-            self.__func = (
-                pylibcugraph.homogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.homogeneous_uniform_neighbor_sample
             )
 
         if num_edge_types > 1 and not heterogeneous:
@@ -799,6 +846,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "random_state": random_state + rank,
         }
         kwargs.update(self.__func_kwargs)
+
         sampling_results_dict = self.__func(**kwargs)
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")

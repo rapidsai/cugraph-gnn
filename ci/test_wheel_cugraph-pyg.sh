@@ -14,9 +14,18 @@ LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github python)
 CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
 
+CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+
+if [[ "${CUDA_MAJOR}" == "12" ]]; then
+  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
+else
+  PYTORCH_INDEX="https://download.pytorch.org/whl/nightly/cu130"
+fi
+
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-pip-retry install \
     -v \
+    --extra-index-url "${PYTORCH_INDEX}" \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
     "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"

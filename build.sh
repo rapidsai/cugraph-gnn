@@ -205,11 +205,11 @@ fi
 if hasArg libwholegraph || buildDefault || hasArg all ; then
 
     # set values based on flags
-    if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
-        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="${WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES:=NATIVE}"
+    if (( BUILD_ALL_GPU_ARCH == 0 )); then
+        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="NATIVE"
         echo "Building for the architecture of the GPU in the system..."
     else
-        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="70-real;75-real;80-real;86-real;90"
+        WHOLEGRAPH_CMAKE_CUDA_ARCHITECTURES="RAPIDS"
         echo "Building for *ALL* supported GPU architectures..."
     fi
 
