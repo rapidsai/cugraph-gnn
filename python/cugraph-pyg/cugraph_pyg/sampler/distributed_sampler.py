@@ -235,9 +235,10 @@ class BaseDistributedSampler:
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
 
         current_seeds, current_ix = current_seeds_and_ix
-        if isinstance(batch_size_or_offsets, torch.Tensor):
+        if isinstance(batch_size_or_offsets, list):
+            print(f'rank: {torch.distributed.get_rank()}, call_id: {call_id}, batch_size_or_offsets: {batch_size_or_offsets}',flush=True)
             input_offsets = batch_size_or_offsets[call_id].clone()
-            input_offsets -= batch_size_or_offsets[0].clone()
+            input_offsets -= input_offsets[0].clone()
         else:
             # do qr division to get the number of batch_size batches and the
             # size of the last batch
@@ -267,6 +268,8 @@ class BaseDistributedSampler:
 
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_offsets"] = input_offsets
+
+        print(f'minibatch_dict: {minibatch_dict}',flush=True)
 
         # rename renumber_map -> map to match unbuffered format
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
@@ -307,12 +310,20 @@ class BaseDistributedSampler:
                 label_call_groups = torch.split(label, seeds_per_call, dim=-1)
         else:
             num_calls = torch.ceil(batch_offsets[-1] / seeds_per_call).to(torch.int64)
-            s = torch.arange(1, num_calls - 1) * seeds_per_call
+            s = torch.arange(0, num_calls+1, device=batch_offsets.device) * seeds_per_call
             u = torch.searchsorted(batch_offsets, s)
-            seeds_call_groups = torch.tensor_split(seeds, batch_offsets[u])
-            index_call_groups = torch.tensor_split(input_id, batch_offsets[u])
+            print(f'batch_offsets: {batch_offsets}, u: {u}',flush=True)
+            selector = batch_offsets[u]
+            seeds_call_groups = torch.tensor_split(seeds, selector)[1:-1]
+            index_call_groups = torch.tensor_split(input_id, selector)[1:-1]
+            batch_offset_call_groups = [
+                batch_offsets[selector[i]:selector[i+1]+1].clone()
+                for i in range(selector.numel() - 1)
+            ]
+            print(f'seeds_call_groups: {seeds_call_groups}, index_call_groups: {index_call_groups}, batch_offset_call_groups: {batch_offset_call_groups}',flush=True)
+            
             if label is not None:
-                label_call_groups = torch.tensor_split(label, batch_offsets[u])
+                label_call_groups = torch.tensor_split(label, selector)[1:-1]
 
         # Need to add empties to the list of call groups to handle the case
         # where not all ranks have the same number of call groups.  This
@@ -338,6 +349,14 @@ class BaseDistributedSampler:
                     [torch.tensor([], dtype=label.dtype, device=label.device)]
                     * (int(num_call_groups) - len(label_call_groups))
                 )
+
+        if torch.distributed.get_rank() == 0:
+            print(f'seeds_call_groups: {seeds_call_groups}',flush=True)
+            print(f'index_call_groups: {index_call_groups}',flush=True)
+            print(f'batch_offset_call_groups: {batch_offset_call_groups}',flush=True)
+
+        if batch_offsets is not None:
+            seeds_call_groups = (seeds_call_groups, batch_offset_call_groups)
 
         if label is not None:
             return seeds_call_groups, index_call_groups, label_call_groups
@@ -399,23 +418,25 @@ class BaseDistributedSampler:
         if batch_size is not None and batch_offsets is not None:
             raise ValueError("Only one of batch_size or batch_offsets can be provided.")
 
+        if input_id is None:
+            input_id = torch.arange(num_seeds, dtype=torch.int64, device="cpu")
+        else:
+            input_id = torch.as_tensor(input_id, device="cpu")
+
         if batch_size is not None:
             batches_per_call = self._local_seeds_per_call // batch_size
             actual_seeds_per_call = batches_per_call * batch_size
-
-            if input_id is None:
-                input_id = torch.arange(num_seeds, dtype=torch.int64, device="cpu")
-            else:
-                input_id = torch.as_tensor(input_id, device="cpu")
 
             local_num_batches = int(ceil(num_seeds / batch_size))
             batch_id_start, input_size_is_equal = self.get_start_batch_offset(
                 local_num_batches, assume_equal_input_size=assume_equal_input_size
             )
         else:
+            batch_offsets = torch.as_tensor(batch_offsets, device="cpu")
             batch_id_start = 0
+            
             actual_seeds_per_call = min(
-                self._local_seeds_per_call, batch_offsets.numel()
+                self._local_seeds_per_call, num_seeds
             )
             input_size_is_equal = False  # TODO consider checking input size
 
@@ -427,9 +448,12 @@ class BaseDistributedSampler:
             batch_offsets=batch_offsets,
         )
 
+        if batch_offsets is not None:
+            nodes_call_groups, batch_offset_call_groups = nodes_call_groups
+
         sample_args = [
             batch_id_start,
-            batch_size if batch_size is not None else batch_offsets,
+            batch_size if batch_size is not None else batch_offset_call_groups,
             random_state,
             metadata,
         ]
@@ -834,6 +858,8 @@ class DistributedNeighborSampler(BaseDistributedSampler):
     ) -> Dict[str, TensorType]:
         torch = import_optional("torch")
         rank = torch.distributed.get_rank() if self.is_multi_gpu else 0
+
+        print(f'seeds: {seeds}, batch_id_offsets: {batch_id_offsets}',flush=True)
 
         kwargs = {
             "resource_handle": self._resource_handle,
