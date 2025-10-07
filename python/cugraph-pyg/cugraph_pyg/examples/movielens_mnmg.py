@@ -364,11 +364,6 @@ if __name__ == "__main__":
     local_rank = int(os.environ["LOCAL_RANK"])
     device = torch.device(local_rank)
 
-    if global_rank == 0:
-        from rmm.allocators.torch import rmm_torch_allocator
-
-        torch.cuda.change_current_allocator(rmm_torch_allocator)
-
     # Create the uid needed for cuGraph comms
     if global_rank == 0:
         from pylibcugraph.comms import (
@@ -383,93 +378,99 @@ if __name__ == "__main__":
 
     init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id)
 
-    # Split the data
-    edge_path = os.path.join(args.dataset_root, dataset_name + "_eix_part")
-    features_path = os.path.join(args.dataset_root, dataset_name + "_feat")
-    meta_path = os.path.join(args.dataset_root, dataset_name + "_meta.json")
+    from rmm.allocators.torch import rmm_torch_allocator
 
-    if not args.skip_partition and global_rank == 0:
-        print("Partitioning data...")
+    with torch.cuda.use_mem_pool(torch.cuda.MemPool(rmm_torch_allocator.allocator())):
+        # Split the data
+        edge_path = os.path.join(args.dataset_root, dataset_name + "_eix_part")
+        features_path = os.path.join(args.dataset_root, dataset_name + "_feat")
+        meta_path = os.path.join(args.dataset_root, dataset_name + "_meta.json")
 
-        dataset = MovieLens(args.dataset_root, model_name="all-MiniLM-L6-v2")
-        data = dataset[0]
+        if not args.skip_partition and global_rank == 0:
+            print("Partitioning data...")
 
-        preprocess_and_partition(
-            data, edge_path=edge_path, features_path=features_path, meta_path=meta_path
+            dataset = MovieLens(args.dataset_root, model_name="all-MiniLM-L6-v2")
+            data = dataset[0]
+
+            preprocess_and_partition(
+                data,
+                edge_path=edge_path,
+                features_path=features_path,
+                meta_path=meta_path,
+            )
+            print("Data partitioning complete!")
+
+        torch.distributed.barrier()
+        data, label_dict = load_partitions(
+            edge_path=edge_path, features_path=features_path, meta_path=meta_path
         )
-        print("Data partitioning complete!")
+        torch.distributed.barrier()
 
-    torch.distributed.barrier()
-    data, label_dict = load_partitions(
-        edge_path=edge_path, features_path=features_path, meta_path=meta_path
-    )
-    torch.distributed.barrier()
+        feature_store, graph_store = cugraph_pyg_from_heterodata(data)
+        eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
+        eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
+        num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
 
-    feature_store, graph_store = cugraph_pyg_from_heterodata(data)
-    eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
-    eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
-    num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
+        # Extract feature dimensions
+        num_features = {
+            "user": data["user"].x.shape[-1] if data["user"].x is not None else 1,
+            "movie": data["movie"].x.shape[-1] if data["movie"].x is not None else 1,
+        }
 
-    # Extract feature dimensions
-    num_features = {
-        "user": data["user"].x.shape[-1] if data["user"].x is not None else 1,
-        "movie": data["movie"].x.shape[-1] if data["movie"].x is not None else 1,
-    }
+        metadata = data.metadata()
+        del data
 
-    metadata = data.metadata()
-    del data
+        # TODO enable temporal sampling when it is available in cuGraph-PyG
+        kwargs = dict(
+            data=(feature_store, graph_store),
+            num_neighbors={
+                ("user", "rates", "movie"): [5, 5, 5],
+                ("movie", "rev_rates", "user"): [5, 5, 5],
+            },
+            batch_size=256,
+            # time_attr='time',
+            shuffle=True,
+            drop_last=True,
+            # temporal_strategy='last',
+        )
 
-    # TODO enable temporal sampling when it is available in cuGraph-PyG
-    kwargs = dict(
-        data=(feature_store, graph_store),
-        num_neighbors={
-            ("user", "rates", "movie"): [5, 5, 5],
-            ("movie", "rev_rates", "user"): [5, 5, 5],
-        },
-        batch_size=256,
-        # time_attr='time',
-        shuffle=True,
-        drop_last=True,
-        # temporal_strategy='last',
-    )
+        from cugraph_pyg.loader import LinkNeighborLoader
 
-    from cugraph_pyg.loader import LinkNeighborLoader
+        train_loader = LinkNeighborLoader(
+            edge_label_index=(("user", "rates", "movie"), eli_train),
+            # edge_label_time=time[train_index] - 1,  # No leakage.
+            neg_sampling=dict(mode="binary", amount=2),
+            **kwargs,
+        )
 
-    train_loader = LinkNeighborLoader(
-        edge_label_index=(("user", "rates", "movie"), eli_train),
-        # edge_label_time=time[train_index] - 1,  # No leakage.
-        neg_sampling=dict(mode="binary", amount=2),
-        **kwargs,
-    )
+        test_loader = LinkNeighborLoader(
+            edge_label_index=(("user", "rates", "movie"), eli_test),
+            neg_sampling=dict(mode="binary", amount=1),
+            **kwargs,
+        )
 
-    test_loader = LinkNeighborLoader(
-        edge_label_index=(("user", "rates", "movie"), eli_test),
-        neg_sampling=dict(mode="binary", amount=1),
-        **kwargs,
-    )
+        sparse_size = (num_nodes["user"], num_nodes["movie"])
+        test_edge_label_index = EdgeIndex(
+            eli_test.to(device),
+            sparse_size=sparse_size,
+        ).sort_by("row")[0]
+        test_exclude_links = EdgeIndex(
+            eli_test.to(device),
+            sparse_size=sparse_size,
+        ).sort_by("row")[0]
 
-    sparse_size = (num_nodes["user"], num_nodes["movie"])
-    test_edge_label_index = EdgeIndex(
-        eli_test.to(device),
-        sparse_size=sparse_size,
-    ).sort_by("row")[0]
-    test_exclude_links = EdgeIndex(
-        eli_test.to(device),
-        sparse_size=sparse_size,
-    ).sort_by("row")[0]
+        model = Model(
+            hidden_channels=64, metadata=metadata, num_features=num_features
+        ).to(device)
 
-    model = Model(hidden_channels=64, metadata=metadata, num_features=num_features).to(
-        device
-    )
+        model = DDP(model, device_ids=[local_rank])
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    model = DDP(model, device_ids=[local_rank])
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-
-    for epoch in range(1, args.epochs + 1):
-        train_loss = train(train_loader, model, optimizer)
-        print(f"Epoch: {epoch:02d}, Loss: {train_loss:.4f}")
-        auc = test(test_loader, model)
-        print(f"Test AUC: {auc:.4f} ")
+        for epoch in range(1, args.epochs + 1):
+            train_loss = train(train_loader, model, optimizer)
+            print(f"Epoch: {epoch:02d}, Loss: {train_loss:.4f}")
+            auc = test(test_loader, model)
+            print(f"Test AUC: {auc:.4f} ")
 
     from pylibcugraph.comms import cugraph_comms_shutdown
 
