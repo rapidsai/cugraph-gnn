@@ -30,5 +30,16 @@ project(
 
 SET(BUILD_TESTS OFF)
 SET(BUILD_BENCHMARKS OFF)
+SET(USE_NCCL_RUNTIME_WHEEL ON)
 
 add_subdirectory(../../cpp/ libwholegraph)
+
+if(USE_NCCL_RUNTIME_WHEEL)
+  list(APPEND rpaths "$ORIGIN/../../nvidia/nccl/lib")
+endif()
+
+set_property(
+  TARGET wholegraph
+  PROPERTY INSTALL_RPATH ${rpaths}
+  APPEND
+)

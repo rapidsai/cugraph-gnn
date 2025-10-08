@@ -15,26 +15,28 @@ import os
 
 import numpy as np
 import cupy
-import cudf
 import pandas
 
 import pylibcugraph
 
-from cugraph.utilities.utils import import_optional, MissingModule
-from cugraph.gnn.comms import cugraph_comms_get_raft_handle
+from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
 from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
-
 from typing import Union, Optional, List, Dict, Tuple
 
+# cudf is an optional dependency.  It is only imported here for typing.
+cudf = import_optional("cudf")
 
 # Have to use import_optional even though these are required
 # dependencies in order to build properly.
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, np.ndarray, cudf.Series, pandas.Series]
+TensorType = Union[
+    "torch.Tensor", cupy.ndarray, np.ndarray, "cudf.Series", pandas.Series
+]
 
 
 class GraphStore(
@@ -78,6 +80,7 @@ class GraphStore(
         self.__graph = None
         self.__vertex_offsets = None
         self.__weight_attr = None
+        self.__etime_attr = None
         self.__numeric_edge_types = None
 
     def _put_edge_index(
@@ -224,6 +227,9 @@ class GraphStore(
                     weight_array=[cupy.asarray(edgelist_dict["wgt"])]
                     if "wgt" in edgelist_dict
                     else None,
+                    edge_start_time_array=[cupy.asarray(edgelist_dict["etime"])]
+                    if "etime" in edgelist_dict
+                    else None,
                 )
             else:
                 self.__graph = pylibcugraph.SGGraph(
@@ -238,6 +244,9 @@ class GraphStore(
                     edge_type_array=cupy.asarray(edgelist_dict["etp"]),
                     weight_array=cupy.asarray(edgelist_dict["wgt"])
                     if "wgt" in edgelist_dict
+                    else None,
+                    edge_start_time_array=cupy.asarray(edgelist_dict["etime"])
+                    if "etime" in edgelist_dict
                     else None,
                 )
 
@@ -318,10 +327,42 @@ class GraphStore(
     def is_homogeneous(self) -> bool:
         return len(self._vertex_offsets) == 1
 
+    def _set_etime_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
+        if attr != self.__etime_attr:
+            weight_attr = self.__weight_attr
+            self.__clear_graph()
+            self.__etime_attr = attr
+            self.__weight_attr = weight_attr
+
     def _set_weight_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
         if attr != self.__weight_attr:
+            etime_attr = self.__etime_attr
             self.__clear_graph()
             self.__weight_attr = attr
+            self.__etime_attr = etime_attr
+
+    def __get_etime_tensor(
+        self,
+        sorted_keys: List[Tuple[str, str, str]],
+        start_offsets: "torch.Tensor",
+        num_edges_t: "torch.Tensor",
+    ):
+        feature_store, attr_name = self.__etime_attr
+        etimes = []
+        for i, et in enumerate(sorted_keys):
+            ix = torch.arange(
+                start_offsets[i],
+                start_offsets[i] + num_edges_t[i],
+                dtype=torch.int64,
+                device="cpu",
+            )
+            etime = feature_store[et, attr_name][ix]
+
+            if etime is None:
+                raise ValueError("Time property must be present for all edge types.")
+            etimes.append(etime)
+
+        return torch.concat(etimes)
 
     def __get_weight_tensor(
         self,
@@ -464,6 +505,11 @@ class GraphStore(
 
         if self.__weight_attr is not None:
             d["wgt"] = self.__get_weight_tensor(
+                sorted_keys, start_offsets.cpu(), num_edges_t.cpu()
+            ).cuda()
+
+        if self.__etime_attr is not None:
+            d["etime"] = self.__get_etime_tensor(
                 sorted_keys, start_offsets.cpu(), num_edges_t.cpu()
             ).cuda()
 

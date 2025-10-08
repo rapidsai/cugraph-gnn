@@ -26,14 +26,14 @@ requirements:
   host:
     - pip
     - python =${{ py_version }}
-    - rapids-build-backend >=0.3.0,<0.4.0.dev0
+    - rapids-build-backend >=0.4.0,<0.5.0.dev0
     - setuptools>=61.0.0
   run:
-    - cugraph =${{ minor_version }}
-    - cupy >=13.2.0
-    - numba >=0.57
+    - cupy >=13.6.0
     - numpy >=1.23,<3.0a0
+    - packaging
     - pandas
+    - pylibcugraph =${{ minor_version }}
     - pylibwholegraph =${{ minor_version }}
     - python
     - pytorch >=2.3

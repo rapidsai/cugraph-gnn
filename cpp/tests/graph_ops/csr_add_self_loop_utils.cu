@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 #include "../wholegraph_ops/graph_sampling_test_utils.hpp"
 #include "csr_add_self_loop_utils.hpp"
+#include <algorithm>
 #include <experimental/random>
 #include <gtest/gtest.h>
 #include <random>

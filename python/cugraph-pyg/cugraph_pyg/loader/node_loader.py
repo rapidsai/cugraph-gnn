@@ -12,11 +12,12 @@
 # limitations under the License.
 
 import warnings
-
-import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
-from cugraph.utilities.utils import import_optional
+import cugraph_pyg
+from cugraph_pyg.utils.imports import import_optional
+
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -85,9 +86,6 @@ class NodeLoader:
 
         if not isinstance(node_sampler, cugraph_pyg.sampler.BaseSampler):
             raise NotImplementedError("Must provide a cuGraph sampler")
-
-        if input_time is not None:
-            raise ValueError("Temporal sampling is currently unsupported")
 
         if filter_per_worker:
             warnings.warn("filter_per_worker is currently ignored")
@@ -161,5 +159,8 @@ class NodeLoader:
         )
 
         return cugraph_pyg.sampler.SampleIterator(
-            self.__data, self.__node_sampler.sample_from_nodes(input_data)
+            self.__data,
+            self.__node_sampler.sample_from_nodes(
+                input_data, random_state=generate_seed()
+            ),
         )

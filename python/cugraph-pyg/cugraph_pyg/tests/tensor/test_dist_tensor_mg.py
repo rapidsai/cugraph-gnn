@@ -16,7 +16,7 @@ import pytest
 import tempfile
 
 from cugraph_pyg.tensor import DistTensor, DistEmbedding
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional, MissingModule
 from pylibwholegraph.torch.initialize import init as wm_init
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
 

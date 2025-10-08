@@ -18,18 +18,18 @@ from functools import reduce
 import pylibcugraph
 import numpy as np
 import cupy
-import cudf
 
 from typing import Union, List, Dict, Tuple, Iterator, Optional
 
-from cugraph.utilities.utils import import_optional, MissingModule
-from cugraph.gnn.comms import cugraph_comms_get_raft_handle
+from cugraph_pyg.utils.imports import import_optional
+from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.sampler.sampler_utils import verify_metadata
 from cugraph_pyg.sampler.io import BufferedSampleReader
 
-torch = MissingModule("torch")
-TensorType = Union["torch.Tensor", cupy.ndarray, cudf.Series]
+torch = import_optional("torch")
+cudf = import_optional("cudf")
+TensorType = Union["torch.Tensor", cupy.ndarray, "cudf.Series"]
 
 
 class BaseDistributedSampler:
@@ -58,6 +58,50 @@ class BaseDistributedSampler:
     ...     # Process batch
     ...     pass
     """
+
+    # homogeneous/heterogeneous, uniform/biased, temporal?
+    _func_table = {
+        (
+            "homogeneous",
+            "uniform",
+            True,
+        ): pylibcugraph.homogeneous_uniform_temporal_neighbor_sample,
+        (
+            "homogeneous",
+            "uniform",
+            False,
+        ): pylibcugraph.homogeneous_uniform_neighbor_sample,
+        (
+            "homogeneous",
+            "biased",
+            True,
+        ): pylibcugraph.homogeneous_biased_temporal_neighbor_sample,
+        (
+            "homogeneous",
+            "biased",
+            False,
+        ): pylibcugraph.homogeneous_biased_neighbor_sample,
+        (
+            "heterogeneous",
+            "uniform",
+            True,
+        ): pylibcugraph.heterogeneous_uniform_temporal_neighbor_sample,
+        (
+            "heterogeneous",
+            "uniform",
+            False,
+        ): pylibcugraph.heterogeneous_uniform_neighbor_sample,
+        (
+            "heterogeneous",
+            "biased",
+            True,
+        ): pylibcugraph.heterogeneous_biased_temporal_neighbor_sample,
+        (
+            "heterogeneous",
+            "biased",
+            False,
+        ): pylibcugraph.heterogeneous_biased_neighbor_sample,
+    }
 
     def __init__(
         self,
@@ -149,7 +193,6 @@ class BaseDistributedSampler:
             and whether the input sizes on each rank are equal (bool).
 
         """
-        torch = import_optional("torch")
 
         input_size_is_equal = True
         if self.is_multi_gpu:
@@ -192,7 +235,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        torch = import_optional("torch")
 
         current_seeds, current_ix = current_seeds_and_ix
 
@@ -247,7 +289,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
     ):
-        torch = import_optional("torch")
 
         # Split the input seeds into call groups.  Each call group
         # corresponds to one sampling call.  A call group contains
@@ -324,7 +365,6 @@ class BaseDistributedSampler:
             type of the graph and the edge types.  This is only
             used for heterogeneous graphs.
         """
-        torch = import_optional("torch")
 
         verify_metadata(metadata)
 
@@ -378,7 +418,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        torch = import_optional("torch")
 
         current_seeds, current_ix, current_label = current_seeds_and_ix
         num_seed_edges = current_ix.numel()
@@ -572,7 +611,7 @@ class BaseDistributedSampler:
         actual_seed_edges_per_call = batches_per_call * batch_size
 
         if input_id is None:
-            input_id = torch.arange(len(edges), dtype=torch.int64, device="cpu")
+            input_id = torch.arange(edges.shape[-1], dtype=torch.int64, device="cpu")
 
         local_num_batches = int(ceil(num_seed_edges / batch_size))
         batch_id_start, input_size_is_equal = self.get_start_batch_offset(
@@ -661,6 +700,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         with_replacement: bool = False,
         biased: bool = False,
         heterogeneous: bool = False,
+        temporal: bool = False,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
@@ -682,23 +722,25 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         # change.
         # TODO allow func to be a call to a future remote sampling API
         # if the provided graph is in another process (rapidsai/cugraph#4623).
+
+        if temporal:
+            self.__func_kwargs["temporal_property_name"] = "time"
+
+        self.__func = self._func_table[
+            (
+                "heterogeneous" if heterogeneous else "homogeneous",
+                "uniform" if not biased else "biased",
+                temporal,
+            )
+        ]
+
         if heterogeneous:
             if vertex_type_offsets is None:
                 raise ValueError("Heterogeneous sampling requires vertex type offsets.")
-            self.__func = (
-                pylibcugraph.heterogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.heterogeneous_uniform_neighbor_sample
-            )
+
             self.__func_kwargs["num_edge_types"] = num_edge_types
             self.__func_kwargs["vertex_type_offsets"] = cupy.asarray(
                 vertex_type_offsets
-            )
-        else:
-            self.__func = (
-                pylibcugraph.homogeneous_biased_neighbor_sample
-                if biased
-                else pylibcugraph.homogeneous_uniform_neighbor_sample
             )
 
         if num_edge_types > 1 and not heterogeneous:
@@ -770,6 +812,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "random_state": random_state + rank,
         }
         kwargs.update(self.__func_kwargs)
+
         sampling_results_dict = self.__func(**kwargs)
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")

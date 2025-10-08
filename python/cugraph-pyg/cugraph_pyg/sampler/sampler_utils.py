@@ -18,7 +18,7 @@ from math import ceil
 
 from cugraph_pyg.data import GraphStore
 
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
 import cupy
 import pylibcugraph
 
@@ -79,6 +79,7 @@ def neg_sample(
     graph_store: GraphStore,
     seed_src: "torch.Tensor",
     seed_dst: "torch.Tensor",
+    input_type: Tuple[str, str, str],
     batch_size: int,
     neg_sampling: "torch_geometric.sampler.NegativeSampling",
     time: "torch.Tensor",
@@ -91,7 +92,6 @@ def neg_sample(
     except AttributeError:
         src_weight = neg_sampling.weight
         dst_weight = neg_sampling.weight
-    unweighted = src_weight is None and dst_weight is None
 
     # Require at least one negative edge per batch
     num_neg = max(
@@ -99,14 +99,78 @@ def neg_sample(
         int(ceil(seed_src.numel() / batch_size)),
     )
 
+    # The weights need to match the expected number of nodes
+    if graph_store.is_homogeneous:
+        num_src_nodes = num_dst_nodes = list(graph_store._num_vertices().values())[0]
+    else:
+        num_src_nodes = graph_store._num_vertices()[input_type[0]]
+        num_dst_nodes = graph_store._num_vertices()[input_type[2]]
+
+    if src_weight is not None and dst_weight is not None:
+        if src_weight.dtype != dst_weight.dtype:
+            raise ValueError(
+                f"The 'src_weight' and 'dst_weight' attributes need to have the same"
+                f" dtype (got {src_weight.dtype} and {dst_weight.dtype})"
+            )
+    weight_dtype = (
+        torch.float32
+        if (src_weight is None and dst_weight is None)
+        else (src_weight.dtype if src_weight is not None else dst_weight.dtype)
+    )
+
+    if src_weight is None:
+        src_weight = torch.ones(num_src_nodes, dtype=weight_dtype, device="cuda")
+    else:
+        if src_weight.numel() != num_src_nodes:
+            raise ValueError(
+                f"The 'src_weight' attribute needs to match the number of source nodes"
+                f" {num_src_nodes} (got {src_weight.numel()})"
+            )
+
+    if dst_weight is None:
+        dst_weight = torch.ones(num_dst_nodes, dtype=weight_dtype, device="cuda")
+    else:
+        if dst_weight.numel() != num_dst_nodes:
+            raise ValueError(
+                f"The 'dst_weight' attribute needs to match the number of destination"
+                f" nodes {num_dst_nodes} (got {dst_weight.numel()})"
+            )
+
+    # If the graph is heterogeneous, the weights need to be concatenated together
+    # and offsetted.
+    if not graph_store.is_homogeneous:
+        if input_type[0] != input_type[2]:
+            vertices = torch.concat(
+                [
+                    torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
+                    + graph_store._vertex_offsets[input_type[0]],
+                    torch.arange(num_dst_nodes, dtype=torch.int64, device="cuda")
+                    + graph_store._vertex_offsets[input_type[2]],
+                ]
+            )
+        else:
+            vertices = (
+                torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
+                + graph_store._vertex_offsets[input_type[0]]
+            )
+
+        src_weight = torch.concat(
+            [src_weight, torch.zeros(num_dst_nodes, dtype=weight_dtype, device="cuda")]
+        )
+        dst_weight = torch.concat(
+            [torch.zeros(num_src_nodes, dtype=weight_dtype, device="cuda"), dst_weight]
+        )
+    elif src_weight is None and dst_weight is None:
+        vertices = None
+    else:
+        vertices = torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
+
     if node_time is None:
         result_dict = pylibcugraph.negative_sampling(
             graph_store._resource_handle,
             graph_store._graph,
             num_neg,
-            vertices=None
-            if unweighted
-            else cupy.arange(src_weight.numel(), dtype="int64"),
+            vertices=None if vertices is None else cupy.asarray(vertices),
             src_bias=None if src_weight is None else cupy.asarray(src_weight),
             dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
             remove_duplicates=False,

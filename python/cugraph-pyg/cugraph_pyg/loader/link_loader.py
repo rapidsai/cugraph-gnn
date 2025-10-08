@@ -16,7 +16,8 @@ import warnings
 import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
 
-from cugraph.utilities.utils import import_optional
+from cugraph_pyg.utils.imports import import_optional
+from .utils import generate_seed
 
 torch_geometric = import_optional("torch_geometric")
 torch = import_optional("torch")
@@ -97,9 +98,6 @@ class LinkLoader:
 
         if not isinstance(link_sampler, cugraph_pyg.sampler.BaseSampler):
             raise NotImplementedError("Must provide a cuGraph sampler")
-
-        if edge_label_time is not None:
-            raise ValueError("Temporal sampling is currently unsupported")
 
         if filter_per_worker:
             warnings.warn("filter_per_worker is currently ignored")
@@ -219,5 +217,6 @@ class LinkLoader:
             self.__link_sampler.sample_from_edges(
                 input_data,
                 neg_sampling=self.__neg_sampling,
+                random_state=generate_seed(),
             ),
         )

@@ -52,7 +52,6 @@ DEPENDENCIES=(
   cugraph-pyg
   cuml
   dask-cuda
-  dask-cudf
   libcudf
   libraft
   libraft-headers
@@ -62,7 +61,6 @@ DEPENDENCIES=(
   pylibcugraph
   pylibwholegraph
   rmm
-  rapids-dask-dependency
 )
 for DEP in "${DEPENDENCIES[@]}"; do
   for FILE in dependencies.yaml conda/environments/*.yaml python/cugraph-pyg/conda/*.yaml; do

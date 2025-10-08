@@ -70,7 +70,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     torch.cuda.set_device(local_rank)
 
-    from cugraph.gnn import cugraph_comms_init
+    from pylibcugraph.comms import cugraph_comms_init
 
     cugraph_comms_init(
         rank=global_rank, world_size=world_size, uid=cugraph_id, device=local_rank
@@ -170,6 +170,7 @@ def write_edges(edge_index, path):
 
 def preprocess_and_partition(data, edge_path, meta_path):
     # Only interested in user/item edges
+    print(data)
     del data["category"]
     del data["item", "category"]
     del data["user", "item"].time
@@ -408,12 +409,12 @@ def balance_shuffle_edge_split(edge_label_index, edge_label):
 
     torch.distributed.broadcast(dst_rank, src=0)
 
-    if rank > 0 and rank < world_size - 1:
-        local_rank_t = dst_rank[edge_offsets[rank - 1] : edge_offsets[rank]]
-    elif rank == 0:
-        local_rank_t = dst_rank[0 : edge_offsets[0]]
+    if world_size == 1:
+        local_rank_t = dst_rank
     else:
-        local_rank_t = dst_rank[edge_offsets[-1] :]
+        start = 0 if rank == 0 else edge_offsets[rank - 1]
+        end = edge_offsets[rank] if rank < world_size - 1 else None
+        local_rank_t = dst_rank[start:end]
 
     s = [edge_label_index[0].cuda()[local_rank_t == r] for r in range(world_size)]
 
@@ -478,7 +479,7 @@ if __name__ == "__main__":
 
     # Create the uid needed for cuGraph comms
     if global_rank == 0:
-        from cugraph.gnn import (
+        from pylibcugraph.comms import (
             cugraph_comms_create_unique_id,
         )
 
@@ -526,7 +527,7 @@ if __name__ == "__main__":
 
         return LinkNeighborLoader(
             data=data_l[0],
-            edge_label_index=edge_label_index,
+            edge_label_index=(("user", "to", "item"), edge_label_index),
             edge_label=edge_label,
             neg_sampling="binary" if edge_label is None else None,
             batch_size=args.batch_size,
@@ -630,6 +631,6 @@ if __name__ == "__main__":
 
     wm_finalize()
 
-    from cugraph.gnn import cugraph_comms_shutdown
+    from pylibcugraph.comms import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()

@@ -11,13 +11,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from typing import Callable, Iterator, Tuple, Dict
 
-from cugraph.utilities.utils import import_optional, MissingModule
+from cugraph_pyg.utils.imports import import_optional
 
 # Prevent PyTorch from being imported and causing an OOM error
-torch = MissingModule("torch")
+torch = import_optional("torch")
+cudf = import_optional("cudf")
 
 
 class BufferedSampleReader:
@@ -28,9 +28,6 @@ class BufferedSampleReader:
         *args,
         **kwargs,
     ):
-        global torch
-        torch = import_optional("torch")
-
         self.__sample_args = args
         self.__sample_kwargs = kwargs
 

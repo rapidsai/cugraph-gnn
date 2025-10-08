@@ -13,8 +13,8 @@
 
 from typing import Optional, Iterator, Union, Dict, Tuple, List
 
-from cugraph.utilities.utils import import_optional
-from cugraph.gnn import DistSampler
+from cugraph_pyg.utils.imports import import_optional
+from cugraph_pyg.sampler.distributed_sampler import DistributedNeighborSampler
 
 from .sampler_utils import filter_cugraph_pyg_store, neg_sample, neg_cat
 
@@ -367,17 +367,34 @@ class HeterogeneousSampleReader(SampleReader):
                     )
 
             if input_type == pyg_can_etype:
+                # FIXME this is technically not the correct way to calculate the
+                # number of sampled nodes for hop 0, but it should not cause any
+                # issues during training since (presumably) the extra nodes will
+                # get pruned out (rapidsai/cugraph#5270).
+
                 integer_input_type = etype
                 # heterogeneous edges as input, two node types per edge type
                 ux = col[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
                 uy = row[pyg_can_etype][: num_sampled_edges[pyg_can_etype][0]]
+                uxn = (
+                    (ux.max() + 1)
+                    if ux.numel() > 0
+                    else torch.tensor(0, device=ux.device)
+                )
+
                 num_sampled_nodes[self.__dst_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__dst_types[etype]][0],
-                    (ux.max() + 1).reshape((1,)),
+                    uxn.reshape((1,)),
                 )
+                uyn = (
+                    (uy.max() + 1)
+                    if uy.numel() > 0
+                    else torch.tensor(0, device=uy.device)
+                )
+
                 num_sampled_nodes[self.__src_types[etype]][0] = torch.max(
                     num_sampled_nodes[self.__src_types[etype]][0],
-                    (uy.max() + 1).reshape((1,)),
+                    uyn.reshape((1,)),
                 )
             elif isinstance(input_type, str) and input_type == pyg_can_etype[2]:
                 integer_input_type = self.__src_types[etype]
@@ -734,7 +751,7 @@ class HomogeneousSampleReader(SampleReader):
 class BaseSampler:
     def __init__(
         self,
-        sampler: DistSampler,
+        sampler: DistributedNeighborSampler,
         data: Tuple[
             "torch_geometric.data.FeatureStore", "torch_geometric.data.GraphStore"
         ],
@@ -808,6 +825,7 @@ class BaseSampler:
                 self.__graph_store,
                 index.row,
                 index.col,
+                index.input_type,
                 self.__batch_size,
                 neg_sampling,
                 None,  # src_time,
@@ -816,9 +834,13 @@ class BaseSampler:
             if neg_sampling.is_binary():
                 src, _ = neg_cat(src.cuda(), src_neg, self.__batch_size)
             else:
-                # triplet, cat dst to src so length is the same; will
-                # result in the same set of unique vertices
-                src, _ = neg_cat(src.cuda(), dst_neg, self.__batch_size)
+                # triplet, cat random subset of src to src so length is the
+                # same; will result in the same set of unique vertices
+                scu = src.cuda()
+                per = torch.randint(
+                    0, scu.numel(), (dst_neg.numel(),), device=scu.device
+                )
+                src, _ = neg_cat(scu, scu[per], self.__batch_size)
             dst, neg_batch_size = neg_cat(dst.cuda(), dst_neg, self.__batch_size)
 
             # Concatenate -1s so the input id tensor lines up and can

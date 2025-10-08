@@ -14,9 +14,18 @@ LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github python)
 CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
 
+CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+
+if [[ "${CUDA_MAJOR}" == "12" ]]; then
+  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
+else
+  PYTORCH_INDEX="https://download.pytorch.org/whl/nightly/cu130"
+fi
+
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-pip-retry install \
     -v \
+    --extra-index-url "${PYTORCH_INDEX}" \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
     "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
@@ -38,11 +47,11 @@ python -m pytest \
   --benchmark-disable \
   tests
 
-# Test examples
-for e in "$(pwd)"/examples/*.py; do
-  rapids-logger "running example $e"
-  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
-done
+# Test examples (disabled due to lack of memory)
+#for e in "$(pwd)"/examples/*.py; do
+#  rapids-logger "running example $e"
+#  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
+#done
 
 # rapids-logger "running bitcoin example"
 # (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 "$(pwd)"/examples/fraud/bitcoin_mnmg.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
