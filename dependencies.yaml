@@ -579,12 +579,12 @@ dependencies:
               cuda: "12.*"
               cuda_suffixed: "true"
             packages:
-              - pylibcugraph-cu12==25.8.*,>=0.0.0a0
+              - pylibcugraph-cu12==25.10.*,>=0.0.0a0
           - matrix:
               cuda: "13.*"
               cuda_suffixed: "true"
             packages:
-              - pylibcugraph-cu13==25.8.*,>=0.0.0a0
+              - pylibcugraph-cu13==25.10.*,>=0.0.0a0
           - {matrix: null, packages: [*pylibcugraph_unsuffixed]}
   depends_on_cugraph:
     common:
