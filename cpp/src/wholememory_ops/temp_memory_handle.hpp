@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,11 +66,10 @@ class temp_memory_handle {
   }
   void free_memory()
   {
-    if (ptr_ != nullptr) {
-      temp_mem_fns_->free_fn(memory_context_, temp_mem_fns_->global_context);
+    free_data();
+    if (memory_context_ != nullptr) {
       temp_mem_fns_->destroy_memory_context_fn(memory_context_, temp_mem_fns_->global_context);
       memory_context_ = nullptr;
-      ptr_            = nullptr;
     }
   }
 
