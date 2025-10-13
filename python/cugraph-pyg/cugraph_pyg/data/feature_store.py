@@ -210,7 +210,7 @@ class FeatureStore(
         emb = self.__features[attr.group_name, attr.attr_name]
 
         if attr.is_set("index") and attr.index is not None:
-            return emb[attr.index].detach()
+            return emb[attr.index]
 
         return emb
 

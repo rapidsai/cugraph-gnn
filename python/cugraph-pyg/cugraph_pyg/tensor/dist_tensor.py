@@ -381,8 +381,6 @@ class DistEmbedding(DistTensor):
         Whether to gather the embeddings on all GPUs. Default is False.
     round_robin_size: int = 0
         continuous embedding size of a rank using round robin shard strategy
-    trainable : Optional[bool] = False
-        Whether the embedding is trainable (default is False).
     name : Optional[str]
         The name of the tensor.
     """
@@ -398,7 +396,6 @@ class DistEmbedding(DistTensor):
         cache_policy: Optional["pylibwholegraph.WholeMemoryCachePolicy"] = None,
         gather_sms: Optional[int] = -1,
         round_robin_size: int = 0,
-        trainable: Optional[bool] = False,
         name: Optional[str] = None,
     ):
         self._name = name
@@ -413,7 +410,6 @@ class DistEmbedding(DistTensor):
             cache_policy=cache_policy,
             gather_sms=gather_sms,
             round_robin_size=round_robin_size,
-            trainable=trainable,
         )
         self._embedding = self._tensor  # returned _tensor is a WmEmbedding object
         self._tensor = self._embedding.get_embedding_tensor()
