@@ -69,7 +69,9 @@ def create_wg_dist_tensor(
         raise ValueError(f"Unsupported backend: {backend}")
     embedding_wholememory_location = location
 
-    if "cache_policy" in kwargs:
+    trainable = kwargs.pop("trainable", False)
+
+    if "cache_policy" in kwargs or trainable:
         if len(shape) != 2:
             raise ValueError("The shape of the embedding tensor must be 2D.")
 
