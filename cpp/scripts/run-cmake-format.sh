@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 # copied from: https://github.com/rapidsai/rapids-cmake/blob/branch-25.02/ci/checks/run-cmake-format.sh
 #
