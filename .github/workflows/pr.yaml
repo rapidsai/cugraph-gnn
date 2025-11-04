@@ -107,7 +107,9 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
     with:
       build_type: pull-request
+      node_type: cpu8
       script: ci/build_cpp.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
@@ -116,6 +118,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_cpp.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -123,6 +126,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_python.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-notebook-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
@@ -145,6 +149,7 @@ jobs:
       #  ref: https://github.com/pytorch/pytorch/issues/159779
       matrix_filter: map(select(.ARCH == "amd64" and (.CUDA_VER | startswith("12"))))
       script: ci/test_python.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   docs-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -161,19 +166,23 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
+      node_type: cpu8
       package-name: libwholegraph
       package-type: cpp
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-build-pylibwholegraph:
     needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: pull-request
+      node_type: cpu8
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
@@ -183,6 +192,7 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
       matrix_filter: map(select(.ARCH == "amd64"))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
@@ -191,10 +201,12 @@ jobs:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
+      node_type: cpu8
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
       pure-wheel: true
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
     secrets: inherit
@@ -204,3 +216,4 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
       matrix_filter: map(select(.ARCH == "amd64"))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
