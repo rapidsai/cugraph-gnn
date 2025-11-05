@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import torch
@@ -120,7 +120,6 @@ def host_sample_all_neighbors(
 def copy_host_1D_tensor_to_wholememory(
     wm_array, host_tensor, world_rank, world_size, wm_comm
 ):
-
     local_tensor_cuda, local_start = wm_array.get_local_tensor(
         torch_import_from_dlpack, wmb.WholeMemoryMemoryLocation.MlDevice, world_rank
     )

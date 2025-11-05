@@ -150,7 +150,7 @@ def write_edges(edge_index, path):
     world_size = torch.distributed.get_world_size()
 
     os.makedirs(path, exist_ok=True)
-    for (r, e) in enumerate(torch.tensor_split(edge_index, world_size, dim=1)):
+    for r, e in enumerate(torch.tensor_split(edge_index, world_size, dim=1)):
         rank_path = os.path.join(path, f"rank={r}.pt")
         torch.save(
             e.clone(),

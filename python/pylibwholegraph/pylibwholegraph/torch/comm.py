@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import torch
@@ -292,7 +292,6 @@ def get_local_mnnvl_communicator():
 def comm_set_distributed_backend(
     wm_comm: WholeMemoryCommunicator, distributed_backend: str
 ):
-
     wmb.communicator_set_distributed_backend(
         wm_comm.wmb_comm,
         str_to_wmb_wholememory_distributed_backend_type(distributed_backend),

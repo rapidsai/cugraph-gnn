@@ -63,7 +63,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         edge_path,
         exist_ok=True,
     )
-    for (r, e) in enumerate(torch.tensor_split(data.edge_index, world_size, dim=1)):
+    for r, e in enumerate(torch.tensor_split(data.edge_index, world_size, dim=1)):
         rank_path = os.path.join(edge_path, f"rank={r}.pt")
         torch.save(
             e.clone(),
@@ -76,13 +76,13 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         exist_ok=True,
     )
 
-    for (r, f) in enumerate(torch.tensor_split(data.x, world_size)):
+    for r, f in enumerate(torch.tensor_split(data.x, world_size)):
         rank_path = os.path.join(feature_path, f"rank={r}_x.pt")
         torch.save(
             f.clone(),
             rank_path,
         )
-    for (r, f) in enumerate(torch.tensor_split(data.y, world_size)):
+    for r, f in enumerate(torch.tensor_split(data.y, world_size)):
         rank_path = os.path.join(feature_path, f"rank={r}_y.pt")
         torch.save(
             f.clone(),
@@ -94,7 +94,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         label_path,
         exist_ok=True,
     )
-    for (d, i) in split_idx.items():
+    for d, i in split_idx.items():
         i_parts = torch.tensor_split(i, world_size)
         for r, i_part in enumerate(i_parts):
             rank_path = os.path.join(label_path, f"rank={r}")

@@ -271,7 +271,6 @@ if __name__ == "__main__":
         with torch.cuda.use_mem_pool(
             torch.cuda.MemPool(rmm_torch_allocator.allocator())
         ):
-
             if global_rank == 0:
                 with torch.serialization.safe_globals(
                     [
