@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import torch
@@ -173,7 +173,10 @@ class GraphStructure(object):
                     max_neighbors[hops - i - 1],
                     need_center_local_output=True,
                 )
-            (unique_gids, neighbor_raw_to_unique_mapping,) = graph_ops.append_unique(
+            (
+                unique_gids,
+                neighbor_raw_to_unique_mapping,
+            ) = graph_ops.append_unique(
                 target_gids[i + 1],
                 neighbor_gids_vdata,
                 need_neighbor_raw_to_unique=True,

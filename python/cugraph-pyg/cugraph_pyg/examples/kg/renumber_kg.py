@@ -85,8 +85,7 @@ def parse_args():
         type=str,
         required=True,
         help=(
-            "Name of the column in each edge file corresponding to"
-            " destination node id."
+            "Name of the column in each edge file corresponding to destination node id."
         ),
     )
     parser.add_argument(

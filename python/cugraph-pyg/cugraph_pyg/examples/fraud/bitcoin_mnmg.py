@@ -99,9 +99,7 @@ if __name__ == "__main__":
         "coo",
         False,
         (data.num_nodes, data.num_nodes),
-    ] = (
-        data.edge_index if rank == 0 else empty(dim=2)
-    )
+    ] = data.edge_index if rank == 0 else empty(dim=2)
     feature_store["entity", "x", None] = data.x if rank == 0 else empty(dim=2)
     feature_store["entity", "y", None] = data.y if rank == 0 else empty(dim=1)
     torch.distributed.barrier()

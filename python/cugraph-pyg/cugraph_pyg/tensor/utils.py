@@ -154,9 +154,9 @@ def create_wg_dist_tensor_from_files(
             **kwargs,
         )
     else:
-        assert (
-            len(shape) == 2 or len(shape) == 1
-        ), "The shape of the tensor must be 2D or 1D."
+        assert len(shape) == 2 or len(shape) == 1, (
+            "The shape of the tensor must be 2D or 1D."
+        )
         last_dim_size = 0 if len(shape) == 1 else shape[1]
         wm_embedding = wgth.create_wholememory_tensor_from_filelist(
             global_comm,

@@ -261,9 +261,9 @@ def run_test_link_neighbor_loader_uneven_mg(
     feature_store = FeatureStore()
 
     batch_size = 1
-    graph_store[
-        ("n", "e", "n"), "coo", False, (num_nodes, num_nodes)
-    ] = torch.tensor_split(edge_index, world_size, dim=-1)[rank]
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
+        torch.tensor_split(edge_index, world_size, dim=-1)[rank]
+    )
 
     elx = graph_store[("n", "e", "n"), "coo"]  # select all edges on each worker
     loader = LinkNeighborLoader(
