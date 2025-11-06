@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -15,15 +15,14 @@
 
 namespace wholememory_ops {
 
-struct one_wmt_hash : public std::unary_function<wholememory_dtype_t, std::size_t> {
+struct one_wmt_hash {
   inline std::size_t operator()(const wholememory_dtype_t& k) const
   {
     return static_cast<size_t>(k);
   }
 };
 
-struct two_wmt_hash
-  : public std::unary_function<std::tuple<wholememory_dtype_t, wholememory_dtype_t>, std::size_t> {
+struct two_wmt_hash {
   inline std::size_t operator()(const std::tuple<wholememory_dtype_t, wholememory_dtype_t>& k) const
   {
     return static_cast<size_t>(std::get<1>(k)) * (static_cast<size_t>(WHOLEMEMORY_DT_COUNT)) +
@@ -31,9 +30,7 @@ struct two_wmt_hash
   }
 };
 
-struct three_wmt_hash : public std::unary_function<
-                          std::tuple<wholememory_dtype_t, wholememory_dtype_t, wholememory_dtype_t>,
-                          std::size_t> {
+struct three_wmt_hash {
   inline std::size_t operator()(
     const std::tuple<wholememory_dtype_t, wholememory_dtype_t, wholememory_dtype_t>& k) const
   {
