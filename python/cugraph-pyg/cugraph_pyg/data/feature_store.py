@@ -181,9 +181,9 @@ class FeatureStore(
     ) -> bool:
         if attr.is_set("index") and attr.index is not None:
             if (attr.group_name, attr.attr_name) not in self.__features:
-                self.__features[
-                    (attr.group_name, attr.attr_name)
-                ] = self.__make_wg_tensor(tensor, ix=attr.index)
+                self.__features[(attr.group_name, attr.attr_name)] = (
+                    self.__make_wg_tensor(tensor, ix=attr.index)
+                )
         else:
             self.__features[(attr.group_name, attr.attr_name)] = self.__make_wg_tensor(
                 tensor
@@ -222,7 +222,7 @@ class FeatureStore(
         self,
     ) -> List["torch_geometric.data.feature_store.TensorAttr"]:
         attrs = []
-        for (group_name, attr_name) in self.__features.keys():
+        for group_name, attr_name in self.__features.keys():
             attrs.append(
                 torch_geometric.data.feature_store.TensorAttr(
                     group_name=group_name,

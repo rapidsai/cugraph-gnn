@@ -36,7 +36,7 @@ class MissingModule:
         self.name = mod_name
 
     def __getattr__(self, attr):
-        raise RuntimeError(f"This feature requires the {self.name} " "package/module")
+        raise RuntimeError(f"This feature requires the {self.name} package/module")
 
 
 def import_optional(mod, default_mod_class=MissingModule):

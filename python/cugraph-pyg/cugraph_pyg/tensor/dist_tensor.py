@@ -61,7 +61,6 @@ class DistTensor:
         *args,
         **kwargs,
     ):
-
         self._tensor = None
         self.__device = device
         if src is None:
@@ -70,7 +69,7 @@ class DistTensor:
                 raise ValueError("Please specify the shape of the tensor.")
             elif dtype is None:
                 raise ValueError("Please specify the dtype of the tensor.")
-            elif not (len(shape) in [1, 2]):
+            elif len(shape) not in [1, 2]:
                 raise ValueError("The shape of the tensor must be 1D or 2D.")
 
             self._tensor = create_wg_dist_tensor(

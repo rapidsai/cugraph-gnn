@@ -25,12 +25,7 @@ def show_confusion_matrix(y_test, prob, name):
     cm = confusion_matrix(y_test, prob.argmax(axis=1))
     acc = (y_test == prob.argmax(axis=1)).sum() / len(y_test)
     auc = roc_auc_score(y_test, prob[:, 1])
-    print(
-        f"=== {name} ===\n"
-        f"Confusion Matrix:\n{cm}\n"
-        f"Accuracy: {acc}\n"
-        f"ROC AUC: {auc}\n"
-    )
+    print(f"=== {name} ===\nConfusion Matrix:\n{cm}\nAccuracy: {acc}\nROC AUC: {auc}\n")
 
 
 if __name__ == "__main__":
