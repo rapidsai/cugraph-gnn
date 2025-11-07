@@ -37,9 +37,9 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
-      node_type: cpu8
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
+      node_type: cpu16
       script: ci/build_cpp.sh
       sha: ${{ inputs.sha }}
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
@@ -82,10 +82,10 @@ jobs:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: ${{ inputs.build_type || 'branch' }}
-      node_type: cpu8
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
+      node_type: cpu8
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
@@ -107,10 +107,10 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
-      node_type: cpu8
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
+      node_type: cpu16
       script: ci/build_wheel_libwholegraph.sh
       package-name: libwholegraph
       package-type: cpp
@@ -123,10 +123,10 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
-      node_type: cpu8
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
+      node_type: cpu8
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
