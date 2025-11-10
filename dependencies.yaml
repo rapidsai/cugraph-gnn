@@ -297,7 +297,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - cython>=3.0.0
+          - cython>=3.0.0,<3.2.0a0
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -345,7 +345,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - pytest
+          - pytest<9.0.0a0
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
