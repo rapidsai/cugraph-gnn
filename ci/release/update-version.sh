@@ -67,6 +67,17 @@ fi
 # Format is YY.MM.PP - no leading 'v' or trailing 'a'
 NEXT_FULL_TAG=$1
 
+if [[ -z "${NEXT_FULL_TAG}" ]]; then
+    echo "Error: Version argument is required"
+    echo ""
+    echo "Usage:"
+    echo "  ./ci/release/update-version.sh --run-context=main|release <new_version>"
+    echo ""
+    echo "Example:"
+    echo "  ./ci/release/update-version.sh --run-context=main 25.12.00"
+    exit 1
+fi
+
 # Get current version
 CURRENT_TAG=$(git tag --merged HEAD | grep -xE '^v.*' | sort --version-sort | tail -n 1 | tr -d 'v')
 CURRENT_MAJOR=$(echo $CURRENT_TAG | awk '{split($0, a, "."); print a[1]}')
