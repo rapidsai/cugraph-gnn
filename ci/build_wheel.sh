@@ -28,7 +28,6 @@ if [[ "${package_name}" != "libwholegraph" ]]; then
 fi
 
 source rapids-configure-sccache
-export SCCACHE_NO_CACHE=1
 source rapids-date-string
 
 rapids-generate-version > ./VERSION
