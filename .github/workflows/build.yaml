@@ -39,7 +39,7 @@ jobs:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_cpp.sh
       sha: ${{ inputs.sha }}
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
@@ -85,7 +85,7 @@ jobs:
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
@@ -110,7 +110,7 @@ jobs:
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_libwholegraph.sh
       package-name: libwholegraph
       package-type: cpp
@@ -126,7 +126,7 @@ jobs:
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python

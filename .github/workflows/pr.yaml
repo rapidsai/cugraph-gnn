@@ -107,7 +107,7 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@fea/sccache-dist-in-custom-jobs
     with:
       build_type: pull-request
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_cpp.sh
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-cpp-tests:
@@ -166,7 +166,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
-      node_type: cpu8
+      node_type: cpu4
       package-name: libwholegraph
       package-type: cpp
       # build for every combination of arch and CUDA version, but only for the latest Python
@@ -178,7 +178,7 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@fea/sccache-dist-in-custom-jobs
     with:
       build_type: pull-request
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
@@ -201,7 +201,7 @@ jobs:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
