@@ -149,7 +149,6 @@ if [[ "${RUN_CONTEXT}" == "main" ]]; then
   # In main context, keep external documentation on main (no changes needed)
   echo "Keeping external documentation references on main branch"
 elif [[ "${RUN_CONTEXT}" == "release" ]]; then
-elif [[ "${RUN_CONTEXT}" == "release" ]]; then
   # In release context, use release branch for external documentation links (word boundaries to avoid partial matches)
   sed_runner "s|\\bmain\\b|release/${NEXT_SHORT_TAG}|g" cpp/scripts/run-cmake-format.sh
 fi
