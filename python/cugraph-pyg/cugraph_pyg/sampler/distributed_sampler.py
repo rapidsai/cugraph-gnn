@@ -1,15 +1,5 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 import warnings
 from math import ceil
@@ -235,7 +225,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-
         current_seeds, current_ix = current_seeds_and_ix
 
         # do qr division to get the number of batch_size batches and the
@@ -289,7 +278,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
     ):
-
         # Split the input seeds into call groups.  Each call group
         # corresponds to one sampling call.  A call group contains
         # many batches.
@@ -418,7 +406,6 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-
         current_seeds, current_ix, current_label = current_seeds_and_ix
         num_seed_edges = current_ix.numel()
 
@@ -537,9 +524,9 @@ class BaseDistributedSampler:
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_label"] = current_label.cuda()
         minibatch_dict["input_offsets"] = input_offsets
-        minibatch_dict[
-            "edge_inverse"
-        ] = current_inv  # (2 * batch_size) entries per batch
+        minibatch_dict["edge_inverse"] = (
+            current_inv  # (2 * batch_size) entries per batch
+        )
 
         # rename renumber_map -> map to match unbuffered format
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
@@ -704,7 +691,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
-
         self.__fanout = fanout
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),

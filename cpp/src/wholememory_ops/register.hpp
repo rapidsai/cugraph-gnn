@@ -1,17 +1,6 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
 
@@ -26,15 +15,14 @@
 
 namespace wholememory_ops {
 
-struct one_wmt_hash : public std::unary_function<wholememory_dtype_t, std::size_t> {
+struct one_wmt_hash {
   inline std::size_t operator()(const wholememory_dtype_t& k) const
   {
     return static_cast<size_t>(k);
   }
 };
 
-struct two_wmt_hash
-  : public std::unary_function<std::tuple<wholememory_dtype_t, wholememory_dtype_t>, std::size_t> {
+struct two_wmt_hash {
   inline std::size_t operator()(const std::tuple<wholememory_dtype_t, wholememory_dtype_t>& k) const
   {
     return static_cast<size_t>(std::get<1>(k)) * (static_cast<size_t>(WHOLEMEMORY_DT_COUNT)) +
@@ -42,9 +30,7 @@ struct two_wmt_hash
   }
 };
 
-struct three_wmt_hash : public std::unary_function<
-                          std::tuple<wholememory_dtype_t, wholememory_dtype_t, wholememory_dtype_t>,
-                          std::size_t> {
+struct three_wmt_hash {
   inline std::size_t operator()(
     const std::tuple<wholememory_dtype_t, wholememory_dtype_t, wholememory_dtype_t>& k) const
   {

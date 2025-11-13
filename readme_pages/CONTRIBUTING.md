@@ -122,7 +122,7 @@ There is no recommended or preferred development environment.  There are a few *
 
 **Hardware**
 
-* You need to have accesses to an NVIDIA GPU that is Pascal or later.
+* You need to have accesses to an NVIDIA GPU that is Volta or later.
 
 
 **IDEs**

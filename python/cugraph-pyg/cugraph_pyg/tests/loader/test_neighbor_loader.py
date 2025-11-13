@@ -1,15 +1,5 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
@@ -61,7 +51,6 @@ def test_neighbor_loader(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 def test_neighbor_loader_biased(single_pytorch_worker):
-
     eix = torch.tensor(
         [
             [3, 4, 5],
@@ -463,9 +452,9 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_v2(single_pytorch_worker)
     graph_store = GraphStore()
 
     graph_store[("n1", "e", "n2"), "coo", False, (num_nodes_n1, num_nodes_n2)] = ei
-    graph_store[
-        ("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)
-    ] = ei.flip(0)
+    graph_store[("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)] = (
+        ei.flip(0)
+    )
 
     from cugraph_pyg.loader import LinkNeighborLoader
 
@@ -541,17 +530,17 @@ def test_neighbor_loader_hetero_linkpred_bidirectional_three_types(
     graph_store = GraphStore()
 
     graph_store[("n1", "e", "n2"), "coo", False, (num_nodes_n1, num_nodes_n2)] = ei
-    graph_store[
-        ("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)
-    ] = ei.flip(0)
+    graph_store[("n2", "f", "n1"), "coo", False, (num_nodes_n2, num_nodes_n1)] = (
+        ei.flip(0)
+    )
     graph_store[("n1", "g", "n3"), "coo", False, (num_nodes_n1, num_nodes_n3)] = ei_13
     graph_store[("n2", "h", "n3"), "coo", False, (num_nodes_n2, num_nodes_n3)] = ei_23
-    graph_store[
-        ("n3", "i", "n1"), "coo", False, (num_nodes_n3, num_nodes_n1)
-    ] = ei_13.flip(0)
-    graph_store[
-        ("n3", "j", "n2"), "coo", False, (num_nodes_n3, num_nodes_n2)
-    ] = ei_23.flip(0)
+    graph_store[("n3", "i", "n1"), "coo", False, (num_nodes_n3, num_nodes_n1)] = (
+        ei_13.flip(0)
+    )
+    graph_store[("n3", "j", "n2"), "coo", False, (num_nodes_n3, num_nodes_n2)] = (
+        ei_23.flip(0)
+    )
 
     from cugraph_pyg.loader import LinkNeighborLoader
 

@@ -1,15 +1,5 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
 
@@ -164,9 +154,9 @@ def create_wg_dist_tensor_from_files(
             **kwargs,
         )
     else:
-        assert (
-            len(shape) == 2 or len(shape) == 1
-        ), "The shape of the tensor must be 2D or 1D."
+        assert len(shape) == 2 or len(shape) == 1, (
+            "The shape of the tensor must be 2D or 1D."
+        )
         last_dim_size = 0 if len(shape) == 1 else shape[1]
         wm_embedding = wgth.create_wholememory_tensor_from_filelist(
             global_comm,

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
-# copied from: https://github.com/rapidsai/rapids-cmake/blob/branch-25.02/ci/checks/run-cmake-format.sh
+# copied from: https://github.com/rapidsai/rapids-cmake/blob/main/ci/checks/run-cmake-format.sh
 #
 # This script is a wrapper for cmakelang that may be used with pre-commit. The
 # wrapping is necessary because RAPIDS libraries split configuration for

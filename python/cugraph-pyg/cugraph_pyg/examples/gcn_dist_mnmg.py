@@ -1,15 +1,5 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 # Multi-node, multi-GPU example with WholeGraph feature storage.
 # Can be run with torchrun.
@@ -73,7 +63,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         edge_path,
         exist_ok=True,
     )
-    for (r, e) in enumerate(torch.tensor_split(data.edge_index, world_size, dim=1)):
+    for r, e in enumerate(torch.tensor_split(data.edge_index, world_size, dim=1)):
         rank_path = os.path.join(edge_path, f"rank={r}.pt")
         torch.save(
             e.clone(),
@@ -86,13 +76,13 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         exist_ok=True,
     )
 
-    for (r, f) in enumerate(torch.tensor_split(data.x, world_size)):
+    for r, f in enumerate(torch.tensor_split(data.x, world_size)):
         rank_path = os.path.join(feature_path, f"rank={r}_x.pt")
         torch.save(
             f.clone(),
             rank_path,
         )
-    for (r, f) in enumerate(torch.tensor_split(data.y, world_size)):
+    for r, f in enumerate(torch.tensor_split(data.y, world_size)):
         rank_path = os.path.join(feature_path, f"rank={r}_y.pt")
         torch.save(
             f.clone(),
@@ -104,7 +94,7 @@ def partition_data(dataset, split_idx, edge_path, feature_path, label_path, meta
         label_path,
         exist_ok=True,
     )
-    for (d, i) in split_idx.items():
+    for d, i in split_idx.items():
         i_parts = torch.tensor_split(i, world_size)
         for r, i_part in enumerate(i_parts):
             rank_path = os.path.join(label_path, f"rank={r}")
