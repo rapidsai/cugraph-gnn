@@ -717,19 +717,16 @@ def test_neighbor_loader_temporal_simple(single_pytorch_worker, biased):
         [1.0] * src_cite.numel(), device="cuda"
     )
 
-    # FIXME the default behavior in PyG should be sampling backward in time
-    # instead of forward.
-    # FIXME when input_time is fixed, add another edge to make
-    # sure it is properly repected.
     loader = cugraph_pyg.loader.NeighborLoader(
         (feature_store, graph_store),
         num_neighbors=[2, 2, 2],
         batch_size=1,
         input_nodes=torch.tensor([3]),
-        input_time=torch.tensor([0]),
+        input_time=torch.tensor([-1]),
         time_attr="time",
         shuffle=False,
         weight_attr="bias" if biased else None,
+        temporal_comparison=">",
     )
 
     out = next(iter(loader))
@@ -783,10 +780,6 @@ def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):
         [1.0] * src_author.numel(), device="cuda"
     )
 
-    # FIXME the default behavior in PyG should be sampling backward in time
-    # instead of forward.
-    # FIXME when input_time is fixed, add another edge to make
-    # sure it is properly repected.
     loader = cugraph_pyg.loader.NeighborLoader(
         (feature_store, graph_store),
         num_neighbors={
@@ -795,10 +788,11 @@ def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):
         },
         batch_size=1,
         input_nodes=("paper", torch.tensor([3])),
-        input_time=torch.tensor([0]),
+        input_time=torch.tensor([-1]),
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
+        temporal_comparison=">",
     )
 
     out = next(iter(loader))
@@ -838,19 +832,16 @@ def test_neighbor_loader_temporal_linkpred_homogeneous(single_pytorch_worker, bi
         [1.0] * src_cite.numel(), device="cuda"
     )
 
-    # FIXME the default behavior in PyG should be sampling backward in time
-    # instead of forward.
-    # FIXME when input_time is fixed, add another edge to make
-    # sure it is properly repected.
     loader = cugraph_pyg.loader.LinkNeighborLoader(
         (feature_store, graph_store),
         num_neighbors=[2, 2, 2],
         batch_size=1,
         edge_label_index=torch.tensor([[3], [3]]),
-        edge_label_time=torch.tensor([0]),
+        edge_label_time=torch.tensor([-1]),
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
+        temporal_comparison=">",
     )
 
     out = next(iter(loader))
@@ -904,10 +895,6 @@ def test_neighbor_loader_temporal_linkpred_heterogeneous(single_pytorch_worker, 
         [1.0] * src_author.numel(), device="cuda"
     )
 
-    # FIXME the default behavior in PyG should be sampling backward in time
-    # instead of forward.
-    # FIXME when input_time is fixed, add another edge to make
-    # sure it is properly repected.
     loader = cugraph_pyg.loader.LinkNeighborLoader(
         (feature_store, graph_store),
         num_neighbors={
@@ -916,10 +903,11 @@ def test_neighbor_loader_temporal_linkpred_heterogeneous(single_pytorch_worker, 
         },
         batch_size=1,
         edge_label_index=(("author", "writes", "paper"), torch.tensor([[0], [3]])),
-        edge_label_time=torch.tensor([0]),
+        edge_label_time=torch.tensor([-1]),
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
+        temporal_comparison=">",
     )
 
     out = next(iter(loader))

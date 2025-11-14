@@ -128,6 +128,7 @@ class BaseDistributedSampler:
     def sample_batches(
         self,
         seeds: TensorType,
+        time: Optional[TensorType],
         batch_id_offsets: TensorType,
         random_state: int = 0,
         assume_equal_input_size: bool = False,
@@ -141,6 +142,8 @@ class BaseDistributedSampler:
         ----------
         seeds: TensorType
             Input seeds for a single call group (node ids).
+        time: Optional[TensorType]
+            Input times for a single call group (node times).
         batch_id_offsets: TensorType
             Offsets (start/end) of each batch.  i.e. 0, 5, 10
             corresponds to 2 batches, the first from index 0-4,
@@ -217,7 +220,9 @@ class BaseDistributedSampler:
     def __sample_from_nodes_func(
         self,
         call_id: int,
-        current_seeds_and_ix: Tuple["torch.Tensor", "torch.Tensor"],
+        current_seeds_and_ix: Tuple[
+            "torch.Tensor", "torch.Tensor", Optional["torch.Tensor"]
+        ],
         batch_id_start: int,
         batch_size: int,
         batches_per_call: int,
@@ -225,7 +230,7 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        current_seeds, current_ix = current_seeds_and_ix
+        current_seeds, current_ix, current_time = current_seeds_and_ix
 
         # do qr division to get the number of batch_size batches and the
         # size of the last batch
@@ -243,6 +248,7 @@ class BaseDistributedSampler:
 
         minibatch_dict = self.sample_batches(
             seeds=current_seeds,
+            seed_times=current_time,
             batch_id_offsets=input_offsets,
             random_state=random_state,
             metadata=metadata,
@@ -277,12 +283,18 @@ class BaseDistributedSampler:
         seeds_per_call: int,
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
+        input_time: Optional[TensorType] = None,
     ):
+        time_call_groups = None
+        label_call_groups = None
+
         # Split the input seeds into call groups.  Each call group
         # corresponds to one sampling call.  A call group contains
         # many batches.
         seeds_call_groups = torch.split(seeds, seeds_per_call, dim=-1)
         index_call_groups = torch.split(input_id, seeds_per_call, dim=-1)
+        if input_time is not None:
+            time_call_groups = torch.split(input_time, seeds_per_call, dim=-1)
         if label is not None:
             label_call_groups = torch.split(label, seeds_per_call, dim=-1)
 
@@ -310,11 +322,25 @@ class BaseDistributedSampler:
                     [torch.tensor([], dtype=label.dtype, device=label.device)]
                     * (int(num_call_groups) - len(label_call_groups))
                 )
+            if input_time is not None:
+                time_call_groups = list(time_call_groups) + (
+                    [torch.tensor([], dtype=input_time.dtype, device=input_time.device)]
+                    * (int(num_call_groups) - len(time_call_groups))
+                )
 
-        if label is not None:
-            return seeds_call_groups, index_call_groups, label_call_groups
-        else:
-            return seeds_call_groups, index_call_groups
+        if time_call_groups is None:
+            time_call_groups = [None] * len(seeds_call_groups)
+        if label_call_groups is None:
+            label_call_groups = [torch.tensor([], dtype=torch.int32)] * len(
+                seeds_call_groups
+            )
+
+        return {
+            "seeds": seeds_call_groups,
+            "index": index_call_groups,
+            "label": label_call_groups,
+            "time": time_call_groups,
+        }
 
     def sample_from_nodes(
         self,
@@ -324,6 +350,7 @@ class BaseDistributedSampler:
         random_state: int = 62,
         assume_equal_input_size: bool = False,
         input_id: Optional[TensorType] = None,
+        input_time: Optional[TensorType] = None,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]:
         """
@@ -348,6 +375,8 @@ class BaseDistributedSampler:
             Input ids corresponding to the original batch tensor, if it
             was permuted prior to calling this function.  If present,
             will be saved with the samples.
+        input_time: Optional[TensorType]
+            Input times associated with each input node.
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
             Metadata for the graph.  This is used to determine the
             type of the graph and the edge types.  This is only
@@ -372,11 +401,12 @@ class BaseDistributedSampler:
             local_num_batches, assume_equal_input_size=assume_equal_input_size
         )
 
-        nodes_call_groups, index_call_groups = self.__get_call_groups(
+        call_groups = self.__get_call_groups(
             nodes,
             input_id,
             actual_seeds_per_call,
             assume_equal_input_size=input_size_is_equal,
+            input_time=input_time,
         )
 
         sample_args = [
@@ -390,7 +420,7 @@ class BaseDistributedSampler:
 
         # Buffered sampling
         return BufferedSampleReader(
-            zip(nodes_call_groups, index_call_groups),
+            zip(call_groups["seeds"], call_groups["index"], call_groups["time"]),
             self.__sample_from_nodes_func,
             *sample_args,
         )
@@ -398,7 +428,9 @@ class BaseDistributedSampler:
     def __sample_from_edges_func(
         self,
         call_id: int,
-        current_seeds_and_ix: Tuple["torch.Tensor", "torch.Tensor", "torch.Tensor"],
+        current_seeds_and_ix: Tuple[
+            "torch.Tensor", "torch.Tensor", "torch.Tensor", Optional["torch.Tensor"]
+        ],
         batch_id_start: int,
         batch_size: int,
         batches_per_call: int,
@@ -406,8 +438,10 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        current_seeds, current_ix, current_label = current_seeds_and_ix
+        current_seeds, current_ix, current_label, current_time = current_seeds_and_ix
         num_seed_edges = current_ix.numel()
+        if current_time is not None:
+            current_time = current_time.cuda()
 
         # The index gets stored as-is regardless of what makes it into
         # the final batch and in what order.
@@ -430,6 +464,16 @@ class BaseDistributedSampler:
             current_seeds[:, : (batch_size * num_whole_batches)],
             current_seeds[:, (batch_size * num_whole_batches) :],
         )
+        leftover_time = None
+        if current_time is not None:
+            if current_time.ndim != 1:
+                raise ValueError(
+                    "current time must be a 1D tensor, got shape", current_time.shape
+                )
+            current_time, leftover_time = (
+                current_time[: (batch_size * num_whole_batches)],
+                current_time[(batch_size * num_whole_batches) :],
+            )
 
         # For input edges, we need to translate this into unique vertices
         # for each batch.
@@ -443,6 +487,10 @@ class BaseDistributedSampler:
             ],
             axis=-1,
         )
+        if current_time is not None:
+            current_time = torch.concat(
+                [current_time.reshape((-1, batch_size))] * 2, axis=-1
+            )
 
         # The returned unique values must be sorted or else the inverse won't line up
         # In the future this may be a good target for a C++ function
@@ -451,13 +499,17 @@ class BaseDistributedSampler:
         # unique_consecutive in order to support negative sampling.  This is
         # because if we put positive edges after negative ones, then we may
         # inadvertently turn a true positive into a false negative.
-        y = (
+        y = [
             torch.sort(
                 t,
                 stable=True,
             )
             for t in current_seeds
-        )
+        ]
+
+        if current_time is not None:
+            current_time = [current_time[ix][i] for ix, (_, i) in enumerate(y)]
+
         z = ((v, torch.sort(i)[1]) for v, i in y)
 
         u = [
@@ -471,16 +523,26 @@ class BaseDistributedSampler:
             for t, i in z
         ]
 
+        if current_time is not None:
+            current_time = [
+                current_time[ix][torch.unique_consecutive(i)]
+                for ix, ((_, i), _) in enumerate(u)
+            ]
+
         if len(u) > 0:
             current_seeds = torch.concat([a[0] for a, _ in u])
             current_inv = torch.concat([a[1][i] for a, i in u])
             current_batch_offsets = torch.tensor(
                 [a[0].numel() for (a, _) in u], device="cuda", dtype=torch.int64
             )
+            if current_time is not None:
+                current_time = torch.concat(current_time).cuda()
         else:
             current_seeds = torch.tensor([], device="cuda", dtype=torch.int64)
             current_inv = torch.tensor([], device="cuda", dtype=torch.int64)
             current_batch_offsets = torch.tensor([], device="cuda", dtype=torch.int64)
+            if current_time is not None:
+                current_time = torch.tensor([], device="cuda", dtype=torch.int64)
         del u
 
         # Join with the leftovers
@@ -488,13 +550,22 @@ class BaseDistributedSampler:
             leftover_seeds.flatten(),
             stable=True,
         )
+
+        if leftover_time is not None:
+            leftover_time = torch.concat([leftover_time, leftover_time]).flatten()
+            leftover_time = leftover_time[lyi]
+
         lz = torch.sort(lyi)[1]
         leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
+        if leftover_time is not None:
+            leftover_time = leftover_time[lui]
         leftover_inv = lui[lz]
 
         if leftover_seeds.numel() > 0:
             current_seeds = torch.concat([current_seeds, leftover_seeds])
             current_inv = torch.concat([current_inv, leftover_inv])
+            if current_time is not None:
+                current_time = torch.concat([current_time, leftover_time])
             current_batch_offsets = torch.concat(
                 [
                     current_batch_offsets,
@@ -504,6 +575,8 @@ class BaseDistributedSampler:
                 ]
             )
         del leftover_seeds
+        if leftover_time is not None:
+            del leftover_time
         del lz
         del lui
 
@@ -517,6 +590,7 @@ class BaseDistributedSampler:
 
         minibatch_dict = self.sample_batches(
             seeds=current_seeds,
+            seed_times=current_time,
             batch_id_offsets=current_batch_offsets,
             random_state=random_state,
             metadata=metadata,
@@ -555,6 +629,7 @@ class BaseDistributedSampler:
         random_state: int = 62,
         assume_equal_input_size: bool = False,
         input_id: Optional[TensorType] = None,
+        input_time: Optional[TensorType] = None,
         input_label: Optional[TensorType] = None,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]:
@@ -579,6 +654,8 @@ class BaseDistributedSampler:
             Input ids corresponding to the original batch tensor, if it
             was permuted prior to calling this function.  If present,
             will be saved with the samples.
+        input_time: Optional[TensorType]
+            Input times.
         input_label: Optional[TensorType]
             Input labels corresponding to the input seeds.  Typically used
             for link prediction sampling.  If present, will be saved with
@@ -611,14 +688,8 @@ class BaseDistributedSampler:
             actual_seed_edges_per_call,
             assume_equal_input_size=input_size_is_equal,
             label=input_label,
+            input_time=input_time,
         )
-        if len(groups) == 2:
-            edges_call_groups, index_call_groups = groups
-            label_call_groups = [torch.tensor([], dtype=torch.int32)] * len(
-                edges_call_groups
-            )
-        else:
-            edges_call_groups, index_call_groups, label_call_groups = groups
 
         sample_args = [
             batch_id_start,
@@ -631,7 +702,7 @@ class BaseDistributedSampler:
 
         # Buffered sampling
         return BufferedSampleReader(
-            zip(edges_call_groups, index_call_groups, label_call_groups),
+            zip(groups["seeds"], groups["index"], groups["label"], groups["time"]),
             self.__sample_from_edges_func,
             *sample_args,
         )
@@ -688,6 +759,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         biased: bool = False,
         heterogeneous: bool = False,
         temporal: bool = False,
+        temporal_comparison: Optional[str] = None,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
@@ -706,11 +778,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         # sampling.  So setting the function here is safe.  In the future,
         # if libcugraph allows setting a new attribute, this API might
         # change.
-        # TODO allow func to be a call to a future remote sampling API
-        # if the provided graph is in another process (rapidsai/cugraph#4623).
-
-        if temporal:
-            self.__func_kwargs["temporal_property_name"] = "time"
 
         self.__func = self._func_table[
             (
@@ -719,6 +786,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                 temporal,
             )
         ]
+
+        if temporal:
+            self.__func_kwargs["temporal_property_name"] = "time"
+            self.__func_kwargs["temporal_sampling_comparison"] = temporal_comparison
 
         if heterogeneous:
             if vertex_type_offsets is None:
@@ -780,6 +851,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
     def sample_batches(
         self,
         seeds: TensorType,
+        seed_times: Optional[TensorType],
         batch_id_offsets: TensorType,
         random_state: int = 0,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
@@ -798,6 +870,8 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "random_state": random_state + rank,
         }
         kwargs.update(self.__func_kwargs)
+        if seed_times is not None:
+            kwargs.update({"starting_vertex_times": cupy.asarray(seed_times)})
 
         sampling_results_dict = self.__func(**kwargs)
 
