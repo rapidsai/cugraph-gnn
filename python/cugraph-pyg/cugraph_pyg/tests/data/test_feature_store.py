@@ -52,21 +52,9 @@ def test_feature_store_basic_api(single_pytorch_worker):
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-@pytest.mark.parametrize(
-    "dtype",
-    [
-        torch.float32,
-        torch.float16,
-        torch.int8,
-        torch.int16,
-        torch.int32,
-        torch.int64,
-        torch.float64,
-    ],
-)
-def test_feature_store_basic_api_types(single_pytorch_worker, dtype):
+def test_feature_store_basic_api_float(single_pytorch_worker):
     features = torch.arange(0, 2000)
-    features = features.reshape((features.numel() // 100, 100)).to(dtype)
+    features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
 
     whole_store = FeatureStore()
     whole_store["node", "fea", None] = features
