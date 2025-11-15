@@ -26,7 +26,7 @@ rapids-logger "Prepending channel ${CPP_CHANNEL} to RATTLER_CHANNELS"
 RATTLER_CHANNELS=("--channel" "${CPP_CHANNEL}" "${RATTLER_CHANNELS[@]}")
 
 # TODO: Remove `--test skip` flags once importing on a CPU node works correctly
-sccache --stop-server >/dev/null 2>&1 || true
+sccache --stop-server 2>/dev/null || true
 
 rapids-logger "Building pylibwholegraph"
 
@@ -39,7 +39,7 @@ rattler-build build --recipe conda/recipes/pylibwholegraph \
                     "${RATTLER_CHANNELS[@]}"
 
 sccache --show-adv-stats
-sccache --stop-server >/dev/null 2>&1 || true
+sccache --stop-server 2>/dev/null || true
 
 rapids-logger "Building cugraph-pyg"
 
@@ -52,7 +52,7 @@ rattler-build build --recipe conda/recipes/cugraph-pyg \
                     "${RATTLER_CHANNELS[@]}"
 
 sccache --show-adv-stats
-sccache --stop-server >/dev/null 2>&1 || true
+sccache --stop-server 2>/dev/null || true
 
 # remove build_cache directory to avoid uploading the entire source tree
 # tracked in https://github.com/prefix-dev/rattler-build/issues/1424

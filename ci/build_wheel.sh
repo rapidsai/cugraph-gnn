@@ -36,7 +36,7 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 cd "${package_dir}"
 
-sccache --stop-server >/dev/null 2>&1 || true
+sccache --stop-server 2>/dev/null || true
 
 rapids-logger "Building '${package_name}' wheel"
 rapids-pip-retry wheel \
