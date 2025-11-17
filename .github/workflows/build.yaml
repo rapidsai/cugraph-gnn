@@ -34,7 +34,7 @@ concurrency:
 jobs:
   cpp-build:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -44,7 +44,7 @@ jobs:
   python-build:
     needs: [cpp-build]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -54,7 +54,7 @@ jobs:
   docs-build:
     needs: cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@main
     with:
       arch: "amd64"
       branch: ${{ inputs.branch }}
@@ -66,7 +66,7 @@ jobs:
   upload-conda:
     needs: [cpp-build, python-build]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -74,7 +74,7 @@ jobs:
       sha: ${{ inputs.sha }}
   wheel-build-cugraph-pyg:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
@@ -89,7 +89,7 @@ jobs:
   wheel-publish-cugraph-pyg:
     needs: wheel-build-cugraph-pyg
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -99,7 +99,7 @@ jobs:
       package-type: python
   wheel-build-libwholegraph:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -113,7 +113,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: wheel-build-libwholegraph
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -125,7 +125,7 @@ jobs:
   wheel-publish-libwholegraph:
     needs: wheel-build-libwholegraph
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -136,7 +136,7 @@ jobs:
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
