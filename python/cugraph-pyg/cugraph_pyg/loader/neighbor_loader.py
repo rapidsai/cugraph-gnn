@@ -122,8 +122,10 @@ class NeighborLoader(NodeLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
-        temporal_comparison: str (optional, default='<=', i.e. monotonically decreasing)
-            The comparison operator for temporal sampling (>, <, >=, <=, last).
+        temporal_comparison: str (optional, default='monotonically decreasing')
+            The comparison operator for temporal sampling
+            ('strictly increasing', 'monotonically increasing',
+            'strictly decreasing', 'monotonically decreasing', 'last').
             Note that this should be 'last' for temporal_strategy='last'.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
@@ -133,7 +135,7 @@ class NeighborLoader(NodeLoader):
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
         if temporal_comparison is None:
-            temporal_comparison = "<="
+            temporal_comparison = "monotonically decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
