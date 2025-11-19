@@ -29,3 +29,4 @@ rattler-build build --recipe conda/recipes/libwholegraph \
                     "${RATTLER_CHANNELS[@]}"
 
 sccache --show-adv-stats
+sccache --stop-server >/dev/null 2>&1 || true
