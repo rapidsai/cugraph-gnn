@@ -190,8 +190,8 @@ files:
       - depends_on_pytorch
       - test_python_common
 channels:
-  - rapidsai
   - rapidsai-nightly
+  - rapidsai
   - conda-forge
 dependencies:
   checks:
