@@ -32,6 +32,7 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/test_cpp.sh
       sha: ${{ inputs.sha }}
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-notebook-tests:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/25.12
@@ -56,6 +57,7 @@ jobs:
       # TODO: remove the CUDA 13 exclusion here once there are pytorch CUDA 13 packages
       #  ref: https://github.com/pytorch/pytorch/issues/159779
       matrix_filter: map(select(.ARCH == "amd64" and (.CUDA_VER | startswith("12"))))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-pylibwholegraph:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
@@ -66,6 +68,7 @@ jobs:
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibwholegraph.sh
       matrix_filter: map(select(.ARCH == "amd64"))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
@@ -76,3 +79,4 @@ jobs:
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_cugraph-pyg.sh
       matrix_filter: map(select(.ARCH == "amd64"))
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
