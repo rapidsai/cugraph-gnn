@@ -24,6 +24,6 @@ python synthetic_diagnostics_demo.py \
   --epochs 1000 \
   --hessian-sample-every 5 \
   --hessian-max-samples 200 \
-  --plateau-step 500 \
+  --plateau-step 50 \
   --plateau-lr-scale 0.1
 ```
