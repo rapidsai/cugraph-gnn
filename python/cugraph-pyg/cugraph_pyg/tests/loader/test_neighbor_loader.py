@@ -726,7 +726,7 @@ def test_neighbor_loader_temporal_simple(single_pytorch_worker, biased):
         time_attr="time",
         shuffle=False,
         weight_attr="bias" if biased else None,
-        temporal_comparison=">",
+        temporal_comparison="strictly_increasing",
     )
 
     out = next(iter(loader))
@@ -792,7 +792,7 @@ def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
-        temporal_comparison=">",
+        temporal_comparison="strictly_increasing",
     )
 
     out = next(iter(loader))
@@ -841,7 +841,7 @@ def test_neighbor_loader_temporal_linkpred_homogeneous(single_pytorch_worker, bi
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
-        temporal_comparison=">",
+        temporal_comparison="strictly_increasing",
     )
 
     out = next(iter(loader))
@@ -907,7 +907,7 @@ def test_neighbor_loader_temporal_linkpred_heterogeneous(single_pytorch_worker, 
         time_attr="time",
         weight_attr="bias" if biased else None,
         shuffle=False,
-        temporal_comparison=">",
+        temporal_comparison="strictly_increasing",
     )
 
     out = next(iter(loader))
