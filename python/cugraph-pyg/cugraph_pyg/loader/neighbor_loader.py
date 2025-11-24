@@ -56,6 +56,7 @@ class NeighborLoader(NodeLoader):
         batch_size: int = 16,
         compression: Optional[str] = None,
         local_seeds_per_call: Optional[int] = None,
+        temporal_comparison: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -121,11 +122,20 @@ class NeighborLoader(NodeLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
+        temporal_comparison: str (optional, default='monotonically decreasing')
+            The comparison operator for temporal sampling
+            ('strictly increasing', 'monotonically increasing',
+            'strictly decreasing', 'monotonically decreasing', 'last').
+            Note that this should be 'last' for temporal_strategy='last'.
+            See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.
         """
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
+
+        if temporal_comparison is None:
+            temporal_comparison = "monotonically decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -166,15 +176,18 @@ class NeighborLoader(NodeLoader):
         is_temporal = time_attr is not None
 
         if is_temporal:
-            # TODO Confirm that time is an edge attribute
-            # TODO Add support for time override (see rapidsai/cugraph#5263)
             graph_store._set_etime_attr((feature_store, time_attr))
 
-            warnings.warn(
-                "Temporal sampling in cuGraph-PyG is currently only forward in time"
-                " instead of the expected backward in time.  This will be fixed in a"
-                " future release."
-            )
+            if input_time is None:
+                input_type, input_nodes, _ = (
+                    torch_geometric.loader.utils.get_input_nodes(
+                        data, input_nodes, None
+                    )
+                )
+                if input_type is None:
+                    input_type = list(graph_store._vertex_offsets.keys())[0]
+                # will assume the time attribute exists for nodes as well
+                input_time = feature_store[input_type, time_attr, None][input_nodes]
 
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
@@ -204,6 +217,7 @@ class NeighborLoader(NodeLoader):
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),
                 temporal=is_temporal,
+                temporal_comparison=temporal_comparison,
                 vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),

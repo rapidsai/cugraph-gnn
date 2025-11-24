@@ -771,6 +771,7 @@ class BaseSampler:
             index.node,
             batch_size=self.__batch_size,
             input_id=index.input_id,
+            input_time=index.time,
             metadata=metadata,
             **kwargs,
         )
@@ -857,6 +858,7 @@ class BaseSampler:
         reader = self.__sampler.sample_from_edges(
             torch.stack([src, dst]),  # reverse of usual convention
             input_id=input_id,
+            input_time=index.time,
             input_label=index.label,
             batch_size=self.__batch_size + neg_batch_size,
             metadata=metadata,
