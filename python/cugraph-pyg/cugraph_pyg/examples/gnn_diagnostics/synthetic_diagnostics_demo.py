@@ -233,7 +233,7 @@ def train(cfg: Config) -> None:
 
     plt.figure(figsize=(6, 3))
     plt.plot(losses, label="Loss")
-    plt.axvline(cfg.plateau_step, color="red", linestyle="--", label="LR zeroed")
+    plt.axvline(cfg.plateau_step, color="red", linestyle="--", label="LR reduced")
     plt.xlabel("Step")
     plt.ylabel("Loss")
     plt.title("Rapid drop then plateau")
