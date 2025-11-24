@@ -116,7 +116,7 @@ class NodeLoader:
             if input_id is None
             else input_id,
             node=input_nodes,
-            time=None,
+            time=input_time,
             input_type=input_type,
         )
 

@@ -59,6 +59,7 @@ class LinkNeighborLoader(LinkLoader):
         batch_size: int = 16,  # Refers to number of edges per batch.
         compression: Optional[str] = None,
         local_seeds_per_call: Optional[int] = None,
+        temporal_comparison: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -128,11 +129,20 @@ class LinkNeighborLoader(LinkLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
+        temporal_comparison: str (optional, default='monotonically decreasing')
+            The comparison operator for temporal sampling
+            ('strictly increasing', 'monotonically increasing',
+            'strictly decreasing', 'monotonically decreasing', 'last').
+            Note that this should be 'last' for temporal_strategy='last'.
+            See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.
         """
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
+
+        if temporal_comparison is None:
+            temporal_comparison = "monotonically decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -172,17 +182,15 @@ class LinkNeighborLoader(LinkLoader):
 
         is_temporal = (edge_label_time is not None) and (time_attr is not None)
 
+        if (edge_label_time is None) != (time_attr is None):
+            warnings.warn(
+                "Edge-based temporal sampling requires that both edge_label_time and time_attr are provided. Defaulting to non-temporal sampling."
+            )
+
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
         if is_temporal:
-            # TODO Confirm that time is an edge attribute
-            # TODO Add support for time override (see rapidsai/cugraph#5263)
             graph_store._set_etime_attr((feature_store, time_attr))
-            warnings.warn(
-                "Temporal sampling in cuGraph-PyG is currently only forward in time"
-                " instead of the expected backward in time.  This will be fixed in a"
-                " future release."
-            )
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
@@ -209,6 +217,7 @@ class LinkNeighborLoader(LinkLoader):
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),
                 temporal=is_temporal,
+                temporal_comparison=temporal_comparison,
                 vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
