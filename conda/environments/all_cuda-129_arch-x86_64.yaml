@@ -17,7 +17,7 @@ dependencies:
 - cugraph==25.12.*,>=0.0.0a0
 - cuml==25.12.*,>=0.0.0a0
 - cupy>=13.6.0
-- cython>=3.0.0
+- cython>=3.0.0,<3.2.0a0
 - doxygen
 - gcc_linux-64=14.*
 - graphviz
@@ -37,11 +37,11 @@ dependencies:
 - pre-commit
 - pydantic
 - pylibcugraph==25.12.*,>=0.0.0a0
-- pytest
 - pytest-benchmark
 - pytest-cov
 - pytest-forked
 - pytest-xdist
+- pytest<9.0.0a0
 - pytorch_geometric>=2.5,<2.7
 - rapids-build-backend>=0.4.0,<0.5.0.dev0
 - rmm==25.12.*,>=0.0.0a0
