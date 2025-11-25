@@ -389,9 +389,7 @@ dependencies:
           - matrix:
               cuda: "13.*"
             packages:
-              # TODO: remove this 'dev0' (which allows nightlies) once there are pytorch CUDA 13 released packages
-              #  ref: https://github.com/pytorch/pytorch/issues/159779
-              - &pytorch_pip torch>=2.9.0.dev0
+              - &pytorch_pip torch>=2.9.0
           - matrix:
             packages:
               - *pytorch_pip
