@@ -18,7 +18,7 @@ CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_
 CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 
 if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu129"
+  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
 else
   PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
 fi
