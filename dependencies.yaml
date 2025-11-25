@@ -297,7 +297,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - cython>=3.0.0
+          - cython>=3.0.0,<3.2.0a0
   python_run_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -345,7 +345,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - pytest
+          - pytest<9.0.0a0
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
@@ -377,9 +377,7 @@ dependencies:
           - matrix:
               cuda: "13.*"
             packages:
-              # TODO: switch from nightlies to releases when there are pytorch CUDA 13 released packages
-              #  ref: https://github.com/pytorch/pytorch/issues/159779
-              - --extra-index-url=https://download.pytorch.org/whl/nightly/cu130
+              - --extra-index-url=https://download.pytorch.org/whl/cu130
           - matrix:
             packages:
       - output_types: [requirements, pyproject]
@@ -391,9 +389,7 @@ dependencies:
           - matrix:
               cuda: "13.*"
             packages:
-              # TODO: remove this 'dev0' (which allows nightlies) once there are pytorch CUDA 13 released packages
-              #  ref: https://github.com/pytorch/pytorch/issues/159779
-              - &pytorch_pip torch>=2.9.0.dev0
+              - &pytorch_pip torch>=2.9.0
           - matrix:
             packages:
               - *pytorch_pip
