@@ -423,10 +423,10 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch_geometric>=2.5,<2.7
+          - pytorch_geometric>=2.5,<2.8
       - output_types: [pyproject, requirements]
         packages:
-          - torch-geometric>=2.5,<2.7
+          - torch-geometric>=2.5,<2.8
   depends_on_pylibwholegraph:
     common:
       - output_types: conda
