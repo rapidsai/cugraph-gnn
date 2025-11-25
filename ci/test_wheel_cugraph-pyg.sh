@@ -20,7 +20,7 @@ CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 if [[ "${CUDA_MAJOR}" == "12" ]]; then
   PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
 else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/nightly/cu130"
+  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
 fi
 
 # echo to expand wildcard before adding `[extra]` requires for pip
