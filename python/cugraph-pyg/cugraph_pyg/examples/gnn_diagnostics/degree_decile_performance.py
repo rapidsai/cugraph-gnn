@@ -35,9 +35,10 @@ def evaluate_by_degree_bucket(
         results_df: DataFrame with bucket, acc, f1, and count columns.
         confusions: Mapping from bucket name to confusion matrix.
     """
-    # Use quantile bins so each decile has comparable support; allow duplicate edges to avoid errors
-    # when degree distributions are flat.
-    deciles = pd.qcut(degree, 10, labels=False, duplicates="drop")
+    boundaries = np.percentile(degree, np.linspace(0, 100, 11))  # 0%,10%,20%,...,100%
+
+    # digitize returns indices 1..10; convert to 0..9
+    deciles = np.digitize(degree, boundaries[1:-1], right=True)
 
     # Separate head slices make it easy to see if a model ignores the absolute largest hubs.
     thr_5 = np.percentile(degree, 95)
@@ -95,8 +96,13 @@ def evaluate_by_degree_bucket(
         + [f"Decile {i}" for i in range(10, 0, -1)]  # Decile 10 highest -> Decile 1 lowest
         + ["Bottom 5%", "Bottom 1%"]
     )
-    results_df["order"] = results_df["bucket"].apply(order.index)
-    results_df = results_df.sort_values("order")
+
+    # Safe index lookup
+    results_df["order"] = results_df["bucket"].apply(
+        lambda b: order.index(b) if b in order else float("inf")
+    )
+
+    results_df = results_df.sort_values("order", ignore_index=True)
 
     return results_df, confusions
 

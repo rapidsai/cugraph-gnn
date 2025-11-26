@@ -42,6 +42,7 @@ from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import confusion_matrix
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -51,7 +52,6 @@ ROOT = Path(__file__).resolve().parent
 from overall_confusion_matrix import plot_overall_confusion_matrix
 from degree_decile_performance import evaluate_by_degree_bucket, plot_performance
 from hessian_top_eigen import estimate_top_eigenvalue_vhp, plot_curvature
-from sklearn.metrics import confusion_matrix
 
 
 @dataclass
