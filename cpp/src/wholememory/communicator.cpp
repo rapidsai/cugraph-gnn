@@ -422,9 +422,7 @@ struct rank_info {
 
 static void get_host_name(char* hostname, int maxlen, const char delim)
 {
-  if (gethostname(hostname, maxlen) != 0) {
-    WHOLEMEMORY_FATAL("gethostname failed.");
-  }
+  if (gethostname(hostname, maxlen) != 0) { WHOLEMEMORY_FATAL("gethostname failed."); }
   int i = 0;
   while ((hostname[i] != delim) && (hostname[i] != '\0') && (i < maxlen - 1))
     i++;
@@ -456,7 +454,7 @@ void get_boot_id(char* host_id, size_t len)
       char* p;
       if (fscanf(file, "%ms", &p) == 1) {
         size_t remaining = len - offset - 1;
-        size_t copy_len = std::min(strlen(p), remaining);
+        size_t copy_len  = std::min(strlen(p), remaining);
         memcpy(host_id + offset, p, copy_len);
         offset += copy_len;
         free(p);
