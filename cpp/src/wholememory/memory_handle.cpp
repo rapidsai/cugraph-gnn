@@ -831,6 +831,13 @@ class continuous_device_wholememory_impl : public wholememory_impl {
     // Construct client address to send this Shareable handle to
     bzero(&cliaddr, sizeof(cliaddr));
     cliaddr.sun_family = AF_UNIX;
+    if (dst_name.length() >= sizeof(cliaddr.sun_path)) {
+      WHOLEMEMORY_FATAL(
+        "IPC socket path length (%zu) larger than sockaddr_un.sun_path length (%lu), full_path: %s",
+        dst_name.length(),
+        sizeof(cliaddr.sun_path),
+        dst_name.c_str());
+    }
     strcpy(cliaddr.sun_path, dst_name.c_str());
 
     // Send corresponding shareable handle to the client
