@@ -422,10 +422,7 @@ struct rank_info {
 
 static void get_host_name(char* hostname, int maxlen, const char delim)
 {
-  if (gethostname(hostname, maxlen) != 0) {
-    strncpy(hostname, "unknown", maxlen);
-    WHOLEMEMORY_FATAL("gethostname failed.");
-  }
+  if (gethostname(hostname, maxlen) != 0) { WHOLEMEMORY_FATAL("gethostname failed."); }
   int i = 0;
   while ((hostname[i] != delim) && (hostname[i] != '\0') && (i < maxlen - 1))
     i++;
@@ -448,22 +445,25 @@ void get_boot_id(char* host_id, size_t len)
 
   if ((env_host_id = getenv("WHOLEMEMORY_BOOTID")) != nullptr) {
     WHOLEMEMORY_LOG(LEVEL_INFO, "WHOLEMEMORY_BOOTID set by environment to %s", env_host_id);
-    strncpy(host_id, env_host_id, len - 1);
-    offset = strlen(env_host_id);
+    size_t copy_len = std::min(strlen(env_host_id), len - 1);
+    memcpy(host_id, env_host_id, copy_len);
+    offset = copy_len;
   } else {
     FILE* file = fopen(BOOTID_FILE, "r");
     if (file != nullptr) {
       char* p;
       if (fscanf(file, "%ms", &p) == 1) {
-        strncpy(host_id + offset, p, len - offset - 1);
-        offset += strlen(p);
+        size_t remaining = len - offset - 1;
+        size_t copy_len  = std::min(strlen(p), remaining);
+        memcpy(host_id + offset, p, copy_len);
+        offset += copy_len;
         free(p);
       }
+      fclose(file);
     }
-    fclose(file);
   }
 
-#undef HOSTID_FILE
+#undef BOOTID_FILE
 
   host_id[offset] = '\0';
 }
