@@ -1,3 +1,37 @@
+# cugraph-gnn 25.12.00 (10 Dec 2025)
+
+### 🚨 Breaking Changes
+* Require CUDA 12.2+ by @jakirkham in https://github.com/rapidsai/cugraph-gnn/pull/340
+* [FEA] Support Standard Temporal Sampling Behavior by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/347
+### 🐛 Bug Fixes
+* fix: fixes memory context leak by @paulhendricks in https://github.com/rapidsai/cugraph-gnn/pull/332
+* Fix Forward Merger 25.10 -> Main by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/337
+* [BUG] Use memory pool in movielens example by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/328
+* refactored update-version.sh to handle new branching strategy by @rockhowse in https://github.com/rapidsai/cugraph-gnn/pull/344
+* Switch to release channel for PyTorch + CUDA 13 by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/355
+* Pin Cython pre-3.2.0 and PyTest pre-9 by @jakirkham in https://github.com/rapidsai/cugraph-gnn/pull/345
+* fix some potential buffer overflow problems as suggested by sonarqube by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/367
+### 📖 Documentation
+* Remove Old Content and Fix Broken Links in README by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/326
+### 🚀 New Features
+### 🛠️ Improvements
+* Update `RAPIDS_BRANCH`, codify changes in `update-version.sh` by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/322
+* Enable `sccache-dist` connection pool by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/333
+* Use main in RAPIDS_BRANCH by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/334
+* Use main shared-workflows branch by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/335
+* Use `RAPIDS_BRANCH` in cmake-format invocations that need rapids-cmake configs by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/339
+* Use SPDX for all copyright headers by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/338
+* Use ruff-check, ruff-format instead of flake8, black by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/342
+* Remove inheritance from deprecated unary_function by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/343
+* Use `sccache-dist` build cluster for conda and wheel builds by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/341
+* [IMP] Support more dtypes in the cuGraph-PyG FeatureStore by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/346
+
+## New Contributors
+* @paulhendricks made their first contribution in https://github.com/rapidsai/cugraph-gnn/pull/332
+* @rockhowse made their first contribution in https://github.com/rapidsai/cugraph-gnn/pull/344
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v25.12.00a...release/25.12
+
 # cugraph-gnn 25.10.00 (8 Oct 2025)
 
 ## 🚨 Breaking Changes
