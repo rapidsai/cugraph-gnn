@@ -41,7 +41,6 @@ option(USE_NCCL_RUNTIME_WHEEL "Use the NCCL wheel at runtime instead of the syst
 
 # ##################################################################################################
 # * Set options based on user defined one  -----------------------------------
-set(_ctk_static_suffix "_static")
 
 # ##################################################################################################
 # * Base rapids options ------------------------------------------------------ default build type
@@ -168,7 +167,7 @@ target_include_directories(
 # * link libraries -------------------------------------------------------------
 target_link_libraries(
   wholegraph
-  PUBLIC CUDA::cuda_driver CUDA::cudart${_ctk_static_suffix} raft::raft
+  PUBLIC CUDA::cuda_driver CUDA::cudart_static raft::raft
   PRIVATE NCCL::NCCL
 )
 
