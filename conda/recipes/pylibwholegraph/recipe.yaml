@@ -66,16 +66,16 @@ requirements:
     - ${{ stdlib("c") }}
   host:
     - cuda-version =${{ cuda_version }}
-    - cython >=3.0.0
+    - cython >=3.0.0,<3.2.0
     - pip
     - libwholegraph =${{ version }}
     - python =${{ py_version }}
-    - rapids-build-backend >=0.4.0,<0.5.0.dev0
+    - rapids-build-backend >=0.4.0,<0.5.0
     - scikit-build-core >=0.10.0
   run:
     - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
     - libwholegraph =${{ version }}
-    - numpy >=1.23,<3.0a0
+    - numpy >=1.23,<3.0
     - python
   ignore_run_exports:
     by_name:

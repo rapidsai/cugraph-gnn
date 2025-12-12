@@ -8,10 +8,10 @@ dependencies:
 - pre-commit
 - pydantic
 - pylibcugraph==26.2.*,>=0.0.0a0
-- pytest
 - pytest-benchmark
 - pytest-cov
 - pytest-xdist
+- pytest<9.0.0
 - pytorch_geometric>=2.5,<2.8
 - torchdata
 name: cugraph_pyg_dev_cuda-129_arch-aarch64
