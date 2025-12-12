@@ -6,8 +6,10 @@ import warnings
 
 import torch
 from torch.nn import Linear, Dropout, LayerNorm
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.nn.functional as F
 
-from torch_geometric.nn import TransformerConv, GCNConv, SAGEConv, to_hetero
+from torch_geometric.nn import TransformerConv, SAGEConv, to_hetero, Sequential
 
 import pylibwholegraph.torch as wgth
 
@@ -28,12 +30,18 @@ class Encoder(torch.nn.Module):
             concat=False,
             heads=heads,
         )
-        self.conv2 = GCNConv(hidden_channels, hidden_channels)
+        self.conv2 = TransformerConv(
+            hidden_channels,
+            hidden_channels,
+            edge_dim=edge_attr_dim,
+            concat=False,
+            heads=heads,
+        )
 
         self.norm1 = LayerNorm(hidden_channels)
-        self.lin1 = Linear(hidden_channels)
+        self.lin1 = Linear(hidden_channels, hidden_channels)
 
-        self.lin2 = Linear(hidden_channels)
+        self.lin2 = Linear(hidden_channels, hidden_channels)
         self.norm2 = LayerNorm(hidden_channels)
 
         self.dropout = Dropout(p=0.5)
@@ -51,7 +59,15 @@ class Encoder(torch.nn.Module):
 
         x = self.lin2(x).relu()
 
-        return x
+        return F.normalize(x, p=2, dim=-1)
+
+
+class Decoder(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x1, x2):
+        return (x1 * x2).sum(dim=-1)
 
 
 class Classifier(torch.nn.Module):
@@ -89,20 +105,28 @@ class Classifier(torch.nn.Module):
                     wg_node_emb
                 )
         else:
-            self.mp = torch.nn.Sequential(
+            self.mp = Sequential(
+                "x, edge_index",
                 [
-                    SAGEConv(hidden_channels, hidden_channels),
+                    (
+                        SAGEConv((hidden_channels, hidden_channels), hidden_channels),
+                        "x, edge_index -> x",
+                    ),
                     LayerNorm(hidden_channels),
                     Dropout(p=0.5),
-                ]
+                    torch.nn.ReLU(inplace=True),
+                ],
             )
-            self.mp = to_hetero(self.mp, metadata=metadata)
+            self.mp = to_hetero(self.mp, metadata=metadata, aggr="sum")
 
         self.encoder = Encoder(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
             edge_attr_dim=edge_attr_dim,
         )
+        self.encoder = to_hetero(self.encoder, metadata=metadata, aggr="sum")
+
+        self.decoder = Decoder()
 
     def forward(self, batch, edge_attr):
         x_paper = self.paper_lin(batch["paper"].x)
@@ -124,18 +148,25 @@ class Classifier(torch.nn.Module):
             x_dict = {
                 "paper": x_paper,
                 "author": torch.zeros(
-                    batch["author"].n_id.numel(), self.hidden_channels
+                    batch["author"].n_id.numel(), self.hidden_channels, device="cuda"
                 ),
                 "institution": torch.zeros(
-                    batch["institution"].n_id.numel(), self.hidden_channels
+                    batch["institution"].n_id.numel(),
+                    self.hidden_channels,
+                    device="cuda",
                 ),
-                "field": torch.zeros(batch["field"].n_id.numel(), self.hidden_channels),
+                "field_of_study": torch.zeros(
+                    batch["field_of_study"].n_id.numel(),
+                    self.hidden_channels,
+                    device="cuda",
+                ),
             }
             x_dict = self.mp(x_dict, batch.edge_index_dict)
-            x_dict["paper"] = x_paper
 
         x_dict = self.encoder(x_dict, batch.edge_index_dict, edge_attr)
-        return x_dict
+        x_dict["paper"] += x_paper
+        eli = batch["paper", "cites", "paper"].edge_label_index
+        return self.decoder(x_dict["paper"][eli[0]], x_dict["paper"][eli[1]])
 
 
 def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
@@ -167,11 +198,56 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     torch.cuda.set_device(local_rank)
 
 
-def train(feature_store, train_loader, model, optimizer, wm_optimizer):
+def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
+    model.eval()
+    pred_true_pos = pred_false_pos = pred_true_neg = pred_false_neg = 0.0
+    for i, batch in enumerate(test_loader):
+        if i >= eval_iter:
+            break
+
+        y_pred = model(
+            batch,
+            {
+                etype: feature_store[etype, "x", None][eid]
+                for etype, eid in batch.e_id_dict.items()
+            },
+        )
+
+        y_true = batch["paper", "cites", "paper"].edge_label.cuda()
+
+        pred_true_pos += (
+            ((y_pred > 0.5).float() == 1.0) & (y_true.float() == 1.0)
+        ).sum()
+        pred_false_pos += (
+            ((y_pred > 0.5).float() == 1.0) & (y_true.float() == 0.0)
+        ).sum()
+        pred_true_neg += (
+            ((y_pred <= 0.5).float() == 1.0) & (y_true.float() == 0.0)
+        ).sum()
+        pred_false_neg += (
+            ((y_pred <= 0.5).float() == 1.0) & (y_true.float() == 1.0)
+        ).sum()
+
+    return pred_true_pos, pred_false_pos, pred_true_neg, pred_false_neg
+
+
+def train(
+    feature_store,
+    train_loader,
+    model,
+    optimizer,
+    wm_optimizer,
+    neg_ratio,
+    lr=0.001,
+    train_iter=100,
+):
     model.train()
     total_loss = total_examples = 0
 
-    for batch in train_loader:
+    for i, batch in enumerate(train_loader):
+        if i >= train_iter:
+            break
+
         optimizer.zero_grad()
         out = model(
             batch,
@@ -181,21 +257,35 @@ def train(feature_store, train_loader, model, optimizer, wm_optimizer):
             },
         )
 
-        # loss = F.binary_cross_entropy_with_logits(out, batch['paper'].y)
-        # loss.backward()
-        # optimizer.step()
-        # total_loss += loss.item() * batch['paper'].y.numel()
-        # total_examples += batch['paper'].y.numel()
-        break
-    # return total_loss / total_examples
-    return 0
+        loss = F.binary_cross_entropy_with_logits(
+            out, batch["paper", "cites", "paper"].edge_label.cuda()
+        )
+        loss.backward()
+        optimizer.step()
+        if wm_optimizer:
+            wm_optimizer.step(lr)
+        total_loss += loss.item() * out.numel()
+        total_examples += out.numel()
+
+        if i % 10 == 0 and global_rank == 0:
+            print(f"iter {i}, loss {loss.item():.4f}")
+
+    return total_loss / total_examples
 
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--train_iter", type=int, default=4096)
+    parser.add_argument("--eval_iter", type=int, default=1024)
     parser.add_argument("--learn_embeddings", action="store_true")
+    parser.add_argument("--hidden_channels", type=int, default=64)
+    parser.add_argument("--lr", type=float, default=0.001)
+    parser.add_argument("--betweenness_k", type=int, default=100)
+    parser.add_argument("--betweenness_seed", type=int, default=62)
+    parser.add_argument("--neg_ratio", type=int, default=1)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     args = parser.parse_args()
 
@@ -307,7 +397,7 @@ if __name__ == "__main__":
         # add nodes
         num_nodes = {}
         node_counts = torch.tensor([0, 0, 0, 0], device="cuda", dtype=torch.int64)
-        torch.distributed.broadcast(node_counts, src=0, device=device)
+        torch.distributed.broadcast(node_counts, src=0)
         num_nodes["paper"] = node_counts[0]
         num_nodes["author"] = node_counts[1]
         num_nodes["institution"] = node_counts[2]
@@ -360,41 +450,167 @@ if __name__ == "__main__":
 
     from pylibcugraph import betweenness_centrality
 
+    print("calculating betweenness centrality...")
     vx, vy = betweenness_centrality(
         resource_handle=graph_store._resource_handle,
         graph=graph_store._graph,
-        k=100,
-        random_state=62 + global_rank,
+        k=args.betweenness_k,
+        random_state=args.betweenness_seed + global_rank,
         normalized=True,
         include_endpoints=False,
         do_expensive_check=False,
     )
 
-    _, i = torch.sort(vx)
-    vy = torch.as_tensor(vy[i])
+    vx = torch.as_tensor(vx, device="cuda")
+    vy = torch.as_tensor(vy, device="cuda")
+
     offsets = torch.tensor(
-        sorted(graph_store._vertex_offsets.values())[1:],
-        device="cuda",
+        sorted(graph_store._vertex_offsets.values()),
+        device="cpu",
         dtype=torch.int64,
     )
     vtypes = sorted(graph_store._vertex_offsets.keys())
-    centralities = {vtypes[i]: t for i, t in enumerate(torch.tensor_split(vy, offsets))}
 
+    print(f"rank {global_rank}, offsets {offsets}")
+    for i, vtype in enumerate(vtypes):
+        if i == len(vtypes) - 1:
+            f = vx >= offsets[i]
+        else:
+            f = (vx >= offsets[i]) & (vx < offsets[i + 1])
+
+        bcx = vx[f] - offsets[i]
+        print(
+            f"rank {global_rank}, vtype {vtype}, bcx {bcx.min()}, {bcx.max()}, nnodes {num_nodes[vtype]}"
+        )
+        bcy = vy[f].to(torch.float32)
+        feature_store[vtype, "bc", bcx] = bcy
+
+    print("updating feature store with betweeness centralities...")
     for etype in graph_store.get_all_edge_attrs():
+        stype, _, dtype = etype.edge_type
         src, dst = graph_store[etype]
-        feature_store[etype, "x", None] = (
-            centralities[vtypes[src]] + centralities[vtypes[dst]]
-        ) / 2.0
+        # bug in torch_geometric EdgeIndex requires we reconstruct the tensors
+        src = src.clone().detach()
+        dst = dst.clone().detach()
 
-    """
+        feature_store[etype.edge_type, "x", None] = (
+            feature_store[stype, "bc", None][src]
+            + feature_store[dtype, "bc", None][dst]
+        ).reshape((-1, 1)) / 2.0
+
+    print("training model...")
+
     model = Classifier(
         hidden_channels=args.hidden_channels,
-        num_features={'paper': feature_store['paper', 'x', None].shape[1], 'author': 0, 'institution': 0, 'field_of_study': 0},
+        num_features={
+            "paper": feature_store["paper", "x", None].shape[1],
+            "author": 0,
+            "institution": 0,
+            "field_of_study": 0,
+        },
         num_nodes=num_nodes,
-        edge_attr_dim=edge_attr_dim,
-        metadata=metadata,
+        edge_attr_dim=1,
+        metadata=(
+            vtypes,
+            [etype.edge_type for etype in graph_store.get_all_edge_attrs()],
+        ),
         learn_embeddings=args.learn_embeddings,
+    ).to(device)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    if args.learn_embeddings:
+        wm_optimizer = wgth.create_wholememory_optimizer(
+            [model.embeddings[node_type].wm_embedding for node_type in num_nodes],
+            "adam",
+            {},
+        )
+    else:
+        wm_optimizer = None
+
+    model = DDP(model, device_ids=[local_rank], find_unused_parameters=True)
+
+    assigned_edges = graph_store[("paper", "cites", "paper"), "coo", None]
+    mask = (torch.rand(assigned_edges.shape[1]) < 0.8).to(torch.bool).to(device)
+    train_edges = assigned_edges[:, mask]
+    test_edges = assigned_edges[:, ~mask]
+
+    train_sz = torch.tensor([train_edges.shape[1]], device="cuda", dtype=torch.int64)
+    test_sz = torch.tensor([test_edges.shape[1]], device="cuda", dtype=torch.int64)
+    torch.distributed.all_reduce(train_sz, op=torch.distributed.ReduceOp.MIN)
+    torch.distributed.all_reduce(test_sz, op=torch.distributed.ReduceOp.MIN)
+    train_edges = train_edges[:, :train_sz]
+    test_edges = test_edges[:, :test_sz]
+
+    from cugraph_pyg.loader import LinkNeighborLoader
+
+    train_loader = LinkNeighborLoader(
+        data=(feature_store, graph_store),
+        num_neighbors={
+            etype.edge_type: [5] * 2 for etype in graph_store.get_all_edge_attrs()
+        },
+        edge_label_index=(("paper", "cites", "paper"), train_edges),
+        neg_sampling=dict(mode="binary", amount=args.neg_ratio),
+        batch_size=256,
+        shuffle=True,
+        drop_last=True,
     )
 
-    train(feature_store, train_loader, model, optimizer, wm_optimizer)
-    """
+    test_loader = LinkNeighborLoader(
+        data=(feature_store, graph_store),
+        num_neighbors={
+            etype.edge_type: [5] * 2 for etype in graph_store.get_all_edge_attrs()
+        },
+        edge_label_index=(("paper", "cites", "paper"), test_edges),
+        neg_sampling=dict(mode="binary", amount=1),
+        batch_size=256,
+        shuffle=True,
+        drop_last=True,
+    )
+
+    for epoch in range(1, args.epochs + 1):
+        train(
+            feature_store,
+            train_loader,
+            model,
+            optimizer,
+            wm_optimizer,
+            args.neg_ratio,
+            lr=args.lr,
+            train_iter=args.train_iter,
+        )
+        pred_true_pos, pred_false_pos, pred_true_neg, pred_false_neg = test(
+            feature_store, test_loader, model, args.neg_ratio, eval_iter=args.eval_iter
+        )
+
+        torch.distributed.all_reduce(pred_true_pos, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(pred_false_pos, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(pred_true_neg, op=torch.distributed.ReduceOp.SUM)
+        torch.distributed.all_reduce(pred_false_neg, op=torch.distributed.ReduceOp.SUM)
+
+        total_examples = (
+            pred_true_pos.item()
+            + pred_false_pos.item()
+            + pred_true_neg.item()
+            + pred_false_neg.item()
+        )
+        pred_true_pos = pred_true_pos.item() / total_examples
+        pred_false_pos = pred_false_pos.item() / total_examples
+        pred_true_neg = pred_true_neg.item() / total_examples
+        pred_false_neg = pred_false_neg.item() / total_examples
+
+        if global_rank == 0:
+            print(
+                f"epoch {epoch}, acc: {(pred_true_pos + pred_true_neg) / total_examples}"
+            )
+            print(
+                f"confusion:\nTP: {pred_true_pos:.4f}\tFN: {pred_false_neg:.4f}\nFP: {pred_false_pos:.4f}\tTN: {pred_true_neg:.4f}"
+            )
+
+    from pylibcugraph.comms import cugraph_comms_shutdown
+
+    cugraph_comms_shutdown()
+
+    torch.distributed.barrier()
+    from pylibwholegraph.torch.initialize import finalize as wm_finalize
+
+    wm_finalize()  # will also destroy the process group
