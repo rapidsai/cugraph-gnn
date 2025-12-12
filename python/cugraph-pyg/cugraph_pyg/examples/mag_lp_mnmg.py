@@ -91,7 +91,10 @@ class Classifier(torch.nn.Module):
         self.embeddings = {}
         if self.learn_embeddings:
             global_comm = wgth.get_global_communicator()
-            for node_type in num_nodes:
+            for node_type in sorted(num_nodes.keys()):
+                print(
+                    f"rank {global_rank}, creating embedding for {node_type}, {num_nodes[node_type]}, {hidden_channels}"
+                )
                 wg_node_emb = wgth.create_embedding(
                     global_comm,
                     "distributed",
@@ -104,6 +107,9 @@ class Classifier(torch.nn.Module):
                 self.embeddings[node_type] = wgth.embedding.WholeMemoryEmbeddingModule(
                     wg_node_emb
                 )
+            print(
+                f"rank {global_rank}, created embeddings for {sorted(self.embeddings.keys())}"
+            )
         else:
             self.mp = Sequential(
                 "x, edge_index",
@@ -202,6 +208,7 @@ def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
     model.eval()
     pred_true_pos = pred_false_pos = pred_true_neg = pred_false_neg = 0.0
     for i, batch in enumerate(test_loader):
+        batch = batch.cuda()
         if i >= eval_iter:
             break
 
@@ -245,6 +252,7 @@ def train(
     total_loss = total_examples = 0
 
     for i, batch in enumerate(train_loader):
+        batch = batch.cuda()
         if i >= train_iter:
             break
 
@@ -287,6 +295,7 @@ if __name__ == "__main__":
     parser.add_argument("--betweenness_seed", type=int, default=62)
     parser.add_argument("--neg_ratio", type=int, default=1)
     parser.add_argument("--dataset_root", type=str, default="datasets")
+    parser.add_argument("--output_dir", type=str, default="embeddings")
     args = parser.parse_args()
 
     torch.distributed.init_process_group(backend="nccl")
@@ -389,6 +398,7 @@ if __name__ == "__main__":
         print("adding features...")
         feature_store["paper", "x", None] = data.x_dict["paper"]
 
+        y = data.y_dict["paper"]
         del data
         del dataset
     else:
@@ -479,9 +489,6 @@ if __name__ == "__main__":
             f = (vx >= offsets[i]) & (vx < offsets[i + 1])
 
         bcx = vx[f] - offsets[i]
-        print(
-            f"rank {global_rank}, vtype {vtype}, bcx {bcx.min()}, {bcx.max()}, nnodes {num_nodes[vtype]}"
-        )
         bcy = vy[f].to(torch.float32)
         feature_store[vtype, "bc", bcx] = bcy
 
@@ -520,7 +527,10 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     if args.learn_embeddings:
         wm_optimizer = wgth.create_wholememory_optimizer(
-            [model.embeddings[node_type].wm_embedding for node_type in num_nodes],
+            [
+                model.embeddings[node_type].wm_embedding
+                for node_type in sorted(num_nodes.keys())
+            ],
             "adam",
             {},
         )
@@ -593,19 +603,104 @@ if __name__ == "__main__":
             + pred_true_neg.item()
             + pred_false_neg.item()
         )
-        pred_true_pos = pred_true_pos.item() / total_examples
-        pred_false_pos = pred_false_pos.item() / total_examples
-        pred_true_neg = pred_true_neg.item() / total_examples
-        pred_false_neg = pred_false_neg.item() / total_examples
+        pred_true_pos = int(pred_true_pos.item())
+        pred_false_pos = int(pred_false_pos.item())
+        pred_true_neg = int(pred_true_neg.item())
+        pred_false_neg = int(pred_false_neg.item())
 
         if global_rank == 0:
             print(
-                f"epoch {epoch}, acc: {(pred_true_pos + pred_true_neg) / total_examples}"
+                f"epoch {epoch}, acc (link pred): {(pred_true_pos + pred_true_neg) / total_examples:.4f}"
             )
             print(
-                f"confusion:\nTP: {pred_true_pos:.4f}\tFN: {pred_false_neg:.4f}\nFP: {pred_false_pos:.4f}\tTN: {pred_true_neg:.4f}"
+                f"confusion (link pred):\nTP: {pred_true_pos}\tFN: {pred_false_neg}\nFP: {pred_false_pos}\tTN: {pred_true_neg}"
             )
 
+    local_x0 = feature_store["paper", "x", None].get_local_tensor()
+
+    ix_start = torch.tensor([local_x0.shape[0]], device="cuda", dtype=torch.int64)
+    ixa = torch.empty((world_size,), device="cuda", dtype=torch.int64)
+    torch.distributed.all_gather_into_tensor(ixa, ix_start)
+    ixa = ixa.cumsum(0)
+    ix_start = int(ixa[global_rank - 1]) if global_rank > 0 else 0
+    ix_end = int(ix_start + local_x0.shape[0])
+
+    if args.learn_embeddings:
+        local_x1 = (
+            model.module.embeddings["paper"]
+            .wm_embedding.get_embedding_tensor()
+            .get_local_tensor()[0]
+        )
+    else:
+        from cugraph_pyg.loader import NeighborLoader
+
+        local_papers = torch.arange(ix_start, ix_end, device="cuda", dtype=torch.int64)
+        print(
+            f"rank {global_rank}, local_papers {local_papers}, {local_papers.min()}, {local_papers.max()}"
+        )
+        ex_loader = NeighborLoader(
+            data=(feature_store, graph_store),
+            num_neighbors={
+                etype.edge_type: [5] * 2 for etype in graph_store.get_all_edge_attrs()
+            },
+            input_nodes=("paper", local_papers),
+            batch_size=256,
+            shuffle=True,
+            drop_last=True,
+        )
+
+        local_x1 = torch.empty(
+            (local_papers.shape[0], model.module.hidden_channels), device="cuda"
+        )
+        for batch in ex_loader:
+            batch = batch.cuda()
+            # have to obtain embeddings through message passing
+            x_paper = model.module.paper_lin(batch["paper"].x)
+            x_paper = model.module.paper_norm(x_paper)
+            x_dict = {
+                "paper": x_paper,
+                "author": torch.zeros(
+                    batch["author"].n_id.numel(),
+                    model.module.hidden_channels,
+                    device="cuda",
+                ),
+                "institution": torch.zeros(
+                    batch["institution"].n_id.numel(),
+                    model.module.hidden_channels,
+                    device="cuda",
+                ),
+                "field_of_study": torch.zeros(
+                    batch["field_of_study"].n_id.numel(),
+                    model.module.hidden_channels,
+                    device="cuda",
+                ),
+            }
+            x_dict = model.module.mp(x_dict, batch.edge_index_dict)
+            x_dict = model.module.encoder(
+                x_dict,
+                batch.edge_index_dict,
+                edge_attr={
+                    etype: feature_store[etype, "x", None][eid]
+                    for etype, eid in batch.e_id_dict.items()
+                },
+            )
+            local_x1[batch["paper"].n_id[: batch["paper"].batch_size]] = (
+                x_dict["paper"][: batch["paper"].batch_size]
+                + x_dict["paper"][: batch["paper"].batch_size]
+            )
+
+    import cupy
+
+    local_x = cupy.asarray(torch.concat([local_x0, local_x1], dim=1))
+    import cudf
+
+    os.makedirs(os.path.join(args.output_dir, "x"), exist_ok=True)
+    df = cudf.DataFrame(
+        local_x,
+        columns=[f"x_{i}" for i in range(local_x.shape[1])],
+        index=cupy.arange(ix_start, ix_end, dtype="int64"),
+    )
+    df.to_parquet(os.path.join(args.output_dir, "x", f"x_{global_rank}.parquet"))
     from pylibcugraph.comms import cugraph_comms_shutdown
 
     cugraph_comms_shutdown()
@@ -614,3 +709,12 @@ if __name__ == "__main__":
     from pylibwholegraph.torch.initialize import finalize as wm_finalize
 
     wm_finalize()  # will also destroy the process group
+
+    if global_rank == 0:
+        os.makedirs(os.path.join(args.output_dir, "y"), exist_ok=True)
+        df = cudf.DataFrame(
+            cupy.asarray(y).reshape((-1, 1)),
+            columns=["y"],
+            index=cupy.arange(num_nodes["paper"], dtype="int64"),
+        )
+        df.to_parquet(os.path.join(args.output_dir, "y", "y.parquet"))

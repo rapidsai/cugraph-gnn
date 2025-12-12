@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+import argparse
+
+import cupy
+from dask_cuda import LocalCUDACluster
+from dask.distributed import Client
+import dask_cudf
+
+from xgboost import dask as dxgb
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_dir", type=str, required=True)
+    parser.add_argument("--num_boost_round", type=int, default=4)
+
+    args = parser.parse_args()
+
+    cluster = LocalCUDACluster()
+    client = Client(cluster)
+
+    dfx = dask_cudf.read_parquet(os.path.join(args.data_dir, "x"))
+    dfy = dask_cudf.read_parquet(os.path.join(args.data_dir, "y"))
+
+    df = dfx.join(dfy, how="inner").persist()
+    df = df.repartition(npartitions=32)
+
+    # Split data into train and test using random sampling
+    # Add a random column for splitting
+    df = df.reset_index(drop=True)
+
+    df = df.map_partitions(
+        lambda partition: partition.assign(random=cupy.random.rand(len(partition)))
+    ).persist()
+
+    # Split based on random values
+    df_train = df[df["random"] <= 0.8].drop(columns=["random"])
+    df_test = df[df["random"] > 0.8].drop(columns=["random"])
+
+    # Training data
+    dfx_train = df_train.drop(columns=["y"]).persist()
+    dfy_train = df_train["y"].persist()
+
+    # Test data
+    dfx_test = df_test.drop(columns=["y"]).persist()
+    dfy_test = df_test["y"].persist()
+
+    # Create DMatrix for train and test
+    dtrain = dxgb.DaskDMatrix(client, dfx_train, label=dfy_train)
+    dtest = dxgb.DaskDMatrix(client, dfx_test, label=dfy_test)
+
+    # Train model
+    print("Training XGBoost model...", flush=True)
+    out = dxgb.train(
+        client,
+        {
+            "verbosity": 2,
+            "tree_method": "hist",
+            "max_depth": 8,
+            "sampling_method": "gradient_based",
+            "subsample": 0.8,
+            "eta": 0.01,
+            "objective": "multi:softmax",
+            "num_class": df.y.nunique().compute(),
+            "device": "cuda",
+            "eval_metric": "mlogloss",
+        },
+        dtrain,
+        num_boost_round=args.num_boost_round,
+        evals=[(dtrain, "train"), (dtest, "test")],
+    )
+
+    booster = out["booster"]
+    print("\nTraining complete!", flush=True)
+
+    # Evaluation
+    print("\nEvaluating model on test set...", flush=True)
+
+    # Make predictions
+    predictions = dxgb.predict(client, booster, dtest)
+    predictions_computed = cupy.array(predictions.compute())
+    dfy_test_computed = dfy_test.compute()
+
+    # Calculate accuracy
+    accuracy = (predictions_computed == dfy_test_computed).sum() / len(
+        dfy_test_computed
+    )
+
+    print(f"\n{'=' * 50}")
+    print("Test Set Evaluation Results:")
+    print(f"{'=' * 50}")
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Total test samples: {len(dfy_test_computed)}")
+    print(f"Correct predictions: {(predictions_computed == dfy_test_computed).sum()}")
+    print(f"{'=' * 50}\n")
+
+    client.close()
+    cluster.close()
