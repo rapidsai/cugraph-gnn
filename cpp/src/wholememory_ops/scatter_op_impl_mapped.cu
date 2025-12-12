@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <cuda_runtime_api.h>
@@ -23,15 +23,16 @@ wholememory_error_code_t wholememory_scatter_mapped(
   cudaStream_t stream,
   int scatter_sms)
 {
-  return scatter_func(input,
-                      input_desc,
-                      indices,
-                      indices_desc,
-                      wholememory_gref,
-                      wholememory_desc,
-                      stream,
-                      scatter_sms);
-  WM_CUDA_CHECK(cudaStreamSynchronize(stream));
+  WHOLEMEMORY_RETURN_ON_FAIL(scatter_func(input,
+                                          input_desc,
+                                          indices,
+                                          indices_desc,
+                                          wholememory_gref,
+                                          wholememory_desc,
+                                          stream,
+                                          scatter_sms));
+  WM_CUDA_DEBUG_SYNC_STREAM(stream);
+  return WHOLEMEMORY_SUCCESS;
 }
 
 }  // namespace wholememory_ops
