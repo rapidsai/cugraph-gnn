@@ -66,10 +66,10 @@ if __name__ == "__main__":
         {
             "verbosity": 2,
             "tree_method": "hist",
-            "max_depth": 8,
+            "max_depth": 10,
             "sampling_method": "gradient_based",
-            "subsample": 0.8,
-            "eta": 0.01,
+            "subsample": 0.7,
+            "eta": 0.1,
             "objective": "multi:softmax",
             "num_class": df.y.nunique().compute(),
             "device": "cuda",
