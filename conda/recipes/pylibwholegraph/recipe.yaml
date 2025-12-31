@@ -71,7 +71,7 @@ requirements:
     - libwholegraph =${{ version }}
     - python =${{ py_version }}
     - rapids-build-backend >=0.4.0,<0.5.0
-    - scikit-build-core >=0.10.0
+    - scikit-build-core>=0.11.0
   run:
     - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
     - libwholegraph =${{ version }}
@@ -83,5 +83,5 @@ requirements:
 
 about:
   homepage: https://rapids.ai/
-  license: ${{ load_from_file("python/pylibwholegraph/pyproject.toml").project.license.text }}
+  license: ${{ load_from_file("python/pylibwholegraph/pyproject.toml").project.license }}
   summary: ${{ load_from_file("python/pylibwholegraph/pyproject.toml").project.description }}
