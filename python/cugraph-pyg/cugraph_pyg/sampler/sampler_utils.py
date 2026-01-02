@@ -211,19 +211,30 @@ def neg_sample(
         # Temporal negative sampling - node_time must be <= seed_time
         # Seed time is both src/dst time in the PyG API.
         # TODO maybe handle this in the C API?
-        seed_time = seed_time.view(1, -1).expand(src_neg.numel(), -1)
-        src_node_time = node_time_func(
-            input_type[0], src_neg - graph_store._vertex_offsets[input_type[0]]
-        )
-        dst_node_time = node_time_func(
-            input_type[2], dst_neg - graph_store._vertex_offsets[input_type[2]]
-        )
+        num_neg_per_pos = int(ceil(neg_sampling.amount))
+        seed_time = seed_time.view(1, -1).expand(num_neg_per_pos, -1).flatten().cuda()
+
+        # For homogeneous graphs, input_type is None, so get the single node type
+        if graph_store.is_homogeneous:
+            node_type = list(graph_store._vertex_offsets.keys())[0]
+            node_offset = graph_store._vertex_offsets[node_type]
+            src_node_type = dst_node_type = node_type
+            src_node_offset = dst_node_offset = node_offset
+        else:
+            src_node_type = input_type[0]
+            dst_node_type = input_type[2]
+            src_node_offset = graph_store._vertex_offsets[src_node_type]
+            dst_node_offset = graph_store._vertex_offsets[dst_node_type]
+
+        src_node_time = node_time_func(src_node_type, src_neg - src_node_offset)
+        dst_node_time = node_time_func(dst_node_type, dst_neg - dst_node_offset)
 
         target_samples = src_neg.numel()
         valid_mask = (src_node_time <= seed_time) & (dst_node_time <= seed_time)
         src_neg = src_neg[valid_mask]
         dst_neg = dst_neg[valid_mask]
         target_samples = src_neg.numel()
+        seed_time = seed_time[~valid_mask]
 
         # Matches the PyG API, attempts 5 times.
         for _ in range(5):
@@ -234,18 +245,15 @@ def neg_sample(
                 graph_store, diff, vertices, src_weight, dst_weight
             )
 
-            src_time_p = node_time_func(
-                input_type[0], src_neg_p - graph_store._vertex_offsets[input_type[0]]
-            )
-            dst_time_p = node_time_func(
-                input_type[2], dst_neg_p - graph_store._vertex_offsets[input_type[2]]
-            )
+            src_time_p = node_time_func(src_node_type, src_neg_p - src_node_offset)
+            dst_time_p = node_time_func(dst_node_type, dst_neg_p - dst_node_offset)
 
             valid_mask = (src_time_p <= seed_time) & (dst_time_p <= seed_time)
             src_neg_p = src_neg_p[valid_mask]
             dst_neg_p = dst_neg_p[valid_mask]
             src_neg = torch.concat([src_neg, src_neg_p])
             dst_neg = torch.concat([dst_neg, dst_neg_p])
+            seed_time = seed_time[~valid_mask]
 
         diff = target_samples - src_neg.numel()
         if diff > 0:
@@ -256,15 +264,11 @@ def neg_sample(
             )
             invalid_src = src_neg_p[src_neg_p > seed_time]
             src_neg_p[invalid_src] = src_neg[
-                node_time_func(
-                    input_type[0], src_neg - graph_store._vertex_offsets[input_type[0]]
-                ).argmin()
+                node_time_func(src_node_type, src_neg - src_node_offset).argmin()
             ]
             invalid_dst = dst_neg_p[dst_neg_p > seed_time]
             dst_neg_p[invalid_dst] = dst_neg[
-                node_time_func(
-                    input_type[2], dst_neg - graph_store._vertex_offsets[input_type[2]]
-                ).argmin()
+                node_time_func(dst_node_type, dst_neg - dst_node_offset).argmin()
             ]
             src_neg = torch.concat([src_neg, src_neg_p])
             dst_neg = torch.concat([dst_neg, dst_neg_p])
