@@ -65,6 +65,33 @@ def filter_cugraph_pyg_store(
     return data
 
 
+def _call_plc_negative_sampling(
+    graph_store,
+    num_neg,
+    vertices,
+    src_weight,
+    dst_weight,
+    remove_duplicates=False,
+    remove_false_negatives=False,
+    exact_number_of_samples=False,
+):
+    result_dict = pylibcugraph.negative_sampling(
+        graph_store._resource_handle,
+        graph_store._graph,
+        num_neg,
+        vertices=None if vertices is None else cupy.asarray(vertices),
+        src_bias=None if src_weight is None else cupy.asarray(src_weight),
+        dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
+        remove_duplicates=remove_duplicates,
+        remove_false_negatives=remove_false_negatives,
+        exact_number_of_samples=exact_number_of_samples,
+        do_expensive_check=False,
+    )
+    src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_neg]
+    dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[:num_neg]
+    return src_neg, dst_neg
+
+
 def neg_sample(
     graph_store: GraphStore,
     seed_src: "torch.Tensor",
@@ -156,21 +183,9 @@ def neg_sample(
     else:
         vertices = torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
 
-    result_dict = pylibcugraph.negative_sampling(
-        graph_store._resource_handle,
-        graph_store._graph,
-        num_neg,
-        vertices=None if vertices is None else cupy.asarray(vertices),
-        src_bias=None if src_weight is None else cupy.asarray(src_weight),
-        dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
-        remove_duplicates=False,
-        remove_false_negatives=False,
-        exact_number_of_samples=True,
-        do_expensive_check=False,
+    src_neg, dst_neg = _call_plc_negative_sampling(
+        graph_store, num_neg, vertices, src_weight, dst_weight
     )
-
-    src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_neg]
-    dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[:num_neg]
 
     # TODO modifiy the C API so this condition is impossible
     if src_neg.numel() < num_neg:
@@ -211,25 +226,31 @@ def neg_sample(
             diff = target_samples - src_neg.numel()
             if diff <= 0:
                 break
-            result_dict = pylibcugraph.negative_sampling(
-                graph_store._resource_handle,
-                graph_store._graph,
-                diff,
-                vertices=None if vertices is None else cupy.asarray(vertices),
-                src_bias=None if src_weight is None else cupy.asarray(src_weight),
-                dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
-                remove_duplicates=False,
-                remove_false_negatives=False,
-                exact_number_of_samples=True,
-                do_expensive_check=False,
+            src_neg_p, dst_neg_p = _call_plc_negative_sampling(
+                graph_store, diff, vertices, src_weight, dst_weight
             )
-            src_neg_p = torch.as_tensor(result_dict["sources"], device="cuda")[:diff]
-            dst_neg_p = torch.as_tensor(result_dict["destinations"], device="cuda")[
-                :diff
-            ]
+
             valid_mask = (src_neg_p <= seed_time) & (dst_neg_p <= seed_time)
             src_neg_p = src_neg_p[valid_mask]
             dst_neg_p = dst_neg_p[valid_mask]
+            src_neg = torch.concat([src_neg, src_neg_p])
+            dst_neg = torch.concat([dst_neg, dst_neg_p])
+
+        diff = target_samples - src_neg.numel()
+        if diff > 0:
+            # Select the earliest occuring node for src/dst
+            # Again, this matches the PyG API.
+            src_neg_p, dst_neg_p = _call_plc_negative_sampling(
+                graph_store, diff, vertices, src_weight, dst_weight
+            )
+            invalid_src = src_neg_p[src_neg_p > seed_time]
+            src_neg_p[invalid_src] = src_neg[
+                node_time_func(input_type[0], src_neg).argmin()
+            ]
+            invalid_dst = dst_neg_p[dst_neg_p > seed_time]
+            dst_neg_p[invalid_dst] = dst_neg[
+                node_time_func(input_type[2], dst_neg).argmin()
+            ]
             src_neg = torch.concat([src_neg, src_neg_p])
             dst_neg = torch.concat([dst_neg, dst_neg_p])
     return src_neg, dst_neg
