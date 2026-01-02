@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -176,7 +176,7 @@ class NeighborLoader(NodeLoader):
         is_temporal = time_attr is not None
 
         if is_temporal:
-            graph_store._set_etime_attr((feature_store, time_attr))
+            graph_store._set_time_attr((feature_store, time_attr))
 
             if input_time is None:
                 input_type, input_nodes, _ = (

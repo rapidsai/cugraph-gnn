@@ -212,8 +212,12 @@ def neg_sample(
         # Seed time is both src/dst time in the PyG API.
         # TODO maybe handle this in the C API?
         seed_time = seed_time.view(1, -1).expand(src_neg.numel(), -1)
-        src_node_time = node_time_func(input_type[0], src_neg)
-        dst_node_time = node_time_func(input_type[2], dst_neg)
+        src_node_time = node_time_func(
+            input_type[0], src_neg - graph_store._vertex_offsets[input_type[0]]
+        )
+        dst_node_time = node_time_func(
+            input_type[2], dst_neg - graph_store._vertex_offsets[input_type[2]]
+        )
 
         target_samples = src_neg.numel()
         valid_mask = (src_node_time <= seed_time) & (dst_node_time <= seed_time)
@@ -230,7 +234,14 @@ def neg_sample(
                 graph_store, diff, vertices, src_weight, dst_weight
             )
 
-            valid_mask = (src_neg_p <= seed_time) & (dst_neg_p <= seed_time)
+            src_time_p = node_time_func(
+                input_type[0], src_neg_p - graph_store._vertex_offsets[input_type[0]]
+            )
+            dst_time_p = node_time_func(
+                input_type[2], dst_neg_p - graph_store._vertex_offsets[input_type[2]]
+            )
+
+            valid_mask = (src_time_p <= seed_time) & (dst_time_p <= seed_time)
             src_neg_p = src_neg_p[valid_mask]
             dst_neg_p = dst_neg_p[valid_mask]
             src_neg = torch.concat([src_neg, src_neg_p])
@@ -245,14 +256,21 @@ def neg_sample(
             )
             invalid_src = src_neg_p[src_neg_p > seed_time]
             src_neg_p[invalid_src] = src_neg[
-                node_time_func(input_type[0], src_neg).argmin()
+                node_time_func(
+                    input_type[0], src_neg - graph_store._vertex_offsets[input_type[0]]
+                ).argmin()
             ]
             invalid_dst = dst_neg_p[dst_neg_p > seed_time]
             dst_neg_p[invalid_dst] = dst_neg[
-                node_time_func(input_type[2], dst_neg).argmin()
+                node_time_func(
+                    input_type[2], dst_neg - graph_store._vertex_offsets[input_type[2]]
+                ).argmin()
             ]
             src_neg = torch.concat([src_neg, src_neg_p])
             dst_neg = torch.concat([dst_neg, dst_neg_p])
+
+    # The returned negative edges already have offsetted vertex IDs,
+    # and are valid input for the pylibcugraph sampler.
     return src_neg, dst_neg
 
 
