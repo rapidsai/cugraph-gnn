@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -190,7 +190,7 @@ class LinkNeighborLoader(LinkLoader):
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
         if is_temporal:
-            graph_store._set_etime_attr((feature_store, time_attr))
+            graph_store._set_time_attr((feature_store, time_attr))
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
