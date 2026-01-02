@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple, Optional, Dict, Union
+from typing import Tuple, Optional, Dict, Union, Callable
 
 from math import ceil
 
@@ -72,9 +72,10 @@ def neg_sample(
     input_type: Tuple[str, str, str],
     batch_size: int,
     neg_sampling: "torch_geometric.sampler.NegativeSampling",
-    time: "torch.Tensor",
-    node_time: "torch.Tensor",
+    seed_time: Optional["torch.Tensor"] = None,
+    node_time_func: Callable[[str, "torch.Tensor"], "torch.Tensor"] = None,
 ) -> Tuple["torch.Tensor", "torch.Tensor"]:
+    # TODO Add support for remove_duplicates, remove_false_negatives (rapidsai/cugraph-gnn#378)
     try:
         # Compatibility for PyG 2.5
         src_weight = neg_sampling.src_weight
@@ -155,46 +156,83 @@ def neg_sample(
     else:
         vertices = torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
 
-    if node_time is None:
-        result_dict = pylibcugraph.negative_sampling(
-            graph_store._resource_handle,
-            graph_store._graph,
-            num_neg,
-            vertices=None if vertices is None else cupy.asarray(vertices),
-            src_bias=None if src_weight is None else cupy.asarray(src_weight),
-            dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
-            remove_duplicates=False,
-            remove_false_negatives=False,
-            exact_number_of_samples=True,
-            do_expensive_check=False,
+    result_dict = pylibcugraph.negative_sampling(
+        graph_store._resource_handle,
+        graph_store._graph,
+        num_neg,
+        vertices=None if vertices is None else cupy.asarray(vertices),
+        src_bias=None if src_weight is None else cupy.asarray(src_weight),
+        dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
+        remove_duplicates=False,
+        remove_false_negatives=False,
+        exact_number_of_samples=True,
+        do_expensive_check=False,
+    )
+
+    src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_neg]
+    dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[:num_neg]
+
+    # TODO modifiy the C API so this condition is impossible
+    if src_neg.numel() < num_neg:
+        num_gen = num_neg - src_neg.numel()
+        src_neg = torch.concat(
+            [
+                src_neg,
+                torch.randint(
+                    0, src_neg.max(), (num_gen,), device="cuda", dtype=torch.int64
+                ),
+            ]
+        )
+        dst_neg = torch.concat(
+            [
+                dst_neg,
+                torch.randint(
+                    0, dst_neg.max(), (num_gen,), device="cuda", dtype=torch.int64
+                ),
+            ]
         )
 
-        src_neg = torch.as_tensor(result_dict["sources"], device="cuda")[:num_neg]
-        dst_neg = torch.as_tensor(result_dict["destinations"], device="cuda")[:num_neg]
+    if node_time_func is not None:
+        # Temporal negative sampling - node_time must be <= seed_time
+        # Seed time is both src/dst time in the PyG API.
+        # TODO maybe handle this in the C API?
+        seed_time = seed_time.view(1, -1).expand(src_neg.numel(), -1)
+        src_node_time = node_time_func(input_type[0], src_neg)
+        dst_node_time = node_time_func(input_type[2], dst_neg)
 
-        # TODO modifiy the C API so this condition is impossible
-        if src_neg.numel() < num_neg:
-            num_gen = num_neg - src_neg.numel()
-            src_neg = torch.concat(
-                [
-                    src_neg,
-                    torch.randint(
-                        0, src_neg.max(), (num_gen,), device="cuda", dtype=torch.int64
-                    ),
-                ]
+        target_samples = src_neg.numel()
+        valid_mask = (src_node_time <= seed_time) & (dst_node_time <= seed_time)
+        src_neg = src_neg[valid_mask]
+        dst_neg = dst_neg[valid_mask]
+        target_samples = src_neg.numel()
+
+        # Matches the PyG API, attempts 5 times.
+        for _ in range(5):
+            diff = target_samples - src_neg.numel()
+            if diff <= 0:
+                break
+            result_dict = pylibcugraph.negative_sampling(
+                graph_store._resource_handle,
+                graph_store._graph,
+                diff,
+                vertices=None if vertices is None else cupy.asarray(vertices),
+                src_bias=None if src_weight is None else cupy.asarray(src_weight),
+                dst_bias=None if dst_weight is None else cupy.asarray(dst_weight),
+                remove_duplicates=False,
+                remove_false_negatives=False,
+                exact_number_of_samples=True,
+                do_expensive_check=False,
             )
-            dst_neg = torch.concat(
-                [
-                    dst_neg,
-                    torch.randint(
-                        0, dst_neg.max(), (num_gen,), device="cuda", dtype=torch.int64
-                    ),
-                ]
-            )
-        return src_neg, dst_neg
-    raise NotImplementedError(
-        "Temporal negative sampling is currently unimplemented in cuGraph-PyG"
-    )
+            src_neg_p = torch.as_tensor(result_dict["sources"], device="cuda")[:diff]
+            dst_neg_p = torch.as_tensor(result_dict["destinations"], device="cuda")[
+                :diff
+            ]
+            valid_mask = (src_neg_p <= seed_time) & (dst_neg_p <= seed_time)
+            src_neg_p = src_neg_p[valid_mask]
+            dst_neg_p = dst_neg_p[valid_mask]
+            src_neg = torch.concat([src_neg, src_neg_p])
+            dst_neg = torch.concat([dst_neg, dst_neg_p])
+    return src_neg, dst_neg
 
 
 def neg_cat(

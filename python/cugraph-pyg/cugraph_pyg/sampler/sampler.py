@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Iterator, Union, Dict, Tuple, List
@@ -797,7 +797,7 @@ class BaseSampler:
     def sample_from_edges(
         self,
         index: "torch_geometric.sampler.EdgeSamplerInput",
-        neg_sampling: Optional["torch_geometric.sampler.NegativeSampling"],
+        neg_sampling: Optional["torch_geometric.sampler.NegativeSampling"] = None,
         **kwargs,
     ) -> Iterator[
         Union[
@@ -808,10 +808,13 @@ class BaseSampler:
         src = index.row
         dst = index.col
         input_id = index.input_id
+
+        # TODO ensure this is handled correctly when disjoint sampling is implemented.
+        node_time = self.__graph_store._get_ntime_func()
+
         neg_batch_size = 0
         if neg_sampling:
             # Sample every negative subset at once.
-            # TODO handle temporal sampling (node_time)
             src_neg, dst_neg = neg_sample(
                 self.__graph_store,
                 index.row,
@@ -819,8 +822,8 @@ class BaseSampler:
                 index.input_type,
                 self.__batch_size,
                 neg_sampling,
-                None,  # src_time,
-                None,  # src_node_time,
+                index.time,
+                node_time,
             )
             if neg_sampling.is_binary():
                 src, _ = neg_cat(src.cuda(), src_neg, self.__batch_size)
