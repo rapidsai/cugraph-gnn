@@ -233,7 +233,6 @@ def neg_sample(
         valid_mask = (src_node_time <= seed_time) & (dst_node_time <= seed_time)
         src_neg = src_neg[valid_mask]
         dst_neg = dst_neg[valid_mask]
-        target_samples = src_neg.numel()
         seed_time = seed_time[~valid_mask]
 
         # Matches the PyG API, attempts 5 times.
