@@ -262,11 +262,15 @@ def neg_sample(
             src_neg_p, dst_neg_p = _call_plc_negative_sampling(
                 graph_store, diff, vertices, src_weight, dst_weight
             )
-            invalid_src = src_neg_p[src_neg_p > seed_time]
+
+            src_time_p = node_time_func(src_node_type, src_neg_p - src_node_offset)
+            invalid_src = src_time_p[src_time_p > seed_time]
             src_neg_p[invalid_src] = src_neg[
                 node_time_func(src_node_type, src_neg - src_node_offset).argmin()
             ]
-            invalid_dst = dst_neg_p[dst_neg_p > seed_time]
+
+            dst_time_p = node_time_func(dst_node_type, dst_neg_p - dst_node_offset)
+            invalid_dst = dst_time_p[dst_time_p > seed_time]
             dst_neg_p[invalid_dst] = dst_neg[
                 node_time_func(dst_node_type, dst_neg - dst_node_offset).argmin()
             ]
