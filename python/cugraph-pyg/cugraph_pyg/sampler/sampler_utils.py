@@ -238,6 +238,9 @@ def neg_sample(
         # Matches the PyG API, attempts 5 times.
         for _ in range(5):
             diff = target_samples - src_neg.numel()
+            assert diff == seed_time.numel(), (
+                "Diff should be equal to shape of seed_time."
+            )
             if diff <= 0:
                 break
             src_neg_p, dst_neg_p = _call_plc_negative_sampling(
