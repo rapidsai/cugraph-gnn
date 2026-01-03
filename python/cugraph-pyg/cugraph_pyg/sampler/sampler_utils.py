@@ -259,7 +259,8 @@ def neg_sample(
 
         diff = target_samples - src_neg.numel()
         if diff > 0:
-            # Select the earliest occuring node for src/dst
+            # Select the earliest occuring node for src/dst and
+            # broadcast it to the invalid indices.
             # Again, this matches the PyG API.
             src_neg_p, dst_neg_p = _call_plc_negative_sampling(
                 graph_store, diff, vertices, src_weight, dst_weight
