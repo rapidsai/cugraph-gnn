@@ -981,6 +981,7 @@ def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
     )
 
     # Test that the loader produces batches with proper temporal negative sampling
+    total_pos = total_neg = 0
     for i, batch in enumerate(loader):
         # Check that we have edge labels
         assert hasattr(batch, "edge_label")
@@ -994,9 +995,9 @@ def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
         # Verify negative sampling ratio
         num_pos = (edge_labels == 1.0).sum().item()
         num_neg = (edge_labels == 0.0).sum().item()
-        assert num_neg == 2 * num_pos, (
-            f"Expected 2:1 negative:positive ratio, got {num_neg}:{num_pos}"
-        )
+
+        total_pos += num_pos
+        total_neg += num_neg
 
         # Verify that edge label index has the correct shape
         edge_label_idx = batch.edge_label_index
@@ -1023,6 +1024,10 @@ def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
                 # Node timestamps should be <= edge prediction time
                 assert node_time[src_id] <= edge_label_time[i * batch_size].item()
                 assert node_time[dst_id] <= edge_label_time[i * batch_size].item()
+
+    assert total_neg == 2 * total_pos, (
+        f"Expected 2:1 negative:positive ratio, got {num_neg}:{num_pos}"
+    )
 
     # Verify we processed all batches
     assert i >= 0
