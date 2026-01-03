@@ -263,13 +263,13 @@ def neg_sample(
             )
 
             src_time_p = node_time_func(src_node_type, src_neg_p - src_node_offset)
-            invalid_src = src_time_p[src_time_p > seed_time]
+            invalid_src = src_time_p > seed_time
             src_neg_p[invalid_src] = src_neg[
                 node_time_func(src_node_type, src_neg - src_node_offset).argmin()
             ]
 
             dst_time_p = node_time_func(dst_node_type, dst_neg_p - dst_node_offset)
-            invalid_dst = dst_time_p[dst_time_p > seed_time]
+            invalid_dst = dst_time_p > seed_time
             dst_neg_p[invalid_dst] = dst_neg[
                 node_time_func(dst_node_type, dst_neg - dst_node_offset).argmin()
             ]
