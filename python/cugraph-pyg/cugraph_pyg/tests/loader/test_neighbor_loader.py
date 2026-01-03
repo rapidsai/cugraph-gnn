@@ -1026,7 +1026,7 @@ def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
                 assert node_time[dst_id] <= edge_label_time[i * batch_size].item()
 
     assert total_neg == 2 * total_pos, (
-        f"Expected 2:1 negative:positive ratio, got {num_neg}:{num_pos}"
+        f"Expected 2:1 negative:positive ratio, got {total_neg}:{total_pos}"
     )
 
     # Verify we processed all batches
