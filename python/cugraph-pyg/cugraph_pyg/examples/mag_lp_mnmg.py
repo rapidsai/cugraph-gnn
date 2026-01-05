@@ -643,7 +643,7 @@ if __name__ == "__main__":
             drop_last=True,
         )
 
-        local_x1 = torch.empty(
+        feature_store["paper", "x1", None] = torch.empty(
             (local_papers.shape[0], model.module.hidden_channels), device="cuda"
         )
         for batch in ex_loader:
@@ -678,13 +678,16 @@ if __name__ == "__main__":
                     for etype, eid in batch.e_id_dict.items()
                 },
             )
-            local_x1[batch["paper"].n_id[: batch["paper"].batch_size]] = (
+            feature_store["paper", "x1", None][
+                batch["paper"].n_id[: batch["paper"].batch_size]
+            ] = (
                 x_dict["paper"][: batch["paper"].batch_size]
-                + x_dict["paper"][: batch["paper"].batch_size]
+                + x_paper[: batch["paper"].batch_size]
             )
-
+        local_x1 = feature_store["paper", "x1", None][local_papers]
     import cupy
 
+    print("Finished computing embeddings, writing output embeddings to parquet...")
     local_x = cupy.asarray(torch.concat([local_x0, local_x1], dim=1))
     import cudf
 
