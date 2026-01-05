@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -92,9 +92,6 @@ class Classifier(torch.nn.Module):
         if self.learn_embeddings:
             global_comm = wgth.get_global_communicator()
             for node_type in sorted(num_nodes.keys()):
-                print(
-                    f"rank {global_rank}, creating embedding for {node_type}, {num_nodes[node_type]}, {hidden_channels}"
-                )
                 wg_node_emb = wgth.create_embedding(
                     global_comm,
                     "distributed",
@@ -107,9 +104,6 @@ class Classifier(torch.nn.Module):
                 self.embeddings[node_type] = wgth.embedding.WholeMemoryEmbeddingModule(
                     wg_node_emb
                 )
-            print(
-                f"rank {global_rank}, created embeddings for {sorted(self.embeddings.keys())}"
-            )
         else:
             self.mp = Sequential(
                 "x, edge_index",
