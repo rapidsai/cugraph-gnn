@@ -76,7 +76,6 @@ cache:
       - libraft-headers =${{ minor_version }}
       - librmm =${{ minor_version }}
       - nccl ${{ nccl_version }}
-      - cuda-cudart-dev
       - cuda-driver-dev
       - cuda-nvml-dev
 
@@ -106,16 +105,13 @@ outputs:
         - cuda-version =${{ cuda_version }}
         - librmm =${{ minor_version }}
         - nccl ${{ nccl_version }}
-        - cuda-cudart-dev
         - cuda-driver-dev
       run:
         - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
-        - cuda-cudart
         - libraft =${{ minor_version }}
         - nccl ${{ nccl_version }}
       ignore_run_exports:
         by_name:
-          - cuda-cudart
           - cuda-version
           - librmm
           - nccl
@@ -139,15 +135,12 @@ outputs:
       host:
         - cuda-version =${{ cuda_version }}
         - ${{ pin_subpackage('libwholegraph', exact=True) }}
-        - cuda-cudart-dev
         - cuda-driver-dev
       run:
         - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
         - ${{ pin_subpackage('libwholegraph', exact=True) }}
-        - cuda-cudart
       ignore_run_exports:
         by_name:
-          - cuda-cudart
           - cuda-version
           - librmm
           - nccl

@@ -32,7 +32,6 @@ option(CMAKE_CUDA_LINEINFO
        "Enable the -lineinfo option for nvcc (useful for cuda-memcheck / profiler" OFF
 )
 option(BUILD_TESTS "Configure CMake to build tests" ON)
-option(CUDA_STATIC_RUNTIME "Statically link the CUDA toolkit runtime and libraries" OFF)
 option(BUILD_WITH_NVSHMEM "Enable nvshmem integration" OFF)
 option(WHOLEGRAPH_EXCLUDE_NVSHMEM_FROM_ALL "Exclude nvshmem targets from wholeGraph's 'all' target"
        ON
@@ -42,10 +41,6 @@ option(USE_NCCL_RUNTIME_WHEEL "Use the NCCL wheel at runtime instead of the syst
 
 # ##################################################################################################
 # * Set options based on user defined one  -----------------------------------
-set(_ctk_static_suffix "")
-if(CUDA_STATIC_RUNTIME)
-  set(_ctk_static_suffix "_static")
-endif()
 
 # ##################################################################################################
 # * Base rapids options ------------------------------------------------------ default build type
@@ -53,7 +48,7 @@ endif()
 rapids_cmake_build_type(RelWithDebInfo)
 
 # CUDA runtime
-rapids_cuda_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+rapids_cuda_init_runtime(USE_STATIC ON)
 
 message("CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
@@ -172,7 +167,7 @@ target_include_directories(
 # * link libraries -------------------------------------------------------------
 target_link_libraries(
   wholegraph
-  PUBLIC CUDA::cuda_driver CUDA::cudart${_ctk_static_suffix} raft::raft
+  PUBLIC CUDA::cuda_driver CUDA::cudart_static raft::raft
   PRIVATE NCCL::NCCL
 )
 
