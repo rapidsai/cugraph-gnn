@@ -197,6 +197,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     torch.cuda.set_device(local_rank)
 
+
 @torch.no_grad()
 def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
     model.eval()
@@ -297,7 +298,7 @@ if __name__ == "__main__":
     torch.distributed.init_process_group(backend="nccl")
 
     if "LOCAL_RANK" not in os.environ:
-        warnings.warn("This script should be run with 'torchrun`.  Exiting.")
+        warnings.warn("This script should be run with 'torchrun'.  Exiting.")
         exit()
 
     global_rank = torch.distributed.get_rank()
