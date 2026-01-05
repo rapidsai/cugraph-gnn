@@ -320,16 +320,16 @@ dependencies:
           - &rapids_build_backend rapids-build-backend>=0.4.0,<0.5.0
       - output_types: conda
         packages:
-          - scikit-build-core>=0.10.0
+          - scikit-build-core>=0.11.0
       - output_types: [requirements, pyproject]
         packages:
-          - scikit-build-core[pyproject]>=0.10.0
+          - scikit-build-core[pyproject]>=0.11.0
   rapids_build_setuptools:
     common:
       - output_types: [conda, requirements, pyproject]
         packages:
           - *rapids_build_backend
-          - setuptools>=61.0.0
+          - setuptools>=77.0.0
           - wheel
   test_cpp:
     common:
@@ -426,10 +426,10 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch_geometric>=2.5,<2.7
+          - pytorch_geometric>=2.5,<2.8
       - output_types: [pyproject, requirements]
         packages:
-          - torch-geometric>=2.5,<2.7
+          - torch-geometric>=2.5,<2.8
   depends_on_pylibwholegraph:
     common:
       - output_types: conda
