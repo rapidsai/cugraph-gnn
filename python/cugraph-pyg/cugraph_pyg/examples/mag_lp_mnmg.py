@@ -197,7 +197,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     torch.cuda.set_device(local_rank)
 
-
+@torch.no_grad()
 def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
     model.eval()
     pred_true_pos = pred_false_pos = pred_true_neg = pred_false_neg = 0.0
@@ -232,6 +232,7 @@ def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
     return pred_true_pos, pred_false_pos, pred_true_neg, pred_false_neg
 
 
+@torch.enable_grad()
 def train(
     feature_store,
     train_loader,
@@ -244,6 +245,7 @@ def train(
 ):
     model.train()
     total_loss = total_examples = 0
+    global_rank = torch.distributed.get_rank()
 
     for i, batch in enumerate(train_loader):
         batch = batch.cuda()
@@ -640,7 +642,7 @@ if __name__ == "__main__":
             input_nodes=("paper", local_papers),
             batch_size=256,
             shuffle=True,
-            drop_last=True,
+            drop_last=False,
         )
 
         feature_store["paper", "x1", None] = torch.empty(
