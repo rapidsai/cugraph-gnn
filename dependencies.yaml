@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Dependency list for https://github.com/rapidsai/dependency-file-generator
@@ -8,7 +8,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["12.9", "13.0"]
+      cuda: ["12.9", "13.1"]
       arch: [x86_64, aarch64]
     includes:
       - checks
@@ -179,7 +179,7 @@ files:
       - test_python_cugraph_pyg
   cugraph_pyg_dev:
     matrix:
-      cuda: ["12.9", "13.0"]
+      cuda: ["12.9", "13.1"]
       arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
@@ -231,6 +231,10 @@ dependencies:
               cuda: "13.0"
             packages:
               - cuda-version=13.0
+          - matrix:
+              cuda: "13.1"
+            packages:
+              - cuda-version=13.1
   cuda:
     common:
       - output_types: [conda]
