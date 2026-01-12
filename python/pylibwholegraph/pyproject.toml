@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
@@ -69,6 +69,10 @@ wheel.packages = ["pylibwholegraph"]
 provider = "scikit_build_core.metadata.regex"
 input = "pylibwholegraph/VERSION"
 regex = "(?P<value>.*)"
+
+[[tool.scikit-build.overrides]]
+if.python-version = ">=3.11"
+wheel.py-api = "cp311"
 
 [tool.pydistcheck]
 select = [
