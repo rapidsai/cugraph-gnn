@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # cython: profile=False
@@ -15,8 +15,6 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
-from cpython cimport array
-import array
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
@@ -27,8 +25,10 @@ cdef extern from "Python.h":
     void Py_INCREF(PyObject *o)
     void Py_DECREF(PyObject *o)
 
-    const char * PyUnicode_AsUTF8(object unicode)
-
+    # Limited API compatible functions
+    PyObject * PyUnicode_AsEncodedString(object unicode, const char *encoding, const char *errors)
+    const char * PyBytes_AsString(PyObject *bytes_obj)
+    Py_ssize_t PyBytes_Size(PyObject *bytes_obj)
     PyObject * PyUnicode_FromString(const char * u)
 
 
@@ -881,12 +881,20 @@ cdef class PyWholeMemoryEmbedding:
     def get_optimizer_state(self,
                             state_name):
         cdef wholememory_tensor_t state_tensor
-        state_tensor = wholememory_embedding_get_optimizer_state(
-            self.wm_embedding,
-            PyUnicode_AsUTF8(state_name))
-        py_state_tensor = PyWholeMemoryTensor()
-        py_state_tensor.from_c_handle(state_tensor)
-        return py_state_tensor
+        # Limited API: encode unicode to bytes first
+        cdef PyObject* state_name_bytes = PyUnicode_AsEncodedString(state_name, "utf-8", "strict")
+        if state_name_bytes == NULL:
+            raise ValueError("Failed to encode state_name to UTF-8")
+        cdef const char* state_name_str = PyBytes_AsString(state_name_bytes)
+        try:
+            state_tensor = wholememory_embedding_get_optimizer_state(
+                self.wm_embedding,
+                state_name_str)
+            py_state_tensor = PyWholeMemoryTensor()
+            py_state_tensor.from_c_handle(state_tensor)
+            return py_state_tensor
+        finally:
+            Py_DECREF(state_name_bytes)
 
 def create_embedding(PyWholeMemoryTensorDescription tensor_desc,
                      PyWholeMemoryComm comm,
@@ -1832,12 +1840,22 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
     cdef const char ** filenames
     cdef int num_files = len(file_list)
     cdef int i
+    # Limited API: keep bytes objects alive
+    cdef list bytes_list = []
+    cdef PyObject* bytes_obj
 
     filenames = <const char**> stdlib.malloc(num_files * sizeof(char *))
 
     try:
         for i in range(num_files):
-            filenames[i] = PyUnicode_AsUTF8(file_list[i])
+            # Limited API: encode unicode to bytes first
+            bytes_obj = PyUnicode_AsEncodedString(file_list[i], "utf-8", "strict")
+            if bytes_obj == NULL:
+                raise ValueError(f"Failed to encode filename at index {i} to UTF-8")
+            # Keep the bytes object alive by storing it in a list
+            Py_INCREF(bytes_obj)
+            bytes_list.append(<object>bytes_obj)
+            filenames[i] = PyBytes_AsString(bytes_obj)
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
@@ -1849,18 +1867,27 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
             round_robin_size))
     finally:
         stdlib.free(filenames)
+        # bytes_list will be automatically cleaned up when it goes out of scope
 
 cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
                                        int64_t memory_offset,
                                        int64_t memory_entry_size,
                                        int64_t file_entry_size,
                                        file_name):
-    check_wholememory_error_code(wholememory_store_to_file(
-        <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
-        memory_offset,
-        memory_entry_size,
-        file_entry_size,
-        PyUnicode_AsUTF8(file_name)))
+    # Limited API: encode unicode to bytes first
+    cdef PyObject* file_name_bytes = PyUnicode_AsEncodedString(file_name, "utf-8", "strict")
+    if file_name_bytes == NULL:
+        raise ValueError("Failed to encode file_name to UTF-8")
+    cdef const char* file_name_str = PyBytes_AsString(file_name_bytes)
+    try:
+        check_wholememory_error_code(wholememory_store_to_file(
+            <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
+            memory_offset,
+            memory_entry_size,
+            file_entry_size,
+            file_name_str))
+    finally:
+        Py_DECREF(file_name_bytes)
 
 cdef extern from "wholememory/wholememory_op.h":
     cdef wholememory_error_code_t wholememory_gather(wholememory_tensor_t wholememory_tensor,
