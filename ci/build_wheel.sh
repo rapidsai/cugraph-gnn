@@ -42,12 +42,21 @@ cd "${package_dir}"
 sccache --stop-server 2>/dev/null || true
 
 rapids-logger "Building '${package_name}' wheel"
+
+RAPIDS_PIP_WHEEL_ARGS=(
+  -w dist
+  -v
+  --no-deps
+  --disable-pip-version-check
+  --build-constraint="${PIP_CONSTRAINT}"
+)
+
+# unset PIP_CONSTRAINT (set by rapids-init-pip)... it doesn't affect builds as of pip 25.3, and
+# results in an error from 'pip wheel' when set and --build-constraint is also passed
+unset PIP_CONSTRAINT
 rapids-pip-retry wheel \
-    -w dist \
-    -v \
-    --no-deps \
-    --disable-pip-version-check \
-    .
+  "${RAPIDS_PIP_WHEEL_ARGS[@]}" \
+  .
 
 sccache --show-adv-stats
 sccache --stop-server >/dev/null 2>&1 || true
