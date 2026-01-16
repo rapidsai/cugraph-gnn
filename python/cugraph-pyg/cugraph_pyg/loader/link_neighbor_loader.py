@@ -182,8 +182,7 @@ class LinkNeighborLoader(LinkLoader):
 
         is_temporal = (edge_label_time is not None) and (time_attr is not None)
 
-        print("is temporal?", is_temporal)
-        if is_temporal and (edge_label_time is None or time_attr is None):
+        if not is_temporal and (edge_label_time is not None or time_attr is not None):
             warnings.warn(
                 "Edge-based temporal sampling requires that both edge_label_time and time_attr are provided. Defaulting to non-temporal sampling."
             )

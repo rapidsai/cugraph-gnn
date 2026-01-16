@@ -455,7 +455,6 @@ if __name__ == "__main__":
 
         from cugraph_pyg.loader import LinkNeighborLoader
 
-        print(eli_train.shape, time_train.shape)
         train_loader = LinkNeighborLoader(
             edge_label_index=(("user", "rates", "movie"), eli_train),
             edge_label_time=time_train - 1,  # No leakage.
