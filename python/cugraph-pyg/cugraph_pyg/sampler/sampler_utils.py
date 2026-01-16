@@ -264,7 +264,27 @@ def neg_sample(
                 dst_neg = torch.concat([dst_neg, dst_neg_p])
                 seed_time = seed_time[~valid_mask]
 
-            diff = target_samples - src_neg.numel()
+            if src_neg.numel() == 0:
+                # Generate subsample of pseudo-negative edges to avoid edge case where no negative edges are generated.
+                # In the next step, these will be used to choose the earlist occuring node for src/dst.
+                subsample_size = int(ceil(target_samples**0.5))
+                src_neg = torch.randint(
+                    src_node_offset,
+                    src_node_offset + num_src_nodes,
+                    (subsample_size,),
+                    device="cuda",
+                    dtype=torch.int64,
+                )
+                dst_neg = torch.randint(
+                    dst_node_offset,
+                    dst_node_offset + num_dst_nodes,
+                    (subsample_size,),
+                    device="cuda",
+                    dtype=torch.int64,
+                )
+                diff = target_samples
+            else:
+                diff = target_samples - src_neg.numel()
             if diff > 0:
                 # Select the earliest occuring node for src/dst and
                 # broadcast it to the invalid indices.
