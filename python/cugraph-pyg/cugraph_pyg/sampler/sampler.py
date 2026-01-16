@@ -840,7 +840,7 @@ class BaseSampler:
                 src, _ = neg_cat(scu, scu[per], self.__batch_size)
             dst, neg_batch_size = neg_cat(dst.cuda(), dst_neg, self.__batch_size)
 
-            if node_time is not None:
+            if node_time is not None and input_time is not None:
                 input_time, _ = neg_cat(
                     input_time.repeat_interleave(int(ceil(neg_sampling.amount))).cuda(),
                     input_time.cuda(),
