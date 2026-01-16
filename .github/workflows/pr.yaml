@@ -21,7 +21,6 @@ jobs:
     with:
       needs: ${{ toJSON(needs) }}
   wheel-build-libwholegraph:
-    needs: checks
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
@@ -34,7 +33,7 @@ jobs:
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-build-pylibwholegraph:
-    needs: [checks, wheel-build-libwholegraph]
+    needs: [wheel-build-libwholegraph]
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
@@ -45,14 +44,13 @@ jobs:
       package-type: python
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-build-cugraph-pyg:
-    needs: checks
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
