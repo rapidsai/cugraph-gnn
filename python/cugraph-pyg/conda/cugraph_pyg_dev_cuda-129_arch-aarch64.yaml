@@ -7,7 +7,7 @@ channels:
 dependencies:
 - pre-commit
 - pydantic
-- pylibcugraph==26.2.*,>=0.0.0a0
+- pylibcugraph==26.4.*,>=0.0.0a0
 - pytest-benchmark
 - pytest-cov
 - pytest-xdist
