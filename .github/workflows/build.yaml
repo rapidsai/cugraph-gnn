@@ -62,7 +62,7 @@ jobs:
       arch: "amd64"
       branch: ${{ inputs.branch }}
       build_type: ${{ inputs.build_type || 'branch' }}
-      container_image: "rapidsai/ci-conda:26.02-latest"
+      container_image: "rapidsai/ci-conda:26.04-latest"
       date: ${{ inputs.date }}
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}
@@ -85,7 +85,7 @@ jobs:
       branch: ${{ inputs.branch }}
       sha: ${{ inputs.sha }}
       date: ${{ inputs.date }}
-      node_type: cpu8
+      node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
       package-type: python
