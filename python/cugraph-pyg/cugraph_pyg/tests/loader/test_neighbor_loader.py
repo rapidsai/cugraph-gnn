@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -919,3 +919,254 @@ def test_neighbor_loader_temporal_linkpred_heterogeneous(single_pytorch_worker, 
     assert out["author", "writes", "paper"].num_sampled_edges.tolist() == [2, 2, 0]
 
     # FIXME resolve issues with num_sampled_nodes
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("batch_size", [1, 2])
+@pytest.mark.parametrize("neg_sampling_mode", ["binary", "triplet"])
+@pytest.mark.sg
+def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
+    single_pytorch_worker, batch_size, neg_sampling_mode
+):
+    """
+    Test temporal negative sampling for homogeneous graphs.
+    This test ensures that:
+    1. Negative samples are generated respecting temporal constraints
+    2. Negative sample nodes have timestamps <= edge_label_time
+    3. Both positive and negative samples are present in the output
+    """
+    # Create a homogeneous temporal graph with paper-paper citations
+    src_cite = torch.tensor([3, 2, 1, 2, 3, 4, 0])  # paper
+    dst_cite = torch.tensor([2, 1, 0, 0, 1, 2, 1])  # paper
+    tme_cite = torch.tensor([5, 6, 7, 3, 4, 8, 2])  # edge timestamps
+
+    num_papers = 5
+
+    # Create node timestamps (papers are created/published at specific times)
+    node_time = torch.tensor([0, 1, 2, 3, 4])  # paper timestamps
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+
+    # Add paper-paper citations
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        dst_cite,
+        src_cite,
+    ]
+
+    # Add time attributes for both edges and nodes
+    feature_store[("paper", "cites", "paper"), "time", None] = tme_cite
+    feature_store["paper", "time", None] = node_time
+
+    # Create edge label index for link prediction
+    # We'll test prediction for a subset of edges
+    edge_label_index = torch.tensor([[3, 2], [2, 1]])
+    edge_label_time = torch.tensor([10, 10])  # Future time for prediction
+
+    # Configure negative sampling
+    if neg_sampling_mode == "binary":
+        neg_sampling = torch_geometric.sampler.NegativeSampling("binary", amount=2.0)
+    else:
+        neg_sampling = torch_geometric.sampler.NegativeSampling("triplet", amount=2.0)
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[2, 2],
+        batch_size=batch_size,
+        edge_label_index=edge_label_index,
+        edge_label_time=edge_label_time,
+        time_attr="time",
+        neg_sampling=neg_sampling,
+        shuffle=False,
+    )
+
+    # Test that the loader produces batches with proper temporal negative sampling
+    total_pos = total_neg = 0
+    for i, batch in enumerate(loader):
+        # Check that we have edge labels
+        assert hasattr(batch, "edge_label")
+        assert hasattr(batch, "edge_label_index")
+
+        # Should have both positive (1.0) and negative (0.0) labels
+        edge_labels = batch.edge_label
+        assert torch.any(edge_labels == 1.0), "Should have positive labels"
+        assert torch.any(edge_labels == 0.0), "Should have negative labels"
+
+        # Verify negative sampling ratio
+        num_pos = (edge_labels == 1.0).sum().item()
+        num_neg = (edge_labels == 0.0).sum().item()
+
+        total_pos += num_pos
+        total_neg += num_neg
+
+        # Verify that edge label index has the correct shape
+        edge_label_idx = batch.edge_label_index
+        assert edge_label_idx.shape[0] == 2
+        assert edge_label_idx.shape[1] == len(edge_labels)
+
+        # For temporal negative sampling, verify that the negative sample nodes
+        # have timestamps that respect temporal constraints
+        # Negative samples should only use nodes that existed before edge_label_time
+        neg_mask = edge_labels == 0.0
+        if neg_mask.sum() > 0:
+            neg_src = edge_label_idx[0, neg_mask]
+            neg_dst = edge_label_idx[1, neg_mask]
+
+            # Convert to original node IDs and check their timestamps
+            src_node_ids = batch.n_id[neg_src.cpu()].cpu()
+            dst_node_ids = batch.n_id[neg_dst.cpu()].cpu()
+
+            # All negative sample nodes should have timestamps <= edge_label_time
+            # for the corresponding batch element
+            for j in range(len(neg_src)):
+                src_id = src_node_ids[j].item()
+                dst_id = dst_node_ids[j].item()
+                # Node timestamps should be <= edge prediction time
+                assert node_time[src_id] <= edge_label_time[i * batch_size].item()
+                assert node_time[dst_id] <= edge_label_time[i * batch_size].item()
+
+    assert total_neg == 2 * total_pos, (
+        f"Expected 2:1 negative:positive ratio, got {total_neg}:{total_pos}"
+    )
+
+    # Verify we processed all batches
+    assert i >= 0
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("batch_size", [1, 2])
+@pytest.mark.parametrize("neg_sampling_mode", ["binary", "triplet"])
+@pytest.mark.sg
+def test_link_neighbor_loader_temporal_negative_sampling_heterogeneous(
+    single_pytorch_worker, batch_size, neg_sampling_mode
+):
+    """
+    Test temporal negative sampling for heterogeneous graphs.
+    This test ensures that temporal constraints are properly enforced
+    across different node and edge types.
+    """
+    # Create a heterogeneous graph with papers, authors, and citations
+    src_cite = torch.tensor([3, 2, 1, 2])  # paper
+    dst_cite = torch.tensor([2, 1, 0, 0])  # paper
+    tme_cite = torch.tensor([5, 6, 7, 3])  # edge timestamps
+
+    src_author = torch.tensor([3, 2, 2, 1, 3, 2, 0])  # paper
+    dst_author = torch.tensor([0, 0, 1, 1, 2, 2, 2])  # author
+    tme_author = torch.tensor([4, 3, 5, 2, 7, 6, 1])  # edge timestamps
+
+    num_papers = 4
+    num_authors = 3
+
+    # Create node timestamps
+    paper_time = torch.tensor([0, 1, 2, 3])  # paper timestamps
+    author_time = torch.tensor([0, 1, 2])  # author timestamps
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+
+    # Add edges
+    graph_store[("paper", "cites", "paper"), "coo", False, (num_papers, num_papers)] = [
+        dst_cite,
+        src_cite,
+    ]
+    graph_store[
+        ("author", "writes", "paper"), "coo", False, (num_authors, num_papers)
+    ] = [
+        dst_author,
+        src_author,
+    ]
+
+    # Add time attributes for edges
+    feature_store[("paper", "cites", "paper"), "time", None] = tme_cite
+    feature_store[("author", "writes", "paper"), "time", None] = tme_author
+
+    # Add time attributes for nodes
+    feature_store["paper", "time", None] = paper_time
+    feature_store["author", "time", None] = author_time
+
+    # Create edge label index for author-paper relationships
+    edge_label_index = torch.stack(
+        [
+            torch.tensor([0, 1, 2]),  # authors
+            torch.tensor([3, 2, 1]),  # papers
+        ]
+    )
+    edge_label_time = torch.tensor([8, 8, 8])  # Future time for prediction
+
+    # Configure negative sampling
+    if neg_sampling_mode == "binary":
+        neg_sampling = torch_geometric.sampler.NegativeSampling("binary", amount=2.0)
+    else:
+        neg_sampling = torch_geometric.sampler.NegativeSampling("triplet", amount=2.0)
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors={
+            ("paper", "cites", "paper"): [2, 2],
+            ("author", "writes", "paper"): [2, 2],
+        },
+        batch_size=batch_size,
+        edge_label_index=(("author", "writes", "paper"), edge_label_index),
+        edge_label_time=edge_label_time,
+        time_attr="time",
+        neg_sampling=neg_sampling,
+        shuffle=False,
+    )
+
+    # Test that the loader produces batches with proper temporal negative sampling
+    total_pos = total_neg = 0
+    for i, batch in enumerate(loader):
+        # Check that we have the expected edge types
+        assert "author" in batch.node_types
+        assert "paper" in batch.node_types
+
+        # Check edge label structure
+        assert [("author", "writes", "paper")] == list(
+            batch.edge_label_index_dict.keys()
+        )
+        assert [("author", "writes", "paper")] == list(batch.edge_label_dict.keys())
+
+        # Should have both positive and negative labels
+        edge_labels = batch["author", "writes", "paper"].edge_label
+        assert torch.any(edge_labels == 1.0), "Should have positive labels"
+        assert torch.any(edge_labels == 0.0), "Should have negative labels"
+
+        # Verify negative sampling ratio
+        num_pos = (edge_labels == 1.0).sum().item()
+        num_neg = (edge_labels == 0.0).sum().item()
+        total_pos += num_pos
+        total_neg += num_neg
+
+        # Verify edge label index shape
+        edge_label_idx = batch["author", "writes", "paper"].edge_label_index
+        assert edge_label_idx.shape[0] == 2
+        assert edge_label_idx.shape[1] == len(edge_labels)
+
+        # Verify temporal constraints for negative samples
+        neg_mask = edge_labels == 0.0
+        if neg_mask.sum() > 0:
+            neg_src = edge_label_idx[0, neg_mask]
+            neg_dst = edge_label_idx[1, neg_mask]
+
+            # Convert to original node IDs
+            author_node_ids = batch["author"].n_id[neg_src.cpu()].cpu()
+            paper_node_ids = batch["paper"].n_id[neg_dst.cpu()].cpu()
+
+            # All negative sample nodes should have timestamps <= edge_label_time
+            for j in range(len(neg_src)):
+                author_id = author_node_ids[j].item()
+                paper_id = paper_node_ids[j].item()
+                # Node timestamps should be <= edge prediction time
+                assert author_time[author_id] <= edge_label_time[i * batch_size].item()
+                assert paper_time[paper_id] <= edge_label_time[i * batch_size].item()
+
+        # Verify that node IDs are valid
+        assert batch["author"].n_id.numel() > 0
+        assert batch["paper"].n_id.numel() > 0
+
+    assert total_neg == 2 * total_pos, (
+        f"Expected 2:1 negative:positive ratio, got {total_neg}:{total_pos}"
+    )
+
+    # Verify we processed all batches
+    assert i >= 0

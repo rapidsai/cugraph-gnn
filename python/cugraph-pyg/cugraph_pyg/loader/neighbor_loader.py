@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -122,10 +122,10 @@ class NeighborLoader(NodeLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
-        temporal_comparison: str (optional, default='monotonically decreasing')
+        temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
-            ('strictly increasing', 'monotonically increasing',
-            'strictly decreasing', 'monotonically decreasing', 'last').
+            ('strictly_increasing', 'monotonically_increasing',
+            'strictly_decreasing', 'monotonically_decreasing', 'last').
             Note that this should be 'last' for temporal_strategy='last'.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
@@ -135,7 +135,7 @@ class NeighborLoader(NodeLoader):
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
         if temporal_comparison is None:
-            temporal_comparison = "monotonically decreasing"
+            temporal_comparison = "monotonically_decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -176,7 +176,7 @@ class NeighborLoader(NodeLoader):
         is_temporal = time_attr is not None
 
         if is_temporal:
-            graph_store._set_etime_attr((feature_store, time_attr))
+            graph_store._set_time_attr((feature_store, time_attr))
 
             if input_time is None:
                 input_type, input_nodes, _ = (
