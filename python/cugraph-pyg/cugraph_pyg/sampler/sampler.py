@@ -1,7 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Iterator, Union, Dict, Tuple, List
+
+from math import ceil
 
 from cugraph_pyg.utils.imports import import_optional
 from cugraph_pyg.sampler.distributed_sampler import DistributedNeighborSampler
@@ -797,7 +799,7 @@ class BaseSampler:
     def sample_from_edges(
         self,
         index: "torch_geometric.sampler.EdgeSamplerInput",
-        neg_sampling: Optional["torch_geometric.sampler.NegativeSampling"],
+        neg_sampling: Optional["torch_geometric.sampler.NegativeSampling"] = None,
         **kwargs,
     ) -> Iterator[
         Union[
@@ -808,10 +810,14 @@ class BaseSampler:
         src = index.row
         dst = index.col
         input_id = index.input_id
+        input_time = index.time
+
+        # TODO ensure this is handled correctly when disjoint sampling is implemented.
+        node_time = self.__graph_store._get_ntime_func()
+
         neg_batch_size = 0
         if neg_sampling:
             # Sample every negative subset at once.
-            # TODO handle temporal sampling (node_time)
             src_neg, dst_neg = neg_sample(
                 self.__graph_store,
                 index.row,
@@ -819,8 +825,8 @@ class BaseSampler:
                 index.input_type,
                 self.__batch_size,
                 neg_sampling,
-                None,  # src_time,
-                None,  # src_node_time,
+                index.time,
+                node_time,
             )
             if neg_sampling.is_binary():
                 src, _ = neg_cat(src.cuda(), src_neg, self.__batch_size)
@@ -833,6 +839,13 @@ class BaseSampler:
                 )
                 src, _ = neg_cat(scu, scu[per], self.__batch_size)
             dst, neg_batch_size = neg_cat(dst.cuda(), dst_neg, self.__batch_size)
+
+            if node_time is not None and input_time is not None:
+                input_time, _ = neg_cat(
+                    input_time.repeat_interleave(int(ceil(neg_sampling.amount))).cuda(),
+                    input_time.cuda(),
+                    self.__batch_size,
+                )
 
             # Concatenate -1s so the input id tensor lines up and can
             # be processed by the dist sampler.
@@ -858,7 +871,7 @@ class BaseSampler:
         reader = self.__sampler.sample_from_edges(
             torch.stack([src, dst]),  # reverse of usual convention
             input_id=input_id,
-            input_time=index.time,
+            input_time=input_time,
             input_label=index.label,
             batch_size=self.__batch_size + neg_batch_size,
             metadata=metadata,
