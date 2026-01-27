@@ -199,7 +199,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
 
 @torch.no_grad()
-def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
+def test(feature_store, test_loader, model, eval_iter=100):
     model.eval()
     pred_true_pos = pred_false_pos = pred_true_neg = pred_false_neg = 0.0
     for i, batch in enumerate(test_loader):
@@ -217,18 +217,10 @@ def test(feature_store, test_loader, model, neg_ratio, eval_iter=100):
 
         y_true = batch["paper", "cites", "paper"].edge_label.cuda()
 
-        pred_true_pos += (
-            ((y_pred > 0.5).float() == 1.0) & (y_true.float() == 1.0)
-        ).sum()
-        pred_false_pos += (
-            ((y_pred > 0.5).float() == 1.0) & (y_true.float() == 0.0)
-        ).sum()
-        pred_true_neg += (
-            ((y_pred <= 0.5).float() == 1.0) & (y_true.float() == 0.0)
-        ).sum()
-        pred_false_neg += (
-            ((y_pred <= 0.5).float() == 1.0) & (y_true.float() == 1.0)
-        ).sum()
+        pred_true_pos += (((y_pred > 0.5) == 1.0) & (y_true == 1.0)).sum()
+        pred_false_pos += (((y_pred > 0.5) == 1.0) & (y_true == 0.0)).sum()
+        pred_true_neg += (((y_pred <= 0.5) == 1.0) & (y_true == 0.0)).sum()
+        pred_false_neg += (((y_pred <= 0.5) == 1.0) & (y_true == 1.0)).sum()
 
     return pred_true_pos, pred_false_pos, pred_true_neg, pred_false_neg
 
@@ -240,7 +232,6 @@ def train(
     model,
     optimizer,
     wm_optimizer,
-    neg_ratio,
     lr=0.001,
     train_iter=100,
 ):
@@ -560,6 +551,7 @@ if __name__ == "__main__":
         batch_size=256,
         shuffle=True,
         drop_last=True,
+        local_seeds_per_call=16384,
     )
 
     test_loader = LinkNeighborLoader(
@@ -581,12 +573,11 @@ if __name__ == "__main__":
             model,
             optimizer,
             wm_optimizer,
-            args.neg_ratio,
             lr=args.lr,
             train_iter=args.train_iter,
         )
         pred_true_pos, pred_false_pos, pred_true_neg, pred_false_neg = test(
-            feature_store, test_loader, model, args.neg_ratio, eval_iter=args.eval_iter
+            feature_store, test_loader, model, eval_iter=args.eval_iter
         )
 
         torch.distributed.all_reduce(pred_true_pos, op=torch.distributed.ReduceOp.SUM)
