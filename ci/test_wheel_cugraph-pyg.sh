@@ -1,9 +1,11 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 set -eoxu pipefail
 
+RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX="true"
+export RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX
 source rapids-init-pip
 
 package_name="cugraph-pyg"
@@ -23,10 +25,16 @@ else
   PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
 fi
 
-# echo to expand wildcard before adding `[extra]` requires for pip
+# notes:
+#
+#   * echo to expand wildcard before adding `[extra]` requires for pip
+#   * '--extra-index-url pypi.nvidia.com' can be removed when 'cugraph' and
+#     its dependencies are available from pypi.org
+#
 rapids-pip-retry install \
     -v \
     --extra-index-url "${PYTORCH_INDEX}" \
+    --extra-index-url 'https://pypi.nvidia.com' \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
     "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
