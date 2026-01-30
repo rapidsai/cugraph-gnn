@@ -346,6 +346,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
+          - mkl
           - torchdata
           - pydantic
     specific:
@@ -361,18 +362,6 @@ dependencies:
               - --extra-index-url=https://download.pytorch.org/whl/cu130
           - matrix:
             packages:
-      - output_types: [conda]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-            packages:
-              - pytorch-gpu>=2.3
-          - matrix:
-              cuda: "13.*"
-            packages:
-              - pytorch-gpu>=2.10
-          - matrix:
-            packages:
       - output_types: [requirements, pyproject]
         matrices:
           - matrix:
@@ -386,6 +375,16 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
+      - output_types: [conda]
+        matrices:
+          # Prevent fallback to CPU-only pytorch when we really really want a CUDA variant.
+          - matrix:
+              require_gpu: "true"
+            packages:
+              - pytorch-gpu
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
   depends_on_nccl:
     common:
       - output_types: conda
