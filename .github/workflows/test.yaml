@@ -54,9 +54,7 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/test_python.sh
       sha: ${{ inputs.sha }}
-      # TODO: remove the CUDA 13 exclusion here once there are pytorch CUDA 13 packages
-      #  ref: https://github.com/pytorch/pytorch/issues/159779
-      matrix_filter: map(select(.ARCH == "amd64" and (.CUDA_VER | startswith("12"))))
+      matrix_filter: map(select(.ARCH == "amd64"))
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-pylibwholegraph:
     secrets: inherit
