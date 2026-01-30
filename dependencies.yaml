@@ -72,7 +72,6 @@ files:
       - depends_on_sentence_transformers
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
@@ -83,7 +82,6 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
   py_build_libwholegraph:
@@ -377,6 +375,18 @@ dependencies:
               cuda: "13.*"
             packages:
               - --extra-index-url=https://download.pytorch.org/whl/cu130
+          - matrix:
+            packages:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+            packages:
+              - pytorch-gpu>=2.3
+          - matrix:
+              cuda: "13.*"
+            packages:
+              - pytorch-gpu>=2.10
           - matrix:
             packages:
       - output_types: [requirements, pyproject]
@@ -696,8 +706,3 @@ dependencies:
       - output_types: conda
         packages:
           - cugraph-pyg==26.4.*,>=0.0.0a0
-  depends_on_mkl:
-    common:
-      - output_types: conda
-        packages:
-          - mkl<2024.1.0
