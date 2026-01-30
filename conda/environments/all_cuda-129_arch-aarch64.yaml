@@ -24,7 +24,6 @@ dependencies:
 - libcurand-dev
 - libcusolver-dev
 - libcusparse-dev
-- mkl
 - nccl>=2.19
 - ninja
 - numpy>=1.23,<3.0

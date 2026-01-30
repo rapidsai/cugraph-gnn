@@ -346,10 +346,19 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - mkl
           - torchdata
           - pydantic
     specific:
+      - output_types: [conda]
+        matrices:
+          # prefer 'mkl' to 'openblas' on x86_64... this helps constrain
+          # compatible pytorch and other libraries together
+          - matrix:
+              arch: x86_64
+            packages:
+              - mkl
+          - matrix:
+            packages:
       - output_types: [requirements]
         matrices:
           - matrix:
