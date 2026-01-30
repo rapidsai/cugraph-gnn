@@ -37,7 +37,7 @@ requirements:
     - pylibcugraph =${{ minor_version }}
     - pylibwholegraph =${{ minor_version }}
     - python
-    - pytorch >=2.3
+    - pytorch-gpu >=2.3
     - pytorch_geometric >=2.5,<2.7
 
 tests:
