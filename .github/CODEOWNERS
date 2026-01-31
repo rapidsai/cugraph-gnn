@@ -26,6 +26,3 @@ cpp/               @rapidsai/wholegraph-cpp-codeowners
 /build.sh          @rapidsai/packaging-codeowners
 pyproject.toml     @rapidsai/packaging-codeowners
 VERSION            @rapidsai/packaging-codeowners
-
-# notebooks code owners
-*.ipynb @rapidsai/cugraph-notebook-codeowners

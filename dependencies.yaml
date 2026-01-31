@@ -30,7 +30,6 @@ files:
       - rapids_build_setuptools
       - rapids_build_skbuild
       - test_cpp
-      - test_notebook
       - test_python_common
       - test_python_pylibwholegraph
   checks:
@@ -53,13 +52,6 @@ files:
       - depends_on_libwholegraph
       - depends_on_libwholegraph_tests
       - depends_on_nccl
-  test_notebooks:
-    output: none
-    includes:
-      - cuda_version
-      - depends_on_pytorch
-      - py_version
-      - test_notebook
   test_cugraph_pyg:
     output: none
     includes:
@@ -72,7 +64,6 @@ files:
       - depends_on_sentence_transformers
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
@@ -83,7 +74,6 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
   py_build_libwholegraph:
@@ -278,10 +268,6 @@ dependencies:
       - output_types: [conda]
         matrices:
           - matrix:
-              py: "3.10"
-            packages:
-              - python=3.10
-          - matrix:
               py: "3.11"
             packages:
               - python=3.11
@@ -295,7 +281,7 @@ dependencies:
               - python=3.13
           - matrix:
             packages:
-              - python>=3.10,<3.14
+              - python>=3.11,<3.14
   python_build_cythonize:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -336,14 +322,6 @@ dependencies:
       - output_types: conda
         packages:
           - *cmake_ver
-  test_notebook:
-    common:
-      - output_types: [conda, requirements]
-        packages:
-          - ipython
-          - nbconvert
-          - notebook>=0.5.0
-          - ogb
   test_python_common:
     common:
       - output_types: [conda, pyproject, requirements]
@@ -371,6 +349,16 @@ dependencies:
           - torchdata
           - pydantic
     specific:
+      - output_types: [conda]
+        matrices:
+          # prefer 'mkl' to 'openblas' on x86_64... this helps constrain
+          # compatible pytorch and other libraries together
+          - matrix:
+              arch: x86_64
+            packages:
+              - mkl
+          - matrix:
+            packages:
       - output_types: [requirements]
         matrices:
           - matrix:
@@ -396,6 +384,16 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
+      - output_types: [conda]
+        matrices:
+          # Prevent fallback to CPU-only pytorch when we really really want a CUDA variant.
+          - matrix:
+              require_gpu: "true"
+            packages:
+              - pytorch-gpu
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
   depends_on_nccl:
     common:
       - output_types: conda
@@ -700,8 +698,3 @@ dependencies:
       - output_types: conda
         packages:
           - cugraph-pyg==26.4.*,>=0.0.0a0
-  depends_on_mkl:
-    common:
-      - output_types: conda
-        packages:
-          - mkl<2024.1.0
