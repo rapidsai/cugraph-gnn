@@ -29,6 +29,9 @@ fi
 
 source rapids-configure-sccache
 source rapids-date-string
+RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX="true"
+export RAPIDS_INIT_PIP_REMOVE_NVIDIA_INDEX
+source rapids-init-pip
 
 export SCCACHE_S3_PREPROCESSOR_CACHE_KEY_PREFIX="${package_name}/${RAPIDS_CONDA_ARCH}/cuda${RAPIDS_CUDA_VERSION%%.*}/wheel/preprocessor-cache"
 export SCCACHE_S3_USE_PREPROCESSOR_CACHE_MODE=true
