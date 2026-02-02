@@ -550,9 +550,8 @@ float host_gen_key_from_weight(const WeightType weight, raft::random::detail::PC
     seed_count++;
   } while (!random_num2);
   int one_bit = count_one(random_num2) + seed_count * 64;
-  u *= pow(2, -one_bit);
-  // float logk = (log1pf(u) / logf(2.0)) * (1.0f / (float)weight);
-  float logk = (1 / weight) * (log1p(u) / log(2.0));
+  u *= exp2f(-one_bit);
+  float logk = (log1pf(u) / logf(2.0)) * (1.0f / (float)weight);
   // u = random_uniform(0,1), logk = 1/weight *logf(u)
   return logk;
 }
