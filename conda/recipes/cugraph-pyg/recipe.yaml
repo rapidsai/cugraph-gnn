@@ -41,7 +41,7 @@ requirements:
     # because we want it to be possible to at least install `cugraph-pyg` in an environment without a GPU,
     # to support use cases like building container images.
     - pytorch >=2.3
-    - pytorch_geometric >=2.5,<2.7
+    - pytorch_geometric >=2.5,<2.8
 
 tests:
   - python:
