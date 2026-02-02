@@ -385,7 +385,7 @@ dependencies:
               - *pytorch_pip
       - output_types: [conda]
         matrices:
-          # Prevent fallback to CPU-only pytorch when we really really want a CUDA variant.
+          # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
           - matrix:
               require_gpu: "true"
             packages:
