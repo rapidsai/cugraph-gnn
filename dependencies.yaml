@@ -351,12 +351,11 @@ dependencies:
     specific:
       - output_types: [conda]
         matrices:
-          # prefer 'mkl' to 'openblas' on x86_64... this helps constrain
-          # compatible pytorch and other libraries together
+          # TODO: remove this entirely if CI seems happy with 'nomkl'
           - matrix:
               arch: x86_64
             packages:
-              - mkl
+              - nomkl
           - matrix:
             packages:
       - output_types: [requirements]
