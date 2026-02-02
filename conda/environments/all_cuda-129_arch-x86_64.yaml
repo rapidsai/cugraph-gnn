@@ -26,7 +26,6 @@ dependencies:
 - libcusparse-dev
 - nccl>=2.19
 - ninja
-- nomkl
 - numpy>=1.23,<3.0
 - packaging
 - pandas

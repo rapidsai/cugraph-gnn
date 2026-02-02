@@ -349,15 +349,6 @@ dependencies:
           - torchdata
           - pydantic
     specific:
-      - output_types: [conda]
-        matrices:
-          # TODO: remove this entirely if CI seems happy with 'nomkl'
-          - matrix:
-              arch: x86_64
-            packages:
-              - nomkl
-          - matrix:
-            packages:
       - output_types: [requirements]
         matrices:
           - matrix:
