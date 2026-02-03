@@ -64,7 +64,6 @@ files:
       - depends_on_sentence_transformers
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
@@ -75,7 +74,6 @@ files:
       - depends_on_pytorch
       - py_version
       - test_python_common
-      - depends_on_mkl
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
   py_build_libwholegraph:
@@ -376,6 +374,16 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
+      - output_types: [conda]
+        matrices:
+          # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
+          - matrix:
+              require_gpu: "true"
+            packages:
+              - pytorch-gpu
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
   depends_on_nccl:
     common:
       - output_types: conda
@@ -648,8 +656,3 @@ dependencies:
       - output_types: conda
         packages:
           - cugraph-pyg==26.4.*,>=0.0.0a0
-  depends_on_mkl:
-    common:
-      - output_types: conda
-        packages:
-          - mkl<2024.1.0
