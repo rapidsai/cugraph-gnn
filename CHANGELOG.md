@@ -1,3 +1,29 @@
+# cugraph-gnn 26.02.00 (4 Feb 2026)
+
+### 🚨 Breaking Changes
+* Use static linkage for CUDA runtime by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/369
+### 🐛 Bug Fixes
+* Fix forward merge of release/25.12 into main by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/359
+* Fix compiler warnings in scatter_op_impl_mapped.cu by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/372
+### 🚀 New Features
+* Update PyG pin to <2.8 by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/360
+### 🛠️ Improvements
+* Use strict priority in CI conda tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/352
+* Use strict priority in CI conda tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/362
+* Remove alpha specs from non-RAPIDS dependencies by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/363
+* Enable merge barriers by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/368
+* Add devcontainer fallback for C++ test location by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/370
+* Empty commit to trigger a build by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/376
+* Use SPDX license identifiers in pyproject.toml, bump build dependency floors by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/377
+* Add CUDA 13.1 support by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/373
+* build and test against CUDA 13.1.0 by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/381
+* Empty commit to trigger a build by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/384
+* Use main shared-workflows branch by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/385
+* fix(build): build package on merge to `release/*` branch by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/391
+
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.02.00a...release/26.02
+
 # cugraph-gnn 25.12.00 (10 Dec 2025)
 
 ### 🚨 Breaking Changes

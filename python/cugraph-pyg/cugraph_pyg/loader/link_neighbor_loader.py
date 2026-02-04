@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -129,10 +129,10 @@ class LinkNeighborLoader(LinkLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
-        temporal_comparison: str (optional, default='monotonically decreasing')
+        temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
-            ('strictly increasing', 'monotonically increasing',
-            'strictly decreasing', 'monotonically decreasing', 'last').
+            ('strictly_increasing', 'monotonically_increasing',
+            'strictly_decreasing', 'monotonically_decreasing', 'last').
             Note that this should be 'last' for temporal_strategy='last'.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
@@ -142,7 +142,7 @@ class LinkNeighborLoader(LinkLoader):
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
         if temporal_comparison is None:
-            temporal_comparison = "monotonically decreasing"
+            temporal_comparison = "monotonically_decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -182,7 +182,7 @@ class LinkNeighborLoader(LinkLoader):
 
         is_temporal = (edge_label_time is not None) and (time_attr is not None)
 
-        if (edge_label_time is None) != (time_attr is None):
+        if not is_temporal and (edge_label_time is not None or time_attr is not None):
             warnings.warn(
                 "Edge-based temporal sampling requires that both edge_label_time and time_attr are provided. Defaulting to non-temporal sampling."
             )
@@ -190,7 +190,7 @@ class LinkNeighborLoader(LinkLoader):
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
         if is_temporal:
-            graph_store._set_etime_attr((feature_store, time_attr))
+            graph_store._set_time_attr((feature_store, time_attr))
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
