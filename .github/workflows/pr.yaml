@@ -27,7 +27,7 @@ jobs:
       - wheel-build-cugraph-pyg
       - wheel-tests-cugraph-pyg
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@add-rtxpro6000
     if: always()
     with:
       needs: ${{ toJSON(needs) }}
@@ -42,7 +42,7 @@ jobs:
           repo: cugraph-gnn
   changed-files:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/changed-files.yaml@add-rtxpro6000
     with:
       files_yaml: |
         build_docs:
@@ -144,7 +144,7 @@ jobs:
           - '!readme_pages/**'
   devcontainer:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@add-rtxpro6000
     with:
       arch: '["amd64", "arm64"]'
       cuda: '["13.1"]'
@@ -161,13 +161,13 @@ jobs:
         sccache --show-adv-stats | tee telemetry-artifacts/sccache-stats.txt;
   checks:
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@add-rtxpro6000
     with:
       enable_check_generated_files: false
   conda-cpp-build:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@add-rtxpro6000
     with:
       build_type: pull-request
       node_type: cpu8
@@ -176,7 +176,7 @@ jobs:
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@add-rtxpro6000
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
     with:
       build_type: pull-request
@@ -185,7 +185,7 @@ jobs:
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@add-rtxpro6000
     with:
       build_type: pull-request
       script: ci/build_python.sh
@@ -193,7 +193,7 @@ jobs:
   conda-python-tests:
     needs: [conda-python-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@add-rtxpro6000
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_conda
     with:
       build_type: pull-request
@@ -203,7 +203,7 @@ jobs:
   docs-build:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@add-rtxpro6000
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).build_docs
     with:
       arch: "amd64"
@@ -213,7 +213,7 @@ jobs:
   wheel-build-libwholegraph:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@add-rtxpro6000
     with:
       build_type: pull-request
       script: ci/build_wheel_libwholegraph.sh
@@ -226,7 +226,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@add-rtxpro6000
     with:
       build_type: pull-request
       node_type: cpu8
@@ -237,7 +237,7 @@ jobs:
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@add-rtxpro6000
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
     with:
       build_type: pull-request
@@ -247,7 +247,7 @@ jobs:
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@add-rtxpro6000
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
@@ -261,7 +261,7 @@ jobs:
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@add-rtxpro6000
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
     with:
       build_type: pull-request
