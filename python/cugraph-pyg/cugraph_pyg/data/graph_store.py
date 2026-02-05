@@ -250,7 +250,7 @@ class GraphStore(
                 num_vertices[edge_attr.edge_type[0]] = (
                     int(max(num_vertices[edge_attr.edge_type[0]], edge_attr.size[0]))
                     if edge_attr.edge_type[0] in num_vertices
-                    else edge_attr.size[0]
+                    else int(edge_attr.size[0])
                 )
                 num_vertices[edge_attr.edge_type[2]] = (
                     int(max(num_vertices[edge_attr.edge_type[2]], edge_attr.size[1]))
