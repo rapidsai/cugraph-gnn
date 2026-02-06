@@ -18,6 +18,7 @@ source:
   path: ../../..
 
 build:
+  noarch: python
   string: py${{ py_buildstring }}_${{ date_string }}_${{ head_rev }}
   script:
     content: |
