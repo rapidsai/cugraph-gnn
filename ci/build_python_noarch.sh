@@ -12,7 +12,7 @@ export CMAKE_GENERATOR=Ninja
 rapids-print-env
 
 CPP_CHANNEL=$(rapids-download-conda-from-github cpp)
-PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-package-name conda_python pylibwholegraph --stable --cuda)")
+PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-package-name conda_python pylibwholegraph --cuda "$RAPIDS_CUDA_VERSION")")
 
 rapids-generate-version > ./VERSION
 
