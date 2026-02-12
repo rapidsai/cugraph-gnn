@@ -16,7 +16,7 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
-from cpython.bytes import PyBytes_AsString
+from cpython.bytes cimport PyBytes_AsString
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
