@@ -16,6 +16,7 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
+from cpython.bytes import PyBytes_AsString
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
@@ -877,7 +878,7 @@ cdef class PyWholeMemoryEmbedding:
         cdef wholememory_tensor_t state_tensor
         state_tensor = wholememory_embedding_get_optimizer_state(
             self.wm_embedding,
-            PyUnicode_AsUTF8String(state_name))
+            PyBytes_AsString(PyUnicode_AsUTF8String(state_name)))
         py_state_tensor = PyWholeMemoryTensor()
         py_state_tensor.from_c_handle(state_tensor)
         return py_state_tensor
@@ -1832,7 +1833,7 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
     try:
         for i in range(num_files):
             # strdup copies the string so we don't store a pointer into Python internals
-            filenames[i] = strdup(PyUnicode_AsUTF8String(file_list[i]))
+            filenames[i] = strdup(PyBytes_AsString(PyUnicode_AsUTF8String(file_list[i])))
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
@@ -1857,7 +1858,7 @@ cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
         memory_offset,
         memory_entry_size,
         file_entry_size,
-        PyUnicode_AsUTF8String(file_name)))
+        PyBytes_AsString(PyUnicode_AsUTF8String(file_name))))
 
 cdef extern from "wholememory/wholememory_op.h":
     cdef wholememory_error_code_t wholememory_gather(wholememory_tensor_t wholememory_tensor,
