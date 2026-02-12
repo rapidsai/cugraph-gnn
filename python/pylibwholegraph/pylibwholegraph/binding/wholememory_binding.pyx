@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # cython: profile=False
@@ -8,6 +8,7 @@
 
 cimport cpython
 from libc cimport stdlib
+from libc.string cimport strdup
 from libc.stdio cimport printf, fprintf, stdout, stderr, fflush
 import functools
 import cython
@@ -15,22 +16,15 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
-from cpython cimport array
-import array
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
 from cpython.long cimport PyLong_AsLongLong
-
+from cpython.unicode import PyUnicode_AsUTF8, PyUnicode_FromString
 
 cdef extern from "Python.h":
     void Py_INCREF(PyObject *o)
     void Py_DECREF(PyObject *o)
-
-    const char * PyUnicode_AsUTF8(object unicode)
-
-    PyObject * PyUnicode_FromString(const char * u)
-
 
 cdef extern from "wholememory/wholememory.h":
     ctypedef enum wholememory_error_code_t:
@@ -1829,25 +1823,28 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
                                             int64_t file_entry_size,
                                             int round_robin_size,
                                             file_list):
-    cdef const char ** filenames
+    cdef char ** filenames
     cdef int num_files = len(file_list)
     cdef int i
 
-    filenames = <const char**> stdlib.malloc(num_files * sizeof(char *))
+    filenames = <char**> stdlib.malloc(num_files * sizeof(char *))
 
     try:
         for i in range(num_files):
-            filenames[i] = PyUnicode_AsUTF8(file_list[i])
+            # strdup copies the string so we don't store a pointer into Python internals
+            filenames[i] = strdup(PyUnicode_AsUTF8(file_list[i]))
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
             memory_offset,
             memory_entry_size,
             file_entry_size,
-            filenames,
+            <const char**> filenames,
             num_files,
             round_robin_size))
     finally:
+        for i in range(num_files):
+            stdlib.free(filenames[i])
         stdlib.free(filenames)
 
 cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
