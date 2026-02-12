@@ -876,11 +876,11 @@ cdef class PyWholeMemoryEmbedding:
     def get_optimizer_state(self,
                             state_name):
         cdef wholememory_tensor_t state_tensor
-        cdef PyObject* temp_bytes = PyUnicode_AsUTF8String(state_name)
+        # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+        state_name_bytes = <object> PyUnicode_AsUTF8String(state_name)
         state_tensor = wholememory_embedding_get_optimizer_state(
             self.wm_embedding,
-            PyBytes_AsString(<object>temp_bytes))
-        Py_DECREF(temp_bytes)
+            PyBytes_AsString(state_name_bytes))
         py_state_tensor = PyWholeMemoryTensor()
         py_state_tensor.from_c_handle(state_tensor)
         return py_state_tensor
@@ -1834,10 +1834,9 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
 
     try:
         for i in range(num_files):
-            # strdup copies the string so we don't store a pointer into Python internals
-            cdef PyObject* temp_bytes = PyUnicode_AsUTF8String(file_list[i])
-            filenames[i] = strdup(PyBytes_AsString(<object>temp_bytes))
-            Py_DECREF(temp_bytes)
+            # <object> takes ownership of new ref; Cython DECREFs when variable goes out of scope
+            file_bytes = <object> PyUnicode_AsUTF8String(file_list[i])
+            filenames[i] = strdup(PyBytes_AsString(file_bytes))
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
@@ -1857,14 +1856,14 @@ cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
                                        int64_t memory_entry_size,
                                        int64_t file_entry_size,
                                        file_name):
-    cdef PyObject* temp_bytes = PyUnicode_AsUTF8String(file_name)
+    # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+    file_name_bytes = <object> PyUnicode_AsUTF8String(file_name)
     check_wholememory_error_code(wholememory_store_to_file(
         <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
         memory_offset,
         memory_entry_size,
         file_entry_size,
-        PyBytes_AsString(<object>temp_bytes)))
-    Py_DECREF(temp_bytes)
+        PyBytes_AsString(file_name_bytes)))
 
 cdef extern from "wholememory/wholememory_op.h":
     cdef wholememory_error_code_t wholememory_gather(wholememory_tensor_t wholememory_tensor,
