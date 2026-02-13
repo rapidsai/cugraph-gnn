@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # cython: profile=False
@@ -8,6 +8,7 @@
 
 cimport cpython
 from libc cimport stdlib
+from libc.string cimport strdup
 from libc.stdio cimport printf, fprintf, stdout, stderr, fflush
 import functools
 import cython
@@ -15,22 +16,16 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
-from cpython cimport array
-import array
+from cpython.bytes cimport PyBytes_AsString
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
 from cpython.long cimport PyLong_AsLongLong
-
+from cpython.unicode cimport PyUnicode_AsUTF8String, PyUnicode_FromString
 
 cdef extern from "Python.h":
     void Py_INCREF(PyObject *o)
     void Py_DECREF(PyObject *o)
-
-    const char * PyUnicode_AsUTF8(object unicode)
-
-    PyObject * PyUnicode_FromString(const char * u)
-
 
 cdef extern from "wholememory/wholememory.h":
     ctypedef enum wholememory_error_code_t:
@@ -881,9 +876,11 @@ cdef class PyWholeMemoryEmbedding:
     def get_optimizer_state(self,
                             state_name):
         cdef wholememory_tensor_t state_tensor
+        # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+        state_name_bytes = <object> PyUnicode_AsUTF8String(state_name)
         state_tensor = wholememory_embedding_get_optimizer_state(
             self.wm_embedding,
-            PyUnicode_AsUTF8(state_name))
+            PyBytes_AsString(state_name_bytes))
         py_state_tensor = PyWholeMemoryTensor()
         py_state_tensor.from_c_handle(state_tensor)
         return py_state_tensor
@@ -1829,25 +1826,29 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
                                             int64_t file_entry_size,
                                             int round_robin_size,
                                             file_list):
-    cdef const char ** filenames
+    cdef char ** filenames
     cdef int num_files = len(file_list)
     cdef int i
 
-    filenames = <const char**> stdlib.malloc(num_files * sizeof(char *))
+    filenames = <char**> stdlib.malloc(num_files * sizeof(char *))
 
     try:
         for i in range(num_files):
-            filenames[i] = PyUnicode_AsUTF8(file_list[i])
+            # <object> takes ownership of new ref; Cython DECREFs when variable goes out of scope
+            file_bytes = <object> PyUnicode_AsUTF8String(file_list[i])
+            filenames[i] = strdup(PyBytes_AsString(file_bytes))
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
             memory_offset,
             memory_entry_size,
             file_entry_size,
-            filenames,
+            <const char**> filenames,
             num_files,
             round_robin_size))
     finally:
+        for i in range(num_files):
+            stdlib.free(filenames[i])
         stdlib.free(filenames)
 
 cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
@@ -1855,12 +1856,14 @@ cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
                                        int64_t memory_entry_size,
                                        int64_t file_entry_size,
                                        file_name):
+    # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+    file_name_bytes = <object> PyUnicode_AsUTF8String(file_name)
     check_wholememory_error_code(wholememory_store_to_file(
         <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
         memory_offset,
         memory_entry_size,
         file_entry_size,
-        PyUnicode_AsUTF8(file_name)))
+        PyBytes_AsString(file_name_bytes)))
 
 cdef extern from "wholememory/wholememory_op.h":
     cdef wholememory_error_code_t wholememory_gather(wholememory_tensor_t wholememory_tensor,
