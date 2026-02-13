@@ -34,7 +34,6 @@ rapids-logger "Building pylibwholegraph"
 # more info is available at
 # https://rattler.build/latest/tips_and_tricks/#using-sccache-or-ccache-with-rattler-build
 rattler-build build --recipe conda/recipes/pylibwholegraph \
-                    --test skip \
                     "${RATTLER_ARGS[@]}" \
                     "${RATTLER_CHANNELS[@]}"
 
