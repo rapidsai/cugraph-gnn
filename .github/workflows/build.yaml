@@ -53,6 +53,8 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/build_python.sh
       sha: ${{ inputs.sha }}
+      # Build a conda package for each CUDA x ARCH x minimum supported Python version
+      matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
   python-build-noarch:
     needs: [cpp-build, python-build]
     secrets: inherit
@@ -138,6 +140,8 @@ jobs:
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
+      # Build a wheel for each CUDA x ARCH x minimum supported Python version
+      matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
   wheel-publish-libwholegraph:
     needs: wheel-build-libwholegraph
     secrets: inherit
@@ -160,3 +164,4 @@ jobs:
       date: ${{ inputs.date }}
       package-name: pylibwholegraph
       package-type: python
+      publish-wheel-search-key: pylibwholegraph_wheel_python_abi3
