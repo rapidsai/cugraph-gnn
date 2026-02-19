@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -23,8 +23,8 @@ def run_test_graph_store_basic_api(rank, world_size):
 
     # Load and distribute the graph data
     df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device=f"cuda:{rank}")
-    dst = torch.as_tensor(df["dst"], device=f"cuda:{rank}")
+    src = torch.as_tensor(df["src"], device=f"cuda:{rank}").to(torch.int64)
+    dst = torch.as_tensor(df["dst"], device=f"cuda:{rank}").to(torch.int64)
 
     # Split the edge indices across GPUs
     num_edges = len(src)
@@ -46,8 +46,22 @@ def run_test_graph_store_basic_api(rank, world_size):
 
     # Verify the edge indices
     rei = graph_store.get_edge_index(("person", "knows", "person"), "coo")
-    assert (local_dst == rei[0]).all()
-    assert (local_src == rei[1]).all()
+
+    # All gather the edge indices from all ranks
+    # First, gather the sizes from each rank
+    local_size = torch.tensor([rei.shape[1]], device=f"cuda:{rank}")
+    gathered_sizes = [torch.zeros_like(local_size) for _ in range(world_size)]
+    torch.distributed.all_gather(gathered_sizes, local_size)
+
+    # Now gather the edge indices with properly sized buffers
+    gathered_rei = [
+        torch.zeros((2, size.item()), dtype=rei.dtype, device=f"cuda:{rank}")
+        for size in gathered_sizes
+    ]
+    torch.distributed.all_gather(gathered_rei, rei)
+    gathered_rei = torch.concat(gathered_rei, dim=1)
+
+    assert (gathered_rei == torch.stack([dst, src])).all()
 
     # Verify edge attributes
     edge_attrs = graph_store.get_all_edge_attrs()

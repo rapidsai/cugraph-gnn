@@ -248,14 +248,14 @@ class GraphStore(
         for edge_attr in self.get_all_edge_attrs():
             if edge_attr.size is not None:
                 num_vertices[edge_attr.edge_type[0]] = (
-                    max(num_vertices[edge_attr.edge_type[0]], edge_attr.size[0])
+                    int(max(num_vertices[edge_attr.edge_type[0]], edge_attr.size[0]))
                     if edge_attr.edge_type[0] in num_vertices
-                    else edge_attr.size[0]
+                    else int(edge_attr.size[0])
                 )
                 num_vertices[edge_attr.edge_type[2]] = (
-                    max(num_vertices[edge_attr.edge_type[2]], edge_attr.size[1])
+                    int(max(num_vertices[edge_attr.edge_type[2]], edge_attr.size[1]))
                     if edge_attr.edge_type[2] in num_vertices
-                    else edge_attr.size[1]
+                    else int(edge_attr.size[1])
                 )
             else:
                 if edge_attr.edge_type[0] != edge_attr.edge_type[2]:
@@ -264,7 +264,7 @@ class GraphStore(
                             self.__edge_indices[edge_attr.edge_type].local_col.max() + 1
                         )
                     if edge_attr.edge_type[2] not in num_vertices:
-                        num_vertices[edge_attr.edge_type[1]] = int(
+                        num_vertices[edge_attr.edge_type[2]] = int(
                             self.__edge_indices[edge_attr.edge_type].local_row.max() + 1
                         )
                 elif edge_attr.edge_type[0] not in num_vertices:
