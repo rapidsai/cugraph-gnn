@@ -324,6 +324,10 @@ dependencies:
           - *cmake_ver
   test_python_common:
     common:
+      - output_types: [conda]
+        packages:
+          - torchdata
+          - pydantic
       - output_types: [conda, pyproject, requirements]
         packages:
           - pytest<9.0.0
@@ -343,14 +347,15 @@ dependencies:
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    common:
-      - output_types: [conda]
-        packages:
-          - torchdata
-          - pydantic
     specific:
       - output_types: [requirements]
         matrices:
+          # If 'include_torch_extra_index=false' is passed, avoid these --extra-index-url.
+          # (useful in CI scripts where we want to tightly which indices 'pip' uses).
+          - matrix:
+              include_torch_extra_index: "false"
+            packages:
+          # otherwise, choose a CUDA-version-specific index
           - matrix:
               cuda: "12.*"
             packages:
@@ -374,13 +379,27 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
+      - output_types: [requirements]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              dependencies: "oldest"
+            packages:
+              - torch==2.3
+          - matrix:
+              cuda: "13.*"
+              dependencies: "oldset"
+            packages:
+              - torch==2.9.0
+          - matrix:
+            packages:
       - output_types: [conda]
         matrices:
           # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
           - matrix:
               require_gpu: "true"
             packages:
-              - pytorch-gpu
+              - pytorch-gpu >=2.3
           # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
           - matrix:
             packages:
