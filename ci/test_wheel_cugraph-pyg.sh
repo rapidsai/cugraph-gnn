@@ -20,7 +20,7 @@ rapids-dependency-file-generator \
     --output requirements \
     --file-key "test_cugraph_pyg" \
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};include_torch_extra_index=false" \
-| tee "${PIP_CONSTRAINTS}"
+| tee "${PIP_CONSTRAINT}"
 
 # ensure a CUDA variant of 'torch' is used
 ./install-torch-cuda-variant.sh
