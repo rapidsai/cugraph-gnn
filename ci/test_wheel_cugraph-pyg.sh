@@ -18,7 +18,7 @@ CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_
 # generate constraints, accounting for 'oldset' and 'latest' dependencies
 rapids-dependency-file-generator \
     --output requirements \
-    --file-key "test_pylibwholegraph" \
+    --file-key "test_cugraph_pyg" \
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};include_torch_extra_index=false" \
 | tee "${PIP_CONSTRAINTS}"
 
