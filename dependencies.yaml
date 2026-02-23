@@ -352,7 +352,7 @@ dependencies:
       - output_types: [requirements]
         matrices:
           # If 'include_torch_extra_index=false' is passed, avoid these --extra-index-url.
-          # (useful in CI scripts where we want to tightly which indices 'pip' uses).
+          # (useful in CI scripts where we want to tightly control which indices 'pip' uses).
           - matrix:
               include_torch_extra_index: "false"
             packages:
@@ -389,7 +389,7 @@ dependencies:
               - torch==2.3
           - matrix:
               cuda: "13.*"
-              dependencies: "oldset"
+              dependencies: "oldest"
             packages:
               - torch==2.9.0
           - matrix:
