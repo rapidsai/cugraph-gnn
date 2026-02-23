@@ -28,7 +28,7 @@ rapids-dependency-file-generator \
 | tee "${PIP_CONSTRAINT}"
 
 # ensure a CUDA variant of 'torch' is used
-./install-torch-cuda-variant.sh
+./ci/install-torch-cuda-variant.sh
 
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
