@@ -135,6 +135,7 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
+      - depends_on_pytorch
       - test_python_common
       - test_python_pylibwholegraph
   py_build_cugraph_pyg:

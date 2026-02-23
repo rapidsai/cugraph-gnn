@@ -23,7 +23,7 @@ rapids-dependency-file-generator \
 | tee "${PIP_CONSTRAINT}"
 
 # ensure a CUDA variant of 'torch' is used
-./ci/install-torch-cuda-variant.sh
+./ci/download-torch-wheels.sh
 
 # notes:
 #
