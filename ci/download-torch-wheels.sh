@@ -34,4 +34,4 @@ rapids-pip-retry download \
   --index-url "${PYTORCH_INDEX}" \
   'torch'
 
-echo "torch @ file://$(echo ${TORCH_WHEEL_DIR}/torch_*.whl)" >> "${PIP_CONSTRAINT}"
+echo "torch @ file://$(echo ${TORCH_WHEEL_DIR}/torch-*.whl)" >> "${PIP_CONSTRAINT}"
