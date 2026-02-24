@@ -386,7 +386,8 @@ dependencies:
               cuda: "12.*"
               dependencies: "oldest"
             packages:
-              - torch==2.3
+              # 2.6.0 is the oldest version on https://download.pytorch.org/whl/cu126 with CUDA wheels
+              - torch==2.6.0
           - matrix:
               cuda: "13.*"
               dependencies: "oldest"
