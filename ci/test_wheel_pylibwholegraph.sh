@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-set -e -u -o pipefail
+set -euo pipefail
 
 # Delete system libnccl.so to ensure the wheel is used.
 # (but only do this in CI, to avoid breaking local dev environments)
@@ -20,7 +20,7 @@ RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
-# generate constraints, accounting for 'oldset' and 'latest' dependencies
+# generate constraints, accounting for 'oldest' and 'latest' dependencies
 rapids-dependency-file-generator \
     --output requirements \
     --file-key "test_pylibwholegraph" \
