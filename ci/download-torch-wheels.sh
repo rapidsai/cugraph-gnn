@@ -12,6 +12,8 @@
 
 set -e -u -o pipefail
 
+TORCH_WHEEL_DIR="${1}"
+
 # Ensure CUDA-enabled 'torch' packages are always used.
 #
 # Downloading + adding the downloaded file to the constraint forces the use of this
@@ -25,7 +27,6 @@ else
   PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
 fi
 
-TORCH_WHEEL_DIR=$(mktemp -d)
 rapids-pip-retry download \
   --prefer-binary \
   --no-deps \
@@ -33,5 +34,3 @@ rapids-pip-retry download \
   --constraint "${PIP_CONSTRAINT}" \
   --index-url "${PYTORCH_INDEX}" \
   'torch'
-
-echo "torch @ file://$(echo ${TORCH_WHEEL_DIR}/torch-*.whl)" >> "${PIP_CONSTRAINT}"

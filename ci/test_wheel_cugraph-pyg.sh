@@ -23,7 +23,8 @@ rapids-dependency-file-generator \
 | tee "${PIP_CONSTRAINT}"
 
 # ensure a CUDA variant of 'torch' is used
-./ci/download-torch-wheels.sh
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
 
 # notes:
 #
@@ -32,12 +33,13 @@ rapids-dependency-file-generator \
 #     its dependencies are available from pypi.org
 #
 rapids-pip-retry install \
-    -v \
+    --prefer-binary \
     --constraint "${PIP_CONSTRAINT}" \
     --extra-index-url 'https://pypi.nvidia.com' \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
-    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]" \
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"

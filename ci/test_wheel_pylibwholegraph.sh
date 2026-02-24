@@ -28,14 +28,17 @@ rapids-dependency-file-generator \
 | tee "${PIP_CONSTRAINT}"
 
 # ensure a CUDA variant of 'torch' is used
-./ci/download-torch-wheels.sh
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
 
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
 rapids-pip-retry install \
+    --prefer-binary \
     --constraint "${PIP_CONSTRAINT}" \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests
