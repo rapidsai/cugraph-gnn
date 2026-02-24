@@ -33,9 +33,10 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
+    "packaging",
     "pytest-benchmark",
     "pytest-cov",
-    "pytest-forked",
+    "pytest-forked>=1.6.0",
     "pytest-xdist",
     "pytest<9.0.0",
     "scipy",

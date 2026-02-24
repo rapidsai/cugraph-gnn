@@ -34,7 +34,7 @@ dependencies:
 - pylibcugraph==26.4.*,>=0.0.0a0
 - pytest-benchmark
 - pytest-cov
-- pytest-forked
+- pytest-forked>=1.6.0
 - pytest-xdist
 - pytest<9.0.0
 - pytorch_geometric>=2.5,<2.8
