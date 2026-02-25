@@ -410,7 +410,7 @@ dependencies:
       # to ensure we get CUDA builds at test time.
       - output_types: [requirements]
         matrices:
-          # see comments above on
+          # For testing with 'oldest' dependencies group
           - matrix:
               cuda: "12.*"
               dependencies: "oldest"
