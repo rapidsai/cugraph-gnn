@@ -432,7 +432,7 @@ dependencies:
               - *latest_torch_index_cu12
               - torch==2.8.0+cu129
           - matrix:
-              cuda: 13.*""
+              cuda: "13.*"
               require_gpu: "true"
             packages:
               - *torch_index_cu13
