@@ -75,6 +75,10 @@ files:
       - test_python_common
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
+  torch_only:
+    output: none
+    includes:
+      - depends_on_pytorch
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -338,15 +342,14 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - ogb>=1.3.6
+          - ogb
           # for MovieLens example
-          - sentence-transformers>=5.2.3
+          - sentence-transformers
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
-          - packaging
-          - pytest-forked>=1.6.0
+          - pytest-forked
           - scipy
   depends_on_pytorch:
     specific:
@@ -359,41 +362,87 @@ dependencies:
             packages:
           # otherwise, choose a CUDA-version-specific index
           - matrix:
+              cuda: "12.[234]"
+            packages:
+              # oldest torch: 2.4.0+cu124
+              - &oldest_torch_index_cu12 -extra-index-url=https://download.pytorch.org/whl/cu124
+          - matrix:
+              cuda: "12.[56]"
+            packages:
+              # oldest torch: 2.6.0+cu126
+              - --extra-index-url=https://download.pytorch.org/whl/cu126
+          - matrix:
+              cuda: "12.[78]"
+            packages:
+              # oldest torch: 2.7.0+cu128
+              - --extra-index-url=https://download.pytorch.org/whl/cu128
+          - matrix:
               cuda: "12.*"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              # oldest torch: 2.8.0+cu129
+              - &latest_torch_index_cu12 --extra-index-url=https://download.pytorch.org/whl/cu129
           - matrix:
               cuda: "13.*"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu130
+              # oldest torch: 2.9.0+cu130
+              - &torch_index_cu13 --extra-index-url=https://download.pytorch.org/whl/cu130
           - matrix:
             packages:
+      # For pyproject.toml (and therefore wheel metadata), avoid --extra-index-url
+      # and use pins that don't have CUDA-specific version modifiers (so installing alongside
+      # CPU-only torch is technically possible).
+      #
+      # --extra-index-url for requirements is handled by other lists here.
       - output_types: [requirements, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
             packages:
-              - torch>=2.3,<2.10
+              - torch>=2.4
           - matrix:
               cuda: "13.*"
             packages:
-              - &pytorch_pip torch>=2.9.0,<2.10
+              - &pytorch_pip torch>=2.9.0
           - matrix:
             packages:
               - *pytorch_pip
+      # For [requirements], include --extra-index-url and CUDA-specific version modifiers
+      # to ensure we get CUDA builds at test time.
       - output_types: [requirements]
         matrices:
+          # see comments above on
           - matrix:
               cuda: "12.*"
               dependencies: "oldest"
+              require_gpu: "true"
             packages:
-              # 2.6.0 is the oldest version on https://download.pytorch.org/whl/cu126 with CUDA wheels
-              - torch==2.6.0
+              - *oldest_torch_index_cu12
+              - torch==2.4.0+cu124
           - matrix:
               cuda: "13.*"
               dependencies: "oldest"
+              require_gpu: "true"
             packages:
-              - torch==2.9.0
+              - *torch_index_cu13
+              - torch==2.9.0+cu130
+          - matrix:
+              cuda: "12.*"
+              require_gpu: "true"
+            packages:
+              - *latest_torch_index_cu12
+              - torch==2.8.0+cu129
+          - matrix:
+              cuda: 13.*""
+              require_gpu: "true"
+            packages:
+              - *torch_index_cu13
+              - torch==2.10.0+cu130
+          # Nothing above matches, don't add a CUDA-specific 'torch' requirement.
+          #
+          # This keeps these tight pins out of [test] extras in wheels.
+          #
+          # Also useful for cases like RAPIDS DLFW builds, where 'torch' is provided a different
+          # way and we want to avoid installing it from external repos.
           - matrix:
             packages:
       - output_types: [conda]
@@ -402,8 +451,8 @@ dependencies:
           - matrix:
               require_gpu: "true"
             packages:
-              - pytorch-gpu >=2.3
-          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+              - pytorch-gpu >=2.4
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's / pylibwholegraph's dependencies.
           - matrix:
             packages:
   depends_on_nccl:

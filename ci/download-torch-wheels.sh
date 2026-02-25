@@ -16,21 +16,19 @@ TORCH_WHEEL_DIR="${1}"
 
 # Ensure CUDA-enabled 'torch' packages are always used.
 #
-# Downloading + adding the downloaded file to the constraint forces the use of this
+# Downloading + passing the downloaded file as a requirement forces the use of this
 # package, so we don't accidentally end up with a CPU-only 'torch' from 'pypi.org'
-# (which can happen because --extra-index-url doesn't imply a priority).
-rapids-logger "Downloading 'torch' wheel"
-CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
-if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
-else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
-fi
+# (which can happen because pip doesn't support index priority).
+rapids-dependency-file-generator \
+    --output requirements \
+    --file-key "torch_only" \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};include_torch_extra_index=false;require_gpu=true" \
+| tee "${PIP_CONSTRAINT}"
 
 rapids-pip-retry download \
+  --isolated \
   --prefer-binary \
   --no-deps \
   -d "${TORCH_WHEEL_DIR}" \
   --constraint "${PIP_CONSTRAINT}" \
-  --index-url "${PYTORCH_INDEX}" \
   'torch'
