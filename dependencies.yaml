@@ -365,7 +365,7 @@ dependencies:
               cuda: "12.[234]"
             packages:
               # oldest torch: 2.4.0+cu124
-              - &oldest_torch_index_cu12 -extra-index-url=https://download.pytorch.org/whl/cu124
+              - &oldest_torch_index_cu12 --extra-index-url=https://download.pytorch.org/whl/cu124
           - matrix:
               cuda: "12.[56]"
             packages:
