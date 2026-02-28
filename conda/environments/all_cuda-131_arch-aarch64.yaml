@@ -16,7 +16,7 @@ dependencies:
 - cugraph==26.4.*,>=0.0.0a0
 - cuml==26.4.*,>=0.0.0a0
 - cupy>=13.6.0
-- cython>=3.0.0,<3.2.0
+- cython>=3.2.2
 - doxygen
 - gcc_linux-aarch64=14.*
 - graphviz
