@@ -1,0 +1,35 @@
+Traceback (most recent call last):
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/bin/torchrun", line 5, in <module>
+    from torch.distributed.run import main
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/__init__.py", line 2204, in <module>
+    from torch import _VF as _VF, functional as functional  # usort: skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/functional.py", line 8, in <module>
+    import torch.nn.functional as F
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/nn/__init__.py", line 8, in <module>
+    from torch.nn.modules import *  # usort: skip # noqa: F403
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/nn/modules/__init__.py", line 2, in <module>
+    from .linear import Bilinear, Identity, LazyLinear, Linear  # usort: skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/nn/modules/linear.py", line 7, in <module>
+    from torch.nn import functional as F, init
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/nn/functional.py", line 17, in <module>
+    from torch._jit_internal import (
+    ...<5 lines>...
+    )
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/_jit_internal.py", line 44, in <module>
+    import torch.distributed.rpc
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/distributed/rpc/__init__.py", line 85, in <module>
+    from .server_process_global_profiler import _server_process_global_profile
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/distributed/rpc/server_process_global_profiler.py", line 9, in <module>
+    from torch.autograd.profiler_legacy import profile
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/autograd/__init__.py", line 32, in <module>
+    from .gradcheck import gradcheck, gradgradcheck
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/site-packages/torch/autograd/gradcheck.py", line 1982, in <module>
+    func: Callable[..., Union[_TensorOrTensors]],  # See Note [VarArg of Tensors]
+                        ~~~~~^^^^^^^^^^^^^^^^^^
+  File "/raid/abarghi/.local/share/mamba/envs/rapids/lib/python3.13/typing.py", line 426, in inner
+    @functools.wraps(func)
+
+KeyboardInterrupt

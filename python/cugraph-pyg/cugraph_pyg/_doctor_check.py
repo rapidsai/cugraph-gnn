@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -27,5 +27,5 @@ def cugraph_pyg_smoke_check(**kwargs):
         )
 
     # Ensure core submodules load (touches pylibwholegraph, torch-geometric, etc.)
-    import cugraph_pyg.data  # noqa: F401
-    import cugraph_pyg.tensor  # noqa: F401
+    import cugraph_pyg.data
+    import cugraph_pyg.tensor
