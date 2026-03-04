@@ -242,10 +242,10 @@ if hasArg pylibwholegraph || buildDefault || hasArg all; then
     fi
 
     # If `RAPIDS_PY_VERSION` is set, use that as the lower-bound for the stable ABI CPython version
-    if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
-        RAPIDS_PY_API="cp${RAPIDS_PY_VERSION//./}"
-        PYTHON_ARGS_FOR_INSTALL+=("--config-settings" "skbuild.wheel.py-api=${RAPIDS_PY_API}")
-    fi
+    # if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
+    #     RAPIDS_PY_API="cp${RAPIDS_PY_VERSION//./}"
+    #     PYTHON_ARGS_FOR_INSTALL+=("--config-settings" "skbuild.wheel.py-api=${RAPIDS_PY_API}")
+    # fi
 
     # setup.py and cmake reference an env var LIBWHOLEGRAPH_DIR to find the
     # libwholegraph package (cmake).
