@@ -60,12 +60,11 @@ files:
       - depends_on_cudf
       - depends_on_pytorch
       - depends_on_cuml
-      - depends_on_ogb
-      - depends_on_sentence_transformers
       - py_version
       - test_python_common
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
+      - test_python_cugraph_pyg
   test_pylibwholegraph:
     output: none
     includes:
@@ -76,6 +75,10 @@ files:
       - test_python_common
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
+  torch_only:
+    output: none
+    includes:
+      - depends_on_pytorch
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -135,6 +138,7 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
+      - depends_on_pytorch
       - test_python_common
       - test_python_pylibwholegraph
   py_build_cugraph_pyg:
@@ -324,6 +328,10 @@ dependencies:
           - *cmake_ver
   test_python_common:
     common:
+      - output_types: [conda]
+        packages:
+          - torchdata
+          - pydantic
       - output_types: [conda, pyproject, requirements]
         packages:
           - pytest
@@ -335,6 +343,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - ogb
+          # for MovieLens example
           - sentence-transformers
   test_python_pylibwholegraph:
     common:
@@ -343,30 +352,53 @@ dependencies:
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    common:
-      - output_types: [conda]
-        packages:
-          - torchdata
-          - pydantic
     specific:
       - output_types: [requirements]
         matrices:
+          # If 'include_torch_extra_index=false' is passed, avoid these --extra-index-url.
+          # (useful in CI scripts where we want to tightly control which indices 'pip' uses).
+          - matrix:
+              include_torch_extra_index: "false"
+            packages:
+          # otherwise, choose a CUDA-version-specific index
+          - matrix:
+              cuda: "12.[234]"
+            packages:
+              # oldest torch: 2.4.0+cu124
+              - &oldest_torch_index_cu12 --extra-index-url=https://download.pytorch.org/whl/cu124
+          - matrix:
+              cuda: "12.[56]"
+            packages:
+              # oldest torch: 2.6.0+cu126
+              - --extra-index-url=https://download.pytorch.org/whl/cu126
+          - matrix:
+              cuda: "12.[78]"
+            packages:
+              # oldest torch: 2.7.0+cu128
+              - --extra-index-url=https://download.pytorch.org/whl/cu128
           - matrix:
               cuda: "12.*"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              # oldest torch: 2.8.0+cu129
+              - &latest_torch_index_cu12 --extra-index-url=https://download.pytorch.org/whl/cu129
           - matrix:
               cuda: "13.*"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu130
+              # oldest torch: 2.9.0+cu130
+              - &torch_index_cu13 --extra-index-url=https://download.pytorch.org/whl/cu130
           - matrix:
             packages:
+      # For pyproject.toml (and therefore wheel metadata), avoid --extra-index-url
+      # and use pins that don't have CUDA-specific version modifiers (so installing alongside
+      # CPU-only torch is technically possible).
+      #
+      # --extra-index-url for requirements is handled by other lists here.
       - output_types: [requirements, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
             packages:
-              - torch>=2.3
+              - torch>=2.4
           - matrix:
               cuda: "13.*"
             packages:
@@ -374,14 +406,52 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
+      # For [requirements], include --extra-index-url and CUDA-specific version modifiers
+      # to ensure we get CUDA builds at test time.
+      - output_types: [requirements]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              dependencies: "oldest"
+              require_gpu: "true"
+            packages:
+              - *oldest_torch_index_cu12
+              - torch==2.4.0+cu124
+          - matrix:
+              cuda: "13.*"
+              dependencies: "oldest"
+              require_gpu: "true"
+            packages:
+              - *torch_index_cu13
+              - torch==2.9.0+cu130
+          - matrix:
+              cuda: "12.*"
+              require_gpu: "true"
+            packages:
+              - *latest_torch_index_cu12
+              - torch==2.8.0+cu129
+          - matrix:
+              cuda: "13.*"
+              require_gpu: "true"
+            packages:
+              - *torch_index_cu13
+              - torch==2.10.0+cu130
+          # Nothing above matches, don't add a CUDA-specific 'torch' requirement.
+          #
+          # This keeps these tight pins out of [test] extras in wheels.
+          #
+          # Also useful for cases like RAPIDS DLFW builds, where 'torch' is provided a different
+          # way and we want to avoid installing it from external repos.
+          - matrix:
+            packages:
       - output_types: [conda]
         matrices:
           # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
           - matrix:
               require_gpu: "true"
             packages:
-              - pytorch-gpu
-          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+              - pytorch-gpu >=2.4
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's / pylibwholegraph's dependencies.
           - matrix:
             packages:
   depends_on_nccl:
@@ -399,17 +469,6 @@ dependencies:
               - nvidia-nccl-cu12>=2.19
           - matrix:
             packages:
-  depends_on_ogb:
-    common:
-      - output_types: [conda, requirements, pyproject]
-        packages:
-          - ogb
-  # for MovieLens example
-  depends_on_sentence_transformers:
-    common:
-      - output_types: [conda, requirements, pyproject]
-        packages:
-          - sentence-transformers
   depends_on_pyg:
     common:
       - output_types: [conda]

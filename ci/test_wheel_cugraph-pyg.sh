@@ -15,13 +15,16 @@ LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
 CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
 
-CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+# generate constraints, accounting for 'oldest' and 'latest' dependencies
+rapids-dependency-file-generator \
+    --output requirements \
+    --file-key "test_cugraph_pyg" \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};include_torch_extra_index=false" \
+| tee "${PIP_CONSTRAINT}"
 
-if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
-else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
-fi
+# ensure a CUDA variant of 'torch' is used
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
 
 # notes:
 #
@@ -30,12 +33,13 @@ fi
 #     its dependencies are available from pypi.org
 #
 rapids-pip-retry install \
-    -v \
-    --extra-index-url "${PYTORCH_INDEX}" \
+    --prefer-binary \
+    --constraint "${PIP_CONSTRAINT}" \
     --extra-index-url 'https://pypi.nvidia.com' \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
-    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]" \
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
