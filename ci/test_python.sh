@@ -14,7 +14,8 @@ conda config --set channel_priority strict
 
 rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-github cpp)
-PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-package-name conda_python pylibwholegraph --stable --cuda)")
+# PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-package-name conda_python pylibwholegraph --stable --cuda)")
+PYTHON_CHANNEL=$(rapids-download-from-github python)
 PYTHON_NOARCH_CHANNEL=$(rapids-download-from-github "$(rapids-package-name conda_python cugraph_pyg --pure)")
 
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
