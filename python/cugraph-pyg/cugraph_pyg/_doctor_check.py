@@ -31,7 +31,7 @@ def cugraph_pyg_smoke_check(**kwargs):
             "cugraph-pyg smoke check failed: __version__ not found or empty"
         )
 
-    from cugraph_pyg.utils import import_optional, MissingModule
+    from cugraph_pyg.utils.imports import import_optional, MissingModule
 
     torch = import_optional("torch")
 
@@ -42,3 +42,27 @@ def cugraph_pyg_smoke_check(**kwargs):
             "PyTorch is required to use cuGraph-PyG."
             "Please install PyTorch from PyPI or Conda-Forge."
         )
+    else:
+        import os
+        from cugraph_pyg.data import GraphStore
+
+        os.environ["MASTER_ADDR"] = "localhost"
+        os.environ["MASTER_PORT"] = "29505"
+        os.environ["LOCAL_RANK"] = "0"
+        os.environ["WORLD_SIZE"] = "1"
+        os.environ["LOCAL_WORLD_SIZE"] = "1"
+        os.environ["RANK"] = "0"
+        torch.distributed.init_process_group("nccl")
+
+        graph_store = GraphStore()
+        graph_store.put_edge_index(
+            torch.tensor([[0, 1], [1, 2]]),
+            ("person", "knows", "person"),
+            "coo",
+            False,
+            (3, 3),
+        )
+        edge_index = graph_store.get_edge_index(("person", "knows", "person"), "coo")
+        assert edge_index.shape == torch.Size([2, 2])
+
+        torch.distributed.destroy_process_group()
