@@ -35,7 +35,7 @@ rapids-pip-retry install \
     --extra-index-url ${PYTORCH_INDEX} \
     "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    'torch>=2.3'
+    'torch==2.10.0+cu130'
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests
