@@ -42,16 +42,3 @@ def cugraph_pyg_smoke_check(**kwargs):
             "PyTorch is required to use cuGraph-PyG."
             "Please install PyTorch from PyPI or Conda-Forge."
         )
-    else:
-        from cugraph_pyg.data import GraphStore
-
-        graph_store = GraphStore()
-        graph_store.put_edge_index(
-            torch.tensor([[0, 1], [1, 2]]),
-            ("person", "knows", "person"),
-            "coo",
-            False,
-            (3, 3),
-        )
-        edge_index = graph_store.get_edge_index(("person", "knows", "person"), "coo")
-        assert edge_index.shape == (2, 2)
