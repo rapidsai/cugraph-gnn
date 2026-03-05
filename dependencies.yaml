@@ -370,7 +370,7 @@ dependencies:
           - matrix:
               cuda: "12.*"
             packages:
-              - torch>=2.3
+              - torch==2.10.0+cu130
           - matrix:
               cuda: "13.*"
             packages:
