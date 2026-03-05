@@ -45,4 +45,5 @@ sccache --stop-server >/dev/null 2>&1 || true
 rm -rf "$RAPIDS_CONDA_BLD_OUTPUT_DIR"/build_cache
 
 # RAPIDS_PACKAGE_NAME="$(rapids-package-name conda_python pylibwholegraph --stable --cuda)"
-# export RAPIDS_PACKAGE_NAME
+RAPIDS_PACKAGE_NAME="$(rapids-package-name conda_python pylibwholegraph --cuda)"
+export RAPIDS_PACKAGE_NAME
