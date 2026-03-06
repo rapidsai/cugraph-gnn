@@ -22,6 +22,13 @@ wholememory_error_code_t wholegraph_csr_unweighted_sample_without_replacement(
   wholememory_env_func_t* p_env_fns,
   void* stream)
 {
+  if (wm_csr_row_ptr_tensor == nullptr || wm_csr_col_ptr_tensor == nullptr ||
+      center_nodes_tensor == nullptr || output_sample_offset_tensor == nullptr ||
+      output_dest_memory_context == nullptr || p_env_fns == nullptr) {
+    WHOLEMEMORY_ERROR("Required tensor or context pointer is null.");
+    return WHOLEMEMORY_INVALID_INPUT;
+  }
+
   bool const csr_row_ptr_has_handle = wholememory_tensor_has_handle(wm_csr_row_ptr_tensor);
   wholememory_memory_type_t csr_row_ptr_memory_type = WHOLEMEMORY_MT_NONE;
   if (csr_row_ptr_has_handle) {
