@@ -26,14 +26,16 @@ def pylibwholegraph_smoke_check(**kwargs):
             "pylibwholegraph smoke check failed: __version__ not found or empty"
         )
 
-    from pylibwholegraph.utils import import_optional, MissingModule
+    try:
+        import torch
 
-    torch = import_optional("torch")
+        assert torch.cuda.is_available()
 
-    if isinstance(torch, MissingModule):
+    except ImportError:
         import warnings
 
         warnings.warn(
-            "PyTorch is required to use pylibwholegraph."
+            "PyTorch with CUDA or its dependencies could not be imported. "
+            "PyTorch is required to use pylibwholegraph. "
             "Please install PyTorch from PyPI or Conda-Forge."
         )
