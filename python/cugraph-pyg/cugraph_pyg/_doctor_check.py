@@ -39,7 +39,7 @@ def cugraph_pyg_smoke_check(**kwargs):
         import warnings
 
         warnings.warn(
-            "PyTorch is required to use cuGraph-PyG."
+            "PyTorch is required to use cuGraph-PyG. "
             "Please install PyTorch from PyPI or Conda-Forge."
         )
     else:
