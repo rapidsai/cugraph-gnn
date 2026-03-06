@@ -56,15 +56,18 @@ def cugraph_pyg_smoke_check(**kwargs):
         ]
         env_values = {var: os.environ.get(var, None) for var in env_vars}
 
-        os.environ["MASTER_ADDR"] = "localhost"
-        os.environ["MASTER_PORT"] = "29505"
-        os.environ["LOCAL_RANK"] = "0"
-        os.environ["WORLD_SIZE"] = "1"
-        os.environ["LOCAL_WORLD_SIZE"] = "1"
-        os.environ["RANK"] = "0"
-        torch.distributed.init_process_group("nccl")
-
+        initialized = False
         try:
+            os.environ["MASTER_ADDR"] = "localhost"
+            os.environ["MASTER_PORT"] = "29505"
+            os.environ["LOCAL_RANK"] = "0"
+            os.environ["WORLD_SIZE"] = "1"
+            os.environ["LOCAL_WORLD_SIZE"] = "1"
+            os.environ["RANK"] = "0"
+
+            torch.distributed.init_process_group("nccl")
+            initialized = True
+
             graph_store = GraphStore()
             graph_store.put_edge_index(
                 torch.tensor([[0, 1], [1, 2]]),
@@ -83,4 +86,5 @@ def cugraph_pyg_smoke_check(**kwargs):
                     os.environ.pop(key, None)
                 else:
                     os.environ[key] = value
-            torch.distributed.destroy_process_group()
+            if initialized:
+                torch.distributed.destroy_process_group()
