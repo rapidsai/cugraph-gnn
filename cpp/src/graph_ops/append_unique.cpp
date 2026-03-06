@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "error.hpp"
@@ -71,13 +71,12 @@ wholememory_error_code_t graph_append_unique(
   void* target_nodes_ptr   = wholememory_tensor_get_data_pointer(target_nodes_tensor);
   void* neighbor_nodes_ptr = wholememory_tensor_get_data_pointer(neighbor_nodes_tensor);
 
-  return graph_ops::graph_append_unique_impl(
-    target_nodes_ptr,
-    target_nodes_array_desc,
-    neighbor_nodes_ptr,
-    neighbor_nodes_array_desc,
-    output_unique_node_memory_context,
-    output_neighbor_raw_to_unique_mapping_ptr,
-    p_env_fns,
-    static_cast<cudaStream_t>(stream));
+  return graph_ops::graph_append_unique_impl(target_nodes_ptr,
+                                             target_nodes_array_desc,
+                                             neighbor_nodes_ptr,
+                                             neighbor_nodes_array_desc,
+                                             output_unique_node_memory_context,
+                                             output_neighbor_raw_to_unique_mapping_ptr,
+                                             p_env_fns,
+                                             static_cast<cudaStream_t>(stream));
 }
