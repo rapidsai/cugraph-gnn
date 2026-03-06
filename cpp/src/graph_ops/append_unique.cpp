@@ -28,21 +28,28 @@ wholememory_error_code_t graph_append_unique(
     return WHOLEMEMORY_INVALID_INPUT;
   }
 
-  auto output_neighbor_raw_to_unique_mapping_tensor_description =
-    *wholememory_tensor_get_tensor_description(output_neighbor_raw_to_unique_mapping_tensor);
+  int* output_neighbor_raw_to_unique_mapping_ptr = nullptr;
+  if (output_neighbor_raw_to_unique_mapping_tensor != nullptr) {
+    auto output_neighbor_raw_to_unique_mapping_tensor_description =
+      *wholememory_tensor_get_tensor_description(output_neighbor_raw_to_unique_mapping_tensor);
 
-  if (output_neighbor_raw_to_unique_mapping_tensor_description.dim != 1 &&
-      output_neighbor_raw_to_unique_mapping_tensor_description.dim != 0) {
-    WHOLEMEMORY_ERROR("output_neighbor_raw_to_unique_mapping_tensor should be 1D tensor or None.");
-    return WHOLEMEMORY_INVALID_INPUT;
+    if (output_neighbor_raw_to_unique_mapping_tensor_description.dim != 1 &&
+        output_neighbor_raw_to_unique_mapping_tensor_description.dim != 0) {
+      WHOLEMEMORY_ERROR(
+        "output_neighbor_raw_to_unique_mapping_tensor should be 1D tensor or None.");
+      return WHOLEMEMORY_INVALID_INPUT;
+    }
+    if (output_neighbor_raw_to_unique_mapping_tensor_description.dim == 1 &&
+        output_neighbor_raw_to_unique_mapping_tensor_description.dtype != WHOLEMEMORY_DT_INT) {
+      WHOLEMEMORY_ERROR(
+        "output_neighbor_raw_to_unique_mapping_tensor should be int tensor or None.");
+      return WHOLEMEMORY_INVALID_INPUT;
+    }
+    output_neighbor_raw_to_unique_mapping_ptr = static_cast<int*>(
+      wholememory_tensor_get_data_pointer(output_neighbor_raw_to_unique_mapping_tensor));
   }
-  if (output_neighbor_raw_to_unique_mapping_tensor_description.dim == 1 &&
-      output_neighbor_raw_to_unique_mapping_tensor_description.dtype != WHOLEMEMORY_DT_INT) {
-    WHOLEMEMORY_ERROR("output_neighbor_raw_to_unique_mapping_tensor should be int tensor or None.");
-    return WHOLEMEMORY_INVALID_INPUT;
-  }
-  wholememory_array_description_t target_nodes_array_desc, neighbor_nodes_array_desc,
-    output_neighbor_raw_to_unique_mapping_array_desc;
+
+  wholememory_array_description_t target_nodes_array_desc, neighbor_nodes_array_desc;
 
   if (!wholememory_convert_tensor_desc_to_array(&target_nodes_array_desc,
                                                 &target_nodes_tensor_description)) {
@@ -63,8 +70,6 @@ wholememory_error_code_t graph_append_unique(
 
   void* target_nodes_ptr   = wholememory_tensor_get_data_pointer(target_nodes_tensor);
   void* neighbor_nodes_ptr = wholememory_tensor_get_data_pointer(neighbor_nodes_tensor);
-  void* output_neighbor_raw_to_unique_mapping_ptr =
-    wholememory_tensor_get_data_pointer(output_neighbor_raw_to_unique_mapping_tensor);
 
   return graph_ops::graph_append_unique_impl(
     target_nodes_ptr,
@@ -72,7 +77,7 @@ wholememory_error_code_t graph_append_unique(
     neighbor_nodes_ptr,
     neighbor_nodes_array_desc,
     output_unique_node_memory_context,
-    static_cast<int*>(output_neighbor_raw_to_unique_mapping_ptr),
+    output_neighbor_raw_to_unique_mapping_ptr,
     p_env_fns,
     static_cast<cudaStream_t>(stream));
 }
