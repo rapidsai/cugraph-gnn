@@ -35,11 +35,11 @@ def cugraph_pyg_smoke_check(**kwargs):
 
     torch = import_optional("torch")
 
-    if isinstance(torch, MissingModule):
+    if isinstance(torch, MissingModule) or not torch.cuda.is_available():
         import warnings
 
         warnings.warn(
-            "PyTorch is required to use cuGraph-PyG. "
+            "PyTorch with CUDA support is required to use cuGraph-PyG. "
             "Please install PyTorch from PyPI or Conda-Forge."
         )
     else:
