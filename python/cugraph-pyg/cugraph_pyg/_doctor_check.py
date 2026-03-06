@@ -46,6 +46,13 @@ def cugraph_pyg_smoke_check(**kwargs):
         import os
         from cugraph_pyg.data import GraphStore
 
+        addr = os.environ.get("MASTER_ADDR", "")
+        port = os.environ.get("MASTER_PORT", "")
+        local_rank = os.environ.get("LOCAL_RANK", "")
+        world_size = os.environ.get("WORLD_SIZE", "")
+        local_world_size = os.environ.get("LOCAL_WORLD_SIZE", "")
+        rank = os.environ.get("RANK", "")
+
         try:
             os.environ["MASTER_ADDR"] = "localhost"
             os.environ["MASTER_PORT"] = "29505"
@@ -68,4 +75,10 @@ def cugraph_pyg_smoke_check(**kwargs):
             )
             assert edge_index.shape == torch.Size([2, 2])
         finally:
+            os.environ["MASTER_ADDR"] = addr
+            os.environ["MASTER_PORT"] = port
+            os.environ["LOCAL_RANK"] = local_rank
+            os.environ["WORLD_SIZE"] = world_size
+            os.environ["LOCAL_WORLD_SIZE"] = local_world_size
+            os.environ["RANK"] = rank
             torch.distributed.destroy_process_group()
