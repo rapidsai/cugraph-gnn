@@ -370,16 +370,16 @@ cdef class GlobalContextWrapper:
         self.output_global_context = NULL
 
     def __dealloc__(self):
-        Py_DECREF(self.self.temp_create_context_fn)
-        Py_DECREF(self.self.temp_destroy_context_fn)
-        Py_DECREF(self.self.temp_malloc_fn)
-        Py_DECREF(self.self.temp_free_fn)
+        Py_DECREF(self.temp_create_context_fn)
+        Py_DECREF(self.temp_destroy_context_fn)
+        Py_DECREF(self.temp_malloc_fn)
+        Py_DECREF(self.temp_free_fn)
         if self.temp_global_context:
-            Py_DECREF(self.self.temp_global_context)
-        Py_DECREF(self.self.output_malloc_fn)
-        Py_DECREF(self.self.output_free_fn)
+            Py_DECREF(self.temp_global_context)
+        Py_DECREF(self.output_malloc_fn)
+        Py_DECREF(self.output_free_fn)
         if self.output_global_context:
-            Py_DECREF(self.self.output_global_context)
+            Py_DECREF(self.output_global_context)
 
     cpdef create_context(self,
                          temp_create_context_fn,
@@ -424,6 +424,9 @@ cdef void python_cb_wrapper_temp_create_context(void** memory_context,
                                                 void * global_context) nogil:
     cdef PyObject * ret_memory_context = NULL
     with gil:
+        if global_context == NULL:
+            (<void **> memory_context)[0] = NULL
+            return
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         python_fn = wrapped_global_context.temp_create_context_fn
         python_global_context = wrapped_global_context.temp_global_context
@@ -440,6 +443,8 @@ cdef void python_cb_wrapper_temp_create_context(void** memory_context,
 cdef void python_cb_wrapper_temp_destroy_context(void * memory_context,
                                                  void * global_context) nogil:
     with gil:
+        if global_context == NULL or memory_context == NULL:
+            return
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         python_fn = wrapped_global_context.temp_destroy_context_fn
         python_global_context = wrapped_global_context.temp_global_context
@@ -459,6 +464,8 @@ cdef void * python_cb_wrapper_temp_malloc(wholememory_tensor_description_t * ten
                                           void * global_context) nogil:
     cdef int64_t res_ptr = 0
     with gil:
+        if global_context == NULL or memory_context == NULL or tensor_desc == NULL:
+            return <void *> 0
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         py_tensor_desc = PyWholeMemoryTensorDescription()
         py_tensor_desc.set_by_tensor_desc(tensor_desc)
@@ -482,6 +489,8 @@ cdef void * python_cb_wrapper_temp_malloc(wholememory_tensor_description_t * ten
 cdef void python_cb_wrapper_temp_free(void * memory_context,
                                       void * global_context) nogil:
     with gil:
+        if global_context == NULL or memory_context == NULL:
+            return
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         python_fn = wrapped_global_context.temp_free_fn
         python_global_context = wrapped_global_context.temp_global_context
@@ -500,6 +509,8 @@ cdef void * python_cb_wrapper_output_malloc(wholememory_tensor_description_t * t
                                             void * global_context) nogil:
     cdef int64_t res_ptr = 0
     with gil:
+        if global_context == NULL or memory_context == NULL or tensor_desc == NULL:
+            return <void *> 0
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         py_tensor_desc = PyWholeMemoryTensorDescription()
         py_tensor_desc.set_by_tensor_desc(tensor_desc)
@@ -523,6 +534,8 @@ cdef void * python_cb_wrapper_output_malloc(wholememory_tensor_description_t * t
 cdef void python_cb_wrapper_output_free(void * memory_context,
                                         void * global_context) nogil:
     with gil:
+        if global_context == NULL or memory_context == NULL:
+            return
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
         python_fn = wrapped_global_context.output_free_fn
         python_global_context = wrapped_global_context.output_global_context
