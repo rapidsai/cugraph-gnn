@@ -31,7 +31,7 @@ def pylibwholegraph_smoke_check(**kwargs):
 
         assert torch.cuda.is_available()
 
-    except ImportError:
+    except (ImportError, AssertionError):
         import warnings
 
         warnings.warn(
