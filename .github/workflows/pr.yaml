@@ -239,7 +239,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@python-3.14
     with:
       build_type: pull-request
       node_type: cpu8
@@ -251,7 +251,7 @@ jobs:
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@python-3.14
     if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
     with:
       build_type: pull-request
