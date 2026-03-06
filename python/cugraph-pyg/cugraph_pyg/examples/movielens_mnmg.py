@@ -441,7 +441,6 @@ if __name__ == "__main__":
         metadata = data.metadata()
         del data
 
-        # TODO enable temporal sampling when it is available in cuGraph-PyG
         kwargs = dict(
             data=(feature_store, graph_store),
             num_neighbors={
