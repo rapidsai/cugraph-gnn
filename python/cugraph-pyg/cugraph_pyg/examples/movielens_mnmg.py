@@ -462,6 +462,9 @@ if __name__ == "__main__":
             **kwargs,
         )
 
+        # Will raise a warning each epoch since we're not using the time attributes
+        # in this loader. This is expected behavior since lazy graph creation results
+        # in both loaders using the same graph.
         test_loader = LinkNeighborLoader(
             edge_label_index=(("user", "rates", "movie"), eli_test),
             neg_sampling=dict(mode="binary", amount=1),
