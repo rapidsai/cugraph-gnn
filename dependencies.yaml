@@ -456,11 +456,11 @@ dependencies:
               - *pytorch_pip
   depends_on_nccl:
     common:
-      - output_types: conda
+      - output_types: [conda]
         packages:
           - nccl>=2.19
     specific:
-      - output_types: [pyproject, requirements]
+      - output_types: [requirements, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
