@@ -37,7 +37,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-dependency-file-generator \
     --output conda \
     --file-key test_cugraph_pyg \
-    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu=true" \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu_pytorch=true" \
     --prepend-channel "${CPP_CHANNEL}" \
     --prepend-channel "${PYTHON_CHANNEL}" \
     --prepend-channel "${PYTHON_NOARCH_CHANNEL}" \
@@ -76,7 +76,7 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-dependency-file-generator \
     --output conda \
     --file-key test_pylibwholegraph \
-    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu=true" \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu_pytorch=true" \
     --prepend-channel "${CPP_CHANNEL}" \
     --prepend-channel "${PYTHON_CHANNEL}" \
   | tee env.yaml

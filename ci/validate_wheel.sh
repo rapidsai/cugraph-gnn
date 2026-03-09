@@ -9,6 +9,10 @@ wheel_dir_relative_path=$2
 
 RAPIDS_CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 
+python -m pip install \
+    --prefer-binary \
+    'pkginfo>=1.12.1.2'
+
 cd "${package_dir}"
 
 rapids-logger "validate packages with 'pydistcheck'"
@@ -43,3 +47,21 @@ rapids-logger "validate packages with 'twine'"
 twine check \
     --strict \
     "$(echo ${wheel_dir_relative_path}/*.whl)"
+
+rapids-logger "validating that the wheel doesn't depend on 'torch' (even in an extra)"
+WHEEL_FILE="$(${wheel_dir_relative_path}/*.whl)"
+
+# NOTE: group of specifiers after 'torch' to avoid a false positive like 'torch-geometric'
+unzip -p "${WHEEL_FILE}" '*.dist-info/METADATA' \
+| grep -E '^Requires-Dist:.*torch[><=!~ ]+.*' \
+| tee matches.txt
+
+if wc -l < ./matches.txt; then
+    echo -n "Wheel '${WHEEL_FILE}' appears to depend on 'torch'. Remove that dependency. "
+    echo -n "We prefer to not declare a 'torch' dependency and allow it to be managed separately, "
+    echo "to ensure tight control over the variants installed (including for DLFW builds)."
+    exit 1
+else
+    echo "No dependency on 'torch' found"
+    exit 0
+fi

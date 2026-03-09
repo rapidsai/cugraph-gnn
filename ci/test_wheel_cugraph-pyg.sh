@@ -18,9 +18,26 @@ CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
 
-# ensure a CUDA variant of 'torch' is used
+PIP_INSTALL_ARGS=(
+  --prefer-binary
+  --constraint "${PIP_CONSTRAINT}"
+  --extra-index-url 'https://pypi.nvidia.com'
+  "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+  "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)"
+  "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+)
+
+# ensure a CUDA variant of 'torch' is used (if one is available)
 TORCH_WHEEL_DIR="$(mktemp -d)"
 ./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
+
+# 'cugraph-pyg' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+else
+  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
+fi
 
 # notes:
 #
@@ -29,13 +46,7 @@ TORCH_WHEEL_DIR="$(mktemp -d)"
 #     its dependencies are available from pypi.org
 #
 rapids-pip-retry install \
-    --prefer-binary \
-    --constraint "${PIP_CONSTRAINT}" \
-    --extra-index-url 'https://pypi.nvidia.com' \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
-    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]" \
-    "${TORCH_WHEEL_DIR}"/torch-*.whl
+  "${PIP_INSTALL_ARGS[@]}"
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"

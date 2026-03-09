@@ -23,18 +23,29 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_pylibwholegraph "${PIP_CONSTRAINT}"
 
-# ensure a CUDA variant of 'torch' is used
+PIP_INSTALL_ARGS=(
+  --prefer-binary
+  --constraint "${PIP_CONSTRAINT}"
+  "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]"
+  "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+)
+
+# ensure a CUDA variant of 'torch' is used (if one is available)
 TORCH_WHEEL_DIR="$(mktemp -d)"
 ./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
+
+# 'cugraph-pyg' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+else
+  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
+fi
 
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
 rapids-pip-retry install \
-    --prefer-binary \
-    --constraint "${PIP_CONSTRAINT}" \
-    "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    "${TORCH_WHEEL_DIR}"/torch-*.whl
+    "${PIP_INSTALL_ARGS[@]}"
 
 rapids-logger "pytest pylibwholegraph"
 cd python/pylibwholegraph/pylibwholegraph/tests
