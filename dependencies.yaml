@@ -63,7 +63,7 @@ files:
       - depends_on_cuml
       - py_version
       - test_python_common
-      - test_pythong_cugraph_pyg
+      - test_python_cugraph_pyg
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
