@@ -49,7 +49,7 @@ twine check \
     "$(echo ${wheel_dir_relative_path}/*.whl)"
 
 rapids-logger "validating that the wheel doesn't depend on 'torch' (even in an extra)"
-WHEEL_FILE="$(${wheel_dir_relative_path}/*.whl)"
+WHEEL_FILE="$(echo ${wheel_dir_relative_path}/*.whl)"
 
 # NOTE: group of specifiers after 'torch' to avoid a false positive like 'torch-geometric'
 unzip -p "${WHEEL_FILE}" '*.dist-info/METADATA' \
