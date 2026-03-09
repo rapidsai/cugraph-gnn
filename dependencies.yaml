@@ -31,6 +31,7 @@ files:
       - rapids_build_skbuild
       - test_cpp
       - test_python_common
+      - test_python_cugraph_pyg
       - test_python_pylibwholegraph
   checks:
     output: none
@@ -60,10 +61,9 @@ files:
       - depends_on_cudf
       - depends_on_pytorch
       - depends_on_cuml
-      - depends_on_ogb
-      - depends_on_sentence_transformers
       - py_version
       - test_python_common
+      - test_pythong_cugraph_pyg
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
   test_pylibwholegraph:
@@ -76,6 +76,10 @@ files:
       - test_python_common
       - depends_on_pylibwholegraph
       - test_python_pylibwholegraph
+  torch_only:
+    output: none
+    includes:
+      - depends_on_pytorch
   py_build_libwholegraph:
     output: pyproject
     pyproject_dir: python/libwholegraph
@@ -165,9 +169,8 @@ files:
       - depends_on_pytorch
       - depends_on_cuml
       - depends_on_cugraph
-      - depends_on_ogb
-      - depends_on_sentence_transformers
       - test_python_common
+      - test_python_cugraph_pyg
   cugraph_pyg_dev:
     matrix:
       cuda: ["12.9", "13.1"]
@@ -298,7 +301,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - *numpy
-          - packaging
+          - &packaging packaging
           - pandas
   rapids_build_skbuild:
     common:
@@ -331,60 +334,126 @@ dependencies:
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
+    specific:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - torchdata
+              - pydantic
+  test_python_cugraph_pyg:
+    specific:
+      - output_types: [conda, requirements, pyproject]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - ogb
+              - sentence-transformers
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
+          - *packaging
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    common:
-      - output_types: [conda]
-        packages:
-          - torchdata
-          - pydantic
     specific:
-      - output_types: [requirements]
+      # conda: choose between GPU and CPU-only pytorch
+      - output_types: conda
         matrices:
           - matrix:
               no_pytorch: "true"
             packages:
           - matrix:
-              cuda: "12.*"
+              require_gpu_pytorch: "true"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
-          - matrix:
-              cuda: "13.*"
-            packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu130
-          - matrix:
-            packages:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-              cuda: "12.*"
-            packages:
-              - torch>=2.3
-          - matrix:
-              cuda: "13.*"
-            packages:
-              - &pytorch_pip torch>=2.9.0
-          - matrix:
-            packages:
-              - *pytorch_pip
-      - output_types: [conda]
-        matrices:
-          # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
-          - matrix:
-              require_gpu: "true"
-            packages:
-              - pytorch-gpu
+              - pytorch-gpu>=2.6
           # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
           - matrix:
             packages:
+      # conda: optionally pins to older versions based on 'dependencies' key
+      - output_types: conda
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+              cuda: "12.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.6
+          - matrix:
+              cuda: "13.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.9
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
+      - output_types: pyproject
+        matrices:
+          # avoid pulling in 'torch' in places like DLFW builds that prefer to install it other ways
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - &pytorch_pip torch>=2.6
+      # wheels: handle GPU vs. CPU and version pinning together
+      #
+      # The 'pytorch.org' indices referenced in --extra-index-url below host CPU-only variants too,
+      # so requirements like '>=' are not safe.
+      #
+      # Using '==' and a version with the CUDA specifier like '+cu130' is the most reliable way to ensure
+      # the packages we want are pulled (at the expense of needing to maintain this list).
+      #
+      # 'torch' tightly pins wheels to a single {major}.{minor} CTK version.
+      #
+      # This list only contains entries exactly matching CUDA {major}.{minor} that we test in RAPIDS CI,
+      # to ensure a loud error alerts us to the need to update this list (or CI scripts) when new
+      # CTKs are added to the support matrix.
+      - output_types: requirements
+        matrices:
+          # avoid pulling in 'torch' in places like DLFW builds that prefer to install it other ways
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          # matrices below ensure CUDA 'torch' packages are used
+          - matrix:
+              cuda: "12.9"
+              dependencies: "oldest"
+              require_gpu_pytorch: "true"
+            packages:
+              - &torch_cu129_index --extra-index-url=https://download.pytorch.org/whl/cu129
+              - torch==2.8.0+cu129
+          - matrix:
+              cuda: "12.9"
+              require_gpu_pytorch: "true"
+            packages:
+              - *torch_cu129_index
+              - torch==2.10.0+cu129
+          - matrix:
+              cuda: "13.0"
+              dependencies: "oldest"
+              require_gpu_pytorch: "true"
+            packages:
+              - &torch_index_cu13 --extra-index-url=https://download.pytorch.org/whl/cu130
+              - torch==2.8.0+cu130
+          - matrix:
+              cuda: "13.0"
+              require_gpu_pytorch: "true"
+            packages:
+              - *torch_index_cu13
+              - torch==2.10.0+cu130
+          - matrix:
+            packages:
+              - *pytorch_pip
   depends_on_nccl:
     common:
       - output_types: conda
@@ -400,35 +469,6 @@ dependencies:
               - nvidia-nccl-cu12>=2.19
           - matrix:
             packages:
-  depends_on_ogb:
-    common:
-      - output_types: [conda]
-        packages:
-          - ogb
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - ogb
-  # for MovieLens example
-  depends_on_sentence_transformers:
-    common:
-      - output_types: [conda]
-        packages:
-          - sentence-transformers
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - sentence-transformers
   depends_on_pyg:
     common:
       - output_types: [conda]
