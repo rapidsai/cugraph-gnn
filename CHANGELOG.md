@@ -1,3 +1,13 @@
+# cugraph-gnn 26.02.01 (9 Mar 2026)
+
+### 🐛 Bug Fixes
+* Backport Temporal Negative Sampling Update/Fix to 26.02 by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/424
+### 🛠️ Improvements
+* Backport Temporal Negative Sampling Update/Fix to 26.02 (#424) by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/426
+
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.02.00...release/26.02
+
 # cugraph-gnn 26.02.00 (4 Feb 2026)
 
 ### 🚨 Breaking Changes
