@@ -349,7 +349,7 @@ dependencies:
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    specific:
+  depends_on_pytorch:
     specific:
       # conda: choose between GPU and CPU-only pytorch
       - output_types: conda
