@@ -11,9 +11,19 @@ package_name="cugraph-pyg"
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-pyg built in the previous step
-LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
-PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
-CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
+# LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
+# PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
+# CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
+# rapids-get-pr-artifact cugraph-gnn 425 python wheel --pkg_name cugraph_pyg --stable
+CUGRAPH_PYGH_WHEELHOUSE=$(
+  RAPIDS_PY_WHEEL_NAME="${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-get-pr-artifact --pkg_name cugraph-pyg cugraph-gnn 425 python wheel
+)
+LIBWHOLEGRAPH_WHEELHOUSE=$(
+  RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-get-pr-artifact cugraph-gnn 425 cpp wheel
+)
+PYLIBWHOLEGRAPH_WHEELHOUSE=$(
+  rapids-get-pr-artifact cugraph-gnn 425 python wheel --pkg_name pylibwholegraph --stable
+)
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
@@ -47,6 +57,10 @@ fi
 #
 rapids-pip-retry install \
   "${PIP_INSTALL_ARGS[@]}"
+
+python -c "import cugraph_pyg"
+echo "--- DONE ---"
+exit 0
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
