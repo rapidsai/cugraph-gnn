@@ -396,8 +396,15 @@ dependencies:
           - matrix:
               cuda: "12.*"
               cuda_suffixed: "true"
+              use_cuda_wheels: "true"
             packages:
               - nvidia-nccl-cu12>=2.19
+          - matrix:
+              cuda: "13.*"
+              cuda_suffixed: "true"
+              use_cuda_wheels: "true"
+            packages:
+              - nvidia-nccl-cu13>=2.19
           - matrix:
             packages:
   depends_on_ogb:
