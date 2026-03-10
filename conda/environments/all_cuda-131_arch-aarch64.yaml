@@ -27,7 +27,6 @@ dependencies:
 - nccl>=2.19
 - ninja
 - numpy>=1.23,<3.0
-- ogb
 - packaging
 - pandas
 - pre-commit
@@ -43,7 +42,6 @@ dependencies:
 - rmm==26.4.*,>=0.0.0a0
 - scikit-build-core>=0.11.0
 - scipy
-- sentence-transformers
 - setuptools>=77.0.0
 - torchdata
 - wheel
