@@ -364,7 +364,7 @@ dependencies:
           # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
           - matrix:
             packages:
-      # conda: optionally pins to older versions based on 'dependencies' key
+      # conda: optionally pin to older versions based on 'dependencies' key
       - output_types: conda
         matrices:
           - matrix:
