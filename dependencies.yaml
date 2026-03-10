@@ -403,13 +403,8 @@ dependencies:
             packages:
               - *torch_index_cu13
               - torch==2.10.0+cu130
-          #
-          # (empty)
-          #
-          # Intentionally no fallback entry, to ensure a loud error alerts us to the need
-          # to update this list and/or CI scripts when new CUDA versions, Python versions,
-          # etc. are added to the RAPIDS support matrix.
-          #
+          - matrix:
+            packages:
       - output_types: [conda]
         matrices:
           # Prevent fallback to CPU-only pytorch when we want a CUDA variant.

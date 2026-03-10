@@ -22,7 +22,7 @@ CUDA_MAJOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f1)
 CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
 if \
     { [ "${CUDA_MAJOR}" -eq 12 ] && [ "${CUDA_MINOR}" -lt 9 ]; } \
-    || { [ "${CUDA_MAJOR}" -eq 13 ] && [ "${CUDA_MINOR}" -gt 0 ]; }; \
+    || { [ "${CUDA_MAJOR}" -eq 13 ] && [ "${CUDA_MINOR}" -gt 0 ]; } \
     || [ "${CUDA_MAJOR}" -gt 13 ];
 then
     rapids-logger "Skipping 'torch' wheel download. (requires CUDA 12.9+ or 13.0, found ${RAPIDS_CUDA_VERSION})"
