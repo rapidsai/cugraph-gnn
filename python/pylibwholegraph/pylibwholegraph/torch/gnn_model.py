@@ -1,11 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
+from pylibwholegraph.utils.imports import import_optional
 from .graph_structure import GraphStructure
 from .embedding import WholeMemoryEmbedding, WholeMemoryEmbeddingModule
 from .common_options import parse_max_neighbors
-import torch.nn.functional as F
+
+torch = import_optional("torch")
 
 
 framework_name = None
@@ -185,8 +186,10 @@ class HomoGNNModel(torch.nn.Module):
                 sub_graph,
             )
             if i != self.num_layer - 1:
-                x_feat = F.relu(x_feat)
-                x_feat = F.dropout(x_feat, self.dropout, training=self.training)
+                x_feat = torch.nn.functional.relu(x_feat)
+                x_feat = torch.nn.functional.dropout(
+                    x_feat, self.dropout, training=self.training
+                )
 
         out_feat = x_feat
         return out_feat

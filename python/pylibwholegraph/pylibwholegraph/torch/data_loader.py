@@ -1,12 +1,13 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
-import torch
-from torch.utils.data import Dataset
+from pylibwholegraph.utils.imports import import_optional
+
+torch = import_optional("torch")
 
 
-class NodeClassificationDataset(Dataset):
+class NodeClassificationDataset(torch.utils.data.Dataset):
     def __init__(self, raw_dataset):
         self.dataset = raw_dataset
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -7,12 +7,10 @@ from pylibwholegraph.utils.multiprocess import multiprocess_run
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
 from pylibwholegraph.torch.dlpack_utils import torch_import_from_dlpack
 from pylibwholegraph.test_utils.test_comm import random_partition
-import torch
 import numpy as np
 import os
 import random
 from functools import partial
-
 
 gpu_count = None
 
@@ -49,6 +47,7 @@ def load_routine_func(
     round_robin_size=0,
     entry_partition=None,
 ):
+    torch = pytest.importorskip("torch")
     wm_comm, _ = init_torch_env_and_create_wm_comm(
         world_rank, world_size, world_rank, world_size
     )
@@ -181,6 +180,7 @@ def test_wholememory_load(
     storage_offset,
     round_robin_size,
     partition_method,
+    torch,
 ):
     if embedding_stride < storage_offset + embedding_dim:
         pytest.skip(

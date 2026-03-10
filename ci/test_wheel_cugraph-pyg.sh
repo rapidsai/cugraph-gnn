@@ -11,19 +11,19 @@ package_name="cugraph-pyg"
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-pyg built in the previous step
-LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
-PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
-CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
-# CUGRAPH_GNN_COMMIT=5a4064e7bf27a2548b32012375996f976d23e4e9
-# CUGRAPH_PYG_WHEELHOUSE=$(
-#   RAPIDS_PY_WHEEL_NAME="cugraph-pyg_cu12" RAPIDS_PY_WHEEL_PURE="1" rapids-get-pr-artifact cugraph-gnn 425 python wheel "${CUGRAPH_GNN_COMMIT}"
-# )
-# LIBWHOLEGRAPH_WHEELHOUSE=$(
-#   RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-get-pr-artifact cugraph-gnn 425 cpp wheel "${CUGRAPH_GNN_COMMIT}"
-# )
-# PYLIBWHOLEGRAPH_WHEELHOUSE=$(
-#   rapids-get-pr-artifact cugraph-gnn 425 python wheel --pkg_name pylibwholegraph --stable "${CUGRAPH_GNN_COMMIT}"
-# )
+# LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
+# PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
+# CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
+CUGRAPH_GNN_COMMIT=5a4064e7bf27a2548b32012375996f976d23e4e9
+CUGRAPH_PYG_WHEELHOUSE=$(
+  RAPIDS_PY_WHEEL_NAME="cugraph-pyg_cu12" RAPIDS_PY_WHEEL_PURE="1" rapids-get-pr-artifact cugraph-gnn 425 python wheel "${CUGRAPH_GNN_COMMIT}"
+)
+LIBWHOLEGRAPH_WHEELHOUSE=$(
+  RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-get-pr-artifact cugraph-gnn 425 cpp wheel "${CUGRAPH_GNN_COMMIT}"
+)
+PYLIBWHOLEGRAPH_WHEELHOUSE=$(
+  rapids-get-pr-artifact cugraph-gnn 425 python wheel --pkg_name pylibwholegraph --stable "${CUGRAPH_GNN_COMMIT}"
+)
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
@@ -73,20 +73,10 @@ popd
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 rapids-logger "pytest cugraph-pyg (single GPU)"
-pushd python/cugraph-pyg/cugraph_pyg
-python -m pytest \
-  --cache-clear \
-  --benchmark-disable \
-  tests
+./ci/run_cugraph_pyg_pytests.sh
 
-# Test examples (disabled due to lack of memory)
-#for e in "$(pwd)"/examples/*.py; do
-#  rapids-logger "running example $e"
-#  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
-#done
-
-# rapids-logger "running bitcoin example"
-# (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 "$(pwd)"/examples/fraud/bitcoin_mnmg.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
-# python "$(pwd)"/examples/fraud/bitcoin_rf.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
+rapids-logger "testing that cugraph-pyg is importable without 'torch'"
+pip uninstall --yes 'torch'
+python -c "import cugraph_pyg; print(cugraph_pyg.__version__)"
 
 popd

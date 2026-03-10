@@ -48,9 +48,4 @@ rapids-pip-retry install \
     "${PIP_INSTALL_ARGS[@]}"
 
 rapids-logger "pytest pylibwholegraph"
-cd python/pylibwholegraph/pylibwholegraph/tests
-python -m pytest \
-  --cache-clear \
-  --forked \
-  --import-mode=append \
-  .
+ci/run_pylibwholegraph_pytests.sh

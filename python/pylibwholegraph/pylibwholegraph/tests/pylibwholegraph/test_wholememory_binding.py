@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -6,7 +6,6 @@ import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.utils.multiprocess import multiprocess_run
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
 from pylibwholegraph.torch.dlpack_utils import torch_import_from_dlpack
-import torch
 
 
 # Run with:
@@ -14,6 +13,7 @@ import torch
 
 
 def single_test_case(wm_comm, mt, ml, malloc_size, granularity):
+    torch = pytest.importorskip("torch")
     world_rank = wm_comm.get_rank()
     print("Rank=%d testing mt=%s, ml=%s" % (world_rank, mt, ml))
     h = wmb.malloc(malloc_size, wm_comm, mt, ml, granularity)

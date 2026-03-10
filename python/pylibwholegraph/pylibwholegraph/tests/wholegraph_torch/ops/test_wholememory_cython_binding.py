@@ -1,9 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 import pylibwholegraph.binding.wholememory_binding as wmb
-import torch
 from pylibwholegraph.torch.wholegraph_env import (
     get_stream,
     get_wholegraph_env_fns,
@@ -14,7 +13,7 @@ from pylibwholegraph.torch.wholegraph_env import (
 import time
 
 
-def test_smoke():
+def test_smoke(torch):
     torch.cuda.set_device(0)
     output_len = 128
     embed_dim = 10
@@ -55,7 +54,7 @@ def test_smoke():
     assert wmb.py_get_wholememory_tensor_count() == 0
 
 
-def test_loop_memory():
+def test_loop_memory(torch):
     torch.cuda.set_device(0)
     embedding_dim = 1
     output_len = 1
@@ -107,7 +106,7 @@ def test_loop_memory():
 
 @pytest.mark.parametrize("output_len", list(range(1, 100, 17)))
 @pytest.mark.parametrize("embed_dim", list(range(1, 128, 23)))
-def test_random_alloc(output_len, embed_dim):
+def test_random_alloc(output_len, embed_dim, torch):
     torch.cuda.set_device(0)
     input_tensor = torch.rand((embed_dim,), device="cuda")
     indice_tensor = torch.arange(output_len, device="cuda")

@@ -1,11 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 from pylibwholegraph.utils.multiprocess import multiprocess_run
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
 import pylibwholegraph.binding.wholememory_binding as wmb
-import torch
 import random
 from functools import partial
 from pylibwholegraph.test_utils.test_comm import (
@@ -32,6 +31,7 @@ def host_weighted_sample_without_replacement_func(
     max_sample_count,
     random_seed,
 ):
+    torch = pytest.importorskip("torch")
     output_dest_tensor = torch.empty((total_sample_count,), dtype=col_id_dtype)
     output_center_localid_tensor = torch.empty((total_sample_count,), dtype=torch.int32)
     output_edge_gid_tensor = torch.empty((total_sample_count,), dtype=torch.int64)
@@ -116,6 +116,7 @@ def host_weighted_sample_without_replacement(
     col_id_dtype,
     random_seed,
 ):
+    torch = pytest.importorskip("torch")
     center_nodes_count = center_nodes.size(0)
     output_sample_offset_tensor = host_get_sample_offset_tensor(
         host_csr_row_ptr, center_nodes, max_sample_count
@@ -166,6 +167,7 @@ def host_weighted_sample_without_replacement(
 
 
 def routine_func(world_rank: int, world_size: int, **kwargs):
+    torch = pytest.importorskip("torch")
     wm_comm, _ = init_torch_env_and_create_wm_comm(
         world_rank, world_size, world_rank, world_size
     )
@@ -372,6 +374,7 @@ def test_wholegraph_weighted_sample(
     wholememory_type,
     need_center_local_output,
     need_edge_output,
+    torch,
 ):
     gpu_count = wmb.fork_get_gpu_count()
     assert gpu_count > 0

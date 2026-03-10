@@ -1,13 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 import os.path
 import importlib
 
-import torch
 import pylibwholegraph
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from typing import Union
 from .utils import wholememory_dtype_to_torch_dtype, torch_dtype_to_wholememory_dtype
+
+torch = import_optional("torch")
 
 default_wholegraph_env_context = None
 torch_cpp_ext_loaded = False
@@ -46,7 +48,7 @@ class TorchMemoryContext(object):
         else:
             return id(self)
 
-    def set_tensor(self, t: torch.Tensor):
+    def set_tensor(self, t: "torch.Tensor"):
         self.tensor = t
 
     def get_handle(self):

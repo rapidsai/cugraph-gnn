@@ -19,8 +19,9 @@ repos:
     rev: v0.14.3
     hooks:
       - id: ruff-check
-        args: [--fix]
+        args: [--config, "pyproject.toml"]
       - id: ruff-format
+        args: [--config, "pyproject.toml"]
   - repo: https://github.com/asottile/yesqa
     rev: v1.3.0
     hooks:

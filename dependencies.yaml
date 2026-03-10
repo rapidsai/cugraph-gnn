@@ -162,7 +162,6 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - depends_on_pytorch
       - depends_on_cuml
       - depends_on_cugraph
       - depends_on_ogb

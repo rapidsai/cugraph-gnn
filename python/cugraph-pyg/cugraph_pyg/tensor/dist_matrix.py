@@ -106,7 +106,7 @@ class DistMatrix:
             self._col[idx] = val[0]
             self._row[idx] = val[1]
 
-    def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
+    def __getitem__(self, idx: "torch.Tensor") -> torch.Tensor:
         if self._format != "coo":
             raise ValueError("Getting is currently only supported for COO format")
         if idx.dim() != 1:

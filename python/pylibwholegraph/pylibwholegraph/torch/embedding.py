@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pylibwholegraph.binding.wholememory_binding as wmb
-import torch
+from pylibwholegraph.utils.imports import import_optional
 from .utils import torch_dtype_to_wholememory_dtype, get_file_size
 from .utils import str_to_wmb_wholememory_location, str_to_wmb_wholememory_memory_type
 from .utils import (
@@ -18,6 +18,9 @@ from .comm import (
 )
 from .tensor import WholeMemoryTensor
 from .wholegraph_env import wrap_torch_tensor, get_wholegraph_env_fns, get_stream
+
+
+torch = import_optional("torch")
 
 
 class WholeMemoryOptimizer(object):
@@ -211,8 +214,8 @@ class EmbeddingLookupFn(torch.autograd.Function):
     @staticmethod
     def forward(
         ctx,
-        indice: torch.Tensor,
-        dummy_input: torch.Tensor,
+        indice: "torch.Tensor",
+        dummy_input: "torch.Tensor",
         wm_embedding,
         is_training: bool = False,
         force_dtype: Union[torch.dtype, None] = None,
@@ -226,7 +229,7 @@ class EmbeddingLookupFn(torch.autograd.Function):
         return output_tensor
 
     @staticmethod
-    def backward(ctx, grad_outputs: torch.Tensor):
+    def backward(ctx, grad_outputs: "torch.Tensor"):
         indice, output_tensor, dummy_input = ctx.saved_tensors
         wm_embedding = ctx.wm_embedding
         wm_embedding.add_gradients(indice, grad_outputs)
@@ -273,7 +276,7 @@ class WholeMemoryEmbedding(object):
 
     def gather(
         self,
-        indice: torch.Tensor,
+        indice: "torch.Tensor",
         *,
         is_training: bool = False,
         force_dtype: Union[torch.dtype, None] = None,
@@ -304,7 +307,7 @@ class WholeMemoryEmbedding(object):
         )
         return output_tensor
 
-    def add_gradients(self, indice: torch.Tensor, grad_outputs: torch.Tensor):
+    def add_gradients(self, indice: "torch.Tensor", grad_outputs: "torch.Tensor"):
         self.sparse_indices.append(indice)
         self.sparse_grads.append(grad_outputs)
 
@@ -373,7 +376,7 @@ def create_embedding(
     comm: WholeMemoryCommunicator,
     memory_type: str,
     memory_location: str,
-    dtype: torch.dtype,
+    dtype: "torch.dtype",
     sizes: List[int],
     *,
     cache_policy: Union[WholeMemoryCachePolicy, None] = None,
@@ -462,7 +465,7 @@ def create_embedding_from_filelist(
     memory_type: str,
     memory_location: str,
     filelist: Union[List[str], str],
-    dtype: torch.dtype,
+    dtype: "torch.dtype",
     last_dim_size: int,
     *,
     cache_policy: Union[WholeMemoryCachePolicy, None] = None,
@@ -547,7 +550,7 @@ class WholeMemoryEmbeddingModule(torch.nn.Module):
         self.embedding_gather_fn = EmbeddingLookupFn.apply
 
     def forward(
-        self, indice: torch.Tensor, force_dtype: Union[torch.dtype, None] = None
+        self, indice: "torch.Tensor", force_dtype: Union[torch.dtype, None] = None
     ):
         return self.embedding_gather_fn(
             indice,

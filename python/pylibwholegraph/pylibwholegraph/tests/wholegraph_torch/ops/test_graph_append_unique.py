@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-import torch
 import pylibwholegraph.torch.graph_ops as wg_ops
 
 
 def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
+    torch = pytest.importorskip("torch")
     output_neighbor_raw_to_unique = torch.empty(
         (neighbor_node_tensor.size(0)), dtype=torch.int32
     )
@@ -19,6 +19,7 @@ def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
 
 
 def routine_func(**kwargs):
+    torch = pytest.importorskip("torch")
     target_node_count = kwargs["target_node_count"]
     neighbor_node_count = kwargs["neighbor_node_count"]
     target_node_dtype = kwargs["target_node_dtype"]
@@ -80,6 +81,7 @@ def test_append_unique(
     neighbor_node_count,
     target_node_dtype,
     need_neighbor_raw_to_unique,
+    torch,
 ):
     gpu_count = torch.cuda.device_count()
     assert gpu_count > 0
