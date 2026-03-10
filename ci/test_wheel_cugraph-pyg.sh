@@ -78,6 +78,5 @@ fi
 rapids-logger "pytest cugraph-pyg (no 'torch')"
 pip uninstall --yes 'torch'
 
-PYTHONPATH=/opt/work/python/cugraph-pyg/ \
 python -c "import cugraph_pyg; print(cugraph_pyg.__version__)"
 ./ci/run_cugraph_pyg_pytests.sh
