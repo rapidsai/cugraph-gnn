@@ -301,7 +301,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - *numpy
-          - packaging
+          - &packaging packaging
           - pandas
   rapids_build_skbuild:
     common:
@@ -334,19 +334,57 @@ dependencies:
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
+    specific:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - torchdata
+              - pydantic
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
+          - *packaging
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    common:
-      - output_types: [conda]
-        packages:
-          - torchdata
-          - pydantic
     specific:
+      # conda: choose between GPU and CPU-only pytorch
+      - output_types: conda
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+              require_gpu: "true"
+            packages:
+              - pytorch-gpu>=2.3
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
+      # conda: optionally pin to older versions based on 'dependencies' key
+      - output_types: conda
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+              cuda: "12.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.4.1
+          - matrix:
+              cuda: "13.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.9
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
       - output_types: pyproject
         matrices:
           # avoid pulling in 'torch' in places like DLFW builds that prefer to install it other ways
@@ -404,16 +442,6 @@ dependencies:
               - torch==2.10.0+cu130
           - matrix:
             packages:
-      - output_types: [conda]
-        matrices:
-          # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
-          - matrix:
-              require_gpu: "true"
-            packages:
-              - pytorch-gpu
-          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
-          - matrix:
-            packages:
   depends_on_nccl:
     common:
       - output_types: conda
@@ -427,6 +455,11 @@ dependencies:
               cuda_suffixed: "true"
             packages:
               - nvidia-nccl-cu12>=2.19
+          - matrix:
+              cuda: "13.*"
+              cuda_suffixed: "true"
+            packages:
+              - nvidia-nccl-cu13>=2.19
           - matrix:
             packages:
   depends_on_ogb:
