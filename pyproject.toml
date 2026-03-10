@@ -10,7 +10,9 @@ exclude = [
 [tool.ruff.lint]
 ignore = [
     # whitespace before :
-    "E203",
+    "E203"
+]
+select = [
     # (flake8-tidy-imports) banned-api
     "TID251"
 ]
@@ -25,6 +27,6 @@ ignore = [
 ]
 
 # allow importing 'torch' directly in pylibwholegraph examples
-"python/pylibwholegraph/examples/" = [
+"python/pylibwholegraph/examples/*" = [
     "TID251"
 ]

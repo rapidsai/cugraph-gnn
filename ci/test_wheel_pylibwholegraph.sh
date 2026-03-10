@@ -36,8 +36,10 @@ TORCH_WHEEL_DIR="$(mktemp -d)"
 
 # 'cugraph-pyg' is still expected to be importable
 # and testable in an environment where 'torch' isn't installed.
+torch_installed=true
 if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_installed=false
 else
   PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
 fi
@@ -47,5 +49,12 @@ rapids-logger "Installing Packages"
 rapids-pip-retry install \
     "${PIP_INSTALL_ARGS[@]}"
 
-rapids-logger "pytest pylibwholegraph"
-ci/run_pylibwholegraph_pytests.sh
+if [[ "${torch_installed}" == "true" ]]; then
+  rapids-logger "pytest pylibwholegraph (with 'torch')"
+  ./ci/run_pylibwholegraph_pytests.sh
+fi
+
+rapids-logger "pytest pylibwholegraph (no 'torch')"
+pip uninstall --yes 'torch'
+python -c "import pylibwholegraph; print(pylibwholegraph.__version__)"
+./ci/run_pylibwholegraph_pytests.sh

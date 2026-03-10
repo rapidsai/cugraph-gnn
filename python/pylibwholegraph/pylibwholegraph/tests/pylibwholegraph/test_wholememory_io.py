@@ -294,6 +294,7 @@ def store_routine_func(
     storage_offset,
     entry_partition,
 ):
+    torch = pytest.importorskip("torch")
     (wm_comm, _) = init_torch_env_and_create_wm_comm(
         world_rank, world_size, world_rank, world_size
     )
@@ -347,6 +348,7 @@ def test_wholememory_store(
     embedding_stride,
     storage_offset,
     partition_method,
+    torch,
 ):
     if embedding_stride < storage_offset + embedding_dim:
         pytest.skip(

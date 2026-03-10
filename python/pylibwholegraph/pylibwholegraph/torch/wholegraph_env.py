@@ -173,8 +173,6 @@ def get_cpp_extension_src_path():
 
 
 def compile_cpp_extension():
-    import torch.utils.cpp_extension
-
     global torch_cpp_ext_loaded
     global torch_cpp_ext_lib
     cpp_extension_path = os.path.join(get_cpp_extension_src_path(), "torch_cpp_ext")

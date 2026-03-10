@@ -4,7 +4,7 @@
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def torch():
     """Pass this to any test case that needs 'torch' to be installed"""
     return pytest.importorskip("torch")

@@ -43,8 +43,10 @@ TORCH_WHEEL_DIR="$(mktemp -d)"
 
 # 'cugraph-pyg' is still expected to be importable
 # and testable in an environment where 'torch' isn't installed.
+torch_installed=true
 if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_installed=false
 else
   PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
 fi
@@ -58,10 +60,6 @@ fi
 rapids-pip-retry install \
   "${PIP_INSTALL_ARGS[@]}"
 
-python -c "import cugraph_pyg"
-echo "--- DONE ---"
-exit 0
-
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
@@ -72,11 +70,12 @@ popd
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
-rapids-logger "pytest cugraph-pyg (single GPU)"
-./ci/run_cugraph_pyg_pytests.sh
+if [[ "${torch_installed}" == "true" ]]; then
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch')"
+  ./ci/run_cugraph_pyg_pytests.sh
+fi
 
-rapids-logger "testing that cugraph-pyg is importable without 'torch'"
+rapids-logger "pytest cugraph-pyg (no 'torch')"
 pip uninstall --yes 'torch'
 python -c "import cugraph_pyg; print(cugraph_pyg.__version__)"
-
-popd
+./ci/run_cugraph_pyg_pytests.sh
