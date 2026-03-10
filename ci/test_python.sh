@@ -55,6 +55,12 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   rapids-logger "Check GPU usage"
   nvidia-smi
 
+  # 'torch' is an optional dependency of 'cugraph_pyg'... confirm that it's available
+  # here, to reduce the risk of accidentally skipping most tests because it accidentally
+  # wasn't installed.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available() is True"
+
   rapids-logger "pytest cugraph_pyg (single GPU)"
   ./ci/run_cugraph_pyg_pytests.sh \
     --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
@@ -87,6 +93,12 @@ if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
   set +u
   conda activate test_pylibwholegraph
   set -u
+
+  # 'torch' is an optional dependency of 'cugraph_pyg'... confirm that it's available
+  # here, to reduce the risk of accidentally skipping most tests because it accidentally
+  # wasn't installed.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available() is True"
 
   rapids-print-env
 

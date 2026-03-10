@@ -37,8 +37,9 @@ def routine_func(**kwargs):
         target_node_count,
         edge_num,
         neighbor_node_count,
-        csr_row_dtype=torch.int32,
+        csr_row_dtype=torch.int64,
         csr_col_dtype=torch.int32,
+        weight_dtype=torch.float32,
     )
     csr_row_ptr_tensor_cuda = csr_row_ptr_tensor.cuda()
     csr_col_ptr_tensor_cuda = csr_col_ptr_tensor.cuda()

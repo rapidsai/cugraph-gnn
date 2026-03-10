@@ -382,7 +382,12 @@ def test_wholegraph_weighted_sample(
     if col_id_dtype == 1:
         csr_col_dtype = torch.int64
     host_csr_row_ptr, host_csr_col_ptr, host_csr_weight_ptr = gen_csr_graph(
-        graph_node_count, graph_edge_count, csr_col_dtype=csr_col_dtype
+        graph_node_count,
+        graph_edge_count,
+        neighbor_node_count=None,
+        csr_row_dtype=torch.int64,
+        csr_col_dtype=csr_col_dtype,
+        weight_dtype=torch.float32,
     )
     routine_func_partial = partial(
         routine_func,

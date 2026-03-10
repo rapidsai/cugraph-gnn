@@ -45,10 +45,11 @@ def gen_csr_format_from_dense_matrix(
 def gen_csr_graph(
     graph_node_count,
     graph_edge_count,
-    neighbor_node_count=None,
-    csr_row_dtype=torch.int64,
-    csr_col_dtype=torch.int32,
-    weight_dtype=torch.float32,
+    *,
+    neighbor_node_count,
+    csr_row_dtype,
+    csr_col_dtype,
+    weight_dtype,
 ):
     torch = pytest.importorskip("torch")
     if neighbor_node_count is None:
