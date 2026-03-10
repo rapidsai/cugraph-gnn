@@ -352,7 +352,7 @@ dependencies:
             packages:
           - matrix:
             packages:
-              - &pytorch_pip torch>=2.5
+              - &pytorch_pip torch>=2.9.0
       # wheels: handle GPU vs. CPU and version pinning together
       #
       # The 'pytorch.org' indices referenced in --extra-index-url below host CPU-only variants too,
