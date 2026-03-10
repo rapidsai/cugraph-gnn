@@ -27,7 +27,7 @@ except ImportError:
     gpubenchmark = pytest_benchmark.plugin.benchmark
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def torch():
     """Pass this to any test case that needs 'torch' to be installed"""
     return pytest.importorskip("torch")

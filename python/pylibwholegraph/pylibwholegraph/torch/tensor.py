@@ -50,7 +50,7 @@ class WholeMemoryTensor(object):
         )
 
     def gather(
-        self, indice: "torch.Tensor", *, force_dtype: Union[torch.dtype, None] = None
+        self, indice: "torch.Tensor", *, force_dtype: Union["torch.dtype", None] = None
     ):
         assert indice.dim() == 1
         embedding_dim = self.shape[1] if self.dim() == 2 else 1

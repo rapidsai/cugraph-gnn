@@ -218,7 +218,7 @@ class EmbeddingLookupFn(torch.autograd.Function):
         dummy_input: "torch.Tensor",
         wm_embedding,
         is_training: bool = False,
-        force_dtype: Union[torch.dtype, None] = None,
+        force_dtype: Union["torch.dtype", None] = None,
     ):
         output_tensor = wm_embedding.gather(
             indice, is_training=is_training, force_dtype=force_dtype
@@ -279,7 +279,7 @@ class WholeMemoryEmbedding(object):
         indice: "torch.Tensor",
         *,
         is_training: bool = False,
-        force_dtype: Union[torch.dtype, None] = None,
+        force_dtype: Union["torch.dtype", None] = None,
     ):
         assert indice.dim() == 1
         embedding_dim = self.get_embedding_tensor().shape[1]
@@ -550,7 +550,7 @@ class WholeMemoryEmbeddingModule(torch.nn.Module):
         self.embedding_gather_fn = EmbeddingLookupFn.apply
 
     def forward(
-        self, indice: "torch.Tensor", force_dtype: Union[torch.dtype, None] = None
+        self, indice: "torch.Tensor", force_dtype: Union["torch.dtype", None] = None
     ):
         return self.embedding_gather_fn(
             indice,

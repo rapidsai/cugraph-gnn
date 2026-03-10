@@ -156,7 +156,7 @@ def get_wholegraph_env_fns(use_default=True) -> int:
     return wholegraph_env_context.get_env_fns()
 
 
-def wrap_torch_tensor(t: Union[torch.Tensor, None]) -> wmb.WrappedLocalTensor:
+def wrap_torch_tensor(t: Union["torch.Tensor", None]) -> wmb.WrappedLocalTensor:
     py_desc = wmb.PyWholeMemoryTensorDescription()
     wm_t = wmb.WrappedLocalTensor()
     if t is None:
