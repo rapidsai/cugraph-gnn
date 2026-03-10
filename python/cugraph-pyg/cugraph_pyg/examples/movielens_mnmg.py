@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -92,6 +92,12 @@ def cugraph_pyg_from_heterodata(data):
 
     feature_store["user", "x", None] = data["user"].x
     feature_store["movie", "x", None] = data["movie"].x
+    feature_store[("user", "rates", "movie"), "time", None] = data[
+        "user", "rates", "movie"
+    ].time
+    feature_store[("movie", "rev_rates", "user"), "time", None] = data[
+        "user", "rates", "movie"
+    ].time
 
     return feature_store, graph_store
 
@@ -136,7 +142,18 @@ def preprocess_and_partition(data, edge_path, features_path, meta_path):
             fx,
             os.path.join(movie_path, f"rank={r}.pt"),
         )
-
+    time_path = os.path.join(features_path, "time")
+    os.makedirs(
+        time_path,
+        exist_ok=True,
+    )
+    for r, time in enumerate(
+        torch.tensor_split(data["user", "movie"].time, world_size)
+    ):
+        torch.save(
+            time,
+            os.path.join(time_path, f"rank={r}.pt"),
+        )
     print("Writing metadata...")
     meta = {
         "num_nodes": {
@@ -189,6 +206,10 @@ def load_partitions(edge_path, features_path, meta_path):
             ei["test"],
         ],
         dim=1,
+    )
+    data["user", "rates", "movie"].time = torch.load(
+        os.path.join(features_path, "time", f"rank={rank}.pt"),
+        weights_only=True,
     )
 
     label_dict = {
@@ -398,7 +419,18 @@ if __name__ == "__main__":
         feature_store, graph_store = cugraph_pyg_from_heterodata(data)
         eli_train = data["user", "rates", "movie"].edge_index[:, label_dict["train"]]
         eli_test = data["user", "rates", "movie"].edge_index[:, label_dict["test"]]
+        time_train = data["user", "rates", "movie"].time[label_dict["train"]]
         num_nodes = {"user": data["user"].num_nodes, "movie": data["movie"].num_nodes}
+
+        # Set node times to 0
+        feature_store["user", "time", None] = torch.tensor_split(
+            torch.zeros(data["user"].num_nodes, dtype=torch.int64, device=device),
+            world_size,
+        )[global_rank]
+        feature_store["movie", "time", None] = torch.tensor_split(
+            torch.zeros(data["movie"].num_nodes, dtype=torch.int64, device=device),
+            world_size,
+        )[global_rank]
 
         # Extract feature dimensions
         num_features = {
@@ -417,17 +449,16 @@ if __name__ == "__main__":
                 ("movie", "rev_rates", "user"): [5, 5, 5],
             },
             batch_size=256,
-            # time_attr='time',
             shuffle=True,
             drop_last=True,
-            # temporal_strategy='last',
         )
 
         from cugraph_pyg.loader import LinkNeighborLoader
 
         train_loader = LinkNeighborLoader(
             edge_label_index=(("user", "rates", "movie"), eli_train),
-            # edge_label_time=time[train_index] - 1,  # No leakage.
+            edge_label_time=time_train - 1,  # No leakage.
+            time_attr="time",
             neg_sampling=dict(mode="binary", amount=2),
             **kwargs,
         )

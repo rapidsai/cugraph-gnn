@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -556,9 +556,25 @@ class BaseDistributedSampler:
             leftover_time = leftover_time[lyi]
 
         lz = torch.sort(lyi)[1]
-        leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
         if leftover_time is not None:
-            leftover_time = leftover_time[lui]
+            if leftover_seeds.numel() == 0:
+                assert leftover_time.numel() == 0, (
+                    "Leftover time should be empty if leftover seeds are empty"
+                )
+                leftover_seeds_unique_mask = torch.tensor(
+                    [], device="cuda", dtype=torch.bool
+                )
+            else:
+                leftover_seeds_unique_mask = torch.concat(
+                    [
+                        torch.tensor([True], device="cuda"),
+                        leftover_seeds[1:] != leftover_seeds[:-1],
+                    ]
+                )
+            leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
+            leftover_time = leftover_time[leftover_seeds_unique_mask]
+        else:
+            leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
         leftover_inv = lui[lz]
 
         if leftover_seeds.numel() > 0:
