@@ -180,6 +180,10 @@ files:
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
+  torch_only:
+    output: none
+    includes:
+      - depends_on_pytorch
 channels:
   - rapidsai-nightly
   - rapidsai
