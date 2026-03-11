@@ -59,7 +59,9 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   ./ci/run_pylibwholegraph_pytests.sh
 fi
 
-rapids-logger "pytest pylibwholegraph (no 'torch')"
+rapids-logger "import cugraph-pyg (no 'torch')"
 pip uninstall --yes 'torch'
-python -c "import pylibwholegraph; print(pylibwholegraph.__version__)"
+python -c "import cugraph_pyg; print(f'pylibwholegraph version: {pylibwholegraph.__version__}')"
+
+rapids-logger "pytest pylibwholegraph (no 'torch')"
 ./ci/run_pylibwholegraph_pytests.sh

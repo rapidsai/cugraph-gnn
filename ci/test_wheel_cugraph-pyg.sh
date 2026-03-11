@@ -14,7 +14,8 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
 CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
-# CUGRAPH_GNN_COMMIT=4cacebfc1058481f413b80ac4cf7e8ad84010be9
+
+# CUGRAPH_GNN_COMMIT=b1cb02c500a2794bc24701fbe4bb2647254d39d2
 # CUGRAPH_PYG_WHEELHOUSE=$(
 #   RAPIDS_PY_WHEEL_NAME="cugraph-pyg_cu12" RAPIDS_PY_WHEEL_PURE="1" rapids-get-pr-artifact cugraph-gnn 425 python wheel "${CUGRAPH_GNN_COMMIT}"
 # )
@@ -80,7 +81,9 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   ./ci/run_cugraph_pyg_pytests.sh
 fi
 
-rapids-logger "pytest cugraph-pyg (no 'torch')"
+rapids-logger "import cugraph-pyg (no 'torch')"
 pip uninstall --yes 'torch'
-python -c "import cugraph_pyg; print(cugraph_pyg.__version__)"
+python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__version__}')"
+
+rapids-logger "pytest cugraph-pyg (no 'torch')"
 ./ci/run_cugraph_pyg_pytests.sh
