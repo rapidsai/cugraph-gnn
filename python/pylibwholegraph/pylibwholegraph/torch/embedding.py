@@ -539,6 +539,8 @@ def destroy_embedding(wm_embedding: WholeMemoryEmbedding):
     wm_embedding.wmb_embedding = None
 
 
+# TODO: all of these class overrides
+# AttributeError: module 'torch' has no attribute 'autograd'
 class WholeMemoryEmbeddingModule(torch.nn.Module):
     """
     torch.nn.Module wrapper of WholeMemoryEmbedding
