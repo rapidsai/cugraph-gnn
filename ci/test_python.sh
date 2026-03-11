@@ -53,7 +53,7 @@ set -u
 # here, to reduce the risk of accidentally skipping most tests because it accidentally
 # wasn't installed.
 rapids-logger "Confirming that PyTorch is installed"
-python -c "import torch; assert torch.cuda.is_available() is True"
+python -c "import torch; assert torch.cuda.is_available()"
 
 rapids-print-env
 
@@ -93,7 +93,7 @@ set -u
 # here, to reduce the risk of accidentally skipping most tests because it accidentally
 # wasn't installed.
 rapids-logger "Confirming that PyTorch is installed"
-python -c "import torch; assert torch.cuda.is_available() is True"
+python -c "import torch; assert torch.cuda.is_available()"
 
 rapids-print-env
 
