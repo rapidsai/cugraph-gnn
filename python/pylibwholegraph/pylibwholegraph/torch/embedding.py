@@ -19,8 +19,14 @@ from .comm import (
 from .tensor import WholeMemoryTensor
 from .wholegraph_env import wrap_torch_tensor, get_wholegraph_env_fns, get_stream
 
-
 torch = import_optional("torch")
+
+# NOTE: using more specific 'import_optional()' than just 'torch' for import-time checks
+#       (e.g. those needed for defining base classes) can be helpful because 'torch' can appear
+#       to be available even after a 'pip uninstall torch' if any files are left behind in
+#       'site-packages/torch'.
+torch_autograd = import_optional("torch.autograd")
+torch_nn = import_optional("torch.nn")
 
 
 class WholeMemoryOptimizer(object):
@@ -210,9 +216,10 @@ def create_builtin_cache_policy(
     )
 
 
-if not isinstance(torch, MissingModule):
+# NOTE: the 'hasattr()' is necessary because sometimes 'pip uninstall'
+if not isinstance(torch_autograd, MissingModule):
 
-    class EmbeddingLookupFn(torch.autograd.Function):
+    class EmbeddingLookupFn(torch_autograd.Function):
         @staticmethod
         def forward(
             ctx,
@@ -243,7 +250,7 @@ else:
     class EmbeddingLookupFn:
         def __init__(self, *args, **kwargs):
             raise ModuleNotFoundError(
-                "EmbeddingLookupFn requires 'torch' to be installed."
+                "EmbeddingLookupFn requires 'torch.autograd'. Install 'torch'."
             )
 
         @staticmethod
@@ -256,13 +263,13 @@ else:
             force_dtype: Union["torch.dtype", None] = None,
         ):
             raise ModuleNotFoundError(
-                "EmbeddingLookupFn requires 'torch' to be installed."
+                "EmbeddingLookupFn requires 'torch.autograd'. Install 'torch'."
             )
 
         @staticmethod
         def backward(ctx, grad_outputs: "torch.Tensor"):
             raise ModuleNotFoundError(
-                "EmbeddingLookupFn requires 'torch' to be installed."
+                "EmbeddingLookupFn requires 'torch.autograd'. Install 'torch'."
             )
 
 
@@ -285,7 +292,7 @@ class WholeMemoryEmbedding(object):
 
         self.wmb_optimizer = None
 
-        self.dummy_input = torch.nn.Parameter(torch.zeros(1), requires_grad=False)
+        self.dummy_input = torch_nn.Parameter(torch.zeros(1), requires_grad=False)
         self.need_apply = False
         self.sparse_indices = []
         self.sparse_grads = []
@@ -484,7 +491,7 @@ def create_embedding(
             local_tensor,
             local_offset,
         ) = wm_embedding.get_embedding_tensor().get_local_tensor()
-        torch.nn.init.xavier_uniform_(local_tensor)
+        torch_nn.init.xavier_uniform_(local_tensor)
     comm.barrier()
     return wm_embedding
 
@@ -568,9 +575,9 @@ def destroy_embedding(wm_embedding: WholeMemoryEmbedding):
     wm_embedding.wmb_embedding = None
 
 
-if not isinstance(torch, MissingModule):
+if not isinstance(torch_nn, MissingModule):
 
-    class WholeMemoryEmbeddingModule(torch.nn.Module):
+    class WholeMemoryEmbeddingModule(torch_nn.Module):
         """
         torch.nn.Module wrapper of WholeMemoryEmbedding
         """
@@ -595,7 +602,7 @@ else:
     class WholeMemoryEmbeddingModule:
         def __init__(self, wm_embedding: WholeMemoryEmbedding):
             raise ModuleNotFoundError(
-                "WholeMemoryEmbeddingModule requires 'torch' to be installed."
+                "WholeMemoryEmbeddingModule requires 'torch.nn.Module'. Install 'torch'."
             )
 
 

@@ -382,7 +382,7 @@ def test_wholegraph_unweighted_sample(
     host_csr_row_ptr, host_csr_col_ptr, _ = gen_csr_graph(
         graph_node_count,
         graph_edge_count,
-        graph_node_count=None,
+        neighbor_node_count=None,
         csr_row_dtype=torch.int64,
         csr_col_dtype=csr_col_dtype,
         weight_dtype=torch.float32,

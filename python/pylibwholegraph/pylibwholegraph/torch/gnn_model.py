@@ -8,6 +8,11 @@ from .common_options import parse_max_neighbors
 
 torch = import_optional("torch")
 
+# NOTE: using more specific 'import_optional()' than just 'torch' for import-time checks
+#       (e.g. those needed for defining base classes) can be helpful because 'torch' can appear
+#       to be available even after a 'pip uninstall torch' if any files are left behind in
+#       'site-packages/torch'.
+torch_nn = import_optional("torch.nn")
 
 framework_name = None
 
@@ -29,7 +34,7 @@ def set_framework(framework: str):
 def create_gnn_layers(
     in_feat_dim, hidden_feat_dim, class_count, num_layer, num_head, model_type
 ):
-    gnn_layers = torch.nn.ModuleList()
+    gnn_layers = torch_nn.ModuleList()
     global framework_name
     for i in range(num_layer):
         layer_output_dim = (
@@ -120,9 +125,9 @@ def layer_forward(layer, x_feat, x_target_feat, sub_graph):
     return x_feat
 
 
-if not isinstance(torch, MissingModule):
+if not isinstance(torch_nn, MissingModule):
 
-    class HomoGNNModel(torch.nn.Module):
+    class HomoGNNModel(torch_nn.Module):
         def __init__(
             self,
             graph_structure: GraphStructure,
@@ -188,8 +193,8 @@ if not isinstance(torch, MissingModule):
                     sub_graph,
                 )
                 if i != self.num_layer - 1:
-                    x_feat = torch.nn.functional.relu(x_feat)
-                    x_feat = torch.nn.functional.dropout(
+                    x_feat = torch_nn.functional.relu(x_feat)
+                    x_feat = torch_nn.functional.dropout(
                         x_feat, self.dropout, training=self.training
                     )
 
