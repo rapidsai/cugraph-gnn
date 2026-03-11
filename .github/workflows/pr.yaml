@@ -213,6 +213,7 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_python.sh
+      matrix_type: nightly
   docs-build:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
