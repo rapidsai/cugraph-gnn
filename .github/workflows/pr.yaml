@@ -20,6 +20,7 @@ jobs:
       - conda-cpp-tests
       - conda-python-build
       - conda-python-build-noarch
+      - conda-pr-python-tests
       - conda-python-tests
       - docs-build
       - wheel-build-libwholegraph
