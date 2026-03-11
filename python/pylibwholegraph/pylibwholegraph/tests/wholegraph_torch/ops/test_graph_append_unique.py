@@ -4,7 +4,7 @@
 import pytest
 import pylibwholegraph.torch.graph_ops as wg_ops
 
-torch = pytest.importorski("torch")
+torch = pytest.importorskip("torch")
 
 
 def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
