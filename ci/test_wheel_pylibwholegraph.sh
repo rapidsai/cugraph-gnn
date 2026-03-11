@@ -36,10 +36,10 @@ TORCH_WHEEL_DIR="$(mktemp -d)"
 
 # 'cugraph-pyg' is still expected to be importable
 # and testable in an environment where 'torch' isn't installed.
-torch_installed=true
+torch_downloaded=true
 if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
-  torch_installed=false
+  torch_downloaded=false
 else
   PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
 fi
@@ -49,7 +49,12 @@ rapids-logger "Installing Packages"
 rapids-pip-retry install \
     "${PIP_INSTALL_ARGS[@]}"
 
-if [[ "${torch_installed}" == "true" ]]; then
+if [[ "${torch_downloaded}" == "true" ]]; then
+  # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
+  # installed here and that we've installed a package with CUDA support.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available()"
+
   rapids-logger "pytest pylibwholegraph (with 'torch')"
   ./ci/run_pylibwholegraph_pytests.sh
 fi

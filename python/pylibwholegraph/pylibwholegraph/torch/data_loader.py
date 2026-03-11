@@ -2,20 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
-from pylibwholegraph.utils.imports import import_optional
+from pylibwholegraph.utils.imports import import_optional, MissingModule
 
 torch = import_optional("torch")
 
 
-class NodeClassificationDataset(torch.utils.data.Dataset):
-    def __init__(self, raw_dataset):
-        self.dataset = raw_dataset
+if not isinstance(torch, MissingModule):
 
-    def __getitem__(self, index):
-        return self.dataset[index]
+    class NodeClassificationDataset(torch.utils.data.Dataset):
+        def __init__(self, raw_dataset):
+            self.dataset = raw_dataset
 
-    def __len__(self):
-        return len(self.dataset)
+        def __getitem__(self, index):
+            return self.dataset[index]
+
+        def __len__(self):
+            return len(self.dataset)
+else:
+
+    class NodeClassificationDataset:
+        def __init__(self, raw_dataset):
+            raise ModuleNotFoundError(
+                "NodeClassificationDataset requires 'torch' to be installed."
+            )
 
 
 def create_node_classification_datasets(data_and_label: dict):

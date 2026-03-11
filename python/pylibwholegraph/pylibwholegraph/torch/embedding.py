@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pylibwholegraph.binding.wholememory_binding as wmb
-from pylibwholegraph.utils.imports import import_optional
+from pylibwholegraph.utils.imports import MissingModule, import_optional
 from .utils import torch_dtype_to_wholememory_dtype, get_file_size
 from .utils import str_to_wmb_wholememory_location, str_to_wmb_wholememory_memory_type
 from .utils import (
@@ -210,31 +210,60 @@ def create_builtin_cache_policy(
     )
 
 
-class EmbeddingLookupFn(torch.autograd.Function):
-    @staticmethod
-    def forward(
-        ctx,
-        indice: "torch.Tensor",
-        dummy_input: "torch.Tensor",
-        wm_embedding,
-        is_training: bool = False,
-        force_dtype: Union["torch.dtype", None] = None,
-    ):
-        output_tensor = wm_embedding.gather(
-            indice, is_training=is_training, force_dtype=force_dtype
-        )
-        if is_training and wm_embedding.need_grad():
-            ctx.save_for_backward(indice, output_tensor, dummy_input)
-            ctx.wm_embedding = wm_embedding
-        return output_tensor
+if not isinstance(torch, MissingModule):
 
-    @staticmethod
-    def backward(ctx, grad_outputs: "torch.Tensor"):
-        indice, output_tensor, dummy_input = ctx.saved_tensors
-        wm_embedding = ctx.wm_embedding
-        wm_embedding.add_gradients(indice, grad_outputs)
-        ctx.wm_embedding = None
-        return None, torch.zeros_like(dummy_input), None, None, None
+    class EmbeddingLookupFn(torch.autograd.Function):
+        @staticmethod
+        def forward(
+            ctx,
+            indice: "torch.Tensor",
+            dummy_input: "torch.Tensor",
+            wm_embedding,
+            is_training: bool = False,
+            force_dtype: Union["torch.dtype", None] = None,
+        ):
+            output_tensor = wm_embedding.gather(
+                indice, is_training=is_training, force_dtype=force_dtype
+            )
+            if is_training and wm_embedding.need_grad():
+                ctx.save_for_backward(indice, output_tensor, dummy_input)
+                ctx.wm_embedding = wm_embedding
+            return output_tensor
+
+        @staticmethod
+        def backward(ctx, grad_outputs: "torch.Tensor"):
+            indice, output_tensor, dummy_input = ctx.saved_tensors
+            wm_embedding = ctx.wm_embedding
+            wm_embedding.add_gradients(indice, grad_outputs)
+            ctx.wm_embedding = None
+            return None, torch.zeros_like(dummy_input), None, None, None
+
+else:
+
+    class EmbeddingLookupFn:
+        def __init__(self, *args, **kwargs):
+            raise ModuleNotFoundError(
+                "EmbeddingLookupFn requires 'torch' to be installed."
+            )
+
+        @staticmethod
+        def forward(
+            ctx,
+            indice: "torch.Tensor",
+            dummy_input: "torch.Tensor",
+            wm_embedding,
+            is_training: bool = False,
+            force_dtype: Union["torch.dtype", None] = None,
+        ):
+            raise ModuleNotFoundError(
+                "EmbeddingLookupFn requires 'torch' to be installed."
+            )
+
+        @staticmethod
+        def backward(ctx, grad_outputs: "torch.Tensor"):
+            raise ModuleNotFoundError(
+                "EmbeddingLookupFn requires 'torch' to be installed."
+            )
 
 
 class WholeMemoryEmbedding(object):
@@ -539,28 +568,35 @@ def destroy_embedding(wm_embedding: WholeMemoryEmbedding):
     wm_embedding.wmb_embedding = None
 
 
-# TODO: all of these class overrides
-# AttributeError: module 'torch' has no attribute 'autograd'
-class WholeMemoryEmbeddingModule(torch.nn.Module):
-    """
-    torch.nn.Module wrapper of WholeMemoryEmbedding
-    """
+if not isinstance(torch, MissingModule):
 
-    def __init__(self, wm_embedding: WholeMemoryEmbedding):
-        super().__init__()
-        self.wm_embedding = wm_embedding
-        self.embedding_gather_fn = EmbeddingLookupFn.apply
+    class WholeMemoryEmbeddingModule(torch.nn.Module):
+        """
+        torch.nn.Module wrapper of WholeMemoryEmbedding
+        """
 
-    def forward(
-        self, indice: "torch.Tensor", force_dtype: Union["torch.dtype", None] = None
-    ):
-        return self.embedding_gather_fn(
-            indice,
-            self.wm_embedding.dummy_input,
-            self.wm_embedding,
-            self.training,
-            force_dtype,
-        )
+        def __init__(self, wm_embedding: WholeMemoryEmbedding):
+            super().__init__()
+            self.wm_embedding = wm_embedding
+            self.embedding_gather_fn = EmbeddingLookupFn.apply
+
+        def forward(
+            self, indice: "torch.Tensor", force_dtype: Union["torch.dtype", None] = None
+        ):
+            return self.embedding_gather_fn(
+                indice,
+                self.wm_embedding.dummy_input,
+                self.wm_embedding,
+                self.training,
+                force_dtype,
+            )
+else:
+
+    class WholeMemoryEmbeddingModule:
+        def __init__(self, wm_embedding: WholeMemoryEmbedding):
+            raise ModuleNotFoundError(
+                "WholeMemoryEmbeddingModule requires 'torch' to be installed."
+            )
 
 
 def create_wholememory_optimizer(
