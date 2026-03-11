@@ -213,7 +213,21 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_python.sh
+      # There were pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
+      # otherwise run all jobs.
+      matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
       matrix_type: nightly
+  conda-pr-python-tests:
+    needs: [conda-python-build, conda-python-build-noarch, changed-files]
+    secrets: inherit
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_conda
+    with:
+      build_type: pull-request
+      script: ci/test_python.sh
+      # There were pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
+      # otherwise run all jobs.
+      matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
   docs-build:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
