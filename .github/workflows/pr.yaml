@@ -224,7 +224,7 @@ jobs:
     with:
       arch: "amd64"
       build_type: pull-request
-      container_image: "rapidsai/ci-conda:26.04-latest"
+      container_image: "rapidsai/ci-conda:26.06-latest"
       script: "ci/build_docs.sh"
   wheel-build-libwholegraph:
     needs: checks
