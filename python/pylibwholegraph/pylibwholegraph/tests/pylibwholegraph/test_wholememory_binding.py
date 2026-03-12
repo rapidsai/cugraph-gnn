@@ -105,7 +105,7 @@ def routine_func(world_rank: int, world_size: int):
     wmb.finalize()
 
 
-def test_dlpack():
+def test_dlpack(torch):
     gpu_count = wmb.fork_get_gpu_count()
     assert gpu_count > 0
     multiprocess_run(gpu_count, routine_func)

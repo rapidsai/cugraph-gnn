@@ -18,7 +18,7 @@ set -e -u -o pipefail
 TORCH_WHEEL_DIR="${1}"
 
 # skip download attempt on CUDA versions where we know there isn't a 'torch' CUDA wheel.
-CUDA_MAJOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f1)
+CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
 if \
     { [ "${CUDA_MAJOR}" -eq 12 ] && [ "${CUDA_MINOR}" -lt 9 ]; } \

@@ -16,6 +16,14 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
 
+# CUGRAPH_GNN_COMMIT=603979696017f350e171a5bf4462010ed42d29e4
+# LIBWHOLEGRAPH_WHEELHOUSE=$(
+#   RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-get-pr-artifact cugraph-gnn 425 cpp wheel "${CUGRAPH_GNN_COMMIT}"
+# )
+# PYLIBWHOLEGRAPH_WHEELHOUSE=$(
+#   rapids-get-pr-artifact cugraph-gnn 425 python wheel --pkg_name pylibwholegraph --stable "${CUGRAPH_GNN_COMMIT}"
+# )
+
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
@@ -49,7 +57,21 @@ rapids-logger "Installing Packages"
 rapids-pip-retry install \
     "${PIP_INSTALL_ARGS[@]}"
 
+
 if [[ "${torch_downloaded}" == "true" ]]; then
+  # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
+  #
+  #    * https://github.com/rapidsai/build-planning/issues/257
+  #    * https://github.com/rapidsai/build-planning/issues/255
+  #
+  CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+  CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
+  if [[ "${CUDA_MAJOR}" == "13" ]]; then
+    pip install \
+      --upgrade \
+      "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
+  fi
+
   # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
   # installed here and that we've installed a package with CUDA support.
   rapids-logger "Confirming that PyTorch is installed"
@@ -60,7 +82,8 @@ if [[ "${torch_downloaded}" == "true" ]]; then
 fi
 
 rapids-logger "import pylibwholegraph (no 'torch')"
-pip uninstall --yes 'torch'
+./ci/uninstall-torch-wheels.sh
+
 python -c "import pylibwholegraph; print(f'pylibwholegraph version: {pylibwholegraph.__version__}')"
 
 rapids-logger "pytest pylibwholegraph (no 'torch')"
