@@ -12,9 +12,9 @@ dependencies:
 - cuda-nvtx-dev
 - cuda-profiler-api
 - cuda-version=13.1
-- cudf==26.4.*,>=0.0.0a0
-- cugraph==26.4.*,>=0.0.0a0
-- cuml==26.4.*,>=0.0.0a0
+- cudf==26.6.*,>=0.0.0a0
+- cugraph==26.6.*,>=0.0.0a0
+- cuml==26.6.*,>=0.0.0a0
 - cupy>=13.6.0
 - cython>=3.2.2
 - doxygen
@@ -31,7 +31,7 @@ dependencies:
 - pandas
 - pre-commit
 - pydantic
-- pylibcugraph==26.4.*,>=0.0.0a0
+- pylibcugraph==26.6.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
 - pytest-cov
@@ -39,7 +39,7 @@ dependencies:
 - pytest-xdist
 - pytorch_geometric>=2.5,<2.8
 - rapids-build-backend>=0.4.0,<0.5.0
-- rmm==26.4.*,>=0.0.0a0
+- rmm==26.6.*,>=0.0.0a0
 - scikit-build-core>=0.11.0
 - scipy
 - setuptools>=77.0.0
