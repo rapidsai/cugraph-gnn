@@ -66,7 +66,7 @@ repos:
             [.]rst$|
             ^conda/environments/|
             ^python/cugraph-pyg/conda/|
-            [.](png)|
+            [.](png)$|
             RAPIDS_BRANCH$
       - id: verify-pyproject-license
         # ignore the top-level pyproject.toml, which doesn't
