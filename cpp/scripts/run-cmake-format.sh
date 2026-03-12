@@ -3,9 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-# rapids-pre-commit-hooks: disable[verify-hardcoded-version]
+# rapids-pre-commit-hooks: disable-next-line[verify-hardcoded-version]
 # copied from: https://github.com/rapidsai/rapids-cmake/blob/release/26.04/ci/checks/run-cmake-format.sh
-# rapids-pre-commit-hooks: enable[verify-hardcoded-version]
 #
 # This script is a wrapper for cmakelang that may be used with pre-commit. The
 # wrapping is necessary because RAPIDS libraries split configuration for
