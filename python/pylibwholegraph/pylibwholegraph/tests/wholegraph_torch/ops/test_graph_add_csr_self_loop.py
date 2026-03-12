@@ -36,7 +36,7 @@ def routine_func(**kwargs):
     csr_row_ptr_tensor, csr_col_ptr_tensor, _ = gen_csr_graph(
         target_node_count,
         edge_num,
-        neighbor_node_count,
+        neighbor_node_count=neighbor_node_count,
         csr_row_dtype=torch.int64,
         csr_col_dtype=torch.int32,
         weight_dtype=torch.float32,

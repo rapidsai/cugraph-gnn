@@ -61,7 +61,7 @@ fi
 
 rapids-logger "import pylibwholegraph (no 'torch')"
 pip uninstall --yes 'torch'
-python -c "import pylibwholegraph print(f'pylibwholegraph version: {pylibwholegraph.__version__}')"
+python -c "import pylibwholegraph; print(f'pylibwholegraph version: {pylibwholegraph.__version__}')"
 
 rapids-logger "pytest pylibwholegraph (no 'torch')"
 ./ci/run_pylibwholegraph_pytests.sh

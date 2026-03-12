@@ -18,8 +18,6 @@ from pylibwholegraph.test_utils.test_comm import (
 import pylibwholegraph.torch.wholegraph_ops as wg_ops
 import random
 
-torch = pytest.importorskip("torch")
-
 
 def unweighte_sample_without_replacement_base(random_values, M, N):
     torch = pytest.importorskip("torch")
@@ -355,7 +353,7 @@ def routine_func(world_rank: int, world_size: int, **kwargs):
 @pytest.mark.parametrize("graph_edge_count", [1043])
 @pytest.mark.parametrize("max_sample_count", [11, -1])
 @pytest.mark.parametrize("center_node_count", [13])
-@pytest.mark.parametrize("center_node_dtype", [torch.int32, torch.int64])
+@pytest.mark.parametrize("center_node_dtype", ["int32", "int64"])
 @pytest.mark.parametrize("col_id_dtype", [0, 1])
 @pytest.mark.parametrize("wholememory_location", ([0, 1]))
 @pytest.mark.parametrize("wholememory_type", ([0, 1, 2]))
@@ -395,7 +393,7 @@ def test_wholegraph_unweighted_sample(
         graph_edge_count=graph_edge_count,
         max_sample_count=max_sample_count,
         center_node_count=center_node_count,
-        center_node_dtype=center_node_dtype,
+        center_node_dtype=getattr(torch, center_node_dtype),
         col_id_dtype=col_id_dtype,
         wholememory_location=wholememory_location,
         wholememory_type=wholememory_type,

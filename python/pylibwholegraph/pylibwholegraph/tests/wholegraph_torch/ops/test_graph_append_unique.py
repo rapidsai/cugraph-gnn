@@ -4,8 +4,6 @@
 import pytest
 import pylibwholegraph.torch.graph_ops as wg_ops
 
-torch = pytest.importorskip("torch")
-
 
 def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
     torch = pytest.importorskip("torch")
@@ -76,7 +74,7 @@ def routine_func(**kwargs):
 
 @pytest.mark.parametrize("target_node_count", [10, 113])
 @pytest.mark.parametrize("neighbor_node_count", [104, 1987])
-@pytest.mark.parametrize("target_node_dtype", [torch.int32, torch.int64])
+@pytest.mark.parametrize("target_node_dtype", ["int32", "int64"])
 @pytest.mark.parametrize("need_neighbor_raw_to_unique", [True, False])
 def test_append_unique(
     target_node_count,
@@ -90,6 +88,6 @@ def test_append_unique(
     routine_func(
         target_node_count=target_node_count,
         neighbor_node_count=neighbor_node_count,
-        target_node_dtype=target_node_dtype,
+        target_node_dtype=getattr(torch, target_node_dtype),
         need_neighbor_raw_to_unique=need_neighbor_raw_to_unique,
     )
