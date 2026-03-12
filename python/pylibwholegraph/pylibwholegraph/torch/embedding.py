@@ -216,7 +216,6 @@ def create_builtin_cache_policy(
     )
 
 
-# NOTE: the 'hasattr()' is necessary because sometimes 'pip uninstall'
 if not isinstance(torch_autograd, MissingModule):
 
     class EmbeddingLookupFn(torch_autograd.Function):
