@@ -23,7 +23,7 @@ def cugraph_pyg_smoke_check(**kwargs):
     except ImportError as e:
         raise ImportError(
             "cugraph-pyg or its dependencies could not be imported. "
-            "Tip: install with `pip install cugraph-pyg` or use a RAPIDS conda environment."
+            "Tip: install with `pip install cugraph-pyg-cu13 --extra-index-url=https://pypi.nvidia.com` or use a RAPIDS conda environment."
         ) from e
 
     if not hasattr(cugraph_pyg, "__version__") or not cugraph_pyg.__version__:
