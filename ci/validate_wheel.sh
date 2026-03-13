@@ -50,7 +50,7 @@ WHEEL_FILE="$(echo ${wheel_dir_relative_path}/*.whl)"
 # NOTE: group of specifiers after 'torch' to avoid a false positive like 'torch-geometric'
 # Use '|| true' so grep not finding any matches (exit 1) does not kill the script under set -e
 unzip -p "${WHEEL_FILE}" '*.dist-info/METADATA' \
-| grep -E '^Requires-Dist:.*torch[><=!~ ]+.*' \
+| grep -E '^Requires-Dist:.*\btorch\b([><=!~ ].*)?' \
 | tee matches.txt || true
 
 if [[ -s ./matches.txt ]]; then
