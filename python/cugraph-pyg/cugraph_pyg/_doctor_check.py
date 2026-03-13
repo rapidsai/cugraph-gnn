@@ -58,7 +58,7 @@ def cugraph_pyg_smoke_check(**kwargs):
                 "LOCAL_WORLD_SIZE": "1",
                 "RANK": "0",
             }
-            with patch.dict(os.environ, env_values):
+            with patch.dict(os.environ, env_values, clear=False):
                 try:
                     torch.distributed.init_process_group("nccl")
                     initialized = True
