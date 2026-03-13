@@ -10,6 +10,7 @@ from typing import Union
 from .utils import wholememory_dtype_to_torch_dtype, torch_dtype_to_wholememory_dtype
 
 torch = import_optional("torch")
+torch_utils = import_optional("torch.utils")
 
 default_wholegraph_env_context = None
 torch_cpp_ext_loaded = False
@@ -192,7 +193,7 @@ def compile_cpp_extension():
         extra_ldflags.append(
             "".join(["-L", os.path.join(os.environ["LIBWHOLEGRAPH_DIR"], "lib")])
         )
-    torch.utils.cpp_extension.load(
+    torch_utils.cpp_extension.load(
         name="pylibwholegraph.pylibwholegraph_torch_ext",
         sources=[
             os.path.join(cpp_extension_path, "wholegraph_torch_ext.cpp"),
