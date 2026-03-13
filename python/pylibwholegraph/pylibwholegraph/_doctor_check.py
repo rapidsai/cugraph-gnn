@@ -18,7 +18,7 @@ def pylibwholegraph_smoke_check(**kwargs):
     except ImportError as e:
         raise ImportError(
             "pylibwholegraph or its dependencies could not be imported. "
-            "Tip: install with `pip install pylibwholegraph` or use a RAPIDS conda environment."
+            "Tip: install with `pip install --extra-index-url=https://pypi.nvidia.com pylibwholegraph-cu13` or use a RAPIDS conda environment."
         ) from e
 
     if not hasattr(pylibwholegraph, "__version__") or not pylibwholegraph.__version__:

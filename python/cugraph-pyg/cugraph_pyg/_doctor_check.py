@@ -7,6 +7,8 @@ Smoke check for `rapids doctor` (RAPIDS CLI).
 See: https://github.com/rapidsai/rapids-cli#check-plugins
 """
 
+from unittest.mock import patch
+
 
 def cugraph_pyg_smoke_check(**kwargs):
     """
@@ -23,7 +25,7 @@ def cugraph_pyg_smoke_check(**kwargs):
     except ImportError as e:
         raise ImportError(
             "cugraph-pyg or its dependencies could not be imported. "
-            "Tip: install with `pip install cugraph-pyg-cu13 --extra-index-url=https://pypi.nvidia.com` or use a RAPIDS conda environment."
+            "Tip: install with `pip install --extra-index-url=https://pypi.nvidia.com cugraph-pyg-cu13` or use a RAPIDS conda environment."
         ) from e
 
     if not hasattr(cugraph_pyg, "__version__") or not cugraph_pyg.__version__:
@@ -46,45 +48,42 @@ def cugraph_pyg_smoke_check(**kwargs):
         import os
         from cugraph_pyg.data import GraphStore
 
-        env_vars = [
-            "MASTER_ADDR",
-            "MASTER_PORT",
-            "LOCAL_RANK",
-            "WORLD_SIZE",
-            "LOCAL_WORLD_SIZE",
-            "RANK",
-        ]
-        env_values = {var: os.environ.get(var, None) for var in env_vars}
-
         initialized = False
         try:
-            os.environ["MASTER_ADDR"] = "localhost"
-            os.environ["MASTER_PORT"] = "29505"
-            os.environ["LOCAL_RANK"] = "0"
-            os.environ["WORLD_SIZE"] = "1"
-            os.environ["LOCAL_WORLD_SIZE"] = "1"
-            os.environ["RANK"] = "0"
+            env_values = {
+                "MASTER_ADDR": "localhost",
+                "MASTER_PORT": "29505",
+                "LOCAL_RANK": "0",
+                "WORLD_SIZE": "1",
+                "LOCAL_WORLD_SIZE": "1",
+                "RANK": "0",
+            }
+            with patch.dict(os.environ, env_values):
+                try:
+                    torch.distributed.init_process_group("nccl")
+                    initialized = True
+                except Exception as e:
+                    raise RuntimeError(
+                        "Failed to initialize distributed process group. Please check your PyTorch and NCCL installation."
+                    ) from e
 
-            torch.distributed.init_process_group("nccl")
-            initialized = True
+                graph_store = GraphStore()
+                graph_store.put_edge_index(
+                    torch.tensor([[0, 1], [1, 2]]),
+                    ("person", "knows", "person"),
+                    "coo",
+                    False,
+                    (3, 3),
+                )
+                edge_index = graph_store.get_edge_index(
+                    ("person", "knows", "person"), "coo"
+                )
 
-            graph_store = GraphStore()
-            graph_store.put_edge_index(
-                torch.tensor([[0, 1], [1, 2]]),
-                ("person", "knows", "person"),
-                "coo",
-                False,
-                (3, 3),
-            )
-            edge_index = graph_store.get_edge_index(
-                ("person", "knows", "person"), "coo"
-            )
-            assert edge_index.shape == torch.Size([2, 2])
+                if edge_index.shape != torch.Size([2, 2]):
+                    raise AssertionError(
+                        "cugraph-pyg smoke check failed: edge index shape "
+                        f"is not [2, 2], got {edge_index.shape}"
+                    )
         finally:
-            for key, value in env_values.items():
-                if value is None:
-                    os.environ.pop(key, None)
-                else:
-                    os.environ[key] = value
             if initialized:
                 torch.distributed.destroy_process_group()
