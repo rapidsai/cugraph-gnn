@@ -32,82 +32,86 @@ EXITCODE=0
 trap "EXITCODE=1" ERR
 set +e
 
-if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-  rapids-logger "(cugraph-pyg) Generate Python testing dependencies"
-  rapids-dependency-file-generator \
-    --output conda \
-    --file-key test_cugraph_pyg \
-    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu=true" \
-    --prepend-channel "${CPP_CHANNEL}" \
-    --prepend-channel "${PYTHON_CHANNEL}" \
-    --prepend-channel "${PYTHON_NOARCH_CHANNEL}" \
-  | tee env.yaml
+rapids-logger "(cugraph-pyg) Generate Python testing dependencies"
+rapids-dependency-file-generator \
+  --output conda \
+  --file-key test_cugraph_pyg \
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies="${RAPIDS_DEPENDENCIES}";require_gpu=true" \
+  --prepend-channel "${CPP_CHANNEL}" \
+  --prepend-channel "${PYTHON_CHANNEL}" \
+  --prepend-channel "${PYTHON_NOARCH_CHANNEL}" \
+| tee env.yaml
 
-  rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_pyg
+rapids-mamba-retry env create --yes -f env.yaml -n test_cugraph_pyg
 
-  # Temporarily allow unbound variables for conda activation.
-  set +u
-  conda activate test_cugraph_pyg
-  set -u
+# Temporarily allow unbound variables for conda activation.
+set +u
+conda activate test_cugraph_pyg
+set -u
 
-  rapids-print-env
+# 'torch' is an optional dependency of 'cugraph_pyg'... confirm that it's available
+# here, to reduce the risk of accidentally skipping most tests because it accidentally
+# wasn't installed.
+rapids-logger "Confirming that PyTorch is installed"
+python -c "import torch; assert torch.cuda.is_available()"
 
-  rapids-logger "Check GPU usage"
-  nvidia-smi
+rapids-print-env
 
-  rapids-logger "pytest cugraph_pyg (single GPU)"
-  ./ci/run_cugraph_pyg_pytests.sh \
-    --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
-    --cov-config=../../.coveragerc \
-    --cov=cugraph_pyg \
-    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
-    --cov-report=term
+rapids-logger "Check GPU usage"
+nvidia-smi
 
-  # Reactivate the test environment back
-  set +u
-  conda deactivate
-  set -u
-else
-  rapids-logger "skipping cugraph_pyg pytest on ARM64"
-fi
+rapids-logger "pytest cugraph_pyg (single GPU)"
+./ci/run_cugraph_pyg_pytests.sh \
+  --junitxml="${RAPIDS_TESTS_DIR}/junit-cugraph-pyg.xml" \
+  --cov-config=../../.coveragerc \
+  --cov=cugraph_pyg \
+  --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/cugraph-pyg-coverage.xml" \
+  --cov-report=term
 
-if [[ "${RUNNER_ARCH}" != "ARM64" ]]; then
-  rapids-logger "(pylibwholegraph) Generate Python testing dependencies"
-  rapids-dependency-file-generator \
-    --output conda \
-    --file-key test_pylibwholegraph \
-    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};require_gpu=true" \
-    --prepend-channel "${CPP_CHANNEL}" \
-    --prepend-channel "${PYTHON_CHANNEL}" \
-  | tee env.yaml
+# Reactivate the test environment back
+set +u
+conda deactivate
+set -u
 
-  rapids-mamba-retry env create --yes -f env.yaml -n test_pylibwholegraph
+rapids-logger "(pylibwholegraph) Generate Python testing dependencies"
+rapids-dependency-file-generator \
+  --output conda \
+  --file-key test_pylibwholegraph \
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies="${RAPIDS_DEPENDENCIES}";require_gpu=true" \
+  --prepend-channel "${CPP_CHANNEL}" \
+  --prepend-channel "${PYTHON_CHANNEL}" \
+| tee env.yaml
 
-  # Temporarily allow unbound variables for conda activation.
-  set +u
-  conda activate test_pylibwholegraph
-  set -u
+rapids-mamba-retry env create --yes -f env.yaml -n test_pylibwholegraph
 
-  rapids-print-env
+# Temporarily allow unbound variables for conda activation.
+set +u
+conda activate test_pylibwholegraph
+set -u
 
-  rapids-logger "Check GPU usage"
-  nvidia-smi
+# 'torch' is an optional dependency of 'pylibwholegraph'... confirm that it's available
+# here, to reduce the risk of accidentally skipping most tests because it accidentally
+# wasn't installed.
+rapids-logger "Confirming that PyTorch is installed"
+python -c "import torch; assert torch.cuda.is_available()"
 
-  rapids-logger "pytest pylibwholegraph (single GPU)"
-  ./ci/run_pylibwholegraph_pytests.sh \
-    --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
-    --cov-config=../../.coveragerc \
-    --cov=pylibwholegraph \
-    --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
-    --cov-report=term
+rapids-print-env
 
-  # Reactivate the test environment back
-  set +u
-  conda deactivate
-  set -u
-else
-  rapids-logger "skipping pylibwholegraph pytest on ARM64"
-fi
+rapids-logger "Check GPU usage"
+nvidia-smi
+
+rapids-logger "pytest pylibwholegraph (single GPU)"
+./ci/run_pylibwholegraph_pytests.sh \
+  --junitxml="${RAPIDS_TESTS_DIR}/junit-pylibwholegraph.xml" \
+  --cov-config=../../.coveragerc \
+  --cov=pylibwholegraph \
+  --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
+  --cov-report=term
+
+# Reactivate the test environment back
+set +u
+conda deactivate
+set -u
 
 rapids-logger "Test script exiting with value: $EXITCODE"
 exit ${EXITCODE}

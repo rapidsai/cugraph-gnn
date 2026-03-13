@@ -165,8 +165,9 @@ files:
       - depends_on_pytorch
       - depends_on_cuml
       - depends_on_cugraph
+      - depends_on_ogb
+      - depends_on_sentence_transformers
       - test_python_common
-      - test_python_cugraph_pyg
   cugraph_pyg_dev:
     matrix:
       cuda: ["12.9", "13.1"]
@@ -297,7 +298,7 @@ dependencies:
       - output_types: [conda, pyproject, requirements]
         packages:
           - *numpy
-          - packaging
+          - &packaging packaging
           - pandas
   rapids_build_skbuild:
     common:
@@ -330,27 +331,63 @@ dependencies:
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
-  test_python_cugraph_pyg:
-    common:
-      - output_types: [conda, pyproject, requirements]
-        packages:
-          - ogb
-          - sentence-transformers
+    specific:
+      - output_types: [conda]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - torchdata
+              - pydantic
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
         packages:
+          - *packaging
           - pytest-forked
           - scipy
   depends_on_pytorch:
-    common:
-      - output_types: [conda]
-        packages:
-          - torchdata
-          - pydantic
+  depends_on_pytorch:
     specific:
+      # conda: choose between GPU and CPU-only pytorch
+      - output_types: conda
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+              require_gpu: "true"
+            packages:
+              - pytorch-gpu>=2.3
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
+      # conda: optionally pin to older versions based on 'dependencies' key
+      - output_types: conda
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+              cuda: "12.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.4.1
+          - matrix:
+              cuda: "13.*"
+              dependencies: "oldest"
+            packages:
+              - pytorch==2.9
+          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
+          - matrix:
+            packages:
       - output_types: [requirements]
         matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
           - matrix:
               cuda: "12.*"
             packages:
@@ -364,6 +401,9 @@ dependencies:
       - output_types: [requirements, pyproject]
         matrices:
           - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
               cuda: "12.*"
             packages:
               - torch>=2.3
@@ -374,16 +414,6 @@ dependencies:
           - matrix:
             packages:
               - *pytorch_pip
-      - output_types: [conda]
-        matrices:
-          # Prevent fallback to CPU-only pytorch when we want a CUDA variant.
-          - matrix:
-              require_gpu: "true"
-            packages:
-              - pytorch-gpu
-          # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
-          - matrix:
-            packages:
   depends_on_nccl:
     common:
       - output_types: conda
@@ -398,26 +428,55 @@ dependencies:
             packages:
               - nvidia-nccl-cu12>=2.19
           - matrix:
+              cuda: "13.*"
+              cuda_suffixed: "true"
+            packages:
+              - nvidia-nccl-cu13>=2.19
+          - matrix:
             packages:
   depends_on_ogb:
     common:
-      - output_types: [conda, requirements, pyproject]
+      - output_types: [conda]
         packages:
           - ogb
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - ogb
   # for MovieLens example
   depends_on_sentence_transformers:
     common:
-      - output_types: [conda, requirements, pyproject]
+      - output_types: [conda]
         packages:
           - sentence-transformers
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - sentence-transformers
   depends_on_pyg:
     common:
       - output_types: [conda]
         packages:
           - pytorch_geometric>=2.5,<2.8
-      - output_types: [pyproject, requirements]
-        packages:
-          - torch-geometric>=2.5,<2.8
+    specific:
+      - output_types: [requirements, pyproject]
+        matrices:
+          - matrix:
+              no_pytorch: "true"
+            packages:
+          - matrix:
+            packages:
+              - torch-geometric>=2.5,<2.8
   depends_on_pylibwholegraph:
     common:
       - output_types: conda

@@ -37,9 +37,4 @@ rapids-pip-retry install \
     'torch>=2.3'
 
 rapids-logger "pytest pylibwholegraph"
-cd python/pylibwholegraph/pylibwholegraph/tests
-python -m pytest \
-  --cache-clear \
-  --forked \
-  --import-mode=append \
-  .
+./ci/run_pylibwholegraph_pytests.sh

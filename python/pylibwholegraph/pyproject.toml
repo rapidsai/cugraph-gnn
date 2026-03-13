@@ -35,6 +35,7 @@ pylibwholegraph_smoke_check = "pylibwholegraph._doctor_check:pylibwholegraph_smo
 
 [project.optional-dependencies]
 test = [
+    "packaging",
     "pytest",
     "pytest-benchmark",
     "pytest-cov",

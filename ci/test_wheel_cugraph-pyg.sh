@@ -48,20 +48,4 @@ popd
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 rapids-logger "pytest cugraph-pyg (single GPU)"
-pushd python/cugraph-pyg/cugraph_pyg
-python -m pytest \
-  --cache-clear \
-  --benchmark-disable \
-  tests
-
-# Test examples (disabled due to lack of memory)
-#for e in "$(pwd)"/examples/*.py; do
-#  rapids-logger "running example $e"
-#  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
-#done
-
-# rapids-logger "running bitcoin example"
-# (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 "$(pwd)"/examples/fraud/bitcoin_mnmg.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
-# python "$(pwd)"/examples/fraud/bitcoin_rf.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
-
-popd
+./ci/run_cugraph_pyg_pytests.sh
