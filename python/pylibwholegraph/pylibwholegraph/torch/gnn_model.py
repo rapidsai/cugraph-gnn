@@ -210,5 +210,5 @@ else:
             args,
         ):
             raise ModuleNotFoundError(
-                "EmbeddingLookupFn requires 'torch' to be installed."
+                "HomoGNNModel requires 'torch' to be installed."
             )

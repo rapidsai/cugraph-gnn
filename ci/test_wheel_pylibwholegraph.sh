@@ -34,7 +34,7 @@ PIP_INSTALL_ARGS=(
 TORCH_WHEEL_DIR="$(mktemp -d)"
 ./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
 
-# 'cugraph-pyg' is still expected to be importable
+# 'pylibwholegraph' is still expected to be importable
 # and testable in an environment where 'torch' isn't installed.
 torch_downloaded=true
 if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
@@ -65,7 +65,7 @@ if [[ "${torch_downloaded}" == "true" ]]; then
       "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
   fi
 
-  # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
+  # 'torch' is an optional dependency of 'pylibwholegraph'... confirm that it's actually
   # installed here and that we've installed a package with CUDA support.
   rapids-logger "Confirming that PyTorch is installed"
   python -c "import torch; assert torch.cuda.is_available()"
