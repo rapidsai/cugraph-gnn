@@ -18,7 +18,7 @@ select = [
 ]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
-"torch".msg = "Use the 'torch' fixture instead of 'import torch' in tests (see conftest.py)."
+"torch".msg = "Use 'import_optional(\"torch\")' in library code, or the 'torch' pytest fixture in test code (see conftest.py), instead of 'import torch'."
 
 [tool.ruff.lint.per-file-ignores]
 # allow importing 'torch' directly in cugraph-pyg examples
