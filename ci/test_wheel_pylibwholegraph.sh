@@ -2,9 +2,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-set -e          # abort the script on error
-set -o pipefail # piped commands propagate their error
-set -E          # ERR traps are inherited by subcommands
+set -euo pipefail
 
 # Delete system libnccl.so to ensure the wheel is used.
 # (but only do this in CI, to avoid breaking local dev environments)
@@ -18,23 +16,68 @@ RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
 
-# determine pytorch source
-if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
-else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
-fi
 RAPIDS_TESTS_DIR=${RAPIDS_TESTS_DIR:-"${PWD}/test-results"}
 RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
+# generate constraints (possibly pinning to oldest support versions of dependencies)
+rapids-generate-pip-constraints test_pylibwholegraph "${PIP_CONSTRAINT}"
+
+PIP_INSTALL_ARGS=(
+  --prefer-binary
+  --constraint "${PIP_CONSTRAINT}"
+  "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]"
+  "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+)
+
+# ensure a CUDA variant of 'torch' is used (if one is available)
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
+
+# 'pylibwholegraph' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+torch_downloaded=true
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_downloaded=false
+else
+  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
+fi
+
 # echo to expand wildcard before adding `[extra]` requires for pip
 rapids-logger "Installing Packages"
 rapids-pip-retry install \
-    --extra-index-url ${PYTORCH_INDEX} \
-    "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph*.whl)[test]" \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    'torch>=2.3'
+    "${PIP_INSTALL_ARGS[@]}"
 
-rapids-logger "pytest pylibwholegraph"
+
+if [[ "${torch_downloaded}" == "true" ]]; then
+  # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
+  #
+  #    * https://github.com/rapidsai/cugraph/issues/5443
+  #    * https://github.com/rapidsai/build-planning/issues/257
+  #    * https://github.com/rapidsai/build-planning/issues/255
+  #
+  CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+  CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
+  if [[ "${CUDA_MAJOR}" == "13" ]]; then
+    pip install \
+      --upgrade \
+      "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
+  fi
+
+  # 'torch' is an optional dependency of 'pylibwholegraph'... confirm that it's actually
+  # installed here and that we've installed a package with CUDA support.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available()"
+
+  rapids-logger "pytest pylibwholegraph (with 'torch')"
+  ./ci/run_pylibwholegraph_pytests.sh
+fi
+
+rapids-logger "import pylibwholegraph (no 'torch')"
+./ci/uninstall-torch-wheels.sh
+
+python -c "import pylibwholegraph; print(f'pylibwholegraph version: {pylibwholegraph.__version__}')"
+
+rapids-logger "pytest pylibwholegraph (no 'torch')"
 ./ci/run_pylibwholegraph_pytests.sh

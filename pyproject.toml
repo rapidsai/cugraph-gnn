@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 [tool.ruff]
@@ -10,5 +10,23 @@ exclude = [
 [tool.ruff.lint]
 ignore = [
     # whitespace before :
-    "E203",
+    "E203"
+]
+select = [
+    # (flake8-tidy-imports) banned-api
+    "TID251"
+]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"torch".msg = "Use 'import_optional(\"torch\")' in library code, or the 'torch' pytest fixture in test code (see conftest.py), instead of 'import torch'."
+
+[tool.ruff.lint.per-file-ignores]
+# allow importing 'torch' directly in cugraph-pyg examples
+"python/cugraph-pyg/cugraph_pyg/examples/*" = [
+    "TID251"
+]
+
+# allow importing 'torch' directly in pylibwholegraph examples
+"python/pylibwholegraph/examples/*" = [
+    "TID251"
 ]

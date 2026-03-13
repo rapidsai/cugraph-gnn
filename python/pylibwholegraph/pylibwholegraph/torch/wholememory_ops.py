@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from .wholegraph_env import (
     get_stream,
     get_wholegraph_env_fns,
@@ -10,10 +10,12 @@ from .wholegraph_env import (
 )
 from .utils import wholememory_dtype_to_torch_dtype
 
+torch = import_optional("torch")
+
 
 def wholememory_gather_forward_functor(
     wholememory_tensor: wmb.PyWholeMemoryTensor,
-    indices_tensor: torch.Tensor,
+    indices_tensor: "torch.Tensor",
     requires_grad=False,
     torch_output_dtype=None,
 ):
@@ -48,8 +50,8 @@ def wholememory_gather_forward_functor(
 
 
 def wholememory_scatter_functor(
-    input_tensor: torch.Tensor,
-    indices_tensor: torch.Tensor,
+    input_tensor: "torch.Tensor",
+    indices_tensor: "torch.Tensor",
     wholememory_tensor: wmb.PyWholeMemoryTensor,
 ):
     """

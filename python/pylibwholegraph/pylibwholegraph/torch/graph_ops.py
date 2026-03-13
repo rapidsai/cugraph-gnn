@@ -1,7 +1,6 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
-
-import torch
+from pylibwholegraph.utils.imports import import_optional
 import pylibwholegraph.binding.wholememory_binding as wmb
 from .wholegraph_env import (
     get_stream,
@@ -10,10 +9,12 @@ from .wholegraph_env import (
     wrap_torch_tensor,
 )
 
+torch = import_optional("torch")
+
 
 def append_unique(
-    target_node_tensor: torch.Tensor,
-    neighbor_node_tensor: torch.Tensor,
+    target_node_tensor: "torch.Tensor",
+    neighbor_node_tensor: "torch.Tensor",
     need_neighbor_raw_to_unique: bool = False,
 ):
     """
@@ -60,7 +61,8 @@ def append_unique(
 
 
 def add_csr_self_loop(
-    csr_row_ptr_tensor: torch.Tensor, csr_col_ptr_tensor: torch.Tensor
+    csr_row_ptr_tensor: "torch.Tensor",
+    csr_col_ptr_tensor: "torch.Tensor",
 ):
     """
     Add self loop to sampled CSR graph

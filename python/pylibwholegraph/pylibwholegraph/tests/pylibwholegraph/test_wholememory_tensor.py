@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pylibwholegraph.binding.wholememory_binding as wmb
@@ -107,7 +107,7 @@ def routine_func(world_rank: int, world_size: int):
     wmb.finalize()
 
 
-def test_wholememory_tensor():
+def test_wholememory_tensor(torch):
     gpu_count = wmb.fork_get_gpu_count()
     assert gpu_count > 0
     multiprocess_run(gpu_count, routine_func)

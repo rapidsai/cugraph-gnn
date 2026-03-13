@@ -1,20 +1,20 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
+import pytest
 import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.utils.multiprocess import multiprocess_run
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
 from pylibwholegraph.torch.dlpack_utils import torch_import_from_dlpack
 from pylibwholegraph.test_utils.test_comm import random_partition
-import torch
 import pylibwholegraph.torch.wholememory_ops as wm_ops
-
 
 # PYTHONPATH=../:$PYTHONPATH python3 -m pytest \
 # ../tests/wholegraph_torch/ops/test_wholegraph_gather_scatter.py -s
 
 
 def gen_int_embedding(indice_tensor, embedding_dim, output_type):
+    torch = pytest.importorskip("torch")
     if embedding_dim == 0:
         embedding_dim = 1  # unsqueeze 2D for input (2D is required for scatter op)
     indice_count = indice_tensor.shape[0]
@@ -41,6 +41,7 @@ def scatter_gather_test_cast(
     use_python_binding=True,
     entry_partition=None,
 ):
+    torch = pytest.importorskip("torch")
     world_rank = wm_comm.get_rank()
     world_size = wm_comm.get_size()
     print(
@@ -173,7 +174,7 @@ def routine_func(world_rank: int, world_size: int):
     wmb.finalize()
 
 
-def test_wholegraph_gather_scatter():
+def test_wholegraph_gather_scatter(torch):
     gpu_count = wmb.fork_get_gpu_count()
     assert gpu_count > 0
     multiprocess_run(gpu_count, routine_func)
