@@ -209,6 +209,4 @@ else:
             node_embedding: WholeMemoryEmbedding,
             args,
         ):
-            raise ModuleNotFoundError(
-                "HomoGNNModel requires 'torch' to be installed."
-            )
+            raise ModuleNotFoundError("HomoGNNModel requires 'torch' to be installed.")
