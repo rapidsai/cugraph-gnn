@@ -6,6 +6,7 @@ import sys
 import tempfile
 
 import pytest
+
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
 from cugraph_pyg.utils.imports import MissingModule, import_optional
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize

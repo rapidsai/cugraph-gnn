@@ -6,14 +6,15 @@ import sys
 
 import pytest
 from cugraph.datasets import karate
-from cugraph_pyg.data import FeatureStore, GraphStore
-from cugraph_pyg.loader import LinkNeighborLoader, NeighborLoader
-from cugraph_pyg.utils.imports import MissingModule, import_optional
 from pylibcugraph.comms import (
     cugraph_comms_create_unique_id,
     cugraph_comms_init,
     cugraph_comms_shutdown,
 )
+
+from cugraph_pyg.data import FeatureStore, GraphStore
+from cugraph_pyg.loader import LinkNeighborLoader, NeighborLoader
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 
 os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 

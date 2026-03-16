@@ -3,10 +3,11 @@
 
 import sys
 
-import pylibwholegraph.binding.wholememory_binding as wmb
-import pylibwholegraph.torch.wholememory_ops as wm_ops
 import pytest
 import torch
+
+import pylibwholegraph.binding.wholememory_binding as wmb
+import pylibwholegraph.torch.wholememory_ops as wm_ops
 from pylibwholegraph.test_utils.test_comm import random_partition
 from pylibwholegraph.torch.dlpack_utils import torch_import_from_dlpack
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm

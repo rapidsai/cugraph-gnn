@@ -3,9 +3,10 @@
 
 import sys
 
-import pylibwholegraph.torch.graph_ops as wg_ops
 import pytest
 import torch
+
+import pylibwholegraph.torch.graph_ops as wg_ops
 
 
 def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):

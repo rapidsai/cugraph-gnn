@@ -7,6 +7,7 @@ import sys
 
 import pytest
 import torch
+
 from cugraph_pyg.tensor import DistMatrix
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
 from pylibwholegraph.torch.initialize import init as wm_init

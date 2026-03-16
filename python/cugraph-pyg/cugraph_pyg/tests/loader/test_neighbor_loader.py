@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import sys
 
-import cugraph_pyg
 import pytest
 from cugraph.datasets import karate
+
+import cugraph_pyg
 from cugraph_pyg.data import FeatureStore, GraphStore
 from cugraph_pyg.loader import NeighborLoader
 from cugraph_pyg.utils.imports import MissingModule, import_optional

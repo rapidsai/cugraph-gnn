@@ -4,9 +4,10 @@
 import sys
 import time
 
-import pylibwholegraph.binding.wholememory_binding as wmb
 import pytest
 import torch
+
+import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.torch.wholegraph_env import (
     TorchMemoryContext,
     get_stream,

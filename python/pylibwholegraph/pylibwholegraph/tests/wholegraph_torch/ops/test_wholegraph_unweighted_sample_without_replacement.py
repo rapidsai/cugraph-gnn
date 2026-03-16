@@ -5,10 +5,11 @@ import random
 import sys
 from functools import partial
 
-import pylibwholegraph.binding.wholememory_binding as wmb
-import pylibwholegraph.torch.wholegraph_ops as wg_ops
 import pytest
 import torch
+
+import pylibwholegraph.binding.wholememory_binding as wmb
+import pylibwholegraph.torch.wholegraph_ops as wg_ops
 from pylibwholegraph.test_utils.test_comm import (
     copy_host_1D_tensor_to_wholememory,
     gen_csr_graph,
