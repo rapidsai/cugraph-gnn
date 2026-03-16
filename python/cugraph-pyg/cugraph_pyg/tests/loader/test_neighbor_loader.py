@@ -1,20 +1,23 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
-
-import pytest
-
-from cugraph.datasets import karate
-from cugraph_pyg.utils.imports import import_optional, MissingModule
+import sys
 
 import cugraph_pyg
-from cugraph_pyg.data import GraphStore, FeatureStore
+import pytest
+from cugraph.datasets import karate
+from cugraph_pyg.data import FeatureStore, GraphStore
 from cugraph_pyg.loader import NeighborLoader
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 @pytest.mark.sg
 def test_neighbor_loader(single_pytorch_worker):
     """
@@ -49,6 +52,10 @@ def test_neighbor_loader(single_pytorch_worker):
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 @pytest.mark.sg
 def test_neighbor_loader_biased(single_pytorch_worker):
     eix = torch.tensor(
@@ -87,6 +94,10 @@ def test_neighbor_loader_biased(single_pytorch_worker):
     assert (out.edge_index.cpu() == torch.tensor([[3, 4], [1, 2]])).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("num_nodes", [10, 25])

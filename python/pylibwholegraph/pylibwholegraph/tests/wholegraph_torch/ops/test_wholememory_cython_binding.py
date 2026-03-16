@@ -15,6 +15,10 @@ from pylibwholegraph.torch.wholegraph_env import (
 )
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 def test_smoke():
     torch.cuda.set_device(0)
     output_len = 128
@@ -56,6 +60,10 @@ def test_smoke():
     assert wmb.py_get_wholememory_tensor_count() == 0
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 def test_loop_memory():
     torch.cuda.set_device(0)
     embedding_dim = 1

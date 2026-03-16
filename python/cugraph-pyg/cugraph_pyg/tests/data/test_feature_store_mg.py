@@ -1,13 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import sys
 
 import pytest
-
-from cugraph_pyg.utils.imports import import_optional, MissingModule
-
 from cugraph_pyg.data import FeatureStore
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
@@ -49,6 +48,10 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.parametrize("dtype", ["float32", "int64"])
 @pytest.mark.mg
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 def test_wholegraph_feature_store_basic_api(dtype):
     world_size = torch.cuda.device_count()
 
@@ -98,6 +101,10 @@ def run_test_wholegraph_feature_store_single_construct(rank, world_size):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 @pytest.mark.mg
 def test_wholegraph_feature_store_single_construct():
     world_size = torch.cuda.device_count()

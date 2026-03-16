@@ -1,14 +1,15 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import pytest
+import sys
 import tempfile
 
-from cugraph_pyg.tensor import DistTensor, DistEmbedding
-from cugraph_pyg.utils.imports import import_optional, MissingModule
-from pylibwholegraph.torch.initialize import init as wm_init
+import pytest
+from cugraph_pyg.tensor import DistEmbedding, DistTensor
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
+from pylibwholegraph.torch.initialize import init as wm_init
 
 torch = import_optional("torch")
 pylibwholegraph = import_optional("pylibwholegraph")
@@ -53,6 +54,10 @@ def run_test_dist_tensor_creation(rank, world_size, device, clx):
     torch.distributed.destroy_process_group()
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
+)
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
@@ -114,6 +119,10 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx):
 
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
+)
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.parametrize("device", ["cpu", "cuda"])

@@ -1,20 +1,18 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-
 import os
+import sys
 
+import pytest
 from cugraph.datasets import karate
-from cugraph_pyg.utils.imports import import_optional, MissingModule
-
-from cugraph_pyg.data import GraphStore, FeatureStore
-from cugraph_pyg.loader import NeighborLoader, LinkNeighborLoader
-
+from cugraph_pyg.data import FeatureStore, GraphStore
+from cugraph_pyg.loader import LinkNeighborLoader, NeighborLoader
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 from pylibcugraph.comms import (
+    cugraph_comms_create_unique_id,
     cugraph_comms_init,
     cugraph_comms_shutdown,
-    cugraph_comms_create_unique_id,
 )
 
 os.environ["RAPIDS_NO_INITIALIZE"] = "1"
@@ -86,6 +84,10 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
 
 @pytest.mark.parametrize("specify_size", [True, False])
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
+)
 @pytest.mark.mg
 def test_neighbor_loader_mg(specify_size):
     uid = cugraph_comms_create_unique_id()
@@ -158,6 +160,10 @@ def run_test_neighbor_loader_biased_mg(rank, uid, world_size):
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
+)
 @pytest.mark.mg
 def test_neighbor_loader_biased_mg():
     uid = cugraph_comms_create_unique_id()
@@ -221,6 +227,10 @@ def run_test_link_neighbor_loader_basic_mg(
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
+)
 @pytest.mark.mg
 @pytest.mark.parametrize("select_edges", [64, 128])
 @pytest.mark.parametrize("batch_size", [2, 4])
@@ -353,6 +363,10 @@ def run_test_link_neighbor_loader_negative_sampling_basic_mg(
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
+)
 @pytest.mark.mg
 @pytest.mark.parametrize("batch_size", [1, 2])
 def test_link_neighbor_loader_negative_sampling_basic_mg(batch_size):

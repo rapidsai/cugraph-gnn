@@ -1,11 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 import pytest
-
-from cugraph_pyg.utils.imports import import_optional, MissingModule
-
 from cugraph_pyg.data import FeatureStore
+from cugraph_pyg.utils.imports import MissingModule, import_optional
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
@@ -63,6 +63,10 @@ def test_feature_store_basic_api(single_pytorch_worker):
         torch.int64,
         torch.float64,
     ],
+)
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically on Python 3.14",
 )
 def test_feature_store_basic_api_types(single_pytorch_worker, dtype):
     features = torch.arange(0, 2000)
