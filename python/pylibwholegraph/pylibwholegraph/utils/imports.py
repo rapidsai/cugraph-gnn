@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from importlib import import_module
+from importlib.util import find_spec
 
 
 class MissingModule:
@@ -52,7 +53,7 @@ def import_optional(mod, default_mod_class=MissingModule):
       ...
     RuntimeError: This feature requires the 'torch' package/module
     """
-    try:
+    if find_spec(mod) is not None:
         return FoundModule(mod)
-    except ModuleNotFoundError:
+    else:
         return default_mod_class(mod_name=mod)
