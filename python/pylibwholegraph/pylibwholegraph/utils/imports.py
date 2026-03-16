@@ -21,6 +21,18 @@ class MissingModule:
         raise RuntimeError(f"This feature requires the '{self.name}' package/module")
 
 
+class FoundModule:
+    def __init__(self, mod):
+        self.mod = mod
+        self.imported = False
+
+    def __getattr__(self, attr):
+        if not self.imported:
+            self.mod = import_module(self.mod)
+            self.imported = True
+        return getattr(self.mod, attr)
+
+
 def import_optional(mod, default_mod_class=MissingModule):
     """
     import the "optional" module 'mod' and return the module object or object.
@@ -41,6 +53,6 @@ def import_optional(mod, default_mod_class=MissingModule):
     RuntimeError: This feature requires the 'torch' package/module
     """
     try:
-        return import_module(mod)
+        return FoundModule(mod)
     except ModuleNotFoundError:
         return default_mod_class(mod_name=mod)
