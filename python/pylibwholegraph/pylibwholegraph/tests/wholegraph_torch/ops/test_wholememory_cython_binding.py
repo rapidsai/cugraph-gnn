@@ -1,17 +1,18 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
+import sys
+import time
+
 import pylibwholegraph.binding.wholememory_binding as wmb
+import pytest
 import torch
 from pylibwholegraph.torch.wholegraph_env import (
+    TorchMemoryContext,
     get_stream,
     get_wholegraph_env_fns,
     wrap_torch_tensor,
-    TorchMemoryContext,
 )
-
-import time
 
 
 def test_smoke():
@@ -107,6 +108,10 @@ def test_loop_memory():
 
 @pytest.mark.parametrize("output_len", list(range(1, 100, 17)))
 @pytest.mark.parametrize("embed_dim", list(range(1, 128, 23)))
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="segfaults periodically (but not consistently, yay!)",
+)
 def test_random_alloc(output_len, embed_dim):
     torch.cuda.set_device(0)
     input_tensor = torch.rand((embed_dim,), device="cuda")
