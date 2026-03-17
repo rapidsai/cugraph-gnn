@@ -27,7 +27,7 @@ def pylibwholegraph_smoke_check(**kwargs):
         )
 
     try:
-        import torch
+        import torch  # noqa: TID251
 
         assert torch.cuda.is_available()
 

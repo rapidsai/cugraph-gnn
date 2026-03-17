@@ -28,6 +28,9 @@ repos:
       - id: yesqa
         additional_dependencies:
           - flake8==7.1.1
+        exclude: |
+          (?x)
+            python/pylibwholegraph/pylibwholegraph/_doctor_check[.]py$
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v20.1.4
     hooks:

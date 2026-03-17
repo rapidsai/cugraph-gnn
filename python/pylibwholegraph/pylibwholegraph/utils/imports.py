@@ -53,7 +53,15 @@ def import_optional(mod, default_mod_class=MissingModule):
       ...
     RuntimeError: This feature requires the 'torch' package/module
     """
-    if find_spec(mod) is not None:
+    # this try-except is necessary to handle dotted imports,
+    # like `import_optional("torch.autograd")`
+    mod_found = False
+    try:
+        mod_found = find_spec(mod) is not None
+    except ImportError:
+        mod_found = False
+
+    if mod_found:
         return FoundModule(mod)
     else:
         return default_mod_class(mod_name=mod)
