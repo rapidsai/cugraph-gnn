@@ -33,7 +33,6 @@ TORCH_WHEEL_DIR="$(mktemp -d)"
 
 # 'cugraph-pyg' is still expected to be importable
 # and testable in an environment where 'torch' isn't installed.
-CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
 torch_downloaded=true
 if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
