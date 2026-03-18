@@ -16,6 +16,7 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
+from cpython.buffer cimport PyBuffer_FillInfo
 from cpython.bytes cimport PyBytes_AsString
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
@@ -1007,17 +1008,14 @@ cdef class PyWholeMemoryUniqueID:
         return self.shape[0]
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        buffer.buf = &self.wholememory_unique_id.internal[0]
-        buffer.format = 'c'
-        buffer.internal = NULL
-        buffer.itemsize = 1
-        buffer.len = self.shape[0]
-        buffer.ndim = 1
-        buffer.obj = self
-        buffer.readonly = 0
-        buffer.shape = self.shape
-        buffer.strides = self.strides
-        buffer.suboffsets = NULL
+        PyBuffer_FillInfo(
+            buffer,
+            self,
+            &self.wholememory_unique_id.internal[0],
+            self.shape[0],
+            False,
+            flags
+        )
 
     def __releasebuffer__(self, Py_buffer *buffer):
         buffer.buf = NULL
