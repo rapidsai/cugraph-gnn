@@ -1,23 +1,26 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from pylibwholegraph.utils.multiprocess import multiprocess_run
-from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
-import pylibwholegraph.binding.wholememory_binding as wmb
-import torch
 import random
+import sys
 from functools import partial
+
+import pytest
+import torch
+
+import pylibwholegraph.binding.wholememory_binding as wmb
+import pylibwholegraph.torch.wholegraph_ops as wg_ops
 from pylibwholegraph.test_utils.test_comm import (
-    gen_csr_graph,
     copy_host_1D_tensor_to_wholememory,
+    gen_csr_graph,
     host_get_sample_offset_tensor,
     host_sample_all_neighbors,
     int_to_wholememory_datatype,
     int_to_wholememory_location,
     int_to_wholememory_type,
 )
-import pylibwholegraph.torch.wholegraph_ops as wg_ops
+from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
+from pylibwholegraph.utils.multiprocess import multiprocess_run
 
 
 def host_weighted_sample_without_replacement_func(
@@ -360,6 +363,7 @@ def routine_func(world_rank: int, world_size: int, **kwargs):
 @pytest.mark.parametrize("wholememory_type", ([0, 1]))
 @pytest.mark.parametrize("need_center_local_output", [True, False])
 @pytest.mark.parametrize("need_edge_output", [True, False])
+@pytest.mark.skipif(sys.version_info >= (3, 14), reason="segfaults on Python 3.14")
 def test_wholegraph_weighted_sample(
     graph_node_count,
     graph_edge_count,

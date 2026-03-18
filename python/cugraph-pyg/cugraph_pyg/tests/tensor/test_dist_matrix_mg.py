@@ -1,14 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 
 import os
+import sys
+
 import pytest
 import torch
-from cugraph_pyg.tensor import DistMatrix
 
-from pylibwholegraph.torch.initialize import init as wm_init
+from cugraph_pyg.tensor import DistMatrix
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
+from pylibwholegraph.torch.initialize import init as wm_init
 
 
 def run_test_dist_matrix_creation(rank, world_size, device):
@@ -137,6 +139,10 @@ def run_test_dist_matrix_invalid_cases(rank, world_size, device):
     torch.distributed.destroy_process_group()
 
 
+@pytest.mark.skipif(
+    sys.version_info >= (3, 14),
+    reason="torch.multiprocessing.spawn.ProcessExitedException SIGSEGV with Python 3.14",
+)
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_dist_matrix(device):
     """Run all DistMatrix tests"""
