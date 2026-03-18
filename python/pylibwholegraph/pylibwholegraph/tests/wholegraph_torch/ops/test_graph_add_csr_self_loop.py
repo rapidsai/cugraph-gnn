@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-import torch
 from pylibwholegraph.test_utils.test_comm import gen_csr_graph
 import pylibwholegraph.torch.graph_ops as wg_ops
 
 
 def host_add_csr_self_loop(csr_row_ptr_tensor, csr_col_ptr_tensor):
+    torch = pytest.importorskip("torch")
     row_num = csr_row_ptr_tensor.shape[0] - 1
     edge_num = csr_col_ptr_tensor.shape[0]
     output_csr_row_ptr_tensor = torch.empty(
@@ -28,6 +28,7 @@ def host_add_csr_self_loop(csr_row_ptr_tensor, csr_col_ptr_tensor):
 
 
 def routine_func(**kwargs):
+    torch = pytest.importorskip("torch")
     target_node_count = kwargs["target_node_count"]
     neighbor_node_count = kwargs["neighbor_node_count"]
     edge_num = kwargs["edge_num"]
@@ -35,9 +36,10 @@ def routine_func(**kwargs):
     csr_row_ptr_tensor, csr_col_ptr_tensor, _ = gen_csr_graph(
         target_node_count,
         edge_num,
-        neighbor_node_count,
+        neighbor_node_count=neighbor_node_count,
         csr_row_dtype=torch.int32,
         csr_col_dtype=torch.int32,
+        weight_dtype=torch.float32,
     )
     csr_row_ptr_tensor_cuda = csr_row_ptr_tensor.cuda()
     csr_col_ptr_tensor_cuda = csr_col_ptr_tensor.cuda()
@@ -58,7 +60,7 @@ def routine_func(**kwargs):
 @pytest.mark.parametrize("target_node_count", [101, 113])
 @pytest.mark.parametrize("neighbor_node_count", [157, 1987])
 @pytest.mark.parametrize("edge_num", [1001, 2305])
-def test_add_csr_self_loop(target_node_count, neighbor_node_count, edge_num):
+def test_add_csr_self_loop(target_node_count, neighbor_node_count, edge_num, torch):
     gpu_count = torch.cuda.device_count()
     assert gpu_count > 0
     routine_func(

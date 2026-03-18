@@ -1,9 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 import os
-import torch
 
 
 from pylibcugraph.comms import (
@@ -29,7 +28,13 @@ except ImportError:
 
 
 @pytest.fixture(scope="module")
-def single_pytorch_worker():
+def torch():
+    """Pass this to any test case that needs 'torch' to be installed"""
+    return pytest.importorskip("torch")
+
+
+@pytest.fixture(scope="module")
+def single_pytorch_worker(torch):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
     os.environ["LOCAL_RANK"] = "0"
@@ -44,14 +49,14 @@ def single_pytorch_worker():
 
 
 @pytest.fixture
-def basic_pyg_graph_1():
+def basic_pyg_graph_1(torch):
     edge_index = torch.tensor([[0, 1, 2, 3], [0, 0, 1, 1]])
     size = (4, 4)
     return edge_index, size
 
 
 @pytest.fixture
-def basic_pyg_graph_2():
+def basic_pyg_graph_2(torch):
     edge_index = torch.tensor(
         [
             [0, 1, 0, 2, 3, 0, 4, 0, 5, 0, 6, 7, 0, 8, 9],
@@ -63,7 +68,7 @@ def basic_pyg_graph_2():
 
 
 @pytest.fixture
-def sample_pyg_hetero_data():
+def sample_pyg_hetero_data(torch):
     torch.manual_seed(12345)
     raw_data_dict = {
         "v0": torch.randn(6, 3),

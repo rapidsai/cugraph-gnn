@@ -15,12 +15,30 @@ LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-package-name "wheel_python" pylibwholegraph --stable --cuda "$RAPIDS_CUDA_VERSION")")
 CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
 
-CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+# generate constraints (possibly pinning to oldest support versions of dependencies)
+rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
 
-if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
+PIP_INSTALL_ARGS=(
+  --prefer-binary
+  --constraint "${PIP_CONSTRAINT}"
+  --extra-index-url 'https://pypi.nvidia.com'
+  "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+  "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)"
+  "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+)
+
+# ensure a CUDA variant of 'torch' is used (if one is available)
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
+
+# 'cugraph-pyg' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+torch_downloaded=true
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_downloaded=false
 else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
+  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
 fi
 
 # notes:
@@ -30,12 +48,7 @@ fi
 #     its dependencies are available from pypi.org
 #
 rapids-pip-retry install \
-    -v \
-    --extra-index-url "${PYTORCH_INDEX}" \
-    --extra-index-url 'https://pypi.nvidia.com' \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
-    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+  "${PIP_INSTALL_ARGS[@]}"
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
@@ -47,5 +60,34 @@ popd
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
-rapids-logger "pytest cugraph-pyg (single GPU)"
+if [[ "${torch_downloaded}" == "true" ]]; then
+  # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
+  #
+  #    * https://github.com/rapidsai/cugraph/issues/5443
+  #    * https://github.com/rapidsai/build-planning/issues/257
+  #    * https://github.com/rapidsai/build-planning/issues/255
+  #
+  CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+  CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
+  if [[ "${CUDA_MAJOR}" == "13" ]]; then
+    pip install \
+      --upgrade \
+      "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
+  fi
+
+  # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
+  # installed here and that we've installed a package with CUDA support.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available()"
+
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch')"
+  ./ci/run_cugraph_pyg_pytests.sh
+fi
+
+rapids-logger "import cugraph-pyg (no 'torch')"
+./ci/uninstall-torch-wheels.sh
+
+python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__version__}')"
+
+rapids-logger "pytest cugraph-pyg (no 'torch')"
 ./ci/run_cugraph_pyg_pytests.sh

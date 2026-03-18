@@ -18,14 +18,14 @@ class DistMatrix:
         self,
         src: Optional[
             Union[
-                Tuple[torch.Tensor, torch.Tensor],
+                Tuple["torch.Tensor", "torch.Tensor"],
                 Tuple[DistTensor, DistTensor],
                 str,
                 List[str],
             ]
         ] = None,
         shape: Optional[Union[list, tuple]] = None,
-        dtype: Optional[torch.dtype] = None,
+        dtype: Optional["torch.dtype"] = None,
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
         backend: Optional[Literal["nccl", "vmm"]] = "nccl",
         format: Optional[Literal["csc", "coo"]] = "coo",
@@ -82,8 +82,8 @@ class DistMatrix:
 
     def __setitem__(
         self,
-        idx: Union[torch.Tensor, slice],
-        val: Union[torch.Tensor, tuple[torch.Tensor, torch.Tensor]],
+        idx: Union["torch.Tensor", slice],
+        val: Union["torch.Tensor", tuple["torch.Tensor", "torch.Tensor"]],
     ):
         if isinstance(idx, slice):
             size = self._col.shape[0]
@@ -106,7 +106,7 @@ class DistMatrix:
             self._col[idx] = val[0]
             self._row[idx] = val[1]
 
-    def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
+    def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
         if self._format != "coo":
             raise ValueError("Getting is currently only supported for COO format")
         if idx.dim() != 1:
@@ -114,11 +114,11 @@ class DistMatrix:
 
         return torch.stack([self._col[idx], self._row[idx]])
 
-    def get_local_tensor(self) -> Tuple[torch.Tensor, torch.Tensor]:
+    def get_local_tensor(self) -> Tuple["torch.Tensor", "torch.Tensor"]:
         return (self._col.get_local_tensor(), self._row.get_local_tensor())
 
     @property
-    def local_col(self) -> torch.Tensor:
+    def local_col(self) -> "torch.Tensor":
         world_size = torch.distributed.get_world_size()
         rank = torch.distributed.get_rank()
 
@@ -134,7 +134,7 @@ class DistMatrix:
         return self._col[ix]
 
     @property
-    def local_row(self) -> torch.Tensor:
+    def local_row(self) -> "torch.Tensor":
         world_size = torch.distributed.get_world_size()
         rank = torch.distributed.get_rank()
 
@@ -150,7 +150,7 @@ class DistMatrix:
         return self._row[ix]
 
     @property
-    def local_coo(self) -> torch.Tensor:
+    def local_coo(self) -> "torch.Tensor":
         return torch.stack([self.local_col, self.local_row])
 
     @property
@@ -158,5 +158,5 @@ class DistMatrix:
         return (self._col.shape[0], self._row.shape[0])
 
     @property
-    def dtype(self) -> torch.dtype:
+    def dtype(self) -> "torch.dtype":
         return self._col.dtype

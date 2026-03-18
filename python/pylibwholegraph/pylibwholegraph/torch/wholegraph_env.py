@@ -1,13 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 import os.path
 import importlib
 
-import torch
 import pylibwholegraph
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from typing import Union
 from .utils import wholememory_dtype_to_torch_dtype, torch_dtype_to_wholememory_dtype
+
+torch = import_optional("torch")
+torch_utils_cpp_ext = import_optional("torch.utils.cpp_extension")
 
 default_wholegraph_env_context = None
 torch_cpp_ext_loaded = False
@@ -46,7 +49,7 @@ class TorchMemoryContext(object):
         else:
             return id(self)
 
-    def set_tensor(self, t: torch.Tensor):
+    def set_tensor(self, t: "torch.Tensor"):
         self.tensor = t
 
     def get_handle(self):
@@ -154,7 +157,7 @@ def get_wholegraph_env_fns(use_default=True) -> int:
     return wholegraph_env_context.get_env_fns()
 
 
-def wrap_torch_tensor(t: Union[torch.Tensor, None]) -> wmb.WrappedLocalTensor:
+def wrap_torch_tensor(t: Union["torch.Tensor", None]) -> wmb.WrappedLocalTensor:
     py_desc = wmb.PyWholeMemoryTensorDescription()
     wm_t = wmb.WrappedLocalTensor()
     if t is None:
@@ -171,8 +174,6 @@ def get_cpp_extension_src_path():
 
 
 def compile_cpp_extension():
-    import torch.utils.cpp_extension
-
     global torch_cpp_ext_loaded
     global torch_cpp_ext_lib
     cpp_extension_path = os.path.join(get_cpp_extension_src_path(), "torch_cpp_ext")
@@ -192,7 +193,7 @@ def compile_cpp_extension():
         extra_ldflags.append(
             "".join(["-L", os.path.join(os.environ["LIBWHOLEGRAPH_DIR"], "lib")])
         )
-    torch.utils.cpp_extension.load(
+    torch_utils_cpp_ext.load(
         name="pylibwholegraph.pylibwholegraph_torch_ext",
         sources=[
             os.path.join(cpp_extension_path, "wholegraph_torch_ext.cpp"),

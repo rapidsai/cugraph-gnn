@@ -1,9 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import torch
-import torch.utils.dlpack
+from pylibwholegraph.utils.imports import import_optional
 import pylibwholegraph.binding.wholememory_binding as wmb
 from .comm import (
     set_world_info,
@@ -12,6 +11,8 @@ from .comm import (
     reset_communicators,
 )
 from .utils import str_to_wmb_wholememory_log_level
+
+torch = import_optional("torch")
 
 
 def init(
