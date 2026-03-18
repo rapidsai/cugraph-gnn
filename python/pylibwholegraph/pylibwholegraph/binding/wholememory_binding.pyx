@@ -1018,13 +1018,7 @@ cdef class PyWholeMemoryUniqueID:
         )
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        buffer.buf = NULL
-        buffer.format = 'c'
-        buffer.len = 0
-        buffer.ndim = 0
-        buffer.obj = None
-        buffer.shape = NULL
-        buffer.strides = NULL
+        pass
 
     def __dlpack__(self, stream=None):
         cdef DLManagedTensor * dlm_tensor = \
@@ -1214,13 +1208,7 @@ cdef class PyWholeMemoryFlattenDlpack:
         buffer.suboffsets = NULL
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        buffer.buf = NULL
-        buffer.format = 'c'
-        buffer.len = 0
-        buffer.ndim = 0
-        buffer.obj = None
-        buffer.shape = NULL
-        buffer.strides = NULL
+        pass
 
     @property
     def ptr(self):
