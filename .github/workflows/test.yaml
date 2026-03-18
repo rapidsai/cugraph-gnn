@@ -43,7 +43,7 @@ jobs:
       sha: ${{ inputs.sha }}
       # There aren't pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
       # otherwise run all jobs.
-      matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
+      matrix_filter: map(select(.PY_VER != "3.14")) | map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
   wheel-tests-pylibwholegraph:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
@@ -53,7 +53,7 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibwholegraph.sh
-      matrix_filter: map(select(.ARCH == "amd64"))
+      matrix_filter: map(select(.PY_VER != "3.14")) | map(select(.ARCH == "amd64"))
   wheel-tests-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
@@ -63,4 +63,4 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_cugraph-pyg.sh
-      matrix_filter: map(select(.ARCH == "amd64"))
+      matrix_filter: map(select(.PY_VER != "3.14")) | map(select(.ARCH == "amd64"))

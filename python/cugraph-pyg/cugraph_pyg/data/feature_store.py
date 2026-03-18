@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -18,9 +18,12 @@ torch_geometric = import_optional("torch_geometric")
 wgth = import_optional("pylibwholegraph.torch")
 
 
+# If 'torch_geometric' is available but 'torch' is not, accessing
+# 'torch_geometric.data.GraphStore' will fail because `torch_geometric`
+# unconditionally imports 'torch'... so need to check that both are available.
 class FeatureStore(
     object
-    if isinstance(torch_geometric, MissingModule)
+    if (isinstance(torch_geometric, MissingModule) or isinstance(torch, MissingModule))
     else torch_geometric.data.FeatureStore
 ):
     """

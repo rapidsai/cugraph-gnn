@@ -1,26 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-from packaging.requirements import Requirement
 from importlib import import_module
 from importlib.util import find_spec
-
-
-def package_available(requirement: str) -> bool:
-    """Check if a package is installed and meets the version requirement."""
-    req = Requirement(requirement)
-    try:
-        pkg = import_module(req.name)
-    except ImportError:
-        return False
-
-    if len(req.specifier) > 0:
-        if hasattr(pkg, "__version__"):
-            return pkg.__version__ in req.specifier
-        else:
-            return False
-
-    return True
 
 
 class MissingModule:
@@ -37,7 +19,7 @@ class MissingModule:
         self.name = mod_name
 
     def __getattr__(self, attr):
-        raise RuntimeError(f"This feature requires the {self.name} package/module")
+        raise RuntimeError(f"This feature requires the '{self.name}' package/module")
 
 
 class FoundModule:
@@ -63,35 +45,13 @@ def import_optional(mod, default_mod_class=MissingModule):
 
     Example
     -------
-    >> from cugraph_pyg.utils.imports import import_optional
-    >> nx = import_optional("networkx")  # networkx is not installed
-    >> G = nx.Graph()
+    >> from pylibwholegraph.utils.imports import import_optional
+    >> torch = import_optional("torch")  # torch is not installed
+    >> torch.set_num_threads(1)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       ...
-    RuntimeError: This feature requires the networkx package/module
-
-    Example
-    -------
-    >> class CuDFFallback:
-    ..   def __init__(self, mod_name):
-    ..     assert mod_name == "cudf"
-    ..     warnings.warn("cudf could not be imported, using pandas instead!")
-    ..   def __getattr__(self, attr):
-    ..     import pandas
-    ..     return getattr(pandas, attr)
-    ...
-    >> from from cugraph_pyg.utils.imports import import_optional
-    >> df_mod = import_optional("cudf", default_mod_class=CuDFFallback)
-    <stdin>:4: UserWarning: cudf could not be imported, using pandas instead!
-    >> df = df_mod.DataFrame()
-    >> df
-    Empty DataFrame
-    Columns: []
-    Index: []
-    >> type(df)
-    <class 'pandas.core.frame.DataFrame'>
-    >>
+    RuntimeError: This feature requires the 'torch' package/module
     """
     # this try-except is necessary to handle dotted imports,
     # like `import_optional("torch.autograd")`
