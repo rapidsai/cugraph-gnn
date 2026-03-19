@@ -71,7 +71,10 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   python -c "import torch; assert torch.cuda.is_available()"
 
   rapids-logger "pytest pylibwholegraph (with 'torch')"
-  ./ci/run_pylibwholegraph_pytests.sh
+  ./ci/run_pylibwholegraph_pytests.sh \
+    --cov-config=../../.coveragerc \
+    --cov=pylibwholegraph \
+    --cov-fail-under=15
 fi
 
 rapids-logger "import pylibwholegraph (no 'torch')"

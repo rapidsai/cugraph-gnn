@@ -53,7 +53,7 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibwholegraph.sh
-      matrix_filter: map(select(.PY_VER != "3.14")) | map(select(.ARCH == "amd64"))
+      matrix_filter: map(select(.PY_VER != "3.14"))
   wheel-tests-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/26.04
@@ -63,4 +63,4 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_cugraph-pyg.sh
-      matrix_filter: map(select(.PY_VER != "3.14")) | map(select(.ARCH == "amd64"))
+      matrix_filter: map(select(.PY_VER != "3.14"))
