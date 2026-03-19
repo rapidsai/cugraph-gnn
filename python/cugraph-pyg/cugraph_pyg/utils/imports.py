@@ -1,26 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-from packaging.requirements import Requirement
 from importlib import import_module
 from importlib.util import find_spec
-
-
-def package_available(requirement: str) -> bool:
-    """Check if a package is installed and meets the version requirement."""
-    req = Requirement(requirement)
-    try:
-        pkg = import_module(req.name)
-    except ImportError:
-        return False
-
-    if len(req.specifier) > 0:
-        if hasattr(pkg, "__version__"):
-            return pkg.__version__ in req.specifier
-        else:
-            return False
-
-    return True
 
 
 class MissingModule:
