@@ -151,7 +151,6 @@ files:
       table: project
     includes:
       - depends_on_cupy
-      - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pylibcugraph
       - python_run_cugraph_pyg
@@ -164,7 +163,6 @@ files:
     includes:
       - depends_on_cuml
       - depends_on_cugraph
-      - depends_on_ogb
       - depends_on_sentence_transformers
       - test_python_common
   cugraph_pyg_dev:
@@ -179,6 +177,10 @@ files:
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
+  pyg_only:
+    output: none
+    includes:
+      - depends_on_pyg
   torch_only:
     output: none
     includes:
@@ -472,6 +474,7 @@ dependencies:
               - torch==2.10.0+cu130
           - matrix:
             packages:
+              - torch>=2.8
   depends_on_nccl:
     common:
       - output_types: conda
@@ -497,15 +500,6 @@ dependencies:
       - output_types: [conda]
         packages:
           - ogb
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - ogb
   # for MovieLens example
   depends_on_sentence_transformers:
     common:
@@ -527,7 +521,9 @@ dependencies:
         packages:
           - pytorch_geometric>=2.5,<2.8
     specific:
-      - output_types: [requirements, pyproject]
+      # no 'pyproject'... we intentionally keep 'torch-geometric' out of wheel
+      # metadata so it's possible to install 'cugraph-pyg' without 'torch'
+      - output_types: requirements
         matrices:
           - matrix:
               no_pytorch: "true"

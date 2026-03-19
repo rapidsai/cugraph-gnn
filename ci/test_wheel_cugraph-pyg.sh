@@ -38,7 +38,18 @@ if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
   torch_downloaded=false
 else
-  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
+  # if we were able to install 'torch', also install 'torch-geometric'
+  PYG_REQS_FILE=$(mktemp)
+  rapids-dependency-file-generator \
+    --file-key pyg_only \
+    --output requirements \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
+  | tee "${PYG_REQS_FILE}"
+
+  PIP_INSTALL_ARGS+=(
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
+    -r "${PYG_REQS_FILE}"
+  )
 fi
 
 # notes:
@@ -66,14 +77,14 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   rapids-logger "Confirming that PyTorch is installed"
   python -c "import torch; assert torch.cuda.is_available()"
 
-  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch')"
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
   ./ci/run_cugraph_pyg_pytests.sh
 fi
 
-rapids-logger "import cugraph-pyg (no 'torch')"
+rapids-logger "import cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/uninstall-torch-wheels.sh
 
 python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__version__}')"
 
-rapids-logger "pytest cugraph-pyg (no 'torch')"
+rapids-logger "pytest cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/run_cugraph_pyg_pytests.sh
