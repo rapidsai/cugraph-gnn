@@ -12,10 +12,8 @@ from cugraph_pyg.utils.imports import import_optional
 import cupy
 import pylibcugraph
 
-torch_geometric = import_optional("torch_geometric")
-
 torch = import_optional("torch")
-HeteroSamplerOutput = torch_geometric.sampler.base.HeteroSamplerOutput
+torch_geometric = import_optional("torch_geometric")
 
 
 def verify_metadata(metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]):

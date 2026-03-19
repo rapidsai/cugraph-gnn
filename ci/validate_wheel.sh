@@ -43,3 +43,22 @@ rapids-logger "validate packages with 'twine'"
 twine check \
     --strict \
     "$(echo ${wheel_dir_relative_path}/*.whl)"
+
+rapids-logger "validating that the wheel doesn't depend on 'torch' (even in an extra)"
+WHEEL_FILE="$(echo ${wheel_dir_relative_path}/*.whl)"
+
+# NOTE: group of specifiers after 'torch' to avoid a false positive like 'torch-geometric'
+# Use '|| true' so grep not finding any matches (exit 1) does not kill the script under set -e
+unzip -p "${WHEEL_FILE}" '*.dist-info/METADATA' \
+| grep -E '^Requires-Dist:.*torch[><=!~ ]+.*' \
+| tee matches.txt || true
+
+if [[ -s ./matches.txt ]]; then
+    echo -n "Wheel '${WHEEL_FILE}' appears to depend on 'torch'. Remove that dependency. "
+    echo -n "We prefer to not declare a 'torch' dependency and allow it to be managed separately, "
+    echo "to ensure tight control over the variants installed (including for DLFW builds)."
+    exit 1
+else
+    echo "No dependency on 'torch' found"
+    exit 0
+fi
