@@ -52,15 +52,19 @@ rapids-pip-retry install \
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
-mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
-pushd "${RAPIDS_DATASET_ROOT_DIR}"
-./get_test_data.sh --test
-popd
 
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 if [[ "${torch_downloaded}" == "true" ]]; then
+
+  # only need to download datasets if 'torch' is installed, otherwise all the
+  # tests using them are skipped
+  mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
+  pushd "${RAPIDS_DATASET_ROOT_DIR}"
+  ./get_test_data.sh --test
+  popd
+
   # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
   #
   #    * https://github.com/rapidsai/cugraph/issues/5443
@@ -81,7 +85,10 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   python -c "import torch; assert torch.cuda.is_available()"
 
   rapids-logger "pytest cugraph-pyg (single GPU, with 'torch')"
-  ./ci/run_cugraph_pyg_pytests.sh
+  ./ci/run_cugraph_pyg_pytests.sh \
+    --cov-config=../../.coveragerc \
+    --cov=cugraph_pyg \
+    --cov-fail-under=70
 fi
 
 rapids-logger "import cugraph-pyg (no 'torch')"
