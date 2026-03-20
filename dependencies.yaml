@@ -163,7 +163,6 @@ files:
     includes:
       - depends_on_cuml
       - depends_on_cugraph
-      - depends_on_sentence_transformers
       - test_python_common
   cugraph_pyg_dev:
     matrix:
@@ -177,10 +176,11 @@ files:
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
-  pyg_only:
+  deps_that_require_torch:
     output: none
     includes:
       - depends_on_pyg
+      - depends_on_sentence_transformers
   torch_only:
     output: none
     includes:
@@ -502,19 +502,15 @@ dependencies:
           - ogb
   # for MovieLens example
   depends_on_sentence_transformers:
-    common:
-      - output_types: [conda]
-        packages:
-          - sentence-transformers
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [conda, requirements, pyproject]
         matrices:
           - matrix:
               no_pytorch: "true"
             packages:
           - matrix:
             packages:
-              - sentence-transformers
+              - sentence-transformers>=3.0.1
   depends_on_pyg:
     common:
       - output_types: [conda]

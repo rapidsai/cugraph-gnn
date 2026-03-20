@@ -38,17 +38,18 @@ if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
   torch_downloaded=false
 else
-  # if we were able to install 'torch', also install 'torch-geometric'
-  PYG_REQS_FILE=$(mktemp)
+  # if we were able to install 'torch', also install other dependencies that need 'torch',
+  # like 'torch-geometric' and 'sentence-transformers'
+  TORCH_DEPS_REQS_FILE=$(mktemp)
   rapids-dependency-file-generator \
-    --file-key pyg_only \
+    --file-key deps_that_require_torch \
     --output requirements \
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
-  | tee "${PYG_REQS_FILE}"
+  | tee "${TORCH_DEPS_REQS_FILE}"
 
   PIP_INSTALL_ARGS+=(
     "${TORCH_WHEEL_DIR}"/torch-*.whl
-    -r "${PYG_REQS_FILE}"
+    -r "${TORCH_DEPS_REQS_FILE}"
   )
 fi
 
