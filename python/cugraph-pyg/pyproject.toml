@@ -34,7 +34,6 @@ classifiers = [
 dependencies = [
     "cupy-cuda13x>=13.6.0",
     "numpy>=1.23,<3.0",
-    "packaging",
     "pandas",
     "pylibcugraph==26.6.*,>=0.0.0a0",
     "pylibwholegraph==26.6.*,>=0.0.0a0",

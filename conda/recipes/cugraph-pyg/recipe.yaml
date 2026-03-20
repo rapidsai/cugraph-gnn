@@ -32,7 +32,6 @@ requirements:
   run:
     - cupy >=13.6.0
     - numpy >=1.23,<3.0
-    - packaging
     - pandas
     - pylibcugraph =${{ minor_version }}
     - pylibwholegraph =${{ minor_version }}

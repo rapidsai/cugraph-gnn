@@ -27,7 +27,6 @@ dependencies:
 - nccl>=2.19
 - ninja
 - numpy>=1.23,<3.0
-- packaging
 - pandas
 - pre-commit
 - pydantic

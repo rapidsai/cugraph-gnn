@@ -5,7 +5,6 @@ import numpy as np
 import pytest
 import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.torch.dlpack_utils import torch_import_from_dlpack
-from packaging import version
 
 
 def gen_csr_format_from_dense_matrix(
@@ -64,30 +63,18 @@ def gen_csr_graph(
     ]
     matrix_tensor[choice_zero_idxs] = 0
     matrix_tensor.resize_(graph_node_count, neighbor_node_count)
-    target_torch_version = "1.13.0a"
 
-    if version.parse(torch.__version__) >= version.parse(target_torch_version):
-        sp_format = matrix_tensor.to_sparse_csr()
-        csr_row_ptr = sp_format.crow_indices()
-        csr_col_ptr = sp_format.col_indices()
-        csr_weight_ptr = sp_format.values()
-        assert csr_row_ptr.dtype == torch.int64
-        assert csr_col_ptr.dtype == torch.int64
-        if csr_col_dtype == torch.int32:
-            csr_col_ptr = csr_col_ptr.int()
-        if csr_row_dtype == torch.int32:
-            csr_row_ptr = csr_row_ptr.int()
-        return csr_row_ptr, csr_col_ptr, csr_weight_ptr
-    else:
-        return gen_csr_format_from_dense_matrix(
-            matrix_tensor,
-            graph_node_count,
-            graph_edge_count,
-            neighbor_node_count,
-            csr_row_dtype,
-            csr_col_dtype,
-            weight_dtype,
-        )
+    sp_format = matrix_tensor.to_sparse_csr()
+    csr_row_ptr = sp_format.crow_indices()
+    csr_col_ptr = sp_format.col_indices()
+    csr_weight_ptr = sp_format.values()
+    assert csr_row_ptr.dtype == torch.int64
+    assert csr_col_ptr.dtype == torch.int64
+    if csr_col_dtype == torch.int32:
+        csr_col_ptr = csr_col_ptr.int()
+    if csr_row_dtype == torch.int32:
+        csr_row_ptr = csr_row_ptr.int()
+    return csr_row_ptr, csr_col_ptr, csr_weight_ptr
 
 
 def host_sample_all_neighbors(
