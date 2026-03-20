@@ -1,11 +1,13 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
+from pylibwholegraph.utils.imports import import_optional
 from typing import Union, List
 from .tensor import WholeMemoryTensor
 from . import graph_ops
 from . import wholegraph_ops
+
+torch = import_optional("torch")
 
 
 class GraphStructure(object):
@@ -67,7 +69,7 @@ class GraphStructure(object):
 
     def unweighted_sample_without_replacement_one_hop(
         self,
-        center_nodes_tensor: torch.Tensor,
+        center_nodes_tensor: "torch.Tensor",
         max_sample_count: int,
         *,
         random_seed: Union[int, None] = None,
@@ -98,7 +100,7 @@ class GraphStructure(object):
     def weighted_sample_without_replacement_one_hop(
         self,
         weight_name: str,
-        center_nodes_tensor: torch.Tensor,
+        center_nodes_tensor: "torch.Tensor",
         max_sample_count: int,
         *,
         random_seed: Union[int, None] = None,
@@ -133,7 +135,7 @@ class GraphStructure(object):
 
     def multilayer_sample_without_replacement(
         self,
-        node_ids: torch.Tensor,
+        node_ids: "torch.Tensor",
         max_neighbors: List[int],
         weight_name: Union[str, None] = None,
     ):

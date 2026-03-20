@@ -162,7 +162,6 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - depends_on_pytorch
       - depends_on_cuml
       - depends_on_cugraph
       - depends_on_ogb
@@ -180,6 +179,10 @@ files:
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
+  torch_only:
+    output: none
+    includes:
+      - depends_on_pytorch
 channels:
   - rapidsai-nightly
   - rapidsai
@@ -349,7 +352,6 @@ dependencies:
           - pytest-forked
           - scipy
   depends_on_pytorch:
-  depends_on_pytorch:
     specific:
       # conda: choose between GPU and CPU-only pytorch
       - output_types: conda
@@ -383,37 +385,54 @@ dependencies:
           # Default to falling back to whatever 'pytorch' is pulled in via cugraph-pyg's dependencies.
           - matrix:
             packages:
-      - output_types: [requirements]
+      # wheels: handle GPU vs. CPU and version pinning together
+      #
+      # The 'pytorch.org' indices referenced in --extra-index-url below host CPU-only variants too,
+      # so requirements like '>=' are not safe.
+      #
+      # Using '==' and a version with the CUDA specifier like '+cu130' is the most reliable way to ensure
+      # the packages we want are pulled (at the expense of needing to maintain this list).
+      #
+      # 'torch' tightly pins wheels to a single {major}.{minor} CTK version.
+      #
+      # This list only contains entries exactly matching CUDA {major}.{minor} that we test in RAPIDS CI,
+      # to ensure a loud error alerts us to the need to update this list (or CI scripts) when new
+      # CTKs are added to the support matrix.
+      - output_types: requirements
         matrices:
+          # avoid pulling in 'torch' in places like DLFW builds that prefer to install it other ways
           - matrix:
               no_pytorch: "true"
             packages:
+          # matrices below ensure CUDA 'torch' packages are used
           - matrix:
-              cuda: "12.*"
+              cuda: "12.9"
+              dependencies: "oldest"
+              require_gpu: "true"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              - &torch_cu129_index --extra-index-url=https://download.pytorch.org/whl/cu129
+              - torch==2.8.0+cu129
           - matrix:
-              cuda: "13.*"
+              cuda: "12.9"
+              require_gpu: "true"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu130
+              - *torch_cu129_index
+              - torch==2.10.0+cu129
+          - matrix:
+              cuda: "13.0"
+              dependencies: "oldest"
+              require_gpu: "true"
+            packages:
+              - &torch_index_cu13 --extra-index-url=https://download.pytorch.org/whl/cu130
+              - torch==2.8.0+cu130
+          - matrix:
+              cuda: "13.0"
+              require_gpu: "true"
+            packages:
+              - *torch_index_cu13
+              - torch==2.10.0+cu130
           - matrix:
             packages:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-              cuda: "12.*"
-            packages:
-              - torch>=2.3
-          - matrix:
-              cuda: "13.*"
-            packages:
-              - &pytorch_pip torch>=2.9.0
-          - matrix:
-            packages:
-              - *pytorch_pip
   depends_on_nccl:
     common:
       - output_types: conda

@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
-import torch.utils.dlpack
+from pylibwholegraph.utils.imports import import_optional
+
+torch = import_optional("torch")
 
 
 def torch_import_from_dlpack(dp):

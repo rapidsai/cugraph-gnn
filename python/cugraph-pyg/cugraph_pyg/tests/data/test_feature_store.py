@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -53,18 +53,19 @@ def test_feature_store_basic_api(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize(
-    "dtype",
+    "dtype_name",
     [
-        torch.float32,
-        torch.float16,
-        torch.int8,
-        torch.int16,
-        torch.int32,
-        torch.int64,
-        torch.float64,
+        "float32",
+        "float16",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "float64",
     ],
 )
-def test_feature_store_basic_api_types(single_pytorch_worker, dtype):
+def test_feature_store_basic_api_types(single_pytorch_worker, dtype_name, torch):
+    dtype = getattr(torch, dtype_name)
     features = torch.arange(0, 2000)
     features = features.reshape((features.numel() // 100, 100)).to(dtype)
 

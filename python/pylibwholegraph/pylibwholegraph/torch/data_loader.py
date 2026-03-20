@@ -1,20 +1,36 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
-import torch
-from torch.utils.data import Dataset
+from pylibwholegraph.utils.imports import import_optional, MissingModule
+
+torch = import_optional("torch")
+
+# NOTE: using more specific 'import_optional()' than just 'torch' for import-time checks
+#       (e.g. those needed for defining base classes) can be helpful because 'torch' can appear
+#       to be available even after a 'pip uninstall torch' if any files are left behind in
+#       'site-packages/torch'.
+torch_utils_data = import_optional("torch.utils.data")
 
 
-class NodeClassificationDataset(Dataset):
-    def __init__(self, raw_dataset):
-        self.dataset = raw_dataset
+if not isinstance(torch_utils_data, MissingModule):
 
-    def __getitem__(self, index):
-        return self.dataset[index]
+    class NodeClassificationDataset(torch_utils_data.Dataset):
+        def __init__(self, raw_dataset):
+            self.dataset = raw_dataset
 
-    def __len__(self):
-        return len(self.dataset)
+        def __getitem__(self, index):
+            return self.dataset[index]
+
+        def __len__(self):
+            return len(self.dataset)
+else:
+
+    class NodeClassificationDataset:
+        def __init__(self, raw_dataset):
+            raise ModuleNotFoundError(
+                "NodeClassificationDataset requires 'torch.utils.data'. Install 'torch'."
+            )
 
 
 def create_node_classification_datasets(data_and_label: dict):
@@ -55,14 +71,14 @@ def get_train_dataloader(
     num_replicas: int = 1,
     num_workers: int = 0,
 ):
-    train_sampler = torch.utils.data.distributed.DistributedSampler(
+    train_sampler = torch_utils_data.distributed.DistributedSampler(
         train_dataset,
         num_replicas=num_replicas,
         rank=replica_id,
         shuffle=True,
         drop_last=True,
     )
-    train_dataloader = torch.utils.data.DataLoader(
+    train_dataloader = torch_utils_data.DataLoader(
         train_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
@@ -76,10 +92,10 @@ def get_train_dataloader(
 def get_valid_test_dataloader(
     valid_test_dataset, batch_size: int, *, num_workers: int = 0
 ):
-    valid_test_sampler = torch.utils.data.distributed.DistributedSampler(
+    valid_test_sampler = torch_utils_data.distributed.DistributedSampler(
         valid_test_dataset, num_replicas=1, rank=0, shuffle=False, drop_last=False
     )
-    valid_test_dataloader = torch.utils.data.DataLoader(
+    valid_test_dataloader = torch_utils_data.DataLoader(
         valid_test_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
