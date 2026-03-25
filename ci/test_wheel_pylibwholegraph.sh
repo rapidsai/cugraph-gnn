@@ -51,20 +51,6 @@ rapids-pip-retry install \
 
 
 if [[ "${torch_downloaded}" == "true" ]]; then
-  # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
-  #
-  #    * https://github.com/rapidsai/cugraph/issues/5443
-  #    * https://github.com/rapidsai/build-planning/issues/257
-  #    * https://github.com/rapidsai/build-planning/issues/255
-  #
-  CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
-  CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
-  if [[ "${CUDA_MAJOR}" == "13" ]]; then
-    pip install \
-      --upgrade \
-      "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
-  fi
-
   # 'torch' is an optional dependency of 'pylibwholegraph'... confirm that it's actually
   # installed here and that we've installed a package with CUDA support.
   rapids-logger "Confirming that PyTorch is installed"
