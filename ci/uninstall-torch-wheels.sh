@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-pip uninstall --yes 'torch'
+pip uninstall --yes 'torch' 'torch-geometric'
 
 # 'pytest' leaves behind some pycache files in site-packages/torch that make 'import torch'
 # seem to "work" even though there's not really a package there, leading to errors like
