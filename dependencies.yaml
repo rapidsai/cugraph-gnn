@@ -151,7 +151,6 @@ files:
       table: project
     includes:
       - depends_on_cupy
-      - depends_on_pyg
       - depends_on_pylibwholegraph
       - depends_on_pylibcugraph
       - python_run_cugraph_pyg
@@ -164,8 +163,6 @@ files:
     includes:
       - depends_on_cuml
       - depends_on_cugraph
-      - depends_on_ogb
-      - depends_on_sentence_transformers
       - test_python_common
   cugraph_pyg_dev:
     matrix:
@@ -179,6 +176,11 @@ files:
       - depends_on_pyg
       - depends_on_pytorch
       - test_python_common
+  deps_that_require_torch:
+    output: none
+    includes:
+      - depends_on_pyg
+      - depends_on_sentence_transformers
   torch_only:
     output: none
     includes:
@@ -193,6 +195,8 @@ dependencies:
       - output_types: [conda, requirements]
         packages:
           - pre-commit
+  # 'cuda_version' intentionally does not contain fallback entries... we want
+  # a loud error if an unsupported 'cuda' value is passed
   cuda_version:
     specific:
       - output_types: conda
@@ -202,17 +206,9 @@ dependencies:
             packages:
               - cuda-version=12.2
           - matrix:
-              cuda: "12.4"
-            packages:
-              - cuda-version=12.4
-          - matrix:
               cuda: "12.5"
             packages:
               - cuda-version=12.5
-          - matrix:
-              cuda: "12.6"
-            packages:
-              - cuda-version=12.6
           - matrix:
               cuda: "12.8"
             packages:
@@ -229,6 +225,51 @@ dependencies:
               cuda: "13.1"
             packages:
               - cuda-version=13.1
+      - output_types: requirements
+        matrices:
+          # if use_cuda_wheels=false is provided, do not add dependencies on any CUDA wheels
+          # (e.g. for DLFW and pip devcontainers)
+          - matrix:
+              use_cuda_wheels: "false"
+            packages:
+          - matrix:
+              arch: aarch64
+              cuda: "12.2"
+              use_cuda_wheels: "true"
+            packages:
+              # some components (like nvidia-cublas-cu12 and nvidia-cuda-nvcc-cu12) didn't have
+              # aarch64 wheels until CTK 12.3, so allow a slightly looser bound here
+              - cuda-toolkit>=12.2,<12.4
+          - matrix:
+              cuda: "12.2"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.2.*
+          - matrix:
+              cuda: "12.5"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.5.*
+          - matrix:
+              cuda: "12.8"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.8.*
+          - matrix:
+              cuda: "12.9"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==12.9.*
+          - matrix:
+              cuda: "13.0"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==13.0.*
+          - matrix:
+              cuda: "13.1"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit==13.1.*
   cuda:
     common:
       - output_types: [conda]
@@ -456,37 +497,26 @@ dependencies:
       - output_types: [conda]
         packages:
           - ogb
-    specific:
-      - output_types: [requirements, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - ogb
   # for MovieLens example
   depends_on_sentence_transformers:
-    common:
-      - output_types: [conda]
-        packages:
-          - sentence-transformers
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [conda, requirements, pyproject]
         matrices:
           - matrix:
               no_pytorch: "true"
             packages:
           - matrix:
             packages:
-              - sentence-transformers
+              - sentence-transformers>=3.0.1
   depends_on_pyg:
     common:
       - output_types: [conda]
         packages:
           - pytorch_geometric>=2.5,<2.8
     specific:
-      - output_types: [requirements, pyproject]
+      # no 'pyproject'... we intentionally keep 'torch-geometric' out of wheel
+      # metadata so it's possible to install 'cugraph-pyg' without 'torch'
+      - output_types: requirements
         matrices:
           - matrix:
               no_pytorch: "true"

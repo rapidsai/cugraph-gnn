@@ -38,7 +38,19 @@ if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
   rapids-echo-stderr "No 'torch' wheels downloaded."
   torch_downloaded=false
 else
-  PIP_INSTALL_ARGS+=("${TORCH_WHEEL_DIR}"/torch-*.whl)
+  # if we were able to install 'torch', also install other dependencies that need 'torch',
+  # like 'torch-geometric' and 'sentence-transformers'
+  TORCH_DEPS_REQS_FILE=$(mktemp)
+  rapids-dependency-file-generator \
+    --file-key deps_that_require_torch \
+    --output requirements \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
+  | tee "${TORCH_DEPS_REQS_FILE}"
+
+  PIP_INSTALL_ARGS+=(
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
+    -r "${TORCH_DEPS_REQS_FILE}"
+  )
 fi
 
 # notes:
@@ -61,33 +73,19 @@ popd
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
 if [[ "${torch_downloaded}" == "true" ]]; then
-  # TODO: remove this when RAPIDS wheels and 'torch' CUDA wheels have compatible package requirements
-  #
-  #    * https://github.com/rapidsai/cugraph/issues/5443
-  #    * https://github.com/rapidsai/build-planning/issues/257
-  #    * https://github.com/rapidsai/build-planning/issues/255
-  #
-  CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
-  CUDA_MINOR=$(echo "${RAPIDS_CUDA_VERSION}" | cut -d'.' -f2)
-  if [[ "${CUDA_MAJOR}" == "13" ]]; then
-    pip install \
-      --upgrade \
-      "nvidia-nvjitlink>=${CUDA_MAJOR}.${CUDA_MINOR}"
-  fi
-
   # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
   # installed here and that we've installed a package with CUDA support.
   rapids-logger "Confirming that PyTorch is installed"
   python -c "import torch; assert torch.cuda.is_available()"
 
-  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch')"
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
   ./ci/run_cugraph_pyg_pytests.sh
 fi
 
-rapids-logger "import cugraph-pyg (no 'torch')"
+rapids-logger "import cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/uninstall-torch-wheels.sh
 
 python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__version__}')"
 
-rapids-logger "pytest cugraph-pyg (no 'torch')"
+rapids-logger "pytest cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/run_cugraph_pyg_pytests.sh
