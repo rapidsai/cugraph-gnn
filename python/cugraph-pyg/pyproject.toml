@@ -15,8 +15,8 @@ addopts = [
     "--benchmark-warmup=off",
     "--benchmark-max-time=0",
     "--benchmark-min-rounds=1",
-    "--benchmark-columns=mean, rounds",
-    "-m \"not slow\"",
+    "--benchmark-columns=mean,rounds",
+    "-m", "not slow"
 ]
 markers = [
     "slow: slow-running tests/benchmarks",
