@@ -82,7 +82,6 @@ if [[ "${torch_downloaded}" == "true" ]]; then
   rapids-logger "Confirming that PyTorch is installed"
   python -c "import torch; assert torch.cuda.is_available()"
 
-
   rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
   ./ci/run_cugraph_pyg_pytests.sh \
     --cov-config=../../.coveragerc \
