@@ -88,23 +88,23 @@ def torch_destroy_memory_context_env_fn(
 
 
 def torch_malloc_env_fn(
-    tensor_desc: wmb.PyWholeMemoryTensorDescription,
-    malloc_type: wmb.PyMemoryAllocType,
+    shape: tuple,
+    dtype_int: int,
+    malloc_type_int: int,
     memory_context: TorchMemoryContext,
     global_context: TorchEmptyGlobalContext,
 ) -> int:
     pinned = False
     device = None
-    if malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatDevice:
+    if malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatDevice):
         device = torch.device("cuda")
-    elif malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatHost:
+    elif malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatHost):
         device = torch.device("cpu")
     else:
-        assert malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatPinned
+        assert malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatPinned)
         device = torch.device("cpu")
         pinned = True
-    shape = tensor_desc.shape
-    dtype = wholememory_dtype_to_torch_dtype(tensor_desc.dtype)
+    dtype = wholememory_dtype_to_torch_dtype(wmb.WholeMemoryDataType(dtype_int))
     t = torch.empty(shape, dtype=dtype, device=device, pin_memory=pinned)
     memory_context.set_tensor(t)
     return t.data_ptr()
