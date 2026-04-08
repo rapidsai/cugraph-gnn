@@ -164,20 +164,25 @@ def neg_sample(
                     + graph_store._vertex_offsets[input_type[2]],
                 ]
             )
+
+            src_weight = torch.concat(
+                [
+                    src_weight,
+                    torch.zeros(num_dst_nodes, dtype=weight_dtype, device="cuda"),
+                ]
+            )
+            dst_weight = torch.concat(
+                [
+                    torch.zeros(num_src_nodes, dtype=weight_dtype, device="cuda"),
+                    dst_weight,
+                ]
+            )
         else:
             vertices = (
                 torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
                 + graph_store._vertex_offsets[input_type[0]]
             )
 
-        src_weight = torch.concat(
-            [src_weight, torch.zeros(num_dst_nodes, dtype=weight_dtype, device="cuda")]
-        )
-        dst_weight = torch.concat(
-            [torch.zeros(num_src_nodes, dtype=weight_dtype, device="cuda"), dst_weight]
-        )
-    elif src_weight is None and dst_weight is None:
-        vertices = None
     else:
         vertices = torch.arange(num_src_nodes, dtype=torch.int64, device="cuda")
 
