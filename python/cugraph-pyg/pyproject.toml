@@ -11,6 +11,18 @@ requires = [
 build-backend = "rapids_build_backend.build"
 
 [tool.pytest.ini_options]
+addopts = [
+    "--benchmark-warmup=off",
+    "--benchmark-max-time=0",
+    "--benchmark-min-rounds=1",
+    "--benchmark-columns=mean,rounds",
+    "-m", "not slow"
+]
+markers = [
+    "slow: slow-running tests/benchmarks",
+    "mg: Test MG code paths - number of gpu > 1",
+    "sg: Test SG code paths - number of gpu == 1",
+]
 testpaths = ["cugraph_pyg/tests"]
 
 [project]
