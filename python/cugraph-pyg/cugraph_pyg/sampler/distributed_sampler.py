@@ -826,7 +826,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         super().__init__(
             graph,
             local_seeds_per_call=self.__calc_local_seeds_per_call(
-                local_seeds_per_call,
+                local_seeds_per_call=local_seeds_per_call,
                 heterogeneous=heterogeneous,
                 disjoint=disjoint,
                 num_edge_types=num_edge_types,
@@ -847,9 +847,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         fanout = self.__fanout
 
         if local_seeds_per_call is None:
-            if len([x for x in fanout if x <= 0]) > 0:
-                return DistributedNeighborSampler.UNKNOWN_VERTICES_DEFAULT
-
             if heterogeneous:
                 if len(fanout) % num_edge_types != 0:
                     raise ValueError(f"Illegal fanout for {num_edge_types} edge types.")
@@ -858,6 +855,9 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                     sum([fanout[t * num_hops + h] for t in range(num_edge_types)])
                     for h in range(num_hops)
                 ]
+
+            if len([x for x in fanout if x <= 0]) > 0:
+                return DistributedNeighborSampler.UNKNOWN_VERTICES_DEFAULT
 
             total_memory = torch.cuda.get_device_properties(0).total_memory
             fanout_prod = reduce(lambda x, y: x * y, fanout)
