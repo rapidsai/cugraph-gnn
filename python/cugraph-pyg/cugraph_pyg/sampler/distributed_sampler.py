@@ -772,6 +772,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         compression: str = "COO",
         compress_per_hop: bool = False,
         with_replacement: bool = False,
+        disjoint: bool = False,
         biased: bool = False,
         heterogeneous: bool = False,
         temporal: bool = False,
@@ -788,6 +789,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "compress_per_hop": compress_per_hop,
             "compression": compression,
             "with_replacement": with_replacement,
+            "disjoint_sampling": disjoint,
         }
 
         # It is currently required that graphs are weighted for biased

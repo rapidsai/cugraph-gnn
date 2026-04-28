@@ -86,7 +86,6 @@ class LinkNeighborLoader(LinkLoader):
             See torch_geometric.loader.LinkNeighborLoader.
         disjoint: bool (optional, default=False)
             Whether to perform disjoint sampling.
-            Currently unsupported.
             See torch_geometric.loader.LinkNeighborLoader.
         temporal_strategy: str (optional, default='uniform')
             Currently only 'uniform' is suppported.
@@ -152,8 +151,6 @@ class LinkNeighborLoader(LinkLoader):
             )
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")
-        if disjoint:
-            raise ValueError("Disjoint sampling is currently unsupported")
         if temporal_strategy != "uniform":
             warnings.warn("Only the uniform temporal strategy is currently supported")
         if neighbor_sampler is not None:
@@ -213,6 +210,7 @@ class LinkNeighborLoader(LinkLoader):
                 compression=compression,
                 compress_per_hop=False,
                 with_replacement=replace,
+                disjoint=disjoint,
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),

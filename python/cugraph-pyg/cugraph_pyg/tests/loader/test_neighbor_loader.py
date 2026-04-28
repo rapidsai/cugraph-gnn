@@ -89,6 +89,72 @@ def test_neighbor_loader_biased(single_pytorch_worker):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
+def test_link_neighbor_loader_disjoint(single_pytorch_worker):
+    """
+    Verify that disjoint sampling keeps per-seed subgraphs separate for
+    LinkNeighborLoader.
+
+    Node 4 is the single incoming neighbor of all four seed-edge endpoints
+    (nodes 0-3).  With disjoint=False, node 4 is deduplicated to one entry
+    in n_id; with disjoint=True, each unique seed endpoint keeps its own
+    copy, so n_id is larger.
+    """
+    # nodes 0-3 are seed edge endpoints; node 4 is their only shared neighbor
+    src = torch.tensor([4, 4, 4, 4])
+    dst = torch.tensor([0, 1, 2, 3])
+    num_nodes = 5
+
+    graph_store = GraphStore()
+    graph_store[("node", "connects", "node"), "coo", False, (num_nodes, num_nodes)] = (
+        torch.stack([src, dst])
+    )
+
+    feature_store = torch_geometric.data.HeteroData()
+
+    # Two seed edges: 0->1 and 2->3.  All four endpoints share neighbor 4.
+    edge_label_index = torch.tensor([[0, 2], [1, 3]])
+
+    # Non-disjoint: node 4 deduplicated across all seeds → 5 unique nodes
+    loader_nd = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1],
+        edge_label_index=edge_label_index,
+        batch_size=2,
+        shuffle=False,
+        disjoint=False,
+    )
+    batch_nd = next(iter(loader_nd))
+    assert batch_nd.e_id.numel() == 4
+
+    # Disjoint: each of the 4 unique seed endpoints keeps its own copy of
+    # neighbor 4 → 4 subgraphs × 2 nodes = 8 nodes
+    loader_d = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1],
+        edge_label_index=edge_label_index,
+        batch_size=2,
+        shuffle=False,
+        disjoint=True,
+    )
+    batch_d = next(iter(loader_d))
+    assert batch_d.e_id.numel() == 1
+
+    # edge_label_index must address valid positions within n_id
+    assert batch_d.edge_label_index.shape[0] == 2
+    assert batch_d.edge_label_index.shape[1] == 2
+    assert batch_d.edge_label_index.min() >= 0
+    assert batch_d.edge_label_index.max() < batch_d.n_id.numel()
+
+    # Positions in n_id pointed to by edge_label_index must recover the
+    # original edge endpoints.
+    src_ids = batch_d.n_id[batch_d.edge_label_index[0].cpu()].cpu()
+    dst_ids = batch_d.n_id[batch_d.edge_label_index[1].cpu()].cpu()
+    assert (src_ids == torch.tensor([0, 2])).all()
+    assert (dst_ids == torch.tensor([1, 3])).all()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
 @pytest.mark.parametrize("num_nodes", [10, 25])
 @pytest.mark.parametrize("num_edges", [64, 128])
 @pytest.mark.parametrize("batch_size", [2, 4])
@@ -687,6 +753,122 @@ def test_link_neighbor_loader_hetero_negative_sampling(
 
     # Verify we processed all batches
     assert i >= 0  # At least one batch should be processed
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_disjoint(single_pytorch_worker):
+    """
+    Verify that disjoint sampling keeps per-seed subgraphs separate.
+
+    With disjoint=False, shared neighbors are deduplicated across seeds.
+    With disjoint=True, each seed gets its own copy of shared neighbors,
+    so the total node count in n_id is higher.
+    """
+    # Seeds 0 and 1 each have exactly one neighbor: node 2.
+    # This overlap is the key: with disjoint=False node 2 appears once,
+    # with disjoint=True it appears once per seed.
+    src = torch.tensor([2, 2])
+    dst = torch.tensor([0, 1])
+    num_nodes = 3
+
+    graph_store = GraphStore()
+    graph_store.put_edge_index(
+        torch.stack([src, dst]),
+        ("node", "connects", "node"),
+        "coo",
+        False,
+        (num_nodes, num_nodes),
+    )
+
+    feature_store = FeatureStore()
+    feature_store["node", "feat", None] = torch.randint(128, (num_nodes, 8))
+
+    # Non-disjoint: seeds 0 and 1 share neighbor 2, deduplicated → 3 nodes total
+    loader_nd = NeighborLoader(
+        (feature_store, graph_store),
+        [1],
+        input_nodes=torch.tensor([0, 1]),
+        batch_size=2,
+        disjoint=False,
+    )
+    batch_nd = next(iter(loader_nd))
+    assert batch_nd.e_id.numel() == 2
+
+    # Disjoint: each seed keeps its own copy of neighbor 2 → 4 nodes total
+    loader_d = NeighborLoader(
+        (feature_store, graph_store),
+        [1],
+        input_nodes=torch.tensor([0, 1]),
+        batch_size=2,
+        disjoint=True,
+    )
+    batch_d = next(iter(loader_d))
+    assert batch_d.e_id.numel() == 1
+
+    assert batch_d.input_id.min() >= 0
+    assert batch_d.input_id.max() == batch_d.batch_size - 1
+    # Every seed index must be represented
+    assert sorted(batch_d.input_id.tolist()) == [0, 1]
+    assert sorted(batch_d.n_id.tolist()) == [0, 1, 2]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize("batch_size", [1, 2, 4])
+def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_worker):
+    """
+    Verify disjoint batch field invariants across different batch sizes.
+
+    For every output batch: batch is 1-D, length equals n_id length, values
+    are in [0, batch_size), and every seed index appears at least once.
+    """
+    df = karate.get_edgelist()
+    src = torch.as_tensor(df["src"], device="cuda")
+    dst = torch.as_tensor(df["dst"], device="cuda")
+
+    num_nodes = karate.number_of_nodes()
+
+    graph_store = GraphStore()
+    graph_store.put_edge_index(
+        torch.stack([dst, src]),
+        ("person", "knows", "person"),
+        "coo",
+        False,
+        (num_nodes, num_nodes),
+    )
+
+    feature_store = FeatureStore()
+    feature_store["person", "feat", None] = torch.randint(128, (num_nodes, 16))
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        [5, 5],
+        input_nodes=torch.arange(num_nodes),
+        batch_size=batch_size,
+        disjoint=True,
+    )
+
+    for batch in loader:
+        tree_vertices = {}
+        for n_id in batch.input_id:
+            tree_vertices[n_id] = set([n_id.item()])
+            edge_offset = 0
+            for hop in range(len(batch.num_sampled_edges)):
+                edges_hop = batch.num_sampled_edges[hop]
+
+                e_h = batch.edge_index[:, edge_offset : edge_offset + edges_hop]
+                e_in = torch.isin(
+                    e_h[1], torch.tensor(list(tree_vertices[n_id]), device="cuda")
+                )
+
+                tree_vertices[n_id].update(e_h[0][e_in].tolist())
+                edge_offset += edges_hop
+
+        tv_items = list(tree_vertices.values())
+        for i in range(len(tv_items)):
+            for j in range(i + 1, len(tv_items)):
+                assert tv_items[i] & tv_items[j] == set()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
