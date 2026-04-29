@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -14,7 +14,7 @@ torch = import_optional("torch")
 pylibwholegraph = import_optional("pylibwholegraph")
 
 
-def run_test_dist_tensor_creation(rank, world_size, device, clx):
+def run_test_dist_tensor_creation(rank, world_size, device, clx, dtype):
     """Test basic DistTensor creation from a tensor"""
     torch.cuda.set_device(rank)
 
@@ -24,16 +24,14 @@ def run_test_dist_tensor_creation(rank, world_size, device, clx):
 
     wm_init(rank, world_size, rank, world_size)
 
+    dtype = getattr(torch, dtype)
+
     # Create a distributed tensor
     if rank == 0:
-        features = torch.randn(
-            world_size * 100 * 10, dtype=torch.float32, device="cuda"
-        )
+        features = torch.randn(world_size * 100 * 10, dtype=dtype, device="cuda")
         torch.distributed.broadcast(features, src=0)
     else:
-        features = torch.zeros(
-            world_size * 100 * 10, dtype=torch.float32, device="cuda"
-        )
+        features = torch.zeros(world_size * 100 * 10, dtype=dtype, device="cuda")
         torch.distributed.broadcast(features, src=0)
     torch.distributed.barrier()  # helps catch errors
 
@@ -47,7 +45,7 @@ def run_test_dist_tensor_creation(rank, world_size, device, clx):
     torch.distributed.barrier()  # helps catch errors
 
     ix = torch.randint(0, features.shape[0], (10,))
-    assert torch.allclose(features[ix].cpu(), dist_tensor[ix].cpu())
+    assert torch.allclose(features[ix].cpu().float(), dist_tensor[ix].cpu().float())
 
     wm_finalize()
     torch.distributed.destroy_process_group()
@@ -57,10 +55,11 @@ def run_test_dist_tensor_creation(rank, world_size, device, clx):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
 @pytest.mark.mg
-def test_dist_tensor_creation(device, clx):
+def test_dist_tensor_creation(device, clx, dtype):
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
@@ -68,12 +67,12 @@ def test_dist_tensor_creation(device, clx):
 
     torch.multiprocessing.spawn(
         run_test_dist_tensor_creation,
-        args=(world_size, device, clx),
+        args=(world_size, device, clx, dtype),
         nprocs=world_size,
     )
 
 
-def run_test_dist_tensor_from_file(rank, world_size, device, clx):
+def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     """Test DistTensor creation from file"""
     torch.cuda.set_device(rank)
 
@@ -83,9 +82,11 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx):
 
     wm_init(rank, world_size, rank, world_size)
 
+    dtype = getattr(torch, dtype)
+
     # Create test data
     features = torch.arange(0, world_size * 1000)
-    features = features.reshape((features.numel() // 100, 100)).to(torch.float32)
+    features = features.reshape((features.numel() // 100, 100)).to(dtype)
 
     with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
         torch.save(features, f.name)
@@ -101,7 +102,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx):
     assert dist_tensor.device == device
 
     ix = torch.randperm(features.shape[0])[:10]
-    assert torch.allclose(features[ix].cpu(), dist_tensor[ix].cpu())
+    assert torch.allclose(features[ix].cpu().float(), dist_tensor[ix].cpu().float())
 
     torch.distributed.barrier()
     # Clean up
@@ -116,10 +117,11 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
 @pytest.mark.mg
-def test_dist_tensor_from_file(device, clx):
+def test_dist_tensor_from_file(device, clx, dtype):
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
@@ -127,7 +129,7 @@ def test_dist_tensor_from_file(device, clx):
 
     torch.multiprocessing.spawn(
         run_test_dist_tensor_from_file,
-        args=(world_size, device, clx),
+        args=(world_size, device, clx, dtype),
         nprocs=world_size,
     )
 
