@@ -1208,7 +1208,7 @@ cdef class PyWholeMemoryFlattenDlpack:
         elif self.data_type == DtFloat or self.data_type == DtDouble \
                 or self.data_type == DtHalf:
             dtype.code = <uint8_t> kDLFloat
-        elif self.data_type == DtHalf:
+        elif self.data_type == DtBF16:
             dtype.code = <uint8_t> kDLBfloat
         else:
             raise ValueError('Invalid data_type')
