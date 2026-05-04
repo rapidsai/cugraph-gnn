@@ -214,7 +214,7 @@ jobs:
       # There aren't pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
       # otherwise run all jobs.
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0"))))
+      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
       script: ci/test_python.sh
   docs-build:
     needs: [conda-cpp-build, changed-files]
@@ -259,7 +259,7 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0"))))
+      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
@@ -282,4 +282,4 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0"))))
+      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
