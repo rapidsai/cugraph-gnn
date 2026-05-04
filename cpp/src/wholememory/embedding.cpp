@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <wholememory/embedding.h>
@@ -47,8 +47,7 @@ wholememory_error_code_t embedding_base::set_optimizer(wholememory_embedding_opt
     }
     optimizer = opt;
     if (optimizer != nullptr) {
-      if (embedding_dtype_ != WHOLEMEMORY_DT_FLOAT &&
-          embedding_dtype_ != WHOLEMEMORY_DT_HALF &&
+      if (embedding_dtype_ != WHOLEMEMORY_DT_FLOAT && embedding_dtype_ != WHOLEMEMORY_DT_HALF &&
           embedding_dtype_ != WHOLEMEMORY_DT_BF16) {
         WHOLEMEMORY_ERROR("Only float, half and bf16 embeddings support training.");
         return WHOLEMEMORY_NOT_IMPLEMENTED;

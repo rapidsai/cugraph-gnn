@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "embedding_optimizer_func.h"
@@ -139,11 +139,11 @@ static void check_optimizer_inputs(wholememory_tensor_t indices,
 
 template <typename T, bool UseCache>
 static __device__ __forceinline__ T* optimizer_get_ptr_from_cache(T* local_ptr,
-                                                                   uint16_t* local_cache_tag_ptr,
-                                                                   T* local_cache_data_ptr,
-                                                                   int64_t indice_in_local_rank,
-                                                                   int embedding_stride,
-                                                                   int cache_set_coverage)
+                                                                  uint16_t* local_cache_tag_ptr,
+                                                                  T* local_cache_data_ptr,
+                                                                  int64_t indice_in_local_rank,
+                                                                  int embedding_stride,
+                                                                  int cache_set_coverage)
 {
   T* non_cached_ptr = local_ptr + indice_in_local_rank * embedding_stride;
   if (!UseCache) { return non_cached_ptr; }
@@ -188,12 +188,13 @@ __global__ void sgd_optimizer_step_kernel(const IndiceT* indices_ptr,
 
   EmbeddingT* embedding_ptr;
   if (threadIdx.x < 32) {
-    embedding_ptr = optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(local_embedding_ptr,
-                                                                       local_embedding_cache_tag_ptr,
-                                                                       local_embedding_cache_data_ptr,
-                                                                       local_rank_indice,
-                                                                       local_embedding_stride,
-                                                                       cache_set_coverage);
+    embedding_ptr =
+      optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(local_embedding_ptr,
+                                                         local_embedding_cache_tag_ptr,
+                                                         local_embedding_cache_data_ptr,
+                                                         local_rank_indice,
+                                                         local_embedding_stride,
+                                                         cache_set_coverage);
     if (threadIdx.x == 0) { s_embedding_ptr = embedding_ptr; }
   }
   __syncthreads();
@@ -229,10 +230,10 @@ void sgd_optimizer_step_temp_func(const void* indices_ptr,
                                   float lr,
                                   cudaStream_t stream)
 {
-  const IndiceT* typed_indices_ptr   = static_cast<const IndiceT*>(indices_ptr);
-  EmbeddingT* typed_embedding_ptr    = static_cast<EmbeddingT*>(local_embedding_ptr);
-  EmbeddingT* typed_emb_cache_ptr    = static_cast<EmbeddingT*>(local_embedding_cache_data_ptr);
-  int block_count                    = indice_count;
+  const IndiceT* typed_indices_ptr = static_cast<const IndiceT*>(indices_ptr);
+  EmbeddingT* typed_embedding_ptr  = static_cast<EmbeddingT*>(local_embedding_ptr);
+  EmbeddingT* typed_emb_cache_ptr  = static_cast<EmbeddingT*>(local_embedding_cache_data_ptr);
+  int block_count                  = indice_count;
   if (block_count == 0) return;
   int thread_count = wholememory::div_rounding_up_unsafe(embedding_dim, 4);
   if (thread_count > 512) thread_count = 512;
@@ -290,7 +291,8 @@ wholememory_error_code_t sgd_optimizer_step(wholememory_tensor_t indices,
     if (cache_set_coverage > 0) {
       local_embedding_cache_tag_pr =
         static_cast<uint16_t*>(wholememory_tensor_get_data_pointer(local_embedding_cache_tag));
-      local_embedding_cache_data_ptr = wholememory_tensor_get_data_pointer(local_embedding_cache_data);
+      local_embedding_cache_data_ptr =
+        wholememory_tensor_get_data_pointer(local_embedding_cache_data);
     }
 
     DISPATCH_TWO_TYPES(indice_desc->dtype,
@@ -358,20 +360,20 @@ __global__ void lazy_adam_optimizer_step_kernel(const IndiceT* indices_ptr,
   EmbeddingT* embedding_ptr;
   float* per_element_ptr;
   if (threadIdx.x < 32) {
-    embedding_ptr   = optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(
-      local_embedding_ptr,
-      local_embedding_cache_tag_ptr,
-      local_embedding_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride,
-      cache_set_coverage);
-    per_element_ptr = optimizer_get_ptr_from_cache<float, UseCache>(
-      per_element_local_embedding_ptr,
-      per_element_local_cache_tag_ptr,
-      per_element_local_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride * 2,
-      cache_set_coverage);
+    embedding_ptr =
+      optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(local_embedding_ptr,
+                                                         local_embedding_cache_tag_ptr,
+                                                         local_embedding_cache_data_ptr,
+                                                         local_rank_indice,
+                                                         local_embedding_stride,
+                                                         cache_set_coverage);
+    per_element_ptr =
+      optimizer_get_ptr_from_cache<float, UseCache>(per_element_local_embedding_ptr,
+                                                    per_element_local_cache_tag_ptr,
+                                                    per_element_local_cache_data_ptr,
+                                                    local_rank_indice,
+                                                    local_embedding_stride * 2,
+                                                    cache_set_coverage);
     if (threadIdx.x == 0) {
       s_embedding_ptr   = embedding_ptr;
       s_per_element_ptr = per_element_ptr;
@@ -627,20 +629,20 @@ __global__ void ada_grad_optimizer_step_kernel(const IndiceT* indices_ptr,
   EmbeddingT* embedding_ptr;
   float* per_element_ptr;
   if (threadIdx.x < 32) {
-    embedding_ptr   = optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(
-      local_embedding_ptr,
-      local_embedding_cache_tag_ptr,
-      local_embedding_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride,
-      cache_set_coverage);
-    per_element_ptr = optimizer_get_ptr_from_cache<float, UseCache>(
-      per_element_local_embedding_ptr,
-      per_element_local_cache_tag_ptr,
-      per_element_local_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride * 1,
-      cache_set_coverage);
+    embedding_ptr =
+      optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(local_embedding_ptr,
+                                                         local_embedding_cache_tag_ptr,
+                                                         local_embedding_cache_data_ptr,
+                                                         local_rank_indice,
+                                                         local_embedding_stride,
+                                                         cache_set_coverage);
+    per_element_ptr =
+      optimizer_get_ptr_from_cache<float, UseCache>(per_element_local_embedding_ptr,
+                                                    per_element_local_cache_tag_ptr,
+                                                    per_element_local_cache_data_ptr,
+                                                    local_rank_indice,
+                                                    local_embedding_stride * 1,
+                                                    cache_set_coverage);
     if (threadIdx.x == 0) {
       s_embedding_ptr   = embedding_ptr;
       s_per_element_ptr = per_element_ptr;
@@ -698,7 +700,9 @@ void ada_grad_optimizer_step_temp_func(const void* indices_ptr,
   if (thread_count > 512) thread_count = 512;
   if (thread_count < 32) thread_count = 32;
   auto func_ptr = ada_grad_optimizer_step_kernel<IndiceT, EmbeddingT, false>;
-  if (cache_set_coverage > 0) { func_ptr = ada_grad_optimizer_step_kernel<IndiceT, EmbeddingT, true>; }
+  if (cache_set_coverage > 0) {
+    func_ptr = ada_grad_optimizer_step_kernel<IndiceT, EmbeddingT, true>;
+  }
   func_ptr<<<block_count, thread_count, 0, stream>>>(typed_indices_ptr,
                                                      grads_ptr,
                                                      typed_embedding_ptr,
@@ -835,20 +839,20 @@ __global__ void rms_prop_optimizer_step_kernel(const IndiceT* indices_ptr,
   EmbeddingT* embedding_ptr;
   float* per_element_ptr;
   if (threadIdx.x < 32) {
-    embedding_ptr   = optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(
-      local_embedding_ptr,
-      local_embedding_cache_tag_ptr,
-      local_embedding_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride,
-      cache_set_coverage);
-    per_element_ptr = optimizer_get_ptr_from_cache<float, UseCache>(
-      per_element_local_embedding_ptr,
-      per_element_local_cache_tag_ptr,
-      per_element_local_cache_data_ptr,
-      local_rank_indice,
-      local_embedding_stride * 1,
-      cache_set_coverage);
+    embedding_ptr =
+      optimizer_get_ptr_from_cache<EmbeddingT, UseCache>(local_embedding_ptr,
+                                                         local_embedding_cache_tag_ptr,
+                                                         local_embedding_cache_data_ptr,
+                                                         local_rank_indice,
+                                                         local_embedding_stride,
+                                                         cache_set_coverage);
+    per_element_ptr =
+      optimizer_get_ptr_from_cache<float, UseCache>(per_element_local_embedding_ptr,
+                                                    per_element_local_cache_tag_ptr,
+                                                    per_element_local_cache_data_ptr,
+                                                    local_rank_indice,
+                                                    local_embedding_stride * 1,
+                                                    cache_set_coverage);
     if (threadIdx.x == 0) {
       s_embedding_ptr   = embedding_ptr;
       s_per_element_ptr = per_element_ptr;
@@ -907,7 +911,9 @@ void rms_prop_optimizer_step_temp_func(const void* indices_ptr,
   if (thread_count > 512) thread_count = 512;
   if (thread_count < 32) thread_count = 32;
   auto func_ptr = rms_prop_optimizer_step_kernel<IndiceT, EmbeddingT, false>;
-  if (cache_set_coverage > 0) { func_ptr = rms_prop_optimizer_step_kernel<IndiceT, EmbeddingT, true>; }
+  if (cache_set_coverage > 0) {
+    func_ptr = rms_prop_optimizer_step_kernel<IndiceT, EmbeddingT, true>;
+  }
   func_ptr<<<block_count, thread_count, 0, stream>>>(typed_indices_ptr,
                                                      grads_ptr,
                                                      typed_embedding_ptr,

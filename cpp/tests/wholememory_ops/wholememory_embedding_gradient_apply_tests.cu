@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <gtest/gtest.h>
@@ -16,15 +16,9 @@
 #include "embedding_test_utils.hpp"
 #include "wholememory/env_func_ptrs.hpp"
 
-static float half_round_trip(float v)
-{
-  return static_cast<float>(static_cast<__half>(v));
-}
+static float half_round_trip(float v) { return static_cast<float>(static_cast<__half>(v)); }
 
-static float bf16_round_trip(float v)
-{
-  return static_cast<float>(static_cast<__nv_bfloat16>(v));
-}
+static float bf16_round_trip(float v) { return static_cast<float>(static_cast<__nv_bfloat16>(v)); }
 
 struct EmbeddingBackwardTestParams {
   EmbeddingBackwardTestParams()
@@ -429,29 +423,28 @@ void prepare_data_and_reference(
   start_embedding_table.resize(params.embedding_description.sizes[0]);
   end_embedding_table.resize(params.embedding_description.sizes[0]);
   auto emb_dtype = params.embedding_description.dtype;
-  MultiThreadRun(thread_count,
-                 [&params, &start_embedding_table, &end_embedding_table, emb_dtype](
-                   int thread_rank, int thread_world_size) {
-                   int64_t total_entry_count = start_embedding_table.size();
-                   int64_t start_entry       = thread_rank * total_entry_count / thread_world_size;
-                   int64_t end_entry = (thread_rank + 1) * total_entry_count / thread_world_size;
-                   int embedding_dim = params.grad_description.sizes[1];
-                   for (int64_t entry = start_entry; entry < end_entry; entry++) {
-                     start_embedding_table[entry].resize(embedding_dim);
-                     wholememory_ops::testing::host_random_init_float(
-                       start_embedding_table[entry].data(), embedding_dim, -10.0, 10);
-                     if (emb_dtype == WHOLEMEMORY_DT_HALF) {
-                       for (int d = 0; d < embedding_dim; d++)
-                         start_embedding_table[entry][d] =
-                           half_round_trip(start_embedding_table[entry][d]);
-                     } else if (emb_dtype == WHOLEMEMORY_DT_BF16) {
-                       for (int d = 0; d < embedding_dim; d++)
-                         start_embedding_table[entry][d] =
-                           bf16_round_trip(start_embedding_table[entry][d]);
-                     }
-                     end_embedding_table[entry] = start_embedding_table[entry];
-                   }
-                 });
+  MultiThreadRun(
+    thread_count,
+    [&params, &start_embedding_table, &end_embedding_table, emb_dtype](int thread_rank,
+                                                                       int thread_world_size) {
+      int64_t total_entry_count = start_embedding_table.size();
+      int64_t start_entry       = thread_rank * total_entry_count / thread_world_size;
+      int64_t end_entry         = (thread_rank + 1) * total_entry_count / thread_world_size;
+      int embedding_dim         = params.grad_description.sizes[1];
+      for (int64_t entry = start_entry; entry < end_entry; entry++) {
+        start_embedding_table[entry].resize(embedding_dim);
+        wholememory_ops::testing::host_random_init_float(
+          start_embedding_table[entry].data(), embedding_dim, -10.0, 10);
+        if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+          for (int d = 0; d < embedding_dim; d++)
+            start_embedding_table[entry][d] = half_round_trip(start_embedding_table[entry][d]);
+        } else if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+          for (int d = 0; d < embedding_dim; d++)
+            start_embedding_table[entry][d] = bf16_round_trip(start_embedding_table[entry][d]);
+        }
+        end_embedding_table[entry] = start_embedding_table[entry];
+      }
+    });
   MultiThreadRun(run_thread_count,
                  [world_size, &params, &step_rank_indices, &step_rank_grads, &end_embedding_table](
                    int thread_rank, int thread_world_size) {
@@ -649,12 +642,11 @@ TEST_P(WholeMemoryEmbeddingBackwardParameterTests, EmbeddingGatherGradientApplyT
         rank_entry_count, params.embedding_description.sizes[0] - rank_start_entry);
       auto* dst_base_byte_ptr =
         static_cast<char*>(wholememory_tensor_get_data_pointer(local_embed_tensor));
-      auto* local_embed_desc =
-        wholememory_tensor_get_tensor_description(local_embed_tensor);
-      size_t dst_stride      = local_embed_desc->strides[0];
-      auto emb_dtype         = local_embed_desc->dtype;
-      size_t emb_element_size = wholememory_dtype_get_element_size(emb_dtype);
-      size_t dst_stride_bytes = dst_stride * emb_element_size;
+      auto* local_embed_desc     = wholememory_tensor_get_tensor_description(local_embed_tensor);
+      size_t dst_stride          = local_embed_desc->strides[0];
+      auto emb_dtype             = local_embed_desc->dtype;
+      size_t emb_element_size    = wholememory_dtype_get_element_size(emb_dtype);
+      size_t dst_stride_bytes    = dst_stride * emb_element_size;
       size_t embedding_copy_elts = embedding_dim;
 
       std::vector<char> host_row_buf(dst_stride * emb_element_size, 0);
@@ -765,8 +757,14 @@ TEST_P(WholeMemoryEmbeddingBackwardParameterTests, EmbeddingGatherGradientApplyT
       }
       EXPECT_EQ(cudaStreamSynchronize(nullptr), cudaSuccess);
       float atol = 1e-5f, rtol = 1e-5f;
-      if (emb_dtype == WHOLEMEMORY_DT_HALF) { atol = 5e-3f; rtol = 5e-3f; }
-      if (emb_dtype == WHOLEMEMORY_DT_BF16) { atol = 2e-2f; rtol = 2e-2f; }
+      if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+        atol = 5e-3f;
+        rtol = 5e-3f;
+      }
+      if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+        atol = 2e-2f;
+        rtol = 2e-2f;
+      }
       for (int64_t i = 0; i < rank_entry_count; i++) {
         if (::testing::Test::HasFailure()) break;
         host_expect_all_close(local_end_embedding[i].data(),
@@ -1007,4 +1005,3 @@ INSTANTIATE_TEST_SUITE_P(
       .set_indice_count(400)
       .set_embedding_dim(64)
       .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM)));
-
