@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <wholememory/embedding.h>
@@ -47,8 +47,9 @@ wholememory_error_code_t embedding_base::set_optimizer(wholememory_embedding_opt
     }
     optimizer = opt;
     if (optimizer != nullptr) {
-      if (embedding_dtype_ != WHOLEMEMORY_DT_FLOAT) {
-        WHOLEMEMORY_ERROR("Only float embedding supports training.");
+      if (embedding_dtype_ != WHOLEMEMORY_DT_FLOAT && embedding_dtype_ != WHOLEMEMORY_DT_HALF &&
+          embedding_dtype_ != WHOLEMEMORY_DT_BF16) {
+        WHOLEMEMORY_ERROR("Only float, half and bf16 embeddings support training.");
         return WHOLEMEMORY_NOT_IMPLEMENTED;
       }
       if (cache_policy != nullptr) {
@@ -360,6 +361,7 @@ wholememory_error_code_t embedding_base::create_optimizer_states() noexcept
       all_state_embedding_count += aligned_embedding_dim;
     }
     cachable_state_desc            = *user_tensor_desc;
+    cachable_state_desc.dtype      = WHOLEMEMORY_DT_FLOAT;
     cachable_state_desc.sizes[1]   = all_state_embedding_count;
     cachable_state_desc.strides[0] = all_state_embedding_count;
     auto allocated_handle          = wholememory_tensor_get_memory_handle(allocated_embedding);
