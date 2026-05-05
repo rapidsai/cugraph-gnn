@@ -107,7 +107,8 @@ function cleanPythonDir {
     find . -type d -name __pycache__ -print | xargs rm -rf
     find . -type d -name build -print | xargs rm -rf
     find . -type d -name dist -print | xargs rm -rf
-    find . -type f -name "*.cpp" -delete
+    # Skip pylibwholegraph/torch_cpp_ext: those .cpp files are sources (JIT-built by PyTorch), not artifacts.
+    find . -type f -name "*.cpp" ! -regex '.*/torch_cpp_ext/.*' -delete
     find . -type f -name "*.cpython*.so" -delete
     find . -type d -name _external_repositories -print | xargs rm -rf
     popd > /dev/null
