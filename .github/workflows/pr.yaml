@@ -1,14 +1,12 @@
 name: pr
-
 on:
   push:
     branches:
       - "pull-request/[0-9]+"
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
+permissions: {}
 jobs:
   pr-builder:
     needs:
@@ -32,6 +30,8 @@ jobs:
     if: always()
     with:
       needs: ${{ toJSON(needs) }}
+    permissions:
+      contents: read
   check-nightly-ci:
     runs-on: ubuntu-latest
     permissions:
@@ -151,6 +151,11 @@ jobs:
           - '!img/**'
           - '!mg_utils/**'
           - '!readme_pages/**'
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+      pull-requests: read
   devcontainer:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@main
@@ -166,11 +171,19 @@ jobs:
         sccache --zero-stats;
         build-all -j0 --verbose 2>&1 | tee telemetry-artifacts/build.log;
         sccache --show-adv-stats | tee telemetry-artifacts/sccache-stats.txt;
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   checks:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@main
     with:
       enable_check_generated_files: false
+    permissions:
+      contents: read
   conda-cpp-build:
     needs: checks
     secrets: inherit
@@ -179,6 +192,12 @@ jobs:
       build_type: pull-request
       node_type: cpu8
       script: ci/build_cpp.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-cpp-tests:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
@@ -187,6 +206,12 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_cpp.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-python-build:
     needs: conda-cpp-build
     secrets: inherit
@@ -196,6 +221,12 @@ jobs:
       script: ci/build_python.sh
       # Build a conda package for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-python-build-noarch:
     needs: [conda-cpp-build, conda-python-build]
     secrets: inherit
@@ -204,6 +235,12 @@ jobs:
       build_type: pull-request
       script: ci/build_python_noarch.sh
       pure-conda: true
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   conda-python-tests:
     needs: [conda-python-build, conda-python-build-noarch, changed-files]
     secrets: inherit
@@ -216,6 +253,12 @@ jobs:
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
       matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
       script: ci/test_python.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   docs-build:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit
@@ -226,6 +269,12 @@ jobs:
       build_type: pull-request
       container_image: "rapidsai/ci-conda:26.06-latest"
       script: "ci/build_docs.sh"
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-libwholegraph:
     needs: checks
     secrets: inherit
@@ -238,6 +287,12 @@ jobs:
       package-type: cpp
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-pylibwholegraph:
     needs: [checks, wheel-build-libwholegraph]
     secrets: inherit
@@ -250,6 +305,12 @@ jobs:
       package-type: python
       # Build a wheel for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-tests-pylibwholegraph:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit
@@ -260,6 +321,12 @@ jobs:
       script: ci/test_wheel_pylibwholegraph.sh
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
       matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit
@@ -273,6 +340,12 @@ jobs:
       package-name: cugraph-pyg
       package-type: python
       pure-wheel: true
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-tests-cugraph-pyg:
     needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
     secrets: inherit
@@ -283,3 +356,9 @@ jobs:
       script: ci/test_wheel_cugraph-pyg.sh
       # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
       matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read

@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches:
@@ -27,11 +26,10 @@ on:
         description: "build_type: one of [branch, nightly, pull-request]"
         type: string
         default: nightly
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
-
+permissions: {}
 jobs:
   cpp-build:
     secrets: inherit
@@ -43,6 +41,12 @@ jobs:
       node_type: cpu8
       script: ci/build_cpp.sh
       sha: ${{ inputs.sha }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   python-build:
     needs: [cpp-build]
     secrets: inherit
@@ -55,6 +59,12 @@ jobs:
       sha: ${{ inputs.sha }}
       # Build a conda package for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   python-build-noarch:
     needs: [cpp-build, python-build]
     secrets: inherit
@@ -66,6 +76,12 @@ jobs:
       script: ci/build_python_noarch.sh
       sha: ${{ inputs.sha }}
       pure-conda: true
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   docs-build:
     needs: cpp-build
     secrets: inherit
@@ -78,6 +94,12 @@ jobs:
       date: ${{ inputs.date }}
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   upload-conda:
     needs: [cpp-build, python-build, python-build-noarch]
     secrets: inherit
@@ -87,6 +109,12 @@ jobs:
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-cugraph-pyg:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
@@ -102,6 +130,12 @@ jobs:
       package-name: cugraph-pyg
       package-type: python
       pure-wheel: true
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-publish-cugraph-pyg:
     needs: wheel-build-cugraph-pyg
     secrets: inherit
@@ -113,6 +147,12 @@ jobs:
       date: ${{ inputs.date }}
       package-name: cugraph-pyg
       package-type: python
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-libwholegraph:
     secrets: inherit
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
@@ -127,6 +167,12 @@ jobs:
       package-type: cpp
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-pylibwholegraph:
     needs: wheel-build-libwholegraph
     secrets: inherit
@@ -142,6 +188,12 @@ jobs:
       package-type: python
       # Build a wheel for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-publish-libwholegraph:
     needs: wheel-build-libwholegraph
     secrets: inherit
@@ -153,6 +205,12 @@ jobs:
       date: ${{ inputs.date }}
       package-name: libwholegraph
       package-type: cpp
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-publish-pylibwholegraph:
     needs: wheel-build-pylibwholegraph
     secrets: inherit
@@ -165,3 +223,9 @@ jobs:
       package-name: pylibwholegraph
       package-type: python
       publish-wheel-search-key: pylibwholegraph_wheel_python_abi3
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
