@@ -41,8 +41,8 @@ void nvshmem_gather_floating_int64_temp_func(wholememory_comm_t wm_comm,
 
 REGISTER_DISPATCH_TWO_TYPES(NvshmemGatherFuncFloatingInt64,
                             nvshmem_gather_floating_int64_temp_func,
-                            HALF_FLOAT_DOUBLE,
-                            HALF_FLOAT_DOUBLE)
+                            ALLFLOAT,
+                            ALLFLOAT)
 
 wholememory_error_code_t nvshmem_gather_floating_int64_func(
   wholememory_comm_t wm_comm,

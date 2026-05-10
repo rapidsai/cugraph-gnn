@@ -41,8 +41,8 @@ void nvshmem_scatter_floating_int32_temp_func(wholememory_comm_t wm_comm,
 
 REGISTER_DISPATCH_TWO_TYPES(NvshmemScatterFuncFloatingInt32,
                             nvshmem_scatter_floating_int32_temp_func,
-                            HALF_FLOAT_DOUBLE,
-                            HALF_FLOAT_DOUBLE);
+                            ALLFLOAT,
+                            ALLFLOAT);
 
 wholememory_error_code_t nvshmem_scatter_floating_int32_func(
   wholememory_comm_t wm_comm,
