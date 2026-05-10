@@ -37,8 +37,8 @@ void gather_floating_int64_temp_func(wholememory_gref_t embedding_gref,
 
 REGISTER_DISPATCH_TWO_TYPES(GatherFuncFloatingInt64,
                             gather_floating_int64_temp_func,
-                            HALF_FLOAT_DOUBLE,
-                            HALF_FLOAT_DOUBLE)
+                            ALLFLOAT,
+                            ALLFLOAT)
 
 wholememory_error_code_t gather_floating_int64_func(wholememory_gref_t embedding_gref,
                                                     wholememory_matrix_description_t embedding_desc,

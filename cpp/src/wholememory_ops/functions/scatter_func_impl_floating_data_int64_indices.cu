@@ -27,8 +27,8 @@ void scatter_floating_int64_temp_func(const void* input,
 
 REGISTER_DISPATCH_TWO_TYPES(ScatterFuncFloatingInt64,
                             scatter_floating_int64_temp_func,
-                            HALF_FLOAT_DOUBLE,
-                            HALF_FLOAT_DOUBLE)
+                            ALLFLOAT,
+                            ALLFLOAT)
 
 wholememory_error_code_t scatter_floating_int64_func(
   const void* input,
