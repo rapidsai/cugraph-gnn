@@ -15,10 +15,7 @@ pylibwholegraph = import_optional("pylibwholegraph")
 
 
 def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
-    if dtype == "float32":
-        torch_dtype = torch.float32
-    elif dtype == "int64":
-        torch_dtype = torch.int64
+    torch_dtype = getattr(torch, dtype)
 
     torch.cuda.set_device(rank)
 
