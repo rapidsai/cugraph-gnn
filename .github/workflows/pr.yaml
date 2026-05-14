@@ -247,8 +247,7 @@ jobs:
       build_type: pull-request
       # There aren't pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
       # otherwise run all jobs.
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
+      matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
       script: ci/test_python.sh
     permissions:
       actions: read
@@ -316,8 +315,6 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
     permissions:
       actions: read
       contents: read
@@ -330,7 +327,7 @@ jobs:
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@cuda-13.2.0
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
-      matrix_filter: map(select(.PY_VER != "3.14")) | map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
+      matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
       node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
@@ -351,8 +348,6 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
     permissions:
       actions: read
       contents: read
