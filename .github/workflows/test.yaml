@@ -24,7 +24,7 @@ permissions: {}
 jobs:
   conda-cpp-tests:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@cuda-13.2.0
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -39,7 +39,7 @@ jobs:
       pull-requests: read
   conda-python-tests:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@cuda-13.2.0
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
@@ -48,8 +48,7 @@ jobs:
       sha: ${{ inputs.sha }}
       # There aren't pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
       # otherwise run all jobs.
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
+      matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
     permissions:
       actions: read
       contents: read
@@ -58,15 +57,13 @@ jobs:
       pull-requests: read
   wheel-tests-pylibwholegraph:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-13.2.0
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibwholegraph.sh
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
     permissions:
       actions: read
       contents: read
@@ -75,15 +72,13 @@ jobs:
       pull-requests: read
   wheel-tests-cugraph-pyg:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@cuda-13.2.0
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
     with:
       build_type: ${{ inputs.build_type }}
       branch: ${{ inputs.branch }}
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_cugraph-pyg.sh
-      # Temporarily skip tests for CUDA versions older than 12.9 until the cuGraph issues are resolved.
-      matrix_filter: (map(select(((.ARCH == "amd64") and (.CUDA_VER >= "12.9.0")) or ((.ARCH == "arm64") and (.CUDA_VER >= "12.9.0")))))
     permissions:
       actions: read
       contents: read
