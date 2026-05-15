@@ -371,16 +371,16 @@ cdef class GlobalContextWrapper:
         self.output_global_context = NULL
 
     def __dealloc__(self):
-        Py_DECREF(self.self.temp_create_context_fn)
-        Py_DECREF(self.self.temp_destroy_context_fn)
-        Py_DECREF(self.self.temp_malloc_fn)
-        Py_DECREF(self.self.temp_free_fn)
+        Py_DECREF(self.temp_create_context_fn)
+        Py_DECREF(self.temp_destroy_context_fn)
+        Py_DECREF(self.temp_malloc_fn)
+        Py_DECREF(self.temp_free_fn)
         if self.temp_global_context:
-            Py_DECREF(self.self.temp_global_context)
-        Py_DECREF(self.self.output_malloc_fn)
-        Py_DECREF(self.self.output_free_fn)
+            Py_DECREF(self.temp_global_context)
+        Py_DECREF(self.output_malloc_fn)
+        Py_DECREF(self.output_free_fn)
         if self.output_global_context:
-            Py_DECREF(self.self.output_global_context)
+            Py_DECREF(self.output_global_context)
 
     cpdef create_context(self,
                          temp_create_context_fn,
@@ -1208,7 +1208,7 @@ cdef class PyWholeMemoryFlattenDlpack:
         elif self.data_type == DtFloat or self.data_type == DtDouble \
                 or self.data_type == DtHalf:
             dtype.code = <uint8_t> kDLFloat
-        elif self.data_type == DtHalf:
+        elif self.data_type == DtBF16:
             dtype.code = <uint8_t> kDLBfloat
         else:
             raise ValueError('Invalid data_type')
