@@ -240,7 +240,7 @@ wholememory_error_code_t embedding_base::gather_gradient_apply(wholememory_tenso
   void* dedup_indice =
     dedup_indice_recv_buffer_handle.device_malloc(total_recv_count, indice_desc->dtype);
   float* dedup_grads = static_cast<float*>(dedup_grad_recv_buffer_handle.device_malloc(
-    total_recv_count * grads_desc->sizes[1], grads_desc->dtype));
+    total_recv_count * grads_desc->sizes[1], WHOLEMEMORY_DT_FLOAT));
 
   wholememory_array_description_t recv_indice_array_desc = indice_array_desc;
   recv_indice_array_desc.size                            = total_recv_count;
@@ -251,7 +251,7 @@ wholememory_error_code_t embedding_base::gather_gradient_apply(wholememory_tenso
   int64_t const deduped_count =
     wholememory_ops::dedup_indice_and_gradients(dev_recv_indices_buffer_handle.pointer(),
                                                 recv_indice_array_desc,
-                                                static_cast<const float*>(temp_grad_recv_buffer),
+                                                temp_grad_recv_buffer,
                                                 recv_grad_matrix_desc,
                                                 dedup_indice,
                                                 dedup_grads,
@@ -296,6 +296,7 @@ wholememory_error_code_t embedding_base::gather_gradient_apply(wholememory_tenso
   WHOLEMEMORY_RETURN_ON_FAIL(wholememory_make_tensor_from_pointer(
     &dedup_indice_tensor, dedup_indice, &recv_indice_tensor_desc));
   wholememory_tensor_description_t recv_grad_tensor_desc = *grads_desc;
+  recv_grad_tensor_desc.dtype                            = WHOLEMEMORY_DT_FLOAT;
   recv_grad_tensor_desc.sizes[0]                         = deduped_count;
   recv_grad_tensor_desc.strides[0]                       = recv_grad_tensor_desc.sizes[1];
   WHOLEMEMORY_RETURN_ON_FAIL(

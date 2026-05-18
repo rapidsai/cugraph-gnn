@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -45,7 +45,7 @@ wholememory_error_code_t exchange_embeddings_nccl_func(const void* dev_local_gat
  */
 int64_t dedup_indice_and_gradients(const void* indices,
                                    wholememory_array_description_t indice_desc,
-                                   const float* grads,
+                                   const void* grads,
                                    wholememory_matrix_description_t grads_desc,
                                    void* dedup_indice,
                                    float* dedup_grads,
