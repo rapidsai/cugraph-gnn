@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "exchange_embeddings_nccl_func.h"
 
 #include <vector>
 
+#include <cub/device/device_radix_sort.cuh>
 #include <cuda_bf16.h>
 #include <cuda_fp16.h>
-#include <cub/device/device_radix_sort.cuh>
 #include <thrust/sequence.h>
 #include <thrust/unique.h>
 
@@ -153,15 +153,15 @@ void dedup_indice_and_gradients_temp_func(int64_t* run_count,
   int embedding_dim    = grads_desc.sizes[1];
   int embedding_stride = grads_desc.stride;
   int thread_count     = std::min<int>(embedding_dim, 256);
-  DedupIndiceAndGradientsKernel<GradT><<<*run_count, thread_count, 0, stream>>>(
-    raw_count,
-    *run_count,
-    dev_mapping_sequence,
-    dev_indice_mapping,
-    static_cast<const GradT*>(grads),
-    dedup_grads,
-    embedding_dim,
-    embedding_stride);
+  DedupIndiceAndGradientsKernel<GradT>
+    <<<*run_count, thread_count, 0, stream>>>(raw_count,
+                                              *run_count,
+                                              dev_mapping_sequence,
+                                              dev_indice_mapping,
+                                              static_cast<const GradT*>(grads),
+                                              dedup_grads,
+                                              embedding_dim,
+                                              embedding_stride);
   WM_CUDA_CHECK_NO_THROW(cudaGetLastError());
   WM_CUDA_DEBUG_SYNC_STREAM(stream);
 }
