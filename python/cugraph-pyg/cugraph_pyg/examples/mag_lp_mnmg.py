@@ -18,9 +18,19 @@ from torch_geometric.data.data import DataEdgeAttr, DataTensorAttr
 
 torch.serialization.add_safe_globals([GlobalStorage, DataEdgeAttr, DataTensorAttr])
 
+_DTYPE_CHOICES = ("float32", "float16", "bfloat16")
+
+
+def parse_dtype(dtype_name: str) -> torch.dtype:
+    return {
+        "float32": torch.float32,
+        "float16": torch.float16,
+        "bfloat16": torch.bfloat16,
+    }[dtype_name]
+
 
 class Encoder(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, edge_attr_dim, heads=1):
+    def __init__(self, in_channels, hidden_channels, edge_attr_dim, dtype, heads=1):
         super().__init__()
 
         self.conv1 = TransformerConv(
@@ -29,19 +39,19 @@ class Encoder(torch.nn.Module):
             edge_dim=edge_attr_dim,
             concat=False,
             heads=heads,
-        )
+        ).to(dtype)
         self.conv2 = TransformerConv(
             hidden_channels,
             hidden_channels,
             edge_dim=edge_attr_dim,
             concat=False,
             heads=heads,
-        )
+        ).to(dtype)
 
         self.norm1 = LayerNorm(hidden_channels)
-        self.lin1 = Linear(hidden_channels, hidden_channels)
+        self.lin1 = Linear(hidden_channels, hidden_channels).to(dtype)
 
-        self.lin2 = Linear(hidden_channels, hidden_channels)
+        self.lin2 = Linear(hidden_channels, hidden_channels).to(dtype)
         self.norm2 = LayerNorm(hidden_channels)
 
         self.dropout = Dropout(p=0.5)
@@ -78,15 +88,20 @@ class Classifier(torch.nn.Module):
         num_nodes,
         edge_attr_dim,
         metadata,
+        dtype,
         learn_embeddings=False,
     ):
         super().__init__()
 
         self.learn_embeddings = learn_embeddings
         self.hidden_channels = hidden_channels
+        self.dtype = dtype
 
         self.paper_lin = Linear(num_features["paper"], hidden_channels)
         self.paper_norm = LayerNorm(hidden_channels)
+        # Match FeatureStore paper features for valid matmul dtypes.
+        self.paper_lin = self.paper_lin.to(dtype=dtype)
+        self.paper_norm = self.paper_norm.to(dtype=dtype)
 
         self.embeddings = {}
         if self.learn_embeddings:
@@ -96,7 +111,7 @@ class Classifier(torch.nn.Module):
                     global_comm,
                     "distributed",
                     "cpu",
-                    torch.float32,
+                    dtype,
                     [num_nodes[node_type], hidden_channels],
                     cache_policy=None,
                     random_init=True,
@@ -109,7 +124,9 @@ class Classifier(torch.nn.Module):
                 "x, edge_index",
                 [
                     (
-                        SAGEConv((hidden_channels, hidden_channels), hidden_channels),
+                        SAGEConv(
+                            (hidden_channels, hidden_channels), hidden_channels
+                        ).to(dtype),
                         "x, edge_index -> x",
                     ),
                     LayerNorm(hidden_channels),
@@ -117,19 +134,21 @@ class Classifier(torch.nn.Module):
                     torch.nn.ReLU(inplace=True),
                 ],
             )
-            self.mp = to_hetero(self.mp, metadata=metadata, aggr="sum")
+            self.mp = to_hetero(self.mp.to(dtype), metadata=metadata, aggr="sum")
 
         self.encoder = Encoder(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
             edge_attr_dim=edge_attr_dim,
+            dtype=dtype,
         )
-        self.encoder = to_hetero(self.encoder, metadata=metadata, aggr="sum")
+        self.encoder = to_hetero(self.encoder.to(dtype), metadata=metadata, aggr="sum")
 
         self.decoder = Decoder()
 
     def forward(self, batch, edge_attr):
-        x_paper = self.paper_lin(batch["paper"].x)
+        w_dtype = self.paper_lin.weight.dtype
+        x_paper = self.paper_lin(batch["paper"].x.to(w_dtype))
         x_paper = self.paper_norm(x_paper)
 
         if self.learn_embeddings:
@@ -148,17 +167,22 @@ class Classifier(torch.nn.Module):
             x_dict = {
                 "paper": x_paper,
                 "author": torch.zeros(
-                    batch["author"].n_id.numel(), self.hidden_channels, device="cuda"
+                    batch["author"].n_id.numel(),
+                    self.hidden_channels,
+                    device=x_paper.device,
+                    dtype=x_paper.dtype,
                 ),
                 "institution": torch.zeros(
                     batch["institution"].n_id.numel(),
                     self.hidden_channels,
-                    device="cuda",
+                    device=x_paper.device,
+                    dtype=x_paper.dtype,
                 ),
                 "field_of_study": torch.zeros(
                     batch["field_of_study"].n_id.numel(),
                     self.hidden_channels,
-                    device="cuda",
+                    device=x_paper.device,
+                    dtype=x_paper.dtype,
                 ),
             }
             x_dict = self.mp(x_dict, batch.edge_index_dict)
@@ -284,7 +308,15 @@ if __name__ == "__main__":
     parser.add_argument("--neg_ratio", type=int, default=1)
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--output_dir", type=str, default="embeddings")
+    parser.add_argument(
+        "--dtype",
+        type=str,
+        default="bfloat16",
+        choices=_DTYPE_CHOICES,
+        help="Data type for model weights and features",
+    )
     args = parser.parse_args()
+    dtype = parse_dtype(args.dtype)
 
     torch.distributed.init_process_group(backend="nccl")
 
@@ -384,7 +416,7 @@ if __name__ == "__main__":
 
         # add features
         print("adding features...")
-        feature_store["paper", "x", None] = data.x_dict["paper"]
+        feature_store["paper", "x", None] = data.x_dict["paper"].to(dtype)
 
         y = data.y_dict["paper"]
         del data
@@ -477,21 +509,21 @@ if __name__ == "__main__":
             f = (vx >= offsets[i]) & (vx < offsets[i + 1])
 
         bcx = vx[f] - offsets[i]
-        bcy = vy[f].to(torch.float32)
-        feature_store[vtype, "bc", bcx] = bcy
+        bcy = vy[f]
+        feature_store[vtype, "bc", bcx] = bcy.to(dtype)
 
     print("updating feature store with betweeness centralities...")
     for etype in graph_store.get_all_edge_attrs():
-        stype, _, dtype = etype.edge_type
+        src_type, _, dst_type = etype.edge_type
         src, dst = graph_store[etype]
         # bug in torch_geometric EdgeIndex requires we reconstruct the tensors
         src = src.clone().detach()
         dst = dst.clone().detach()
 
         feature_store[etype.edge_type, "x", None] = (
-            feature_store[stype, "bc", None][src]
-            + feature_store[dtype, "bc", None][dst]
-        ).reshape((-1, 1)) / 2.0
+            feature_store[src_type, "bc", None][src]
+            + feature_store[dst_type, "bc", None][dst]
+        ).to(dtype).reshape((-1, 1)) / 2.0
 
     print("training model...")
 
@@ -509,8 +541,9 @@ if __name__ == "__main__":
             vtypes,
             [etype.edge_type for etype in graph_store.get_all_edge_attrs()],
         ),
+        dtype=dtype,
         learn_embeddings=args.learn_embeddings,
-    ).to(device)
+    ).to(device, dtype)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     if args.learn_embeddings:
@@ -638,12 +671,15 @@ if __name__ == "__main__":
         )
 
         feature_store["paper", "x1", None] = torch.empty(
-            (local_papers.shape[0], model.module.hidden_channels), device="cuda"
+            (local_papers.shape[0], model.module.hidden_channels),
+            device="cuda",
+            dtype=dtype,
         )
         for batch in ex_loader:
             batch = batch.cuda()
             # have to obtain embeddings through message passing
-            x_paper = model.module.paper_lin(batch["paper"].x)
+            plin = model.module.paper_lin
+            x_paper = plin(batch["paper"].x.to(plin.weight.dtype))
             x_paper = model.module.paper_norm(x_paper)
             x_dict = {
                 "paper": x_paper,
@@ -651,16 +687,19 @@ if __name__ == "__main__":
                     batch["author"].n_id.numel(),
                     model.module.hidden_channels,
                     device="cuda",
+                    dtype=dtype,
                 ),
                 "institution": torch.zeros(
                     batch["institution"].n_id.numel(),
                     model.module.hidden_channels,
                     device="cuda",
+                    dtype=dtype,
                 ),
                 "field_of_study": torch.zeros(
                     batch["field_of_study"].n_id.numel(),
                     model.module.hidden_channels,
                     device="cuda",
+                    dtype=dtype,
                 ),
             }
             x_dict = model.module.mp(x_dict, batch.edge_index_dict)
@@ -682,7 +721,8 @@ if __name__ == "__main__":
     import cupy
 
     print("Finished computing embeddings, writing output embeddings to parquet...")
-    local_x = cupy.asarray(torch.concat([local_x0, local_x1], dim=1))
+    local_x = cupy.asarray(torch.concat([local_x0, local_x1], dim=1).to(torch.float32))
+
     import cudf
 
     os.makedirs(os.path.join(args.output_dir, "x"), exist_ok=True)
