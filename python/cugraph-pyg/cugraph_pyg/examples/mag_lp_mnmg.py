@@ -509,7 +509,7 @@ if __name__ == "__main__":
             f = (vx >= offsets[i]) & (vx < offsets[i + 1])
 
         bcx = vx[f] - offsets[i]
-        bcy = vy[f].to(dtype)
+        bcy = vy[f]
         feature_store[vtype, "bc", bcx] = bcy.to(dtype)
 
     print("updating feature store with betweeness centralities...")
