@@ -62,6 +62,7 @@ def test_feature_store_basic_api(single_pytorch_worker):
         "int32",
         "int64",
         "float64",
+        "bfloat16",
     ],
 )
 def test_feature_store_basic_api_types(single_pytorch_worker, dtype_name, torch):

@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <cuda_bf16.h>
+#include <cuda_fp16.h>
 #include <cub/device/device_radix_sort.cuh>
 #include <thrust/sequence.h>
 #include <thrust/unique.h>
@@ -62,11 +64,12 @@ wholememory_error_code_t exchange_embeddings_nccl_func(const void* dev_local_gat
   return WHOLEMEMORY_SUCCESS;
 }
 
+template <typename GradT>
 __global__ void DedupIndiceAndGradientsKernel(int raw_count,
                                               int unique_count,
                                               const int* start_pos,
                                               const int* mapping_array,
-                                              const float* grads,
+                                              const GradT* grads,
                                               float* dedup_grads,
                                               int embedding_dim,
                                               int embedding_stride)
@@ -77,25 +80,25 @@ __global__ void DedupIndiceAndGradientsKernel(int raw_count,
   if (bidx != unique_count - 1) end_offset = start_pos[bidx + 1];
   for (int idx = start_offset; idx < end_offset; idx++) {
     int map_idx                    = mapping_array[idx];
-    const float* current_grads_ptr = grads + map_idx * embedding_stride;
+    const GradT* current_grads_ptr = grads + map_idx * embedding_stride;
     float* current_dedup_grads_ptr = dedup_grads + bidx * embedding_stride;
     if (idx == start_offset) {
       for (int dim = threadIdx.x; dim < embedding_dim; dim += blockDim.x) {
-        current_dedup_grads_ptr[dim] = current_grads_ptr[dim];
+        current_dedup_grads_ptr[dim] = static_cast<float>(current_grads_ptr[dim]);
       }
     } else {
       for (int dim = threadIdx.x; dim < embedding_dim; dim += blockDim.x) {
-        current_dedup_grads_ptr[dim] += current_grads_ptr[dim];
+        current_dedup_grads_ptr[dim] += static_cast<float>(current_grads_ptr[dim]);
       }
     }
   }
 }
 
-template <typename IndexT>
+template <typename IndexT, typename GradT>
 void dedup_indice_and_gradients_temp_func(int64_t* run_count,
                                           const void* indices_ptr,
                                           wholememory_array_description_t indice_desc,
-                                          const float* grads,
+                                          const void* grads,
                                           wholememory_matrix_description_t grads_desc,
                                           void* dedup_indice_ptr,
                                           float* dedup_grads,
@@ -150,25 +153,27 @@ void dedup_indice_and_gradients_temp_func(int64_t* run_count,
   int embedding_dim    = grads_desc.sizes[1];
   int embedding_stride = grads_desc.stride;
   int thread_count     = std::min<int>(embedding_dim, 256);
-  DedupIndiceAndGradientsKernel<<<*run_count, thread_count, 0, stream>>>(raw_count,
-                                                                         *run_count,
-                                                                         dev_mapping_sequence,
-                                                                         dev_indice_mapping,
-                                                                         grads,
-                                                                         dedup_grads,
-                                                                         embedding_dim,
-                                                                         embedding_stride);
+  DedupIndiceAndGradientsKernel<GradT><<<*run_count, thread_count, 0, stream>>>(
+    raw_count,
+    *run_count,
+    dev_mapping_sequence,
+    dev_indice_mapping,
+    static_cast<const GradT*>(grads),
+    dedup_grads,
+    embedding_dim,
+    embedding_stride);
   WM_CUDA_CHECK_NO_THROW(cudaGetLastError());
   WM_CUDA_DEBUG_SYNC_STREAM(stream);
 }
 
-REGISTER_DISPATCH_ONE_TYPE(DedupIndiceAndGradientsTempFunc,
-                           dedup_indice_and_gradients_temp_func,
-                           SINT3264)
+REGISTER_DISPATCH_TWO_TYPES(DedupIndiceAndGradientsTempFunc,
+                            dedup_indice_and_gradients_temp_func,
+                            SINT3264,
+                            BF16_HALF_FLOAT)
 
 int64_t dedup_indice_and_gradients(const void* indices,
                                    wholememory_array_description_t indice_desc,
-                                   const float* grads,
+                                   const void* grads,
                                    wholememory_matrix_description_t grads_desc,
                                    void* dedup_indice,
                                    float* dedup_grads,
@@ -178,19 +183,20 @@ int64_t dedup_indice_and_gradients(const void* indices,
   WHOLEMEMORY_CHECK_NOTHROW(indice_desc.dtype == WHOLEMEMORY_DT_INT ||
                             indice_desc.dtype == WHOLEMEMORY_DT_INT64);
   WHOLEMEMORY_CHECK_NOTHROW(indice_desc.size == grads_desc.sizes[0]);
-  WHOLEMEMORY_CHECK_NOTHROW(grads_desc.dtype == WHOLEMEMORY_DT_FLOAT);
+  WHOLEMEMORY_CHECK_NOTHROW(wholememory_dtype_is_floating_number(grads_desc.dtype));
   int64_t run_count = 0;
-  DISPATCH_ONE_TYPE(indice_desc.dtype,
-                    DedupIndiceAndGradientsTempFunc,
-                    &run_count,
-                    indices,
-                    indice_desc,
-                    grads,
-                    grads_desc,
-                    dedup_indice,
-                    dedup_grads,
-                    p_env_fn,
-                    stream);
+  DISPATCH_TWO_TYPES(indice_desc.dtype,
+                     grads_desc.dtype,
+                     DedupIndiceAndGradientsTempFunc,
+                     &run_count,
+                     indices,
+                     indice_desc,
+                     grads,
+                     grads_desc,
+                     dedup_indice,
+                     dedup_grads,
+                     p_env_fn,
+                     stream);
   return run_count;
 }
 

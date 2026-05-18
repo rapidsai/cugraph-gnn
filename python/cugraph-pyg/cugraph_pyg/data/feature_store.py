@@ -94,6 +94,7 @@ class FeatureStore(
             (torch.int16, 4),
             (torch.float16, 5),
             (torch.int8, 6),
+            (torch.bfloat16, 7),
         ]:
             dtypes[k] = v
             dtype_ids[v] = k
