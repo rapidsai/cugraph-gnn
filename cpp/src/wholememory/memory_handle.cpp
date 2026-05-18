@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "memory_handle.hpp"
@@ -509,7 +509,7 @@ class global_mapped_host_wholememory_impl : public wholememory_impl {
       if (use_systemv_shm_) {
         auto shm_key = ftok(shm_full_path.c_str(), SYSTEMV_SHM_PROJ_ID);
         WHOLEMEMORY_CHECK(shm_key != (key_t)-1);
-        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0644 | IPC_CREAT | IPC_EXCL);
+        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0600 | IPC_CREAT | IPC_EXCL);
         if (shm_id == -1) {
           WHOLEMEMORY_FATAL("Create host shared memory from IPC key %d failed, Reason=%s",
                             shm_key,
@@ -530,7 +530,7 @@ class global_mapped_host_wholememory_impl : public wholememory_impl {
       if (use_systemv_shm_) {
         auto shm_key = ftok(shm_full_path.c_str(), SYSTEMV_SHM_PROJ_ID);
         WHOLEMEMORY_CHECK(shm_key != (key_t)-1);
-        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0644);
+        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0600);
         if (shm_id == -1) {
           WHOLEMEMORY_FATAL(
             "Get host shared memory from IPC key %d failed, Reason=%s", shm_key, strerror(errno));
@@ -581,7 +581,7 @@ class global_mapped_host_wholememory_impl : public wholememory_impl {
         shm_full_path.append(get_host_memory_full_path(comm_, handle_->handle_id));
         auto shm_key = ftok(shm_full_path.c_str(), SYSTEMV_SHM_PROJ_ID);
         WHOLEMEMORY_CHECK(shm_key != (key_t)-1);
-        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0644);
+        shm_id = shmget(shm_key, alloc_strategy_.local_alloc_size, 0600);
         if (shm_id == -1) {
           WHOLEMEMORY_FATAL("Get host shared memory from IPC key %d for delete failed, Reason=%s",
                             shm_key,
