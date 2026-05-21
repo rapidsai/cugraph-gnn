@@ -30,7 +30,7 @@ def parse_dtype(dtype_name: str) -> torch.dtype:
 
 
 class Encoder(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, edge_attr_dim, dtype, heads=1):
+    def __init__(self, in_channels, hidden_channels, edge_attr_dim, heads=1):
         super().__init__()
 
         self.conv1 = TransformerConv(
@@ -39,19 +39,19 @@ class Encoder(torch.nn.Module):
             edge_dim=edge_attr_dim,
             concat=False,
             heads=heads,
-        ).to(dtype)
+        )
         self.conv2 = TransformerConv(
             hidden_channels,
             hidden_channels,
             edge_dim=edge_attr_dim,
             concat=False,
             heads=heads,
-        ).to(dtype)
+        )
 
         self.norm1 = LayerNorm(hidden_channels)
-        self.lin1 = Linear(hidden_channels, hidden_channels).to(dtype)
+        self.lin1 = Linear(hidden_channels, hidden_channels)
 
-        self.lin2 = Linear(hidden_channels, hidden_channels).to(dtype)
+        self.lin2 = Linear(hidden_channels, hidden_channels)
         self.norm2 = LayerNorm(hidden_channels)
 
         self.dropout = Dropout(p=0.5)
@@ -100,8 +100,8 @@ class Classifier(torch.nn.Module):
         self.paper_lin = Linear(num_features["paper"], hidden_channels)
         self.paper_norm = LayerNorm(hidden_channels)
         # Match FeatureStore paper features for valid matmul dtypes.
-        self.paper_lin = self.paper_lin.to(dtype=dtype)
-        self.paper_norm = self.paper_norm.to(dtype=dtype)
+        self.paper_lin = self.paper_lin
+        self.paper_norm = self.paper_norm
 
         self.embeddings = {}
         if self.learn_embeddings:
@@ -124,9 +124,7 @@ class Classifier(torch.nn.Module):
                 "x, edge_index",
                 [
                     (
-                        SAGEConv(
-                            (hidden_channels, hidden_channels), hidden_channels
-                        ).to(dtype),
+                        SAGEConv((hidden_channels, hidden_channels), hidden_channels),
                         "x, edge_index -> x",
                     ),
                     LayerNorm(hidden_channels),
@@ -134,15 +132,14 @@ class Classifier(torch.nn.Module):
                     torch.nn.ReLU(inplace=True),
                 ],
             )
-            self.mp = to_hetero(self.mp.to(dtype), metadata=metadata, aggr="sum")
+            self.mp = to_hetero(self.mp, metadata=metadata, aggr="sum")
 
         self.encoder = Encoder(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
             edge_attr_dim=edge_attr_dim,
-            dtype=dtype,
         )
-        self.encoder = to_hetero(self.encoder.to(dtype), metadata=metadata, aggr="sum")
+        self.encoder = to_hetero(self.encoder, metadata=metadata, aggr="sum")
 
         self.decoder = Decoder()
 
@@ -218,7 +215,6 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     cugraph_comms_init(
         rank=global_rank, world_size=world_size, uid=cugraph_id, device=local_rank
     )
-
     torch.cuda.set_device(local_rank)
 
 
@@ -339,6 +335,7 @@ if __name__ == "__main__":
         cugraph_id = [None]
     torch.distributed.broadcast_object_list(cugraph_id, src=0, device=device)
     cugraph_id = cugraph_id[0]
+
     init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id)
 
     from cugraph_pyg.data import FeatureStore, GraphStore
