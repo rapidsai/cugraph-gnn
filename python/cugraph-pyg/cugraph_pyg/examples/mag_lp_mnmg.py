@@ -99,9 +99,6 @@ class Classifier(torch.nn.Module):
 
         self.paper_lin = Linear(num_features["paper"], hidden_channels)
         self.paper_norm = LayerNorm(hidden_channels)
-        # Match FeatureStore paper features for valid matmul dtypes.
-        self.paper_lin = self.paper_lin
-        self.paper_norm = self.paper_norm
 
         self.embeddings = {}
         if self.learn_embeddings:
