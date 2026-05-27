@@ -26,3 +26,6 @@ cpp/               @rapidsai/wholegraph-cpp-codeowners
 /build.sh          @rapidsai/packaging-codeowners
 pyproject.toml     @rapidsai/packaging-codeowners
 VERSION            @rapidsai/packaging-codeowners
+
+# Ops code owners
+/SECURITY.md             @rapidsai/ops-codeowners
