@@ -766,6 +766,13 @@ dependencies:
       - output_types: conda
         packages:
           - cupy>=13.6.0
+      - output_types: [conda, pyproject, requirements]
+        packages:
+          # cupy 14.1.0 had an accidental and undeclared hard runtime dependency on 'pytest'
+          # ref: https://github.com/cupy/cupy/issues/9963
+          #
+          # TODO: remove this when cugraph-pyg is able to avoid cupy 14.1.0
+          - pytest
     # NOTE: This is intentionally not broken into groups by a 'cuda_suffixed' selector like
     #       other packages with -cu{nn}x suffixes in this file.
     #       All RAPIDS wheel builds (including in devcontainers) expect cupy to be suffixed.

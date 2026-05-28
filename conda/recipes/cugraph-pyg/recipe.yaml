@@ -35,6 +35,11 @@ requirements:
     - pandas
     - pylibcugraph =${{ minor_version }}
     - pylibwholegraph =${{ minor_version }}
+    # cupy 14.1.0 had an accidental and undeclared hard runtime dependency on 'pytest'
+    # ref: https://github.com/cupy/cupy/issues/9963
+    #
+    # TODO: remove this when cugraph-pyg is able to avoid cupy 14.1.0
+    - pytest
     - python
     # This is intentionally spelled 'pytorch' (not 'pytorch-gpu' and not using build string selectors)
     # because we want it to be possible to at least install `cugraph-pyg` in an environment without a GPU,

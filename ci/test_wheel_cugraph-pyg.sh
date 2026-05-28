@@ -96,3 +96,9 @@ python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__versi
 
 rapids-logger "pytest cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/run_cugraph_pyg_pytests.sh
+
+# regression test for https://github.com/rapidsai/cugraph-gnn/issues/468
+rapids-logger "import cugraph-pyg (no 'pytest')"
+pip uninstall --yes pytest
+python -c "import cugraph_pyg.data.feature_store"
+python -c "import pylibwholegraph.torch.graph_ops"
