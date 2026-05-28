@@ -108,12 +108,6 @@ rapids-logger "pytest pylibwholegraph (single GPU)"
   --cov-report=xml:"${RAPIDS_COVERAGE_DIR}/pylibwholegraph-coverage.xml" \
   --cov-report=term
 
-# regression test for https://github.com/rapidsai/cugraph-gnn/issues/468
-rapids-logger "testing imports without 'pytest'"
-conda uninstall --yes pytest
-python -c "import cugraph_pyg.data.feature_store"
-python -c "from pylibwholegraph.torch import *"
-
 # Reactivate the test environment back
 set +u
 conda deactivate

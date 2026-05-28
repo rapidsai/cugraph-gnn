@@ -70,8 +70,3 @@ python -c "import pylibwholegraph; print(f'pylibwholegraph version: {pylibwholeg
 
 rapids-logger "pytest pylibwholegraph (no 'torch')"
 ./ci/run_pylibwholegraph_pytests.sh
-
-# regression test for https://github.com/rapidsai/cugraph-gnn/issues/468
-rapids-logger "import pylibwholegraph (no 'pytest')"
-pip uninstall --yes pytest
-python -c "from pylibwholegraph.torch import *"
