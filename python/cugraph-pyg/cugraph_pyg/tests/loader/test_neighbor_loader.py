@@ -828,17 +828,18 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
     for batch in loader:
         tree_vertices = {}
         for n_id in batch.input_id:
-            tree_vertices[n_id] = set([n_id.item()])
+            tree_vertices[n_id.item()] = set([n_id.item()])
             edge_offset = 0
             for hop in range(len(batch.num_sampled_edges)):
-                edges_hop = batch.num_sampled_edges[hop]
+                edges_hop = int(batch.num_sampled_edges[hop])
 
                 e_h = batch.edge_index[:, edge_offset : edge_offset + edges_hop]
                 e_in = torch.isin(
-                    e_h[1], torch.tensor(list(tree_vertices[n_id]), device="cuda")
+                    e_h[1],
+                    torch.tensor(list(tree_vertices[n_id.item()]), device="cuda"),
                 )
 
-                tree_vertices[n_id].update(e_h[0][e_in].tolist())
+                tree_vertices[n_id.item()].update(e_h[0][e_in].tolist())
                 edge_offset += edges_hop
 
         tv_items = list(tree_vertices.values())
