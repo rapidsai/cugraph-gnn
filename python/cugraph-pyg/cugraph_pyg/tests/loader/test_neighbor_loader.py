@@ -794,7 +794,7 @@ def test_neighbor_loader_disjoint(single_pytorch_worker):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-@pytest.mark.parametrize("batch_size", [1, 2, 4])
+@pytest.mark.parametrize("batch_size", [1, 2, 4, 8, 16])
 def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_worker):
     """
     Verify disjoint batch field invariants across different batch sizes.
@@ -827,7 +827,7 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
 
     for batch in loader:
         tree_vertices = {}
-        for n_id in batch.input_id:
+        for n_id in torch.arange(batch.num_sampled_nodes[0].item()):
             tree_vertices[n_id.item()] = set([n_id.item()])
             edge_offset = 0
             for hop in range(len(batch.num_sampled_edges)):
@@ -845,7 +845,7 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
         tv_items = list(tree_vertices.values())
         for i in range(len(tv_items)):
             for j in range(i + 1, len(tv_items)):
-                assert tv_items[i] & tv_items[j] == set()
+                assert (tv_items[i] & tv_items[j]) == set()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
