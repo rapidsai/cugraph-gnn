@@ -794,7 +794,7 @@ def test_neighbor_loader_disjoint(single_pytorch_worker):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-@pytest.mark.parametrize("batch_size", [1, 2, 4])
+@pytest.mark.parametrize("batch_size", [1, 2, 4, 8, 16])
 def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_worker):
     """
     Verify disjoint batch field invariants across different batch sizes.
@@ -827,24 +827,25 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
 
     for batch in loader:
         tree_vertices = {}
-        for n_id in batch.input_id:
-            tree_vertices[n_id] = set([n_id.item()])
+        for n_id in torch.arange(batch.num_sampled_nodes[0].item()):
+            tree_vertices[n_id.item()] = set([n_id.item()])
             edge_offset = 0
             for hop in range(len(batch.num_sampled_edges)):
-                edges_hop = batch.num_sampled_edges[hop]
+                edges_hop = int(batch.num_sampled_edges[hop])
 
                 e_h = batch.edge_index[:, edge_offset : edge_offset + edges_hop]
                 e_in = torch.isin(
-                    e_h[1], torch.tensor(list(tree_vertices[n_id]), device="cuda")
+                    e_h[1],
+                    torch.tensor(list(tree_vertices[n_id.item()]), device="cuda"),
                 )
 
-                tree_vertices[n_id].update(e_h[0][e_in].tolist())
+                tree_vertices[n_id.item()].update(e_h[0][e_in].tolist())
                 edge_offset += edges_hop
 
         tv_items = list(tree_vertices.values())
         for i in range(len(tv_items)):
             for j in range(i + 1, len(tv_items)):
-                assert tv_items[i] & tv_items[j] == set()
+                assert (tv_items[i] & tv_items[j]) == set()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
