@@ -1,3 +1,34 @@
+# cugraph-gnn 26.06.00 (3 Jun 2026)
+
+### 🚨 Breaking Changes
+* Update Matrix Filters to Enable Python 3.14 Tests and Disable 12.2 Tests by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/454
+### 🐛 Bug Fixes
+* Remove TODO from MovieLens Example by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/422
+* Fix append unique by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/423
+* [BUG] Fix Weights Issue in Negative Sampling by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/447
+### 🚀 New Features
+* support embedding training with bf16 and fp16 by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/451
+* Explicitly support bf16 in feature store by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/458
+* [FEA] Support Disjoint Sampling in cuGraph-PyG by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/452
+### 🛠️ Improvements
+* Forward-merge release/26.04 into main by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/435
+* remove dependency on 'packaging', patches for torch 1.x by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/437
+* Use `PyBuffer_FillInfo` for simple buffers & simplify Python buffer cleanup by @jakirkham in https://github.com/rapidsai/cugraph-gnn/pull/436
+* Forward-merge release/26.04 into main by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/444
+* update pip devcontainers' base image tags by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/445
+* enable arm64 wheel tests, remove pytest.ini, add a coverage floor by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/438
+* Update to clang 20.1.8 by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/448
+* Add support for Python 3.14 by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/414
+* Use `token.rapids.nvidia.com` when issuing S3 bucket creds in devcontainers by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/453
+* Preserve `torch_cpp_ext` source files in build.sh by @tingyu66 in https://github.com/rapidsai/cugraph-gnn/pull/449
+* fix(ci): resolve all zizmor findings and add zizmor pre-commit checks by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/455
+* Build and test with CUDA 13.2.0 by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/456
+* Re-enable CUDA 12.2 and Python 3.14 tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/457
+* skip CuPy 14.1.0 by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/470
+
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.06.00a...release/26.06
+
 # cugraph-gnn 26.04.00 (8 Apr 2026)
 
 ### 🚨 Breaking Changes
