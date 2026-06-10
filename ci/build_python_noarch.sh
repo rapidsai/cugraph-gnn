@@ -46,5 +46,5 @@ sccache --stop-server >/dev/null 2>&1 || true
 # tracked in https://github.com/prefix-dev/rattler-build/issues/1424
 rm -rf "$RAPIDS_CONDA_BLD_OUTPUT_DIR"/build_cache
 
-RAPIDS_PACKAGE_NAME="$(rapids-artifact-name conda_python cugraph-pyg cugraph-gnn --pure)"
+RAPIDS_PACKAGE_NAME="$(rapids-artifact-name conda_python cugraph-pyg cugraph-gnn --pure --arch any)"
 export RAPIDS_PACKAGE_NAME

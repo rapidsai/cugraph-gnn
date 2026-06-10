@@ -6,14 +6,12 @@ set -eoxu pipefail
 
 source rapids-init-pip
 
-package_name="cugraph-pyg"
-
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-pyg built in the previous step
 LIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_cpp libwholegraph cugraph-gnn --cuda "$RAPIDS_CUDA_VERSION")")
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python pylibwholegraph cugraph-gnn --stable --cuda "$RAPIDS_CUDA_VERSION")")
-CUGRAPH_PYG_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python cugraph-pyg cugraph-gnn --pure)")
+CUGRAPH_PYG_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python cugraph-pyg cugraph-gnn --pure --arch any)")
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
