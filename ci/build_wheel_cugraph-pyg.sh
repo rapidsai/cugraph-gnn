@@ -10,3 +10,6 @@ package_dir="python/cugraph-pyg"
 
 ./ci/build_wheel.sh cugraph-pyg ${package_dir}
 ./ci/validate_wheel.sh ${package_dir} "${RAPIDS_WHEEL_BLD_OUTPUT_DIR}"
+
+RAPIDS_PACKAGE_NAME="$(rapids-artifact-name wheel_python cugraph-pyg cugraph-gnn --pure)"
+export RAPIDS_PACKAGE_NAME
