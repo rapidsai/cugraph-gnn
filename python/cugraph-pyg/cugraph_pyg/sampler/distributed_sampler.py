@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -556,9 +556,25 @@ class BaseDistributedSampler:
             leftover_time = leftover_time[lyi]
 
         lz = torch.sort(lyi)[1]
-        leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
         if leftover_time is not None:
-            leftover_time = leftover_time[lui]
+            if leftover_seeds.numel() == 0:
+                assert leftover_time.numel() == 0, (
+                    "Leftover time should be empty if leftover seeds are empty"
+                )
+                leftover_seeds_unique_mask = torch.tensor(
+                    [], device="cuda", dtype=torch.bool
+                )
+            else:
+                leftover_seeds_unique_mask = torch.concat(
+                    [
+                        torch.tensor([True], device="cuda"),
+                        leftover_seeds[1:] != leftover_seeds[:-1],
+                    ]
+                )
+            leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
+            leftover_time = leftover_time[leftover_seeds_unique_mask]
+        else:
+            leftover_seeds, lui = leftover_seeds.unique_consecutive(return_inverse=True)
         leftover_inv = lui[lz]
 
         if leftover_seeds.numel() > 0:
@@ -756,6 +772,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         compression: str = "COO",
         compress_per_hop: bool = False,
         with_replacement: bool = False,
+        disjoint: bool = False,
         biased: bool = False,
         heterogeneous: bool = False,
         temporal: bool = False,
@@ -772,6 +789,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "compress_per_hop": compress_per_hop,
             "compression": compression,
             "with_replacement": with_replacement,
+            "disjoint_sampling": disjoint,
         }
 
         # It is currently required that graphs are weighted for biased
@@ -808,8 +826,9 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         super().__init__(
             graph,
             local_seeds_per_call=self.__calc_local_seeds_per_call(
-                local_seeds_per_call,
+                local_seeds_per_call=local_seeds_per_call,
                 heterogeneous=heterogeneous,
+                disjoint=disjoint,
                 num_edge_types=num_edge_types,
             ),
             retain_original_seeds=retain_original_seeds,
@@ -817,8 +836,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
 
     def __calc_local_seeds_per_call(
         self,
+        *,
         local_seeds_per_call: Optional[int] = None,
         heterogeneous: bool = False,
+        disjoint: bool = False,
         num_edge_types: int = 1,
     ):
         torch = import_optional("torch")
@@ -826,9 +847,6 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         fanout = self.__fanout
 
         if local_seeds_per_call is None:
-            if len([x for x in fanout if x <= 0]) > 0:
-                return DistributedNeighborSampler.UNKNOWN_VERTICES_DEFAULT
-
             if heterogeneous:
                 if len(fanout) % num_edge_types != 0:
                     raise ValueError(f"Illegal fanout for {num_edge_types} edge types.")
@@ -838,8 +856,16 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                     for h in range(num_hops)
                 ]
 
+            if len([x for x in fanout if x <= 0]) > 0:
+                return DistributedNeighborSampler.UNKNOWN_VERTICES_DEFAULT
+
             total_memory = torch.cuda.get_device_properties(0).total_memory
             fanout_prod = reduce(lambda x, y: x * y, fanout)
+            if disjoint:
+                # Disjoint sampling produces unique (vertex, seed) pairs with no
+                # cross-seed deduplication, so memory grows by an extra fanout[0]
+                # factor relative to the standard estimate.
+                fanout_prod *= fanout[0]
             return int(
                 DistributedNeighborSampler.BASE_VERTICES_PER_BYTE
                 * total_memory

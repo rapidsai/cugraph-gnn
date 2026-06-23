@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -11,7 +11,7 @@ export CMAKE_GENERATOR=Ninja
 
 rapids-print-env
 
-CPP_CHANNEL=$(rapids-download-conda-from-github cpp)
+CPP_CHANNEL=$(rapids-download-from-github "$(rapids-artifact-name conda_cpp libwholegraph cugraph-gnn --cuda "$RAPIDS_CUDA_VERSION")")
 
 rapids-generate-version > ./VERSION
 
@@ -34,20 +34,6 @@ rapids-logger "Building pylibwholegraph"
 # more info is available at
 # https://rattler.build/latest/tips_and_tricks/#using-sccache-or-ccache-with-rattler-build
 rattler-build build --recipe conda/recipes/pylibwholegraph \
-                    --test skip \
-                    "${RATTLER_ARGS[@]}" \
-                    "${RATTLER_CHANNELS[@]}"
-
-sccache --show-adv-stats
-sccache --stop-server >/dev/null 2>&1 || true
-
-rapids-logger "Building cugraph-pyg"
-
-# --no-build-id allows for caching with `sccache`
-# more info is available at
-# https://rattler.build/latest/tips_and_tricks/#using-sccache-or-ccache-with-rattler-build
-rattler-build build --recipe conda/recipes/cugraph-pyg \
-                    --test skip \
                     "${RATTLER_ARGS[@]}" \
                     "${RATTLER_CHANNELS[@]}"
 
@@ -57,3 +43,6 @@ sccache --stop-server >/dev/null 2>&1 || true
 # remove build_cache directory to avoid uploading the entire source tree
 # tracked in https://github.com/prefix-dev/rattler-build/issues/1424
 rm -rf "$RAPIDS_CONDA_BLD_OUTPUT_DIR"/build_cache
+
+RAPIDS_PACKAGE_NAME="$(rapids-artifact-name conda_python pylibwholegraph cugraph-gnn --stable --cuda "$RAPIDS_CUDA_VERSION")"
+export RAPIDS_PACKAGE_NAME

@@ -1,13 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 import os.path
 import importlib
 
-import torch
 import pylibwholegraph
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from typing import Union
 from .utils import wholememory_dtype_to_torch_dtype, torch_dtype_to_wholememory_dtype
+
+torch = import_optional("torch")
+torch_utils_cpp_ext = import_optional("torch.utils.cpp_extension")
 
 default_wholegraph_env_context = None
 torch_cpp_ext_loaded = False
@@ -46,7 +49,7 @@ class TorchMemoryContext(object):
         else:
             return id(self)
 
-    def set_tensor(self, t: torch.Tensor):
+    def set_tensor(self, t: "torch.Tensor"):
         self.tensor = t
 
     def get_handle(self):
@@ -85,23 +88,23 @@ def torch_destroy_memory_context_env_fn(
 
 
 def torch_malloc_env_fn(
-    tensor_desc: wmb.PyWholeMemoryTensorDescription,
-    malloc_type: wmb.PyMemoryAllocType,
+    shape: tuple,
+    dtype_int: int,
+    malloc_type_int: int,
     memory_context: TorchMemoryContext,
     global_context: TorchEmptyGlobalContext,
 ) -> int:
     pinned = False
     device = None
-    if malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatDevice:
+    if malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatDevice):
         device = torch.device("cuda")
-    elif malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatHost:
+    elif malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatHost):
         device = torch.device("cpu")
     else:
-        assert malloc_type.get_type() == wmb.WholeMemoryMemoryAllocType.MatPinned
+        assert malloc_type_int == int(wmb.WholeMemoryMemoryAllocType.MatPinned)
         device = torch.device("cpu")
         pinned = True
-    shape = tensor_desc.shape
-    dtype = wholememory_dtype_to_torch_dtype(tensor_desc.dtype)
+    dtype = wholememory_dtype_to_torch_dtype(wmb.WholeMemoryDataType(dtype_int))
     t = torch.empty(shape, dtype=dtype, device=device, pin_memory=pinned)
     memory_context.set_tensor(t)
     return t.data_ptr()
@@ -154,7 +157,7 @@ def get_wholegraph_env_fns(use_default=True) -> int:
     return wholegraph_env_context.get_env_fns()
 
 
-def wrap_torch_tensor(t: Union[torch.Tensor, None]) -> wmb.WrappedLocalTensor:
+def wrap_torch_tensor(t: Union["torch.Tensor", None]) -> wmb.WrappedLocalTensor:
     py_desc = wmb.PyWholeMemoryTensorDescription()
     wm_t = wmb.WrappedLocalTensor()
     if t is None:
@@ -171,8 +174,6 @@ def get_cpp_extension_src_path():
 
 
 def compile_cpp_extension():
-    import torch.utils.cpp_extension
-
     global torch_cpp_ext_loaded
     global torch_cpp_ext_lib
     cpp_extension_path = os.path.join(get_cpp_extension_src_path(), "torch_cpp_ext")
@@ -192,7 +193,7 @@ def compile_cpp_extension():
         extra_ldflags.append(
             "".join(["-L", os.path.join(os.environ["LIBWHOLEGRAPH_DIR"], "lib")])
         )
-    torch.utils.cpp_extension.load(
+    torch_utils_cpp_ext.load(
         name="pylibwholegraph.pylibwholegraph_torch_ext",
         sources=[
             os.path.join(cpp_extension_path, "wholegraph_torch_ext.cpp"),

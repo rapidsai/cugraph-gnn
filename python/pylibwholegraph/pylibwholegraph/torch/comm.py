@@ -1,16 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
-import torch.distributed as dist
-import torch.utils.dlpack
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from .utils import (
     str_to_wmb_wholememory_distributed_backend_type,
     wholememory_distributed_backend_type_to_str,
     str_to_wmb_wholememory_memory_type,
     str_to_wmb_wholememory_location,
 )
+
+torch = import_optional("torch")
 
 global_communicators = {}
 local_node_communicator = None
@@ -140,13 +140,13 @@ def create_group_communicator(group_size: int = -1, comm_stride: int = 1):
     :param comm_stride: Stride of each rank in each group
     :return: WholeMemoryCommunicator
     """
-    world_size = dist.get_world_size()
+    world_size = torch.distributed.get_world_size()
     if group_size == -1:
         group_size = world_size
     strided_group_size = group_size * comm_stride
     assert world_size % strided_group_size == 0
     strided_group_count = world_size // strided_group_size
-    world_rank = dist.get_rank()
+    world_rank = torch.distributed.get_rank()
     strided_group_idx = world_rank // strided_group_size
     idx_in_strided_group = world_rank % strided_group_size
     inner_group_idx = idx_in_strided_group % comm_stride
@@ -161,7 +161,7 @@ def create_group_communicator(group_size: int = -1, comm_stride: int = 1):
                 tmp_wm_uid = wmb.PyWholeMemoryUniqueID()
             uid_th = torch.utils.dlpack.from_dlpack(tmp_wm_uid.__dlpack__())
             uid_th_cuda = uid_th.cuda()
-            dist.broadcast(uid_th_cuda, group_root_rank)
+            torch.distributed.broadcast(uid_th_cuda, group_root_rank)
             uid_th.copy_(uid_th_cuda.cpu())
             if strided_group_idx == strided_group and inner_group_idx == inner_group:
                 wm_uid_th = torch.utils.dlpack.from_dlpack(wm_uid.__dlpack__())

@@ -1,8 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
+from pylibwholegraph.utils.imports import import_optional
 import os
 from argparse import ArgumentParser
+
+torch = import_optional("torch")
 
 
 class DistributedConfig(object):
@@ -281,10 +284,8 @@ def distributed_launch_spawn(args, main_func):
         )
     )
 
-    import torch.multiprocessing as mp
-
     if distributed_config.local_size > 1:
-        mp.spawn(
+        torch.multiprocessing.spawn(
             main_spawn_routine,
             nprocs=distributed_config.local_size,
             args=(main_func, distributed_config),

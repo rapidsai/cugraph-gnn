@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # cugraph build script
@@ -81,7 +81,11 @@ VERBOSE_FLAG=""
 BUILD_TYPE=Release
 INSTALL_TARGET="--target install"
 BUILD_ALL_GPU_ARCH=0
-PYTHON_ARGS_FOR_INSTALL="-m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true"
+PYTHON_ARGS_FOR_INSTALL=(
+    --no-build-isolation
+    --no-deps
+    --config-settings="rapidsai.disable-cuda=true"
+)
 
 # Set defaults for vars that may not have been defined externally
 #  FIXME: if PREFIX is not set, check CONDA_PREFIX, but there is no fallback
@@ -103,7 +107,8 @@ function cleanPythonDir {
     find . -type d -name __pycache__ -print | xargs rm -rf
     find . -type d -name build -print | xargs rm -rf
     find . -type d -name dist -print | xargs rm -rf
-    find . -type f -name "*.cpp" -delete
+    # Skip pylibwholegraph/torch_cpp_ext: those .cpp files are sources (JIT-built by PyTorch), not artifacts.
+    find . -type f -name "*.cpp" ! -regex '.*/torch_cpp_ext/.*' -delete
     find . -type f -name "*.cpython*.so" -delete
     find . -type d -name _external_repositories -print | xargs rm -rf
     popd > /dev/null
@@ -139,7 +144,7 @@ if hasArg --allgpuarch; then
     BUILD_ALL_GPU_ARCH=1
 fi
 if hasArg --pydevelop; then
-    PYTHON_ARGS_FOR_INSTALL="${PYTHON_ARGS_FOR_INSTALL} -e"
+    PYTHON_ARGS_FOR_INSTALL+=("-e")
 fi
 
 if hasArg --enable-nvshmem; then
@@ -237,6 +242,12 @@ if hasArg pylibwholegraph || buildDefault || hasArg all; then
         cleanPythonDir ${REPODIR}/python/pylibwholegraph
     fi
 
+    # If `RAPIDS_PY_VERSION` is set, use that as the lower-bound for the stable ABI CPython version
+    if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
+        RAPIDS_PY_API="cp${RAPIDS_PY_VERSION//./}"
+        PYTHON_ARGS_FOR_INSTALL+=("--config-settings" "skbuild.wheel.py-api=${RAPIDS_PY_API}")
+    fi
+
     # setup.py and cmake reference an env var LIBWHOLEGRAPH_DIR to find the
     # libwholegraph package (cmake).
     # If not set by the user, set it to LIBWHOLEGRAPH_BUILD_DIR
@@ -244,7 +255,8 @@ if hasArg pylibwholegraph || buildDefault || hasArg all; then
     if ! hasArg --compile-cmd; then
         cd ${REPODIR}/python/pylibwholegraph
         env LIBWHOLEGRAPH_DIR=${LIBWHOLEGRAPH_DIR} \
-        SKBUILD_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" python ${PYTHON_ARGS_FOR_INSTALL} \
+        SKBUILD_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE}" python -m pip install \
+            "${PYTHON_ARGS_FOR_INSTALL[@]}" \
             .
     else
         # just invoke cmake without going through scikit-build-core
@@ -259,6 +271,8 @@ if hasArg cugraph-pyg || buildDefault || hasArg all; then
     if hasArg --clean; then
         cleanPythonDir ${REPODIR}/python/cugraph-pyg
     else
-        python ${PYTHON_ARGS_FOR_INSTALL} ${REPODIR}/python/cugraph-pyg
+        python -m pip install \
+            "${PYTHON_ARGS_FOR_INSTALL[@]}" \
+            "${REPODIR}/python/cugraph-pyg"
     fi
 fi

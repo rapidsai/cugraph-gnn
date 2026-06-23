@@ -1,12 +1,18 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
+from pylibwholegraph.utils.imports import import_optional, MissingModule
 from .graph_structure import GraphStructure
 from .embedding import WholeMemoryEmbedding, WholeMemoryEmbeddingModule
 from .common_options import parse_max_neighbors
-import torch.nn.functional as F
 
+torch = import_optional("torch")
+
+# NOTE: using more specific 'import_optional()' than just 'torch' for import-time checks
+#       (e.g. those needed for defining base classes) can be helpful because 'torch' can appear
+#       to be available even after a 'pip uninstall torch' if any files are left behind in
+#       'site-packages/torch'.
+torch_nn = import_optional("torch.nn")
 
 framework_name = None
 
@@ -28,7 +34,7 @@ def set_framework(framework: str):
 def create_gnn_layers(
     in_feat_dim, hidden_feat_dim, class_count, num_layer, num_head, model_type
 ):
-    gnn_layers = torch.nn.ModuleList()
+    gnn_layers = torch_nn.ModuleList()
     global framework_name
     for i in range(num_layer):
         layer_output_dim = (
@@ -119,74 +125,88 @@ def layer_forward(layer, x_feat, x_target_feat, sub_graph):
     return x_feat
 
 
-class HomoGNNModel(torch.nn.Module):
-    def __init__(
-        self,
-        graph_structure: GraphStructure,
-        node_embedding: WholeMemoryEmbedding,
-        args,
-    ):
-        super().__init__()
-        hidden_feat_dim = args.hiddensize
-        self.graph_structure = graph_structure
-        self.node_embedding = node_embedding
-        self.num_layer = args.layernum
-        self.hidden_feat_dim = args.hiddensize
-        num_head = args.heads if (args.model == "gat") else 1
-        assert hidden_feat_dim % num_head == 0
-        in_feat_dim = self.node_embedding.shape[1]
-        self.gnn_layers = create_gnn_layers(
-            in_feat_dim,
-            hidden_feat_dim,
-            args.classnum,
-            args.layernum,
-            num_head,
-            args.model,
-        )
-        self.mean_output = True if args.model == "gat" else False
-        self.add_self_loop = True if args.model == "gat" else False
-        self.gather_fn = WholeMemoryEmbeddingModule(self.node_embedding)
-        self.dropout = args.dropout
-        self.max_neighbors = parse_max_neighbors(args.layernum, args.neighbors)
-        self.max_inference_neighbors = parse_max_neighbors(
-            args.layernum, args.inferencesample
-        )
+if not isinstance(torch_nn, MissingModule):
 
-    def forward(self, ids):
-        global framework_name
-        max_neighbors = (
-            self.max_neighbors if self.training else self.max_inference_neighbors
-        )
-        ids = ids.to(self.graph_structure.csr_col_ind.dtype).cuda()
-        (
-            target_gids,
-            edge_indice,
-            csr_row_ptrs,
-            csr_col_inds,
-        ) = self.graph_structure.multilayer_sample_without_replacement(
-            ids, max_neighbors
-        )
-        x_feat = self.gather_fn(target_gids[0], force_dtype=torch.float32)
-        for i in range(self.num_layer):
-            x_target_feat = x_feat[: target_gids[i + 1].numel()]
-            sub_graph = create_sub_graph(
-                target_gids[i],
-                target_gids[i + 1],
-                edge_indice[i],
-                csr_row_ptrs[i],
-                csr_col_inds[i],
-                max_neighbors[self.num_layer - 1 - i],
-                self.add_self_loop,
+    class HomoGNNModel(torch_nn.Module):
+        def __init__(
+            self,
+            graph_structure: GraphStructure,
+            node_embedding: WholeMemoryEmbedding,
+            args,
+        ):
+            super().__init__()
+            hidden_feat_dim = args.hiddensize
+            self.graph_structure = graph_structure
+            self.node_embedding = node_embedding
+            self.num_layer = args.layernum
+            self.hidden_feat_dim = args.hiddensize
+            num_head = args.heads if (args.model == "gat") else 1
+            assert hidden_feat_dim % num_head == 0
+            in_feat_dim = self.node_embedding.shape[1]
+            self.gnn_layers = create_gnn_layers(
+                in_feat_dim,
+                hidden_feat_dim,
+                args.classnum,
+                args.layernum,
+                num_head,
+                args.model,
             )
-            x_feat = layer_forward(
-                self.gnn_layers[i],
-                x_feat,
-                x_target_feat,
-                sub_graph,
+            self.mean_output = True if args.model == "gat" else False
+            self.add_self_loop = True if args.model == "gat" else False
+            self.gather_fn = WholeMemoryEmbeddingModule(self.node_embedding)
+            self.dropout = args.dropout
+            self.max_neighbors = parse_max_neighbors(args.layernum, args.neighbors)
+            self.max_inference_neighbors = parse_max_neighbors(
+                args.layernum, args.inferencesample
             )
-            if i != self.num_layer - 1:
-                x_feat = F.relu(x_feat)
-                x_feat = F.dropout(x_feat, self.dropout, training=self.training)
 
-        out_feat = x_feat
-        return out_feat
+        def forward(self, ids):
+            global framework_name
+            max_neighbors = (
+                self.max_neighbors if self.training else self.max_inference_neighbors
+            )
+            ids = ids.to(self.graph_structure.csr_col_ind.dtype).cuda()
+            (
+                target_gids,
+                edge_indice,
+                csr_row_ptrs,
+                csr_col_inds,
+            ) = self.graph_structure.multilayer_sample_without_replacement(
+                ids, max_neighbors
+            )
+            x_feat = self.gather_fn(target_gids[0], force_dtype=torch.float32)
+            for i in range(self.num_layer):
+                x_target_feat = x_feat[: target_gids[i + 1].numel()]
+                sub_graph = create_sub_graph(
+                    target_gids[i],
+                    target_gids[i + 1],
+                    edge_indice[i],
+                    csr_row_ptrs[i],
+                    csr_col_inds[i],
+                    max_neighbors[self.num_layer - 1 - i],
+                    self.add_self_loop,
+                )
+                x_feat = layer_forward(
+                    self.gnn_layers[i],
+                    x_feat,
+                    x_target_feat,
+                    sub_graph,
+                )
+                if i != self.num_layer - 1:
+                    x_feat = torch_nn.functional.relu(x_feat)
+                    x_feat = torch_nn.functional.dropout(
+                        x_feat, self.dropout, training=self.training
+                    )
+
+            out_feat = x_feat
+            return out_feat
+else:
+
+    class HomoGNNModel:
+        def __init__(
+            self,
+            graph_structure: GraphStructure,
+            node_embedding: WholeMemoryEmbedding,
+            args,
+        ):
+            raise ModuleNotFoundError("HomoGNNModel requires 'torch' to be installed.")

@@ -1,0 +1,6 @@
+{
+  "shouldUpdateDescription": false,
+  "includeSequenceDiagram": false,
+  "instructions": "Provide concise, direct code reviews. Focus on substantive issues only. Avoid excessive praise or apologies. Be brief and to the point.",
+  "comment": "Greptile code reviews should be reviewed for accuracy and completeness. Please remember to give Greptile feedback (👍/👎) and consider leaving comments explaining why Greptile's feedback was helpful or not. This will help improve future code reviews."
+}

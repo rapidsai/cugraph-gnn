@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pylibwholegraph.binding.wholememory_binding as wmb
-import torch
+from pylibwholegraph.utils.imports import import_optional
 from .utils import (
     torch_dtype_to_wholememory_dtype,
     wholememory_dtype_to_torch_dtype,
@@ -15,6 +15,7 @@ from typing import Union, List
 from .dlpack_utils import torch_import_from_dlpack
 from .wholegraph_env import wrap_torch_tensor, get_wholegraph_env_fns, get_stream
 
+torch = import_optional("torch")
 
 WholeMemoryMemoryType = wmb.WholeMemoryMemoryType
 WholeMemoryMemoryLocation = wmb.WholeMemoryMemoryLocation
@@ -49,7 +50,7 @@ class WholeMemoryTensor(object):
         )
 
     def gather(
-        self, indice: torch.Tensor, *, force_dtype: Union[torch.dtype, None] = None
+        self, indice: "torch.Tensor", *, force_dtype: Union["torch.dtype", None] = None
     ):
         assert indice.dim() == 1
         embedding_dim = self.shape[1] if self.dim() == 2 else 1
@@ -71,7 +72,7 @@ class WholeMemoryTensor(object):
         )
         return output_tensor.view(-1) if self.dim() == 1 else output_tensor
 
-    def scatter(self, input_tensor: torch.Tensor, indice: torch.Tensor):
+    def scatter(self, input_tensor: "torch.Tensor", indice: "torch.Tensor"):
         assert indice.dim() == 1
         assert input_tensor.dim() == self.dim()
         assert indice.shape[0] == input_tensor.shape[0]
@@ -201,7 +202,7 @@ def create_wholememory_tensor(
     memory_type: str,
     memory_location: str,
     sizes: List[int],
-    dtype: torch.dtype,
+    dtype: "torch.dtype",
     strides: List[int],
     tensor_entry_partition: Union[List[int], None] = None,
 ):
@@ -250,7 +251,7 @@ def create_wholememory_tensor_from_filelist(
     memory_type: str,
     memory_location: str,
     filelist: Union[List[str], str],
-    dtype: torch.dtype,
+    dtype: "torch.dtype",
     last_dim_size: int = 0,
     last_dim_strides: int = -1,
     tensor_entry_partition: Union[List[int], None] = None,

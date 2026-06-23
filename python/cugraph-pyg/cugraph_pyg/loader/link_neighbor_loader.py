@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -86,7 +86,6 @@ class LinkNeighborLoader(LinkLoader):
             See torch_geometric.loader.LinkNeighborLoader.
         disjoint: bool (optional, default=False)
             Whether to perform disjoint sampling.
-            Currently unsupported.
             See torch_geometric.loader.LinkNeighborLoader.
         temporal_strategy: str (optional, default='uniform')
             Currently only 'uniform' is suppported.
@@ -129,10 +128,10 @@ class LinkNeighborLoader(LinkLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
-        temporal_comparison: str (optional, default='monotonically decreasing')
+        temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
-            ('strictly increasing', 'monotonically increasing',
-            'strictly decreasing', 'monotonically decreasing', 'last').
+            ('strictly_increasing', 'monotonically_increasing',
+            'strictly_decreasing', 'monotonically_decreasing', 'last').
             Note that this should be 'last' for temporal_strategy='last'.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
@@ -142,7 +141,7 @@ class LinkNeighborLoader(LinkLoader):
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
         if temporal_comparison is None:
-            temporal_comparison = "monotonically decreasing"
+            temporal_comparison = "monotonically_decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced
@@ -152,8 +151,6 @@ class LinkNeighborLoader(LinkLoader):
             )
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")
-        if disjoint:
-            raise ValueError("Disjoint sampling is currently unsupported")
         if temporal_strategy != "uniform":
             warnings.warn("Only the uniform temporal strategy is currently supported")
         if neighbor_sampler is not None:
@@ -182,7 +179,7 @@ class LinkNeighborLoader(LinkLoader):
 
         is_temporal = (edge_label_time is not None) and (time_attr is not None)
 
-        if (edge_label_time is None) != (time_attr is None):
+        if not is_temporal and (edge_label_time is not None or time_attr is not None):
             warnings.warn(
                 "Edge-based temporal sampling requires that both edge_label_time and time_attr are provided. Defaulting to non-temporal sampling."
             )
@@ -190,7 +187,7 @@ class LinkNeighborLoader(LinkLoader):
         if weight_attr is not None:
             graph_store._set_weight_attr((feature_store, weight_attr))
         if is_temporal:
-            graph_store._set_etime_attr((feature_store, time_attr))
+            graph_store._set_time_attr((feature_store, time_attr))
 
         if isinstance(num_neighbors, dict):
             sorted_keys, _, _ = graph_store._numeric_edge_types
@@ -213,6 +210,7 @@ class LinkNeighborLoader(LinkLoader):
                 compression=compression,
                 compress_per_hop=False,
                 with_replacement=replace,
+                disjoint=disjoint,
                 local_seeds_per_call=local_seeds_per_call,
                 biased=(weight_attr is not None),
                 heterogeneous=(not graph_store.is_homogeneous),

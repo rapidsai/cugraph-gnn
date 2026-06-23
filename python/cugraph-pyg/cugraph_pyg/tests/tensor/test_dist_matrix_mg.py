@@ -1,10 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 
 import os
 import pytest
-import torch
 from cugraph_pyg.tensor import DistMatrix
 
 from pylibwholegraph.torch.initialize import init as wm_init
@@ -13,6 +12,7 @@ from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
 
 def run_test_dist_matrix_creation(rank, world_size, device):
     """Test basic DistMatrix creation from tensors"""
+    torch = pytest.importorskip("torch")
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -55,6 +55,7 @@ def run_test_dist_matrix_creation(rank, world_size, device):
 
 def run_test_dist_matrix_empty_creation(rank, world_size, device):
     """Test DistMatrix creation with empty initialization"""
+    torch = pytest.importorskip("torch")
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -102,6 +103,7 @@ def run_test_dist_matrix_empty_creation(rank, world_size, device):
 
 def run_test_dist_matrix_invalid_cases(rank, world_size, device):
     """Test DistMatrix creation with invalid cases"""
+    torch = pytest.importorskip("torch")
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -138,7 +140,7 @@ def run_test_dist_matrix_invalid_cases(rank, world_size, device):
 
 
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
-def test_dist_matrix(device):
+def test_dist_matrix(device, torch):
     """Run all DistMatrix tests"""
 
     world_size = torch.cuda.device_count()

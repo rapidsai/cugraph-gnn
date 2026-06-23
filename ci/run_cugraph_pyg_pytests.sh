@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -7,7 +7,7 @@ set -euo pipefail
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
-pytest --cache-clear --benchmark-disable "$@" .
+pytest -rs --cache-clear --benchmark-disable "$@" .
 
 # Used to skip certain examples in CI due to memory limitations
 export CI=true

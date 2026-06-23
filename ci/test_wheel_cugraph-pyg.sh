@@ -1,61 +1,96 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 set -eoxu pipefail
 
 source rapids-init-pip
 
-package_name="cugraph-pyg"
-
-RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen ${RAPIDS_CUDA_VERSION})"
+RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-pyg built in the previous step
-LIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="libwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github cpp)
-PYLIBWHOLEGRAPH_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="pylibwholegraph_${RAPIDS_PY_CUDA_SUFFIX}" rapids-download-wheels-from-github python)
-CUGRAPH_PYG_WHEELHOUSE=$(RAPIDS_PY_WHEEL_NAME="${package_name}_${RAPIDS_PY_CUDA_SUFFIX}" RAPIDS_PY_WHEEL_PURE="1" rapids-download-wheels-from-github python)
+LIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_cpp libwholegraph cugraph-gnn --cuda "$RAPIDS_CUDA_VERSION")")
+PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python pylibwholegraph cugraph-gnn --stable --cuda "$RAPIDS_CUDA_VERSION")")
+CUGRAPH_PYG_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python cugraph-pyg cugraph-gnn --pure --arch any --cuda "$RAPIDS_CUDA_VERSION")")
 
-CUDA_MAJOR="${RAPIDS_CUDA_VERSION%%.*}"
+# generate constraints (possibly pinning to oldest support versions of dependencies)
+rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
 
-if [[ "${CUDA_MAJOR}" == "12" ]]; then
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu126"
+PIP_INSTALL_ARGS=(
+  --prefer-binary
+  --constraint "${PIP_CONSTRAINT}"
+  --extra-index-url 'https://pypi.nvidia.com'
+  "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+  "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)"
+  "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+)
+
+# ensure a CUDA variant of 'torch' is used (if one is available)
+TORCH_WHEEL_DIR="$(mktemp -d)"
+./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
+
+# 'cugraph-pyg' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+torch_downloaded=true
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_downloaded=false
 else
-  PYTORCH_INDEX="https://download.pytorch.org/whl/cu130"
+  # if we were able to install 'torch', also install other dependencies that need 'torch',
+  # like 'torch-geometric' and 'sentence-transformers'
+  TORCH_DEPS_REQS_FILE=$(mktemp)
+  rapids-dependency-file-generator \
+    --file-key deps_that_require_torch \
+    --output requirements \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
+  | tee "${TORCH_DEPS_REQS_FILE}"
+
+  PIP_INSTALL_ARGS+=(
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
+    -r "${TORCH_DEPS_REQS_FILE}"
+  )
 fi
 
-# echo to expand wildcard before adding `[extra]` requires for pip
+# notes:
+#
+#   * echo to expand wildcard before adding `[extra]` requires for pip
+#   * '--extra-index-url pypi.nvidia.com' can be removed when 'cugraph' and
+#     its dependencies are available from pypi.org
+#
 rapids-pip-retry install \
-    -v \
-    --extra-index-url "${PYTORCH_INDEX}" \
-    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl \
-    "$(echo "${PYLIBWHOLEGRAPH_WHEELHOUSE}"/pylibwholegraph_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)" \
-    "$(echo "${CUGRAPH_PYG_WHEELHOUSE}"/cugraph_pyg_"${RAPIDS_PY_CUDA_SUFFIX}"*.whl)[test]"
+  "${PIP_INSTALL_ARGS[@]}"
 
 # RAPIDS_DATASET_ROOT_DIR is used by test scripts
 export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
-mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
-pushd "${RAPIDS_DATASET_ROOT_DIR}"
-./get_test_data.sh --test
-popd
 
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
-rapids-logger "pytest cugraph-pyg (single GPU)"
-pushd python/cugraph-pyg/cugraph_pyg
-python -m pytest \
-  --cache-clear \
-  --benchmark-disable \
-  tests
+if [[ "${torch_downloaded}" == "true" ]]; then
 
-# Test examples (disabled due to lack of memory)
-#for e in "$(pwd)"/examples/*.py; do
-#  rapids-logger "running example $e"
-#  (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 $e --dataset_root "${RAPIDS_DATASET_ROOT_DIR}/ogb_datasets"
-#done
+  # only need to download datasets if 'torch' is installed, otherwise all the
+  # tests using them are skipped
+  mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
+  pushd "${RAPIDS_DATASET_ROOT_DIR}"
+  ./get_test_data.sh --test
+  popd
 
-# rapids-logger "running bitcoin example"
-# (yes || true) | python -m torch.distributed.run --nnodes 1 --nproc_per_node 1 "$(pwd)"/examples/fraud/bitcoin_mnmg.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
-# python "$(pwd)"/examples/fraud/bitcoin_rf.py --dataset_root "${RAPIDS_DATASET_ROOT_DIR}" --embedding_dir "${RAPIDS_DATASET_ROOT_DIR}/bitcoin_embeddings"
+  # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
+  # installed here and that we've installed a package with CUDA support.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available()"
 
-popd
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
+  ./ci/run_cugraph_pyg_pytests.sh \
+    --cov-config=../../.coveragerc \
+    --cov=cugraph_pyg \
+    --cov-fail-under=70
+fi
+
+rapids-logger "import cugraph-pyg (no 'torch' or 'torch-geometric')"
+./ci/uninstall-torch-wheels.sh
+
+python -c "import cugraph_pyg; print(f'cugraph-pyg version: {cugraph_pyg.__version__}')"
+
+rapids-logger "pytest cugraph-pyg (no 'torch' or 'torch-geometric')"
+./ci/run_cugraph_pyg_pytests.sh

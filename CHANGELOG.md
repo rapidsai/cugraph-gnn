@@ -1,3 +1,107 @@
+# cugraph-gnn 26.06.00 (3 Jun 2026)
+
+### 🚨 Breaking Changes
+* Update Matrix Filters to Enable Python 3.14 Tests and Disable 12.2 Tests by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/454
+### 🐛 Bug Fixes
+* Remove TODO from MovieLens Example by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/422
+* Fix append unique by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/423
+* [BUG] Fix Weights Issue in Negative Sampling by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/447
+### 🚀 New Features
+* support embedding training with bf16 and fp16 by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/451
+* Explicitly support bf16 in feature store by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/458
+* [FEA] Support Disjoint Sampling in cuGraph-PyG by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/452
+### 🛠️ Improvements
+* Forward-merge release/26.04 into main by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/435
+* remove dependency on 'packaging', patches for torch 1.x by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/437
+* Use `PyBuffer_FillInfo` for simple buffers & simplify Python buffer cleanup by @jakirkham in https://github.com/rapidsai/cugraph-gnn/pull/436
+* Forward-merge release/26.04 into main by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/444
+* update pip devcontainers' base image tags by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/445
+* enable arm64 wheel tests, remove pytest.ini, add a coverage floor by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/438
+* Update to clang 20.1.8 by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/448
+* Add support for Python 3.14 by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/414
+* Use `token.rapids.nvidia.com` when issuing S3 bucket creds in devcontainers by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/453
+* Preserve `torch_cpp_ext` source files in build.sh by @tingyu66 in https://github.com/rapidsai/cugraph-gnn/pull/449
+* fix(ci): resolve all zizmor findings and add zizmor pre-commit checks by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/455
+* Build and test with CUDA 13.2.0 by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/456
+* Re-enable CUDA 12.2 and Python 3.14 tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/457
+* skip CuPy 14.1.0 by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/470
+
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.06.00a...release/26.06
+
+# cugraph-gnn 26.04.00 (8 Apr 2026)
+
+### 🚨 Breaking Changes
+* [FEA] Support Temporal Negative Sampling, Add Temporal Features to MovieLens Example by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/382
+### 🐛 Bug Fixes
+* fix to difference in cpu and gpu precision in sample by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/398
+* Use PyTorch CUDA 13 builds in CUDA 13 jobs by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/404
+* [BUG] Fix warnings, fix MNMG graph store test, fix Matrix Accessors by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/402
+* libwholegraph: declare nvidia-nccl dependency for CUDA 13 wheels by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/428
+### 🚀 New Features
+* [FEA] Add New Unsupervised Learning Example by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/371
+* Add RAPIDS Doctor Check for cuGraph-PyG and pylibwholegraph by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/418
+### 🛠️ Improvements
+* wheel builds: react to changes in pip's handling of build constraints by @mmccarty in https://github.com/rapidsai/cugraph-gnn/pull/386
+* libwholegraph: build wheels without build isolation by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/388
+* Drop Python 3.10 support by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/394
+* Use verify-hardcoded-version pre-commit hook by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/393
+* remove unused CI jobs, code, configuration for notebooks by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/397
+* tighten wheel size limits, expand CI-skipping logic, other small build changes by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/396
+* restore conda-python-tests on CUDA 13 by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/395
+* remove pip.conf migration code in CI scripts, update CI-skipping rules by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/399
+* feat(noarch): build cugraph-pyg as a conda `noarch` package by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/405
+* Use GHA id-token for `sccache-dist` auth token by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/408
+* refactor: build wheels and conda packages using Python limited API by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/407
+* chore(greptile): add basic config file by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/406
+* check-nightly-ci: update to new version by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/409
+* check-nightly-ci: remove testing config by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/411
+* refactor(limited api): add explicit `wheel.py-api` to `pyproject.toml`
+ by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/415
+* Update Cython lower bound pin to 3.2.2 by @vyasr in https://github.com/rapidsai/cugraph-gnn/pull/416
+* Remove pytest upper bound pin by @vyasr in https://github.com/rapidsai/cugraph-gnn/pull/417
+* extend check-nightly-ci allowance to 50 days by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/419
+* add no_pytorch matrix option in dependencies.yaml by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/421
+* make PyTorch installation in conda test jobs stricter by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/427
+* CI: restore arm64 conda tests, re-use run_* scripts in test_* scripts by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/429
+* fix verify-hardcoded-versions issues by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/431
+* chore(ci): skip Python 3.14 testing by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/433
+* ensure 'torch' CUDA wheels are installed in CI, test that 'torch' is an optional dependency by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/425
+* fix(devcontainer): override and build containers with Python 3.13 by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/439
+* wheels: build with CUDA 13.0, test against mix of CTK versions, make 'torch-geometric' fully optional for 'cugraph-pyg' by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/434
+* check-nightly-ci: reset to 7 days by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/442
+
+## New Contributors
+* @mmccarty made their first contribution in https://github.com/rapidsai/cugraph-gnn/pull/386
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.04.00a...release/26.04
+
+# cugraph-gnn 26.02.00 (4 Feb 2026)
+
+### 🚨 Breaking Changes
+* Use static linkage for CUDA runtime by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/369
+### 🐛 Bug Fixes
+* Fix forward merge of release/25.12 into main by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/359
+* Fix compiler warnings in scatter_op_impl_mapped.cu by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/372
+### 🚀 New Features
+* Update PyG pin to <2.8 by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/360
+### 🛠️ Improvements
+* Use strict priority in CI conda tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/352
+* Use strict priority in CI conda tests by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/362
+* Remove alpha specs from non-RAPIDS dependencies by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/363
+* Enable merge barriers by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/368
+* Add devcontainer fallback for C++ test location by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/370
+* Empty commit to trigger a build by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/376
+* Use SPDX license identifiers in pyproject.toml, bump build dependency floors by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/377
+* Add CUDA 13.1 support by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/373
+* build and test against CUDA 13.1.0 by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/381
+* Empty commit to trigger a build by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/384
+* Use main shared-workflows branch by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/385
+* fix(build): build package on merge to `release/*` branch by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/391
+
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.02.00a...release/26.02
+
 # cugraph-gnn 25.12.00 (10 Dec 2025)
 
 ### 🚨 Breaking Changes

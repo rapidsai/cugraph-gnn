@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 ## https://pre-commit.com/
@@ -19,22 +19,26 @@ repos:
     rev: v0.14.3
     hooks:
       - id: ruff-check
-        args: [--fix]
+        args: [--fix, --config, "pyproject.toml"]
       - id: ruff-format
+        args: [--config, "pyproject.toml"]
   - repo: https://github.com/asottile/yesqa
     rev: v1.3.0
     hooks:
       - id: yesqa
         additional_dependencies:
           - flake8==7.1.1
+        exclude: |
+          (?x)
+            python/pylibwholegraph/pylibwholegraph/_doctor_check[.]py$
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v20.1.4
+    rev: v20.1.8
     hooks:
       - id: clang-format
         types_or: [c, c++, cuda]
         args: ["-fallback-style=none", "-style=file", "-i"]
   - repo: https://github.com/rapidsai/pre-commit-hooks
-    rev: v1.2.1
+    rev: v1.3.3
     hooks:
       - id: verify-copyright
         args: [--fix, --spdx]
@@ -54,6 +58,26 @@ repos:
             [.]flake8$|
             [.]coveragerc$
       - id: verify-alpha-spec
+      - id: verify-hardcoded-version
+        exclude: |
+          (?x)
+            devcontainer[.]json$|
+            dependencies[.]yaml$|
+            ^[.]github/workflows/|
+            [.]md$|
+            pom[.]xml$|
+            ^[.]pre-commit-config[.]yaml$|
+            [.]rst$|
+            ^conda/environments/|
+            ^python/cugraph-pyg/conda/|
+            [.](png)$|
+            RAPIDS_BRANCH$
+      - id: verify-pyproject-license
+        # ignore the top-level pyproject.toml, which doesn't
+        # have or need a [project] table
+        exclude: |
+          (?x)
+            ^pyproject[.]toml$
   - repo: https://github.com/rapidsai/dependency-file-generator
     rev: v1.20.0
     hooks:
@@ -85,3 +109,7 @@ repos:
             - cmakelang==0.6.13
           verbose: true
           require_serial: true
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.24.1
+    hooks:
+      - id: zizmor

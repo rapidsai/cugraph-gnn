@@ -1,17 +1,24 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <gtest/gtest.h>
 
+#include <cuda_bf16.h>
+#include <cuda_fp16.h>
 #include <wholememory/embedding.h>
 
+#include <cmath>
 #include <map>
 #include <string>
 
 #include "../wholememory/wholememory_test_utils.hpp"
 #include "embedding_test_utils.hpp"
 #include "wholememory/env_func_ptrs.hpp"
+
+static float half_round_trip(float v) { return static_cast<float>(static_cast<__half>(v)); }
+
+static float bf16_round_trip(float v) { return static_cast<float>(static_cast<__nv_bfloat16>(v)); }
 
 struct EmbeddingBackwardTestParams {
   EmbeddingBackwardTestParams()
@@ -47,6 +54,11 @@ struct EmbeddingBackwardTestParams {
     grad_description.sizes[1]      = embedding_dim;
     embedding_description.stride   = embedding_dim;
     if (grad_description.stride < embedding_dim) grad_description.stride = embedding_dim;
+    return *this;
+  }
+  EmbeddingBackwardTestParams& set_embedding_dtype(wholememory_dtype_t dtype)
+  {
+    embedding_description.dtype = dtype;
     return *this;
   }
   EmbeddingBackwardTestParams& set_indice_count(int indice_count)
@@ -160,6 +172,7 @@ class CPUOptimizer {
   CPUOptimizer(EmbeddingBackwardTestParams* params, int64_t start_entry, int64_t end_entry)
     : params_(params), start_entry_(start_entry), end_entry_(end_entry)
   {
+    emb_dtype_ = params->embedding_description.dtype;
     parse_params();
     create_optimizer_states();
   }
@@ -199,6 +212,12 @@ class CPUOptimizer {
   }
 
  private:
+  float emb_round_trip(float v) const
+  {
+    if (emb_dtype_ == WHOLEMEMORY_DT_HALF) return half_round_trip(v);
+    if (emb_dtype_ == WHOLEMEMORY_DT_BF16) return bf16_round_trip(v);
+    return v;
+  }
   void ApplyLazyAdam(float lr,
                      int64_t local_index,
                      const std::vector<float>& grad_vec,
@@ -227,7 +246,7 @@ class CPUOptimizer {
       float const mhat = m / (1 - beta1t);
       float const vhat = v / (1 - beta2t);
       emb_value        = emb_value - lr * mhat / (sqrtf(vhat) + epsilon_);
-      emb_vec[i]       = emb_value;
+      emb_vec[i]       = emb_round_trip(emb_value);
       m_vec[i]         = m;
       v_vec[i]         = v;
     }
@@ -245,7 +264,7 @@ class CPUOptimizer {
       float state_sum = state_sum_vec[i];
       state_sum += grad_value * grad_value;
       emb_value        = emb_value - lr * grad_value / (sqrtf(state_sum) + epsilon_);
-      emb_vec[i]       = emb_value;
+      emb_vec[i]       = emb_round_trip(emb_value);
       state_sum_vec[i] = state_sum;
     }
   }
@@ -262,7 +281,7 @@ class CPUOptimizer {
       auto v     = v_vec[i];
       v          = alpha_ * v + (1 - alpha_) * grad_value * grad_value;
       emb_value  = emb_value - lr * grad_value / (sqrtf(v) + epsilon_);
-      emb_vec[i] = emb_value;
+      emb_vec[i] = emb_round_trip(emb_value);
       v_vec[i]   = v;
     }
   }
@@ -276,7 +295,7 @@ class CPUOptimizer {
       float emb_value  = emb_vec[i];
       grad_value += weight_decay_ * emb_value;
       emb_value -= lr * grad_value;
-      emb_vec[i] = emb_value;
+      emb_vec[i] = emb_round_trip(emb_value);
     }
   }
   void parse_params()
@@ -344,6 +363,7 @@ class CPUOptimizer {
   EmbeddingBackwardTestParams* params_;
   int64_t start_entry_;
   int64_t end_entry_;
+  wholememory_dtype_t emb_dtype_ = WHOLEMEMORY_DT_FLOAT;
 
   float weight_decay_ = 0.0f;
   float epsilon_      = 1e-8f;
@@ -402,20 +422,29 @@ void prepare_data_and_reference(
                  });
   start_embedding_table.resize(params.embedding_description.sizes[0]);
   end_embedding_table.resize(params.embedding_description.sizes[0]);
-  MultiThreadRun(thread_count,
-                 [&params, &start_embedding_table, &end_embedding_table](int thread_rank,
-                                                                         int thread_world_size) {
-                   int64_t total_entry_count = start_embedding_table.size();
-                   int64_t start_entry       = thread_rank * total_entry_count / thread_world_size;
-                   int64_t end_entry = (thread_rank + 1) * total_entry_count / thread_world_size;
-                   int embedding_dim = params.grad_description.sizes[1];
-                   for (int64_t entry = start_entry; entry < end_entry; entry++) {
-                     start_embedding_table[entry].resize(embedding_dim);
-                     wholememory_ops::testing::host_random_init_float(
-                       start_embedding_table[entry].data(), embedding_dim, -10.0, 10);
-                     end_embedding_table[entry] = start_embedding_table[entry];
-                   }
-                 });
+  auto emb_dtype = params.embedding_description.dtype;
+  MultiThreadRun(
+    thread_count,
+    [&params, &start_embedding_table, &end_embedding_table, emb_dtype](int thread_rank,
+                                                                       int thread_world_size) {
+      int64_t total_entry_count = start_embedding_table.size();
+      int64_t start_entry       = thread_rank * total_entry_count / thread_world_size;
+      int64_t end_entry         = (thread_rank + 1) * total_entry_count / thread_world_size;
+      int embedding_dim         = params.grad_description.sizes[1];
+      for (int64_t entry = start_entry; entry < end_entry; entry++) {
+        start_embedding_table[entry].resize(embedding_dim);
+        wholememory_ops::testing::host_random_init_float(
+          start_embedding_table[entry].data(), embedding_dim, -10.0, 10);
+        if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+          for (int d = 0; d < embedding_dim; d++)
+            start_embedding_table[entry][d] = half_round_trip(start_embedding_table[entry][d]);
+        } else if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+          for (int d = 0; d < embedding_dim; d++)
+            start_embedding_table[entry][d] = bf16_round_trip(start_embedding_table[entry][d]);
+        }
+        end_embedding_table[entry] = start_embedding_table[entry];
+      }
+    });
   MultiThreadRun(run_thread_count,
                  [world_size, &params, &step_rank_indices, &step_rank_grads, &end_embedding_table](
                    int thread_rank, int thread_world_size) {
@@ -611,15 +640,40 @@ TEST_P(WholeMemoryEmbeddingBackwardParameterTests, EmbeddingGatherGradientApplyT
                 WHOLEMEMORY_SUCCESS);
       rank_entry_count = std::min<int64_t>(
         rank_entry_count, params.embedding_description.sizes[0] - rank_start_entry);
-      auto* dst_base_ptr =
-        static_cast<float*>(wholememory_tensor_get_data_pointer(local_embed_tensor));
-      size_t dst_stride = wholememory_tensor_get_tensor_description(local_embed_tensor)->strides[0];
-      size_t embedding_copy_size = embedding_dim * sizeof(float);
+      auto* dst_base_byte_ptr =
+        static_cast<char*>(wholememory_tensor_get_data_pointer(local_embed_tensor));
+      auto* local_embed_desc     = wholememory_tensor_get_tensor_description(local_embed_tensor);
+      size_t dst_stride          = local_embed_desc->strides[0];
+      auto emb_dtype             = local_embed_desc->dtype;
+      size_t emb_element_size    = wholememory_dtype_get_element_size(emb_dtype);
+      size_t dst_stride_bytes    = dst_stride * emb_element_size;
+      size_t embedding_copy_elts = embedding_dim;
+
+      std::vector<char> host_row_buf(dst_stride * emb_element_size, 0);
       for (int64_t i = 0; i < rank_entry_count; i++) {
-        WM_CUDA_CHECK_NO_THROW(cudaMemcpy(dst_base_ptr + i * dst_stride,
-                                          start_embedding_table[rank_start_entry + i].data(),
-                                          embedding_copy_size,
-                                          cudaMemcpyHostToDevice));
+        const float* src = start_embedding_table[rank_start_entry + i].data();
+        if (emb_dtype == WHOLEMEMORY_DT_FLOAT) {
+          WM_CUDA_CHECK_NO_THROW(cudaMemcpy(dst_base_byte_ptr + i * dst_stride_bytes,
+                                            src,
+                                            embedding_copy_elts * sizeof(float),
+                                            cudaMemcpyHostToDevice));
+        } else if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+          auto* dst_half = reinterpret_cast<__half*>(host_row_buf.data());
+          for (int64_t d = 0; d < embedding_copy_elts; d++)
+            dst_half[d] = static_cast<__half>(src[d]);
+          WM_CUDA_CHECK_NO_THROW(cudaMemcpy(dst_base_byte_ptr + i * dst_stride_bytes,
+                                            host_row_buf.data(),
+                                            embedding_copy_elts * sizeof(__half),
+                                            cudaMemcpyHostToDevice));
+        } else if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+          auto* dst_bf16 = reinterpret_cast<__nv_bfloat16*>(host_row_buf.data());
+          for (int64_t d = 0; d < embedding_copy_elts; d++)
+            dst_bf16[d] = static_cast<__nv_bfloat16>(src[d]);
+          WM_CUDA_CHECK_NO_THROW(cudaMemcpy(dst_base_byte_ptr + i * dst_stride_bytes,
+                                            host_row_buf.data(),
+                                            embedding_copy_elts * sizeof(__nv_bfloat16),
+                                            cudaMemcpyHostToDevice));
+        }
       }
       EXPECT_EQ(cudaStreamSynchronize(nullptr), cudaSuccess);
       EXPECT_EQ(wholememory_communicator_barrier(wm_comm), WHOLEMEMORY_SUCCESS);
@@ -672,22 +726,54 @@ TEST_P(WholeMemoryEmbeddingBackwardParameterTests, EmbeddingGatherGradientApplyT
       EXPECT_EQ(wholememory_communicator_barrier(wm_comm), WHOLEMEMORY_SUCCESS);
 
       std::vector<std::vector<float>> local_end_embedding(rank_entry_count);
+      std::vector<char> read_row_buf(dst_stride * emb_element_size, 0);
       for (int64_t i = 0; i < rank_entry_count; i++) {
         local_end_embedding[i].resize(embedding_dim);
-        EXPECT_EQ(cudaMemcpy(local_end_embedding[i].data(),
-                             dst_base_ptr + i * dst_stride,
-                             embedding_copy_size,
-                             cudaMemcpyDeviceToHost),
-                  cudaSuccess);
+        if (emb_dtype == WHOLEMEMORY_DT_FLOAT) {
+          EXPECT_EQ(cudaMemcpy(local_end_embedding[i].data(),
+                               dst_base_byte_ptr + i * dst_stride_bytes,
+                               embedding_copy_elts * sizeof(float),
+                               cudaMemcpyDeviceToHost),
+                    cudaSuccess);
+        } else if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+          EXPECT_EQ(cudaMemcpy(read_row_buf.data(),
+                               dst_base_byte_ptr + i * dst_stride_bytes,
+                               embedding_copy_elts * sizeof(__half),
+                               cudaMemcpyDeviceToHost),
+                    cudaSuccess);
+          auto* src_half = reinterpret_cast<__half*>(read_row_buf.data());
+          for (int64_t d = 0; d < embedding_dim; d++)
+            local_end_embedding[i][d] = static_cast<float>(src_half[d]);
+        } else if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+          EXPECT_EQ(cudaMemcpy(read_row_buf.data(),
+                               dst_base_byte_ptr + i * dst_stride_bytes,
+                               embedding_copy_elts * sizeof(__nv_bfloat16),
+                               cudaMemcpyDeviceToHost),
+                    cudaSuccess);
+          auto* src_bf16 = reinterpret_cast<__nv_bfloat16*>(read_row_buf.data());
+          for (int64_t d = 0; d < embedding_dim; d++)
+            local_end_embedding[i][d] = static_cast<float>(src_bf16[d]);
+        }
       }
       EXPECT_EQ(cudaStreamSynchronize(nullptr), cudaSuccess);
+      float atol = 1e-5f, rtol = 1e-5f;
+      if (emb_dtype == WHOLEMEMORY_DT_HALF) {
+        atol = 5e-3f;
+        rtol = 5e-3f;
+      }
+      if (emb_dtype == WHOLEMEMORY_DT_BF16) {
+        atol = 2e-2f;
+        rtol = 2e-2f;
+      }
       for (int64_t i = 0; i < rank_entry_count; i++) {
         if (::testing::Test::HasFailure()) break;
         host_expect_all_close(local_end_embedding[i].data(),
                               ref_end_embedding_table[i + rank_start_entry].data(),
                               start_embedding_table[i + rank_start_entry].data(),
                               embedding_dim,
-                              i);
+                              i,
+                              atol,
+                              rtol);
       }
 
       EXPECT_EQ(wholememory_destroy_embedding_cache_policy(cache_policy), WHOLEMEMORY_SUCCESS);
@@ -837,4 +923,85 @@ INSTANTIATE_TEST_SUITE_P(
     EmbeddingBackwardTestParams().set_use_cache().set_embedding_dim(392).set_optimizer_type(
       WHOLEMEMORY_OPT_LAZY_ADAM),
 
-    EmbeddingBackwardTestParams()));
+    EmbeddingBackwardTestParams(),
+
+    // FP16 embedding tests (mixed precision: FP16 storage, FP32 optimizer states)
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_RMSPROP),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_ADAGRAD),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_memory_location(WHOLEMEMORY_ML_DEVICE)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(64),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_memory_location(WHOLEMEMORY_ML_DEVICE)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(64)
+      .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(127),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_HALF)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(127)
+      .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM),
+
+    // BF16 embedding tests (mixed precision: BF16 storage, FP32 optimizer states)
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_BF16)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_BF16)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_RMSPROP),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_BF16)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_ADAGRAD),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_BF16)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(32)
+      .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM),
+    EmbeddingBackwardTestParams()
+      .set_embedding_dtype(WHOLEMEMORY_DT_BF16)
+      .set_memory_location(WHOLEMEMORY_ML_DEVICE)
+      .set_entry_count(500)
+      .set_indice_count(400)
+      .set_embedding_dim(64)
+      .set_optimizer_type(WHOLEMEMORY_OPT_LAZY_ADAM)));

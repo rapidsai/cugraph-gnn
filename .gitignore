@@ -40,6 +40,8 @@ wheels/
 wheelhouse/
 _skbuild/
 cufile.log
+*.tar.gz
+*.whl
 
 ## Patching
 *.diff

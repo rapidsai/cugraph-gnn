@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-import torch
 import pylibwholegraph.torch.graph_ops as wg_ops
 
 
 def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
+    torch = pytest.importorskip("torch")
     output_neighbor_raw_to_unique = torch.empty(
         (neighbor_node_tensor.size(0)), dtype=torch.int32
     )
@@ -19,6 +19,7 @@ def host_neighbor_raw_to_unique(unique_node_tensor, neighbor_node_tensor):
 
 
 def routine_func(**kwargs):
+    torch = pytest.importorskip("torch")
     target_node_count = kwargs["target_node_count"]
     neighbor_node_count = kwargs["neighbor_node_count"]
     target_node_dtype = kwargs["target_node_dtype"]
@@ -73,19 +74,20 @@ def routine_func(**kwargs):
 
 @pytest.mark.parametrize("target_node_count", [10, 113])
 @pytest.mark.parametrize("neighbor_node_count", [104, 1987])
-@pytest.mark.parametrize("target_node_dtype", [torch.int32, torch.int64])
+@pytest.mark.parametrize("target_node_dtype", ["int32", "int64"])
 @pytest.mark.parametrize("need_neighbor_raw_to_unique", [True, False])
 def test_append_unique(
     target_node_count,
     neighbor_node_count,
     target_node_dtype,
     need_neighbor_raw_to_unique,
+    torch,
 ):
     gpu_count = torch.cuda.device_count()
     assert gpu_count > 0
     routine_func(
         target_node_count=target_node_count,
         neighbor_node_count=neighbor_node_count,
-        target_node_dtype=target_node_dtype,
+        target_node_dtype=getattr(torch, target_node_dtype),
         need_neighbor_raw_to_unique=need_neighbor_raw_to_unique,
     )

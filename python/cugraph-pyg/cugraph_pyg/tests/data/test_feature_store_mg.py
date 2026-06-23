@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -15,10 +15,7 @@ pylibwholegraph = import_optional("pylibwholegraph")
 
 
 def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
-    if dtype == "float32":
-        torch_dtype = torch.float32
-    elif dtype == "int64":
-        torch_dtype = torch.int64
+    torch_dtype = getattr(torch, dtype)
 
     torch.cuda.set_device(rank)
 
@@ -47,7 +44,10 @@ def run_test_wholegraph_feature_store_basic_api(rank, world_size, dtype):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
-@pytest.mark.parametrize("dtype", ["float32", "int64"])
+@pytest.mark.parametrize(
+    "dtype",
+    ["float32", "int64", "float16", "int8", "int16", "int32", "float64", "bfloat16"],
+)
 @pytest.mark.mg
 def test_wholegraph_feature_store_basic_api(dtype):
     world_size = torch.cuda.device_count()

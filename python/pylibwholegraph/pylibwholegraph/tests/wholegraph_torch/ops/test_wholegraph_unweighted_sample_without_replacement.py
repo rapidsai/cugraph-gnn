@@ -1,11 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.utils.multiprocess import multiprocess_run
 from pylibwholegraph.torch.initialize import init_torch_env_and_create_wm_comm
-import torch
 from functools import partial
 from pylibwholegraph.test_utils.test_comm import (
     gen_csr_graph,
@@ -21,6 +20,7 @@ import random
 
 
 def unweighte_sample_without_replacement_base(random_values, M, N):
+    torch = pytest.importorskip("torch")
     a = torch.empty((M,), dtype=torch.int32)
     Q = torch.arange(N, dtype=torch.int32)
     for i in range(M):
@@ -39,6 +39,7 @@ def host_unweighted_sample_without_replacement_func(
     max_sample_count,
     random_seed,
 ):
+    torch = pytest.importorskip("torch")
     output_dest_tensor = torch.empty((total_sample_count,), dtype=col_id_dtype)
     output_center_localid_tensor = torch.empty((total_sample_count,), dtype=torch.int32)
     output_edge_gid_tensor = torch.empty((total_sample_count,), dtype=torch.int64)
@@ -211,6 +212,7 @@ def host_unweighted_sample_without_replacement(
 
 
 def routine_func(world_rank: int, world_size: int, **kwargs):
+    torch = pytest.importorskip("torch")
     wm_comm, _ = init_torch_env_and_create_wm_comm(
         world_rank, world_size, world_rank, world_size
     )
@@ -351,7 +353,7 @@ def routine_func(world_rank: int, world_size: int, **kwargs):
 @pytest.mark.parametrize("graph_edge_count", [1043])
 @pytest.mark.parametrize("max_sample_count", [11, -1])
 @pytest.mark.parametrize("center_node_count", [13])
-@pytest.mark.parametrize("center_node_dtype", [torch.int32, torch.int64])
+@pytest.mark.parametrize("center_node_dtype", ["int32", "int64"])
 @pytest.mark.parametrize("col_id_dtype", [0, 1])
 @pytest.mark.parametrize("wholememory_location", ([0, 1]))
 @pytest.mark.parametrize("wholememory_type", ([0, 1, 2]))
@@ -368,6 +370,7 @@ def test_wholegraph_unweighted_sample(
     wholememory_type,
     need_center_local_output,
     need_edge_output,
+    torch,
 ):
     gpu_count = wmb.fork_get_gpu_count()
     assert gpu_count > 0
@@ -375,7 +378,12 @@ def test_wholegraph_unweighted_sample(
     if col_id_dtype == wmb.WholeMemoryDataType.DtInt64:
         csr_col_dtype = torch.int64
     host_csr_row_ptr, host_csr_col_ptr, _ = gen_csr_graph(
-        graph_node_count, graph_edge_count, csr_col_dtype=csr_col_dtype
+        graph_node_count,
+        graph_edge_count,
+        neighbor_node_count=None,
+        csr_row_dtype=torch.int64,
+        csr_col_dtype=csr_col_dtype,
+        weight_dtype=torch.float32,
     )
     routine_func_partial = partial(
         routine_func,
@@ -385,7 +393,7 @@ def test_wholegraph_unweighted_sample(
         graph_edge_count=graph_edge_count,
         max_sample_count=max_sample_count,
         center_node_count=center_node_count,
-        center_node_dtype=center_node_dtype,
+        center_node_dtype=getattr(torch, center_node_dtype),
         col_id_dtype=col_id_dtype,
         wholememory_location=wholememory_location,
         wholememory_type=wholememory_type,

@@ -1,7 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import warnings
 
 import numpy as np
 import cupy
@@ -15,7 +16,7 @@ from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
 from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
 
-from typing import Union, Optional, List, Dict, Tuple
+from typing import Union, Optional, List, Dict, Tuple, Callable
 
 # cudf is an optional dependency.  It is only imported here for typing.
 cudf = import_optional("cudf")
@@ -29,9 +30,12 @@ TensorType = Union[
 ]
 
 
+# If 'torch_geometric' is available but 'torch' is not, accessing
+# 'torch_geometric.data.GraphStore' will fail because `torch_geometric`
+# unconditionally imports 'torch'... so need to check that both are available.
 class GraphStore(
     object
-    if isinstance(torch_geometric, MissingModule)
+    if (isinstance(torch_geometric, MissingModule) or isinstance(torch, MissingModule))
     else torch_geometric.data.GraphStore
 ):
     """
@@ -70,7 +74,7 @@ class GraphStore(
         self.__graph = None
         self.__vertex_offsets = None
         self.__weight_attr = None
-        self.__etime_attr = None
+        self.__time_attr = None
         self.__numeric_edge_types = None
 
     def _put_edge_index(
@@ -247,14 +251,14 @@ class GraphStore(
         for edge_attr in self.get_all_edge_attrs():
             if edge_attr.size is not None:
                 num_vertices[edge_attr.edge_type[0]] = (
-                    max(num_vertices[edge_attr.edge_type[0]], edge_attr.size[0])
+                    int(max(num_vertices[edge_attr.edge_type[0]], edge_attr.size[0]))
                     if edge_attr.edge_type[0] in num_vertices
-                    else edge_attr.size[0]
+                    else int(edge_attr.size[0])
                 )
                 num_vertices[edge_attr.edge_type[2]] = (
-                    max(num_vertices[edge_attr.edge_type[2]], edge_attr.size[1])
+                    int(max(num_vertices[edge_attr.edge_type[2]], edge_attr.size[1]))
                     if edge_attr.edge_type[2] in num_vertices
-                    else edge_attr.size[1]
+                    else int(edge_attr.size[1])
                 )
             else:
                 if edge_attr.edge_type[0] != edge_attr.edge_type[2]:
@@ -263,7 +267,7 @@ class GraphStore(
                             self.__edge_indices[edge_attr.edge_type].local_col.max() + 1
                         )
                     if edge_attr.edge_type[2] not in num_vertices:
-                        num_vertices[edge_attr.edge_type[1]] = int(
+                        num_vertices[edge_attr.edge_type[2]] = int(
                             self.__edge_indices[edge_attr.edge_type].local_row.max() + 1
                         )
                 elif edge_attr.edge_type[0] not in num_vertices:
@@ -317,19 +321,27 @@ class GraphStore(
     def is_homogeneous(self) -> bool:
         return len(self._vertex_offsets) == 1
 
-    def _set_etime_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
-        if attr != self.__etime_attr:
+    def _set_time_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
+        if attr != self.__time_attr:
             weight_attr = self.__weight_attr
             self.__clear_graph()
-            self.__etime_attr = attr
+            self.__time_attr = attr
             self.__weight_attr = weight_attr
 
     def _set_weight_attr(self, attr: Tuple["torch_geometric.data.FeatureStore", str]):
         if attr != self.__weight_attr:
-            etime_attr = self.__etime_attr
+            time_attr = self.__time_attr
             self.__clear_graph()
             self.__weight_attr = attr
-            self.__etime_attr = etime_attr
+            self.__time_attr = time_attr
+
+    def _get_ntime_func(
+        self,
+    ) -> Optional[Callable[[str, "torch.Tensor"], "torch.Tensor"]]:
+        if self.__time_attr is None:
+            return None
+        feature_store, attr_name = self.__time_attr
+        return lambda node_type, node_id: feature_store[node_type, attr_name][node_id]
 
     def __get_etime_tensor(
         self,
@@ -337,7 +349,7 @@ class GraphStore(
         start_offsets: "torch.Tensor",
         num_edges_t: "torch.Tensor",
     ):
-        feature_store, attr_name = self.__etime_attr
+        feature_store, attr_name = self.__time_attr
         etimes = []
         for i, et in enumerate(sorted_keys):
             ix = torch.arange(
@@ -498,7 +510,12 @@ class GraphStore(
                 sorted_keys, start_offsets.cpu(), num_edges_t.cpu()
             ).cuda()
 
-        if self.__etime_attr is not None:
+        if self.__time_attr is not None:
+            warnings.warn(
+                "cuGraph-PyG currently supports only edge-based temporal sampling."
+                " Node times (if present) can still be used for negative sampling."
+            )
+            # TODO if node times are present, do node-based temporal sampling instead.
             d["etime"] = self.__get_etime_tensor(
                 sorted_keys, start_offsets.cpu(), num_edges_t.cpu()
             ).cuda()

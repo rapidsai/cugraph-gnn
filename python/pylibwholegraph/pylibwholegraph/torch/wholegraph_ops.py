@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-import torch
 import pylibwholegraph.binding.wholememory_binding as wmb
+from pylibwholegraph.utils.imports import import_optional
 from .wholegraph_env import (
     get_stream,
     TorchMemoryContext,
@@ -12,11 +12,13 @@ from .wholegraph_env import (
 from typing import Union
 import random
 
+torch = import_optional("torch")
+
 
 def unweighted_sample_without_replacement(
     wm_csr_row_ptr_tensor: wmb.PyWholeMemoryTensor,
     wm_csr_col_ptr_tensor: wmb.PyWholeMemoryTensor,
-    center_nodes_tensor: torch.Tensor,
+    center_nodes_tensor: "torch.Tensor",
     max_sample_count: int,
     random_seed: Union[int, None] = None,
     need_center_local_output: bool = False,
@@ -85,7 +87,7 @@ def weighted_sample_without_replacement(
     wm_csr_row_ptr_tensor: wmb.PyWholeMemoryTensor,
     wm_csr_col_ptr_tensor: wmb.PyWholeMemoryTensor,
     wm_csr_weight_ptr_tensor: wmb.PyWholeMemoryTensor,
-    center_nodes_tensor: torch.Tensor,
+    center_nodes_tensor: "torch.Tensor",
     max_sample_count: int,
     random_seed: Union[int, None] = None,
     need_center_local_output: bool = False,

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # cython: profile=False
@@ -8,6 +8,7 @@
 
 cimport cpython
 from libc cimport stdlib
+from libc.string cimport strdup
 from libc.stdio cimport printf, fprintf, stdout, stderr, fflush
 import functools
 import cython
@@ -15,22 +16,17 @@ from libc.stdint cimport *
 from libcpp.cast cimport *
 from libcpp cimport bool
 from cpython cimport Py_buffer
-from cpython cimport array
-import array
+from cpython.buffer cimport PyBuffer_FillInfo
+from cpython.bytes cimport PyBytes_AsString
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.object cimport Py_TYPE, PyObject_CallObject
 from cpython.tuple cimport *
 from cpython.long cimport PyLong_AsLongLong
-
+from cpython.unicode cimport PyUnicode_AsUTF8String, PyUnicode_FromString
 
 cdef extern from "Python.h":
     void Py_INCREF(PyObject *o)
     void Py_DECREF(PyObject *o)
-
-    const char * PyUnicode_AsUTF8(object unicode)
-
-    PyObject * PyUnicode_FromString(const char * u)
-
 
 cdef extern from "wholememory/wholememory.h":
     ctypedef enum wholememory_error_code_t:
@@ -375,16 +371,16 @@ cdef class GlobalContextWrapper:
         self.output_global_context = NULL
 
     def __dealloc__(self):
-        Py_DECREF(self.self.temp_create_context_fn)
-        Py_DECREF(self.self.temp_destroy_context_fn)
-        Py_DECREF(self.self.temp_malloc_fn)
-        Py_DECREF(self.self.temp_free_fn)
+        Py_DECREF(self.temp_create_context_fn)
+        Py_DECREF(self.temp_destroy_context_fn)
+        Py_DECREF(self.temp_malloc_fn)
+        Py_DECREF(self.temp_free_fn)
         if self.temp_global_context:
-            Py_DECREF(self.self.temp_global_context)
-        Py_DECREF(self.self.output_malloc_fn)
-        Py_DECREF(self.self.output_free_fn)
+            Py_DECREF(self.temp_global_context)
+        Py_DECREF(self.output_malloc_fn)
+        Py_DECREF(self.output_free_fn)
         if self.output_global_context:
-            Py_DECREF(self.self.output_global_context)
+            Py_DECREF(self.output_global_context)
 
     cpdef create_context(self,
                          temp_create_context_fn,
@@ -430,14 +426,10 @@ cdef void python_cb_wrapper_temp_create_context(void** memory_context,
     cdef PyObject * ret_memory_context = NULL
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        python_fn = wrapped_global_context.temp_create_context_fn
-        python_global_context = wrapped_global_context.temp_global_context
-        args = PyTuple_New(1)
-        Py_INCREF(<object> python_global_context)
-        PyTuple_SetItem(args, 0, <object> python_global_context)
-        py_memory_context = PyObject_CallObject(<object> python_fn, <object> args)
+        fn = <object> wrapped_global_context.temp_create_context_fn
+        ctx = <object> wrapped_global_context.temp_global_context
+        py_memory_context = fn(ctx)
         ret_memory_context = <PyObject *> py_memory_context
-        Py_DECREF(args)
         Py_INCREF(ret_memory_context)
         (<PyObject **> memory_context)[0] = ret_memory_context
     return
@@ -446,15 +438,10 @@ cdef void python_cb_wrapper_temp_destroy_context(void * memory_context,
                                                  void * global_context) nogil:
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        python_fn = wrapped_global_context.temp_destroy_context_fn
-        python_global_context = wrapped_global_context.temp_global_context
-        args = PyTuple_New(2)
-        Py_INCREF(<object> <PyObject *> memory_context)
-        PyTuple_SetItem(args, 0, <object> <PyObject *> memory_context)
-        Py_INCREF(<object> python_global_context)
-        PyTuple_SetItem(args, 1, <object> python_global_context)
-        PyObject_CallObject(<object> python_fn, <object> args)
-        Py_DECREF(args)
+        fn = <object> wrapped_global_context.temp_destroy_context_fn
+        ctx = <object> wrapped_global_context.temp_global_context
+        mem_ctx = <object> <PyObject *> memory_context
+        fn(mem_ctx, ctx)
         Py_DECREF(<PyObject *> memory_context)
     return
 
@@ -465,38 +452,23 @@ cdef void * python_cb_wrapper_temp_malloc(wholememory_tensor_description_t * ten
     cdef int64_t res_ptr = 0
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        py_tensor_desc = PyWholeMemoryTensorDescription()
-        py_tensor_desc.set_by_tensor_desc(tensor_desc)
-        py_malloc_type = PyMemoryAllocType()
-        py_malloc_type.set_type(malloc_type)
-        python_fn = wrapped_global_context.temp_malloc_fn
-        python_global_context = wrapped_global_context.temp_global_context
-        args = PyTuple_New(4)
-        Py_INCREF(py_tensor_desc)
-        PyTuple_SetItem(args, 0, <object> py_tensor_desc)
-        Py_INCREF(py_malloc_type)
-        PyTuple_SetItem(args, 1, <object> py_malloc_type)
-        Py_INCREF(<object> <PyObject *> memory_context)
-        PyTuple_SetItem(args, 2, <object> <PyObject *> memory_context)
-        Py_INCREF(<object> <PyObject *> python_global_context)
-        PyTuple_SetItem(args, 3, <object> <PyObject *> python_global_context)
-        res_ptr = PyLong_AsLongLong(PyObject_CallObject(<object> python_fn, <object> args))
-        Py_DECREF(args)
+        py_shape = tuple([tensor_desc.sizes[i] for i in range(tensor_desc.dim)])
+        py_dtype = int(tensor_desc.dtype)
+        py_malloc_type_int = int(malloc_type)
+        fn = <object> wrapped_global_context.temp_malloc_fn
+        ctx = <object> wrapped_global_context.temp_global_context
+        mem_ctx = <object> <PyObject *> memory_context
+        res_ptr = fn(py_shape, py_dtype, py_malloc_type_int, mem_ctx, ctx)
     return <void *> res_ptr
 
 cdef void python_cb_wrapper_temp_free(void * memory_context,
                                       void * global_context) nogil:
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        python_fn = wrapped_global_context.temp_free_fn
-        python_global_context = wrapped_global_context.temp_global_context
-        args = PyTuple_New(2)
-        Py_INCREF(<object> <PyObject *> memory_context)
-        PyTuple_SetItem(args, 0, <object> <PyObject *> memory_context)
-        Py_INCREF(<object> python_global_context)
-        PyTuple_SetItem(args, 1, <object> python_global_context)
-        PyObject_CallObject(<object> python_fn, <object> args)
-        Py_DECREF(args)
+        fn = <object> wrapped_global_context.temp_free_fn
+        ctx = <object> wrapped_global_context.temp_global_context
+        mem_ctx = <object> <PyObject *> memory_context
+        fn(mem_ctx, ctx)
     return
 
 cdef void * python_cb_wrapper_output_malloc(wholememory_tensor_description_t * tensor_desc,
@@ -506,38 +478,23 @@ cdef void * python_cb_wrapper_output_malloc(wholememory_tensor_description_t * t
     cdef int64_t res_ptr = 0
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        py_tensor_desc = PyWholeMemoryTensorDescription()
-        py_tensor_desc.set_by_tensor_desc(tensor_desc)
-        py_malloc_type = PyMemoryAllocType()
-        py_malloc_type.set_type(malloc_type)
-        python_fn = wrapped_global_context.output_malloc_fn
-        python_global_context = wrapped_global_context.output_global_context
-        args = PyTuple_New(4)
-        Py_INCREF(py_tensor_desc)
-        PyTuple_SetItem(args, 0, <object> <PyObject *> py_tensor_desc)
-        Py_INCREF(py_malloc_type)
-        PyTuple_SetItem(args, 1, <object> <PyObject *> py_malloc_type)
-        Py_INCREF(<object> <PyObject *> memory_context)
-        PyTuple_SetItem(args, 2, <object> <PyObject *> memory_context)
-        Py_INCREF(<object> <PyObject *> python_global_context)
-        PyTuple_SetItem(args, 3, <object> <PyObject *> python_global_context)
-        res_ptr = PyLong_AsLongLong(PyObject_CallObject(<object> python_fn, <object> args))
-        Py_DECREF(args)
+        py_shape = tuple([tensor_desc.sizes[i] for i in range(tensor_desc.dim)])
+        py_dtype = int(tensor_desc.dtype)
+        py_malloc_type_int = int(malloc_type)
+        fn = <object> wrapped_global_context.output_malloc_fn
+        ctx = <object> wrapped_global_context.output_global_context
+        mem_ctx = <object> <PyObject *> memory_context
+        res_ptr = fn(py_shape, py_dtype, py_malloc_type_int, mem_ctx, ctx)
     return <void *> res_ptr
 
 cdef void python_cb_wrapper_output_free(void * memory_context,
                                         void * global_context) nogil:
     with gil:
         wrapped_global_context = <GlobalContextWrapper> <PyObject *> global_context
-        python_fn = wrapped_global_context.output_free_fn
-        python_global_context = wrapped_global_context.output_global_context
-        args = PyTuple_New(2)
-        Py_INCREF(<object> <PyObject *> memory_context)
-        PyTuple_SetItem(args, 0, <object> <PyObject *> memory_context)
-        Py_INCREF(<object> python_global_context)
-        PyTuple_SetItem(args, 1, <object> python_global_context)
-        PyObject_CallObject(<object> python_fn, <object> args)
-        Py_DECREF(args)
+        fn = <object> wrapped_global_context.output_free_fn
+        ctx = <object> wrapped_global_context.output_global_context
+        mem_ctx = <object> <PyObject *> memory_context
+        fn(mem_ctx, ctx)
     return
 
 
@@ -881,9 +838,11 @@ cdef class PyWholeMemoryEmbedding:
     def get_optimizer_state(self,
                             state_name):
         cdef wholememory_tensor_t state_tensor
+        # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+        state_name_bytes = <object> PyUnicode_AsUTF8String(state_name)
         state_tensor = wholememory_embedding_get_optimizer_state(
             self.wm_embedding,
-            PyUnicode_AsUTF8(state_name))
+            PyBytes_AsString(state_name_bytes))
         py_state_tensor = PyWholeMemoryTensor()
         py_state_tensor.from_c_handle(state_tensor)
         return py_state_tensor
@@ -1010,26 +969,17 @@ cdef class PyWholeMemoryUniqueID:
         return self.shape[0]
 
     def __getbuffer__(self, Py_buffer *buffer, int flags):
-        buffer.buf = &self.wholememory_unique_id.internal[0]
-        buffer.format = 'c'
-        buffer.internal = NULL
-        buffer.itemsize = 1
-        buffer.len = self.shape[0]
-        buffer.ndim = 1
-        buffer.obj = self
-        buffer.readonly = 0
-        buffer.shape = self.shape
-        buffer.strides = self.strides
-        buffer.suboffsets = NULL
+        PyBuffer_FillInfo(
+            buffer,
+            self,
+            &self.wholememory_unique_id.internal[0],
+            self.shape[0],
+            False,
+            flags
+        )
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        buffer.buf = NULL
-        buffer.format = 'c'
-        buffer.len = 0
-        buffer.ndim = 0
-        buffer.obj = None
-        buffer.shape = NULL
-        buffer.strides = NULL
+        pass
 
     def __dlpack__(self, stream=None):
         cdef DLManagedTensor * dlm_tensor = \
@@ -1219,13 +1169,7 @@ cdef class PyWholeMemoryFlattenDlpack:
         buffer.suboffsets = NULL
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        buffer.buf = NULL
-        buffer.format = 'c'
-        buffer.len = 0
-        buffer.ndim = 0
-        buffer.obj = None
-        buffer.shape = NULL
-        buffer.strides = NULL
+        pass
 
     @property
     def ptr(self):
@@ -1264,7 +1208,7 @@ cdef class PyWholeMemoryFlattenDlpack:
         elif self.data_type == DtFloat or self.data_type == DtDouble \
                 or self.data_type == DtHalf:
             dtype.code = <uint8_t> kDLFloat
-        elif self.data_type == DtHalf:
+        elif self.data_type == DtBF16:
             dtype.code = <uint8_t> kDLBfloat
         else:
             raise ValueError('Invalid data_type')
@@ -1829,25 +1773,29 @@ cpdef load_wholememory_handle_from_filelist(int64_t wholememory_handle_int_ptr,
                                             int64_t file_entry_size,
                                             int round_robin_size,
                                             file_list):
-    cdef const char ** filenames
+    cdef char ** filenames
     cdef int num_files = len(file_list)
     cdef int i
 
-    filenames = <const char**> stdlib.malloc(num_files * sizeof(char *))
+    filenames = <char**> stdlib.malloc(num_files * sizeof(char *))
 
     try:
         for i in range(num_files):
-            filenames[i] = PyUnicode_AsUTF8(file_list[i])
+            # <object> takes ownership of new ref; Cython DECREFs when variable goes out of scope
+            file_bytes = <object> PyUnicode_AsUTF8String(file_list[i])
+            filenames[i] = strdup(PyBytes_AsString(file_bytes))
 
         check_wholememory_error_code(wholememory_load_from_file(
             <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
             memory_offset,
             memory_entry_size,
             file_entry_size,
-            filenames,
+            <const char**> filenames,
             num_files,
             round_robin_size))
     finally:
+        for i in range(num_files):
+            stdlib.free(filenames[i])
         stdlib.free(filenames)
 
 cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
@@ -1855,12 +1803,14 @@ cpdef store_wholememory_handle_to_file(int64_t wholememory_handle_int_ptr,
                                        int64_t memory_entry_size,
                                        int64_t file_entry_size,
                                        file_name):
+    # <object> takes ownership of new ref from PyUnicode_AsUTF8String; no manual DECREF
+    file_name_bytes = <object> PyUnicode_AsUTF8String(file_name)
     check_wholememory_error_code(wholememory_store_to_file(
         <wholememory_handle_t> <int64_t> wholememory_handle_int_ptr,
         memory_offset,
         memory_entry_size,
         file_entry_size,
-        PyUnicode_AsUTF8(file_name)))
+        PyBytes_AsString(file_name_bytes)))
 
 cdef extern from "wholememory/wholememory_op.h":
     cdef wholememory_error_code_t wholememory_gather(wholememory_tensor_t wholememory_tensor,

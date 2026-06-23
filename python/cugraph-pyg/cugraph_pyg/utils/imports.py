@@ -1,25 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-from packaging.requirements import Requirement
 from importlib import import_module
-
-
-def package_available(requirement: str) -> bool:
-    """Check if a package is installed and meets the version requirement."""
-    req = Requirement(requirement)
-    try:
-        pkg = import_module(req.name)
-    except ImportError:
-        return False
-
-    if len(req.specifier) > 0:
-        if hasattr(pkg, "__version__"):
-            return pkg.__version__ in req.specifier
-        else:
-            return False
-
-    return True
+from importlib.util import find_spec
 
 
 class MissingModule:
@@ -37,6 +20,18 @@ class MissingModule:
 
     def __getattr__(self, attr):
         raise RuntimeError(f"This feature requires the {self.name} package/module")
+
+
+class FoundModule:
+    def __init__(self, mod):
+        self.mod = mod
+        self.imported = False
+
+    def __getattr__(self, attr):
+        if not self.imported:
+            self.mod = import_module(self.mod)
+            self.imported = True
+        return getattr(self.mod, attr)
 
 
 def import_optional(mod, default_mod_class=MissingModule):
@@ -80,7 +75,15 @@ def import_optional(mod, default_mod_class=MissingModule):
     <class 'pandas.core.frame.DataFrame'>
     >>
     """
+    # this try-except is necessary to handle dotted imports,
+    # like `import_optional("torch.autograd")`
+    mod_found = False
     try:
-        return import_module(mod)
-    except ModuleNotFoundError:
+        mod_found = find_spec(mod) is not None
+    except ImportError:
+        mod_found = False
+
+    if mod_found:
+        return FoundModule(mod)
+    else:
         return default_mod_class(mod_name=mod)
