@@ -1,6 +1,22 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+Multi-node, multi-GPU link prediction example on MovieLens data.
+
+This example demonstrates link prediction (user-movie recommendations) using
+heterogeneous graph neural networks in a distributed setting across multiple nodes
+and GPUs. It uses the MovieLens dataset, loads it on rank 0, partitions it, and
+trains a graph encoder and decoder model.
+
+WARNING: For large datasets, this approach may exceed a single worker's host
+memory during the initial loading and partitioning phase. The MovieLens dataset
+requires downloading and embedding large text fields, which can be memory-intensive.
+Consider pre-partitioning the data if you encounter out-of-memory errors.
+
+Can be run with: torchrun --nproc-per-node=<num_gpus> movielens_mnmg.py
+"""
+
 import os
 import warnings
 from argparse import ArgumentParser
@@ -399,9 +415,14 @@ if __name__ == "__main__":
         if not args.skip_partition and global_rank == 0:
             print("Partitioning data...")
 
+            # WARNING: The following code loads the entire MovieLens dataset into rank 0's memory.
+            # The dataset includes movie titles and descriptions which are embedded using
+            # a transformer model, significantly increasing memory requirements.
+            # Ensure you have sufficient RAM (typically 8+ GB).
             dataset = MovieLens(args.dataset_root, model_name="all-MiniLM-L6-v2")
             data = dataset[0]
 
+            # Partition and distribute the data across all ranks.
             preprocess_and_partition(
                 data,
                 edge_path=edge_path,

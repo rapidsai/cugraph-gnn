@@ -1,6 +1,23 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+Multi-node, multi-GPU link prediction example on OGB MAG dataset.
+
+This example demonstrates link prediction on the OGB (Open Graph Benchmark) MAG
+(Microsoft Academic Graph) dataset in a distributed setting. It loads the MAG
+dataset on rank 0, distributes it across multiple nodes and GPUs, and trains a
+heterogeneous graph neural network to predict citation relationships between papers.
+
+WARNING: For large datasets, this approach may exceed a single worker's host
+memory during the initial loading phase. The OGB MAG dataset is very large
+(several GB in size), and loading it entirely on a single worker can cause
+out-of-memory errors. For production use, consider pre-downloading and
+pre-partitioning the data on the rank 0 node before starting training.
+
+Can be run with: torchrun --nproc-per-node=<num_gpus> mag_lp_mnmg.py
+"""
+
 import os
 import warnings
 
@@ -317,6 +334,11 @@ if __name__ == "__main__":
     torch.distributed.barrier()
     if global_rank == 0:
         print("loading dataset...")
+        # WARNING: The following code loads the entire OGB MAG dataset into rank 0's memory.
+        # This is a very large dataset (~6GB) and requires substantial RAM. The loading and
+        # partitioning may take several minutes and require 16+ GB of available host memory.
+        # For repeated runs or production deployments, consider pre-downloading and
+        # pre-partitioning the data to avoid repeated large memory allocations.
         from ogb.nodeproppred import PygNodePropPredDataset
 
         dataset = PygNodePropPredDataset(name="ogbn-mag", root=args.dataset_root)

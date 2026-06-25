@@ -1,6 +1,23 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+Distributed Graph Isomorphism Network (GIN) for graph classification.
+
+This example demonstrates how to train a GIN model for graph-level classification
+on the TU datasets in a distributed setting. It loads all graphs from a TU dataset,
+combines them into a single large graph, stores features and edges in distributed
+tensors, and trains the model in a distributed fashion.
+
+WARNING: For large graph collections, this approach may exceed a single worker's
+host memory during the initial data loading and concatenation phase. Large TU
+datasets can have tens of thousands of graphs, and concatenating them all into
+one large graph structure requires substantial temporary buffers. If you encounter
+out-of-memory errors, consider processing graphs in smaller batches or using
+a subset of the dataset.
+
+Can be run with: python dist_gin_sg.py or torchrun dist_gin_sg.py
+"""
 
 import time
 import argparse
@@ -293,6 +310,10 @@ class GIN(torch.nn.Module):
 
 def load_data(dataset_name, data_root, device, device_id):
     """Load dataset and set up distributed storage."""
+    # WARNING: The following code loads the entire dataset into memory and combines
+    # all graphs into a single large graph. For large datasets with many graphs,
+    # this can require significant host memory. The Batch.from_data_list() call
+    # creates temporary intermediate tensors that can exceed available memory.
     dataset = load_dataset_with_features(dataset_name, data_root)
     data = Batch.from_data_list(dataset)
 
