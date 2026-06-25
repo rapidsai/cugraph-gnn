@@ -151,6 +151,7 @@ jobs:
       date: ${{ inputs.date }}
       package-name: cugraph-pyg
       package-type: python
+      publish-wheel-search-key: cugraph-gnn_wheel_python_cugraph-pyg
     permissions:
       actions: read
       contents: read
@@ -211,6 +212,7 @@ jobs:
       date: ${{ inputs.date }}
       package-name: libwholegraph
       package-type: cpp
+      publish-wheel-search-key: cugraph-gnn_wheel_cpp_libwholegraph
     permissions:
       actions: read
       contents: read
@@ -230,7 +232,7 @@ jobs:
       date: ${{ inputs.date }}
       package-name: pylibwholegraph
       package-type: python
-      publish-wheel-search-key: pylibwholegraph_wheel_python_abi3
+      publish-wheel-search-key: cugraph-gnn_wheel_python_pylibwholegraph
     permissions:
       actions: read
       contents: read
@@ -245,4 +247,4 @@ jobs:
       packages: write
     with:
       push: true
-      cuda: '["12.9", "13.2"]'
+      cuda: '["12.9", "13.3"]'
