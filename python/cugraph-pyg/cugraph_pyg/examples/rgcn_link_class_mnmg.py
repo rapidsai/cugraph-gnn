@@ -1,7 +1,22 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-# This example illustrates link classification using the ogbl-wikikg2 dataset.
+"""
+Multi-node, multi-GPU link classification example using RGCN.
+
+This example demonstrates link classification on the OGB (Open Graph Benchmark)
+WikiKG2 dataset using a Relational Graph Convolutional Network (RGCN) in a
+distributed setting. It loads the entire dataset on rank 0, broadcasts metadata
+to other ranks, and then distributes edge data for training a link classifier
+model across multiple nodes and GPUs.
+
+WARNING: For large datasets, this approach may exceed a single worker's host
+memory during the initial loading phase on rank 0. The OGB WikiKG2 dataset is
+large and requires substantial RAM for loading and temporary buffers. Ensure
+you have sufficient memory (typically 16+ GB) for the rank 0 process.
+
+Can be run with: torchrun --nproc-per-node=<num_gpus> rgcn_link_class_mnmg.py
+"""
 
 import os
 import argparse
@@ -272,6 +287,10 @@ if __name__ == "__main__":
             torch.cuda.MemPool(rmm_torch_allocator.allocator())
         ):
             if global_rank == 0:
+                # WARNING: The following code loads the entire OGB WikiKG2 dataset on rank 0.
+                # This is a large knowledge graph dataset and requires significant host memory.
+                # The dataset is then broadcast or distributed to other ranks. Ensure rank 0
+                # has 16+ GB of available RAM to avoid out-of-memory errors.
                 with torch.serialization.safe_globals(
                     [
                         torch_geometric.data.data.DataEdgeAttr,

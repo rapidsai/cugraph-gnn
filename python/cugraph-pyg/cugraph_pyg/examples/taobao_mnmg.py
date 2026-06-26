@@ -1,5 +1,23 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
+
+"""
+Multi-node, multi-GPU link prediction example on Taobao e-commerce data.
+
+This example demonstrates link prediction (user-item interactions) on the Taobao
+dataset in a distributed setting across multiple nodes and GPUs. It loads the
+Taobao dataset on rank 0, applies preprocessing (including computing item-item
+relationships), partitions the data, and trains a model to predict user-item
+interactions.
+
+WARNING: For large datasets, this approach may exceed a single worker's host
+memory during the initial loading and preprocessing phase. The pre_transform
+function computes item-item co-occurrence matrices which can be very large.
+Consider pre-computing and pre-partitioning the data if you encounter
+out-of-memory errors. Even the intermediate buffers can exceed available memory.
+
+Can be run with: torchrun --nproc-per-node=<num_gpus> taobao_mnmg.py
+"""
 
 import argparse
 import os
@@ -490,9 +508,14 @@ if __name__ == "__main__":
     if not args.skip_partition and global_rank == 0:
         print("Partitioning data...")
 
+        # WARNING: The following code loads the entire Taobao dataset into rank 0's memory
+        # and applies preprocessing that includes computing item-item co-occurrence matrices.
+        # This can be extremely memory-intensive. The pre_transform function creates a
+        # sparse matrix that may be several GB in size. Ensure you have 16+ GB of RAM.
         dataset = Taobao(args.dataset_root, pre_transform=pre_transform)
         data = dataset[0]
 
+        # Partition and distribute the preprocessed data across all ranks.
         preprocess_and_partition(
             data,
             edge_path=edge_path,

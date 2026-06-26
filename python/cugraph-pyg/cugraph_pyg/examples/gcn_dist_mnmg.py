@@ -1,8 +1,21 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
-# Multi-node, multi-GPU example with WholeGraph feature storage.
-# Can be run with torchrun.
+"""
+Multi-node, multi-GPU Graph Convolutional Network (GCN) example.
+
+This example demonstrates how to train a GCN for node property prediction
+(classification) on a large OGB dataset across multiple nodes and GPUs using
+cuGraph-PyG. It loads the entire dataset on rank 0, partitions it across all
+ranks, and then trains the model in a distributed fashion.
+
+WARNING: For large datasets, this approach may exceed a single worker's host
+memory during the initial loading and partitioning phase. Consider pre-partitioning
+the data if you encounter out-of-memory errors. Even the intermediate buffers
+required during partitioning can be substantial.
+
+Can be run with: torchrun --nproc-per-node=<num_gpus> gcn_dist_mnmg.py
+"""
 
 import argparse
 import os
@@ -359,11 +372,15 @@ if __name__ == "__main__":
         meta_path = os.path.join(args.dataset_root, args.dataset + "_meta.json")
 
         # We partition the data to avoid loading it in every worker, which will
-        # waste memory and can lead to an out of memory exception.
+        # waste memory and can lead to an out of memory error.
         # cugraph_pyg.GraphStore and cugraph_pyg.FeatureStore are always
         # constructed from partitions of the edge index and features, respectively,
         # so this works well.
         if not args.skip_partition and global_rank == 0:
+            # WARNING: The following code loads the entire dataset into rank 0's memory.
+            # For large datasets, ensure you have sufficient RAM. The OGB datasets can
+            # be several GB in size, and temporary buffers during partitioning may
+            # require additional memory.
             with torch.serialization.safe_globals(
                 [
                     torch_geometric.data.data.DataEdgeAttr,
@@ -376,6 +393,7 @@ if __name__ == "__main__":
                 )
                 split_idx = dataset.get_idx_split()
 
+            # Partition and distribute the data across all ranks.
             partition_data(
                 dataset,
                 split_idx,
