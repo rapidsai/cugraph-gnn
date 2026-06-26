@@ -15,8 +15,6 @@ memory during the initial loading phase on rank 0. The OGB WikiKG2 dataset is
 large and requires substantial RAM for loading and temporary buffers. Ensure
 you have sufficient memory (typically 16+ GB) for the rank 0 process.
 
-This example illustrates link classification using the ogbl-wikikg2 dataset.
-
 Can be run with: torchrun --nproc-per-node=<num_gpus> rgcn_link_class_mnmg.py
 """
 
