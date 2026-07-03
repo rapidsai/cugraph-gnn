@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
 
-import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
+
+import cugraph_pyg
 
 from cugraph_pyg.utils.imports import import_optional
 from .utils import generate_seed
@@ -108,6 +109,7 @@ class LinkLoader:
             )
 
         neg_sampling = torch_geometric.sampler.NegativeSampling.cast(neg_sampling)
+        self.__edge_label_index = edge_label_index
 
         (
             input_type,
@@ -178,6 +180,27 @@ class LinkLoader:
         self.__shuffle = shuffle
         self.__drop_last = drop_last
 
+    @property
+    def _has_explicit_edge_label_index(self):
+        edge_label_index = self.__edge_label_index
+
+        if edge_label_index is None:
+            return False
+
+        if isinstance(edge_label_index, torch.Tensor):
+            return True
+
+        if isinstance(edge_label_index, (list, tuple)):
+            if len(edge_label_index) == 3 and all(
+                isinstance(value, str) for value in edge_label_index
+            ):
+                return False
+
+            if len(edge_label_index) == 2:
+                return edge_label_index[1] is not None
+
+        return True
+
     def __iter__(self):
         if self.__shuffle:
             perm = torch.randperm(self.__input_data.row.numel())
@@ -210,3 +233,15 @@ class LinkLoader:
                 random_state=generate_seed(),
             ),
         )
+
+    def __len__(self):
+        if not self._has_explicit_edge_label_index:
+            raise ValueError(
+                "len(loader) is only supported when the loader was constructed "
+                "with an explicit number of seeds via edge_label_index for now."
+            )
+
+        num_seeds = self.__input_data.row.numel()
+        if self.__drop_last:
+            return num_seeds // self.__batch_size
+        return (num_seeds + self.__batch_size - 1) // self.__batch_size

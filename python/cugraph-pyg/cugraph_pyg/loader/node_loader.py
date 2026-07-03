@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -89,6 +89,8 @@ class NodeLoader:
         if transform_sampler_output is not None:
             warnings.warn("transform_sampler_output is currently ignored.")
 
+        self.__input_nodes = input_nodes
+
         (
             input_type,
             input_nodes,
@@ -128,6 +130,22 @@ class NodeLoader:
         self.__shuffle = shuffle
         self.__drop_last = drop_last
 
+    @property
+    def _has_explicit_input_nodes(self):
+        input_nodes = self.__input_nodes
+
+        if input_nodes is None or isinstance(input_nodes, str):
+            return False
+
+        if (
+            isinstance(input_nodes, (list, tuple))
+            and len(input_nodes) == 2
+            and isinstance(input_nodes[0], str)
+        ):
+            return input_nodes[1] is not None
+
+        return True
+
     def __iter__(self):
         if self.__shuffle:
             perm = torch.randperm(self.__input_data.node.numel())
@@ -154,3 +172,15 @@ class NodeLoader:
                 input_data, random_state=generate_seed()
             ),
         )
+
+    def __len__(self):
+        if not self._has_explicit_input_nodes:
+            raise ValueError(
+                "len(loader) is only supported when the loader was constructed "
+                "with an explicit number of seeds via input_nodes for now."
+            )
+
+        num_seeds = self.__input_data.node.numel()
+        if self.__drop_last:
+            return num_seeds // self.__batch_size
+        return (num_seeds + self.__batch_size - 1) // self.__batch_size

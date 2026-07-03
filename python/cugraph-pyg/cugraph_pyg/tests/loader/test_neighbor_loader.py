@@ -42,10 +42,57 @@ def test_neighbor_loader(single_pytorch_worker):
         [5, 5],
         input_nodes=torch.arange(34),
     )
+    assert len(loader) == 3
 
     for batch in loader:
         assert isinstance(batch, torch_geometric.data.Data)
         assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_len(single_pytorch_worker):
+    src = torch.tensor([1, 2, 3, 4])
+    dst = torch.tensor([0, 1, 2, 3])
+    num_nodes = 5
+
+    graph_store = GraphStore()
+    graph_store.put_edge_index(
+        torch.stack([src, dst]),
+        ("person", "knows", "person"),
+        "coo",
+        False,
+        (num_nodes, num_nodes),
+    )
+
+    feature_store = FeatureStore()
+    feature_store["person", "feat", None] = torch.randint(128, (num_nodes, 16))
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        [1],
+        input_nodes=torch.arange(num_nodes),
+        batch_size=2,
+    )
+    assert len(loader) == 3
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        [1],
+        input_nodes=torch.arange(num_nodes),
+        batch_size=2,
+        drop_last=True,
+    )
+    assert len(loader) == 2
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        [1],
+        input_nodes="person",
+        batch_size=2,
+    )
+    with pytest.raises(ValueError, match="input_nodes"):
+        len(loader)
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -177,6 +224,7 @@ def test_link_neighbor_loader_basic(
         batch_size=batch_size,
         shuffle=False,
     )
+    assert len(loader) == (select_edges + batch_size - 1) // batch_size
 
     elx = torch.tensor_split(elx, eix.numel() // batch_size, dim=1)
     for i, batch in enumerate(loader):
@@ -184,6 +232,51 @@ def test_link_neighbor_loader_basic(
             batch.input_id.cpu() == torch.arange(i * batch_size, (i + 1) * batch_size)
         ).all()
         assert (elx[i].cpu() == batch.n_id[batch.edge_label_index.cpu()].cpu()).all()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_link_neighbor_loader_len(single_pytorch_worker):
+    num_nodes = 5
+    edge_label_index = torch.tensor(
+        [
+            [0, 1, 2, 3, 4],
+            [1, 2, 3, 4, 0],
+        ]
+    )
+
+    graph_store = GraphStore()
+    graph_store[("n", "e", "n"), "coo", False, (num_nodes, num_nodes)] = (
+        edge_label_index
+    )
+
+    feature_store = torch_geometric.data.HeteroData()
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1],
+        edge_label_index=edge_label_index,
+        batch_size=2,
+    )
+    assert len(loader) == 3
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1],
+        edge_label_index=edge_label_index,
+        batch_size=2,
+        drop_last=True,
+    )
+    assert len(loader) == 2
+
+    loader = cugraph_pyg.loader.LinkNeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1],
+        edge_label_index=("n", "e", "n"),
+        batch_size=2,
+    )
+    with pytest.raises(ValueError, match="edge_label_index"):
+        len(loader)
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
