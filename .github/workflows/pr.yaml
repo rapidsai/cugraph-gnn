@@ -23,8 +23,10 @@ jobs:
       - wheel-build-libwholegraph
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
+      - wheel-tests-pylibwholegraph-nightly
       - wheel-build-cugraph-pyg
       - wheel-tests-cugraph-pyg
+      - wheel-tests-cugraph-pyg-nightly
     uses: rapidsai/shared-workflows/.github/workflows/pr-builder.yaml@main
     if: always()
     with:
@@ -325,6 +327,21 @@ jobs:
       id-token: write
       packages: read
       pull-requests: read
+  wheel-tests-pylibwholegraph-nightly:
+    needs: [wheel-build-pylibwholegraph, changed-files]
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
+    with:
+      build_type: pull-request
+      script: ci/test_wheel_pylibwholegraph.sh
+      matrix_type: nightly
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
   wheel-build-cugraph-pyg:
     needs: checks
     secrets: inherit # zizmor: ignore[secrets-inherit]
@@ -352,6 +369,21 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: read
+  wheel-tests-cugraph-pyg-nightly:
+    needs: [wheel-build-pylibwholegraph, wheel-build-cugraph-pyg, changed-files]
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
+    with:
+      build_type: pull-request
+      script: ci/test_wheel_cugraph-pyg.sh
+      matrix_type: nightly
     permissions:
       actions: read
       contents: read
