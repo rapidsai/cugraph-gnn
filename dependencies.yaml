@@ -241,24 +241,6 @@ dependencies:
               use_cuda_wheels: "false"
             packages:
           - matrix:
-              arch: aarch64
-              cuda: "12.2"
-              use_cuda_wheels: "true"
-            packages:
-              # some components (like nvidia-cublas-cu12 and nvidia-cuda-nvcc-cu12) didn't have
-              # aarch64 wheels until CTK 12.3, so allow a slightly looser bound here
-              - cuda-toolkit>=12.2,<12.4
-          - matrix:
-              cuda: "12.2"
-              use_cuda_wheels: "true"
-            packages:
-              - cuda-toolkit==12.2.*
-          - matrix:
-              cuda: "12.5"
-              use_cuda_wheels: "true"
-            packages:
-              - cuda-toolkit==12.5.*
-          - matrix:
               cuda: "12.8"
               use_cuda_wheels: "true"
             packages:
@@ -268,6 +250,18 @@ dependencies:
               use_cuda_wheels: "true"
             packages:
               - cuda-toolkit==12.9.*
+          # The oldest 'torch' wheels cugraph-gnn packages are compatible with support CUDA 12.6
+          #
+          # Unlike in most other RAPIDS projects, where CUDA 12.2 CI jobs pull in 'cuda-toolkit==12.2.*',
+          # here 'cuda-toolkit' is allowed to float so that those jobs can be used to test "oldest CUDA
+          # that PyTorch and cugraph-gnn wheels mutually support".
+          #
+          # This comes after specific matches for '12.8' and '12.9' to achieve something like 'cuda: <12.8'.
+          - matrix:
+              cuda: "12.*"
+              use_cuda_wheels: "true"
+            packages:
+              - cuda-toolkit>=12.2,<12.8
           - matrix:
               cuda: "13.0"
               use_cuda_wheels: "true"
