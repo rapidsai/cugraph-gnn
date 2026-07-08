@@ -267,21 +267,14 @@ dependencies:
               use_cuda_wheels: "true"
             packages:
               - cuda-toolkit==13.0.*
+          # 'torch' uses '==' pins for its cuda-toolkit dependency and only supports certain versions
+          #
+          # ... allowing this to float allows us
           - matrix:
-              cuda: "13.1"
+              cuda: "13.*"
               use_cuda_wheels: "true"
             packages:
-              - cuda-toolkit==13.1.*
-          - matrix:
-              cuda: "13.2"
-              use_cuda_wheels: "true"
-            packages:
-              - cuda-toolkit==13.2.*
-          - matrix:
-              cuda: "13.3"
-              use_cuda_wheels: "true"
-            packages:
-              - cuda-toolkit==13.3.*
+              - cuda-toolkit>=13.1.0,<14
   cuda:
     common:
       - output_types: [conda]
@@ -488,21 +481,25 @@ dependencies:
               dependencies: "oldest"
               require_gpu: "true"
             packages:
-              - &torch_index_cu13 --extra-index-url=https://download.pytorch.org/whl/cu130
+              - &torch_index_cu130 --extra-index-url=https://download.pytorch.org/whl/cu130
               - torch==2.8.0+cu130
           - matrix:
               cuda: "13.0"
               require_gpu: "true"
             packages:
-              # TODO: switch from '/test/' index (release candidates) once 2.13.0 is officially released
-              - --extra-index-url https://download.pytorch.org/whl/test/cu130
-              - torch==2.13.0+cu130
+              - *torch_index_cu130
+              - &torch_cu130 torch==2.13.0+cu130
+          - matrix:
+              cuda: "13.1"
+              require_gpu: "true"
+            packages:
+              - *torch_index_cu130
+              - *torch_cu130
           - matrix:
               cuda: "13.*"
               require_gpu: "true"
             packages:
-              # TODO: switch from '/test/' index (release candidates) once 2.13.0 is officially released
-              - --extra-index-url https://download.pytorch.org/whl/test/cu130
+              - --extra-index-url https://download.pytorch.org/whl/cu132
               - torch==2.13.0+cu132
           - matrix:
             packages:
