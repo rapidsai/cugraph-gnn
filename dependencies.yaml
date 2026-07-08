@@ -500,8 +500,16 @@ dependencies:
               cuda: "13.0"
               require_gpu: "true"
             packages:
-              - *torch_index_cu13
-              - torch==2.10.0+cu130
+              # TODO: switch from '/test/' index (release candidates) once 2.13.0 is officially released
+              - --extra-index-url https://download.pytorch.org/whl/test/cu130
+              - torch==2.13.0+cu130
+          - matrix:
+              cuda: "13.*"
+              require_gpu: "true"
+            packages:
+              # TODO: switch from '/test/' index (release candidates) once 2.13.0 is officially released
+              - --extra-index-url https://download.pytorch.org/whl/test/cu130
+              - torch==2.13.0+cu132
           - matrix:
             packages:
   depends_on_nccl:
