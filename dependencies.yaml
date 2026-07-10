@@ -484,7 +484,7 @@ dependencies:
               cuda: "12.*"
               require_gpu: "true"
             packages:
-              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              - --extra-index-url=https://download.pytorch.org/whl/nightly/cu126
               # TODO: replace with a released (non-nightly) version once
               #       https://github.com/pytorch/pytorch/pull/186958 makes it into a release.
               #
