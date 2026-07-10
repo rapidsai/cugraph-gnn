@@ -269,7 +269,9 @@ dependencies:
               - cuda-toolkit==13.0.*
           # 'torch' uses '==' pins for its cuda-toolkit dependency and only supports certain versions
           #
-          # ... allowing this to float allows us
+          # ... allowing this to float means that CI scripts can unconditionally require at least 1 CUDA build of 'torch',
+          # which improves our chances of catching "there are 0 compatible 'torch' builds" types of issues in CI
+          #
           - matrix:
               cuda: "13.*"
               use_cuda_wheels: "true"
