@@ -29,19 +29,27 @@ PIP_INSTALL_ARGS=(
 TORCH_WHEEL_DIR="$(mktemp -d)"
 ./ci/download-torch-wheels.sh "${TORCH_WHEEL_DIR}"
 
-# if we were able to install 'torch', also install other dependencies that need 'torch',
-# like 'torch-geometric' and 'sentence-transformers'
-TORCH_DEPS_REQS_FILE=$(mktemp)
-rapids-dependency-file-generator \
-  --file-key deps_that_require_torch \
-  --output requirements \
-  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
-| tee "${TORCH_DEPS_REQS_FILE}"
+# 'cugraph-pyg' is still expected to be importable
+# and testable in an environment where 'torch' isn't installed.
+torch_downloaded=true
+if [ -z "$(ls -A ${TORCH_WHEEL_DIR} 2>/dev/null)" ]; then
+  rapids-echo-stderr "No 'torch' wheels downloaded."
+  torch_downloaded=false
+else
+  # if we were able to install 'torch', also install other dependencies that need 'torch',
+  # like 'torch-geometric' and 'sentence-transformers'
+  TORCH_DEPS_REQS_FILE=$(mktemp)
+  rapids-dependency-file-generator \
+    --file-key deps_that_require_torch \
+    --output requirements \
+    --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
+  | tee "${TORCH_DEPS_REQS_FILE}"
 
-PIP_INSTALL_ARGS+=(
-  "${TORCH_WHEEL_DIR}"/torch-*.whl
-  -r "${TORCH_DEPS_REQS_FILE}"
-)
+  PIP_INSTALL_ARGS+=(
+    "${TORCH_WHEEL_DIR}"/torch-*.whl
+    -r "${TORCH_DEPS_REQS_FILE}"
+  )
+fi
 
 # notes:
 #
@@ -58,23 +66,26 @@ export RAPIDS_DATASET_ROOT_DIR="$(realpath datasets)"
 # Enable legacy behavior of torch.load for examples relying on ogb
 export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
 
-# only need to download datasets if 'torch' is installed, otherwise all the
-# tests using them are skipped
-mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
-pushd "${RAPIDS_DATASET_ROOT_DIR}"
-./get_test_data.sh --test
-popd
+if [[ "${torch_downloaded}" == "true" ]]; then
 
-# 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
-# installed here and that we've installed a package with CUDA support.
-rapids-logger "Confirming that PyTorch is installed"
-python -c "import torch; assert torch.cuda.is_available()"
+  # only need to download datasets if 'torch' is installed, otherwise all the
+  # tests using them are skipped
+  mkdir -p "${RAPIDS_DATASET_ROOT_DIR}"
+  pushd "${RAPIDS_DATASET_ROOT_DIR}"
+  ./get_test_data.sh --test
+  popd
 
-rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
-./ci/run_cugraph_pyg_pytests.sh \
-  --cov-config=../../.coveragerc \
-  --cov=cugraph_pyg \
-  --cov-fail-under=70
+  # 'torch' is an optional dependency of 'cugraph-pyg'... confirm that it's actually
+  # installed here and that we've installed a package with CUDA support.
+  rapids-logger "Confirming that PyTorch is installed"
+  python -c "import torch; assert torch.cuda.is_available()"
+
+  rapids-logger "pytest cugraph-pyg (single GPU, with 'torch' and 'torch-geometric')"
+  ./ci/run_cugraph_pyg_pytests.sh \
+    --cov-config=../../.coveragerc \
+    --cov=cugraph_pyg \
+    --cov-fail-under=70
+fi
 
 rapids-logger "import cugraph-pyg (no 'torch' or 'torch-geometric')"
 ./ci/uninstall-torch-wheels.sh
