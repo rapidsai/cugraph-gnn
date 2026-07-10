@@ -6,7 +6,7 @@ channels:
 - conda-forge
 dependencies:
 - breathe
-- cmake>=4.0
+- cmake>=4.0,<4.4
 - cuda-nvcc
 - cuda-nvml-dev
 - cuda-nvtx-dev
