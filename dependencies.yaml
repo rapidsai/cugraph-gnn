@@ -478,6 +478,22 @@ dependencies:
             packages:
               - *torch_cu129_index
               - torch==2.10.0+cu129
+          # for any CUDA 12.x other than 12.8 / 12.9 (matched in earlier entries),
+          # use a CUDA 12.6 build (the oldest CUDA newer 'torch' releases support)
+          - matrix:
+              cuda: "12.*"
+              require_gpu: "true"
+            packages:
+              - --extra-index-url=https://download.pytorch.org/whl/cu126
+              # TODO: replace with a released (non-nightly) version once
+              #       https://github.com/pytorch/pytorch/pull/186958 makes it into a release.
+              #
+              # Pinning to such a specific nightly because 'pip' doesn't offer wildcard or other matching to achieve
+              # something like "any 2.14.x with the '+cu126' modifier".
+              #
+              # Looking at https://download.pytorch.org/whl/nightly/torch/, it appears that nightlies are retained
+              # for around 60 days, so hopefully this is relatively safe.
+              - torch==2.14.0.dev20260710+cu126
           - matrix:
               cuda: "13.0"
               dependencies: "oldest"
