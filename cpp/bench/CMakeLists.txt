@@ -1,6 +1,6 @@
 # =============================================================================
 # cmake-format: off
-# SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 # cmake-format: on
 # =============================================================================
@@ -29,7 +29,7 @@ function(ConfigureBench)
     ${BENCH_NAME}
     PROPERTIES # set target compile options
                INSTALL_RPATH "\$ORIGIN/../../../lib"
-               CXX_STANDARD 17
+               CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
                CUDA_ARCHITECTURES "${CMAKE_CUDA_ARCHITECTURES}"
                POSITION_INDEPENDENT_CODE ON
