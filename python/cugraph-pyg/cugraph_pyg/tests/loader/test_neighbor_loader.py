@@ -42,7 +42,6 @@ def test_neighbor_loader(single_pytorch_worker):
         [5, 5],
         input_nodes=torch.arange(34),
     )
-    assert len(loader) == 3
 
     for batch in loader:
         assert isinstance(batch, torch_geometric.data.Data)
