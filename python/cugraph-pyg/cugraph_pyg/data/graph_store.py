@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -28,6 +28,20 @@ torch = import_optional("torch")
 TensorType = Union[
     "torch.Tensor", cupy.ndarray, np.ndarray, "cudf.Series", pandas.Series
 ]
+
+
+class EmptyEdgeIndex:
+    def __getattr__(self, name):
+        raise ValueError(
+            "This GraphStore object has been finalized,"
+            " and the edge index is no longer available."
+        )
+
+    def __getitem__(self, key):
+        raise ValueError(
+            "This GraphStore object has been finalized,"
+            " and the edge index is no longer available."
+        )
 
 
 # If 'torch_geometric' is available but 'torch' is not, accessing
@@ -76,6 +90,13 @@ class GraphStore(
         self.__weight_attr = None
         self.__time_attr = None
         self.__numeric_edge_types = None
+
+    def _finalize(self):
+        """
+        Finalizes the graph store, constructing the cuGraph graph object
+        on device, and deleting the precusor edge index tensors. The graph
+        store can no longer be modified after this call.
+        """
 
     def _put_edge_index(
         self,
@@ -192,23 +213,27 @@ class GraphStore(
                 self.__handle = pylibcugraph.ResourceHandle()
         return self.__handle
 
-    @property
-    def _graph(self) -> Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph]:
+    def __construct_graph(
+        self, finalize=False
+    ) -> Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph]:
         graph_properties = pylibcugraph.GraphProperties(
             is_multigraph=True, is_symmetric=False
         )
 
         if self.__graph is None:
-            edgelist_dict = self.__get_edgelist()
+            edgelist_dict = self.__get_edgelist(finalize=finalize)
 
             if self.is_multi_gpu:
                 rank = torch.distributed.get_rank()
                 world_size = torch.distributed.get_world_size()
 
+                num_vertices = sum(self._num_vertices().values())
+                vertices_per_rank, remainder = divmod(num_vertices, world_size)
                 vertices_array = cupy.arange(
-                    sum(self._num_vertices().values()), dtype="int64"
+                    rank * vertices_per_rank + min(rank, remainder),
+                    (rank + 1) * vertices_per_rank + min(rank + 1, remainder),
+                    dtype="int64",
                 )
-                vertices_array = cupy.array_split(vertices_array, world_size)[rank]
 
                 self.__graph = pylibcugraph.MGGraph(
                     self._resource_handle,
@@ -245,6 +270,10 @@ class GraphStore(
                 )
 
         return self.__graph
+
+    @property
+    def _graph(self) -> Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph]:
+        return self.__construct_graph(finalize=False)
 
     def _num_vertices(self) -> Dict[str, int]:
         num_vertices = {}
@@ -419,7 +448,38 @@ class GraphStore(
 
         return self.__numeric_edge_types
 
-    def __get_edgelist(self):
+    def __get_edge_index(self, finalize=False):
+        # note that this still follows the PyG convention of (dst, rel, src)
+        # i.e. (author, writes, paper): [[0,1,2],[2,0,1]] is referring to a
+        # cuGraph graph where (paper 2) -> (author 0), (paper 0) -> (author 1),
+        # and (paper 1) -> (author 0)
+
+        sorted_keys = sorted(list(self.__edge_indices.keys()))
+
+        sz = sum([self.__edge_indices[k].local_row.numel() for k in sorted_keys])
+
+        edge_index = torch.empty((2, sz), device="cuda", dtype=torch.int64)
+        offset = 0
+        for dst_type, rel_type, src_type in sorted_keys:
+            num_edges = self.__edge_indices[
+                (dst_type, rel_type, src_type)
+            ].local_row.numel()
+
+            edge_index[0, offset : offset + num_edges] = self.__edge_indices[
+                (dst_type, rel_type, src_type)
+            ].local_col
+            edge_index[1, offset : offset + num_edges] = self.__edge_indices[
+                (dst_type, rel_type, src_type)
+            ].local_row
+
+            edge_index[0, offset : offset + num_edges] += self._vertex_offsets[dst_type]
+            edge_index[1, offset : offset + num_edges] += self._vertex_offsets[src_type]
+            offset += num_edges
+
+            if finalize:
+                self.__edge_indices[(dst_type, rel_type, src_type)] = EmptyEdgeIndex()
+
+    def __get_edgelist(self, finalize=False):
         """
         Returns
         -------
@@ -434,25 +494,6 @@ class GraphStore(
                 Note that these are in lexicographic order.
         """
         sorted_keys = sorted(list(self.__edge_indices.keys()))
-
-        # note that this still follows the PyG convention of (dst, rel, src)
-        # i.e. (author, writes, paper): [[0,1,2],[2,0,1]] is referring to a
-        # cuGraph graph where (paper 2) -> (author 0), (paper 0) -> (author 1),
-        # and (paper 1) -> (author 0)
-        edge_index = torch.concat(
-            [
-                torch.stack(
-                    [
-                        self.__edge_indices[dst_type, rel_type, src_type].local_col
-                        + self._vertex_offsets[dst_type],
-                        self.__edge_indices[dst_type, rel_type, src_type].local_row
-                        + self._vertex_offsets[src_type],
-                    ]
-                )
-                for (dst_type, rel_type, src_type) in sorted_keys
-            ],
-            axis=1,
-        ).cuda()
 
         edge_type_array = torch.arange(
             len(sorted_keys), dtype=torch.int32, device="cuda"
@@ -485,6 +526,8 @@ class GraphStore(
                 (len(sorted_keys),), dtype=torch.int64, device="cuda"
             )
             num_edges_all_t = num_edges_t.reshape((1, num_edges_t.numel()))
+
+        edge_index = self.__get_edge_index(finalize=finalize)
 
         edge_id_array = torch.concat(
             [
