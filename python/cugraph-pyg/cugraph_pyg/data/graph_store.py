@@ -92,7 +92,7 @@ class GraphStore(
         self.__time_attr = None
         self.__numeric_edge_types = None
 
-    def _finalize(self):
+    def finalize(self):
         """
         Finalizes the graph store, constructing the cuGraph graph object
         on device, and deleting the precusor edge index tensors. The graph
@@ -494,6 +494,8 @@ class GraphStore(
 
             if finalize:
                 self.__edge_indices[(dst_type, rel_type, src_type)] = EmptyEdgeIndex()
+
+        return edge_index
 
     def __get_edgelist(self, finalize=False):
         """
