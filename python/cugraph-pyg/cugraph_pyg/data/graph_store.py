@@ -74,6 +74,7 @@ class GraphStore(
         self.__sizes = {}
 
         self.__handle = None
+        self.__finalized = False
 
         self.__clear_graph()
 
@@ -97,13 +98,22 @@ class GraphStore(
         on device, and deleting the precusor edge index tensors. The graph
         store can no longer be modified after this call.
         """
+        if self.__finalized:
+            raise RuntimeError("This GraphStore object has already been finalized.")
+
         self.__construct_graph(finalize=True)
+        self.__finalized = True
 
     def _put_edge_index(
         self,
         edge_index: "torch_geometric.typing.EdgeTensorType",
         edge_attr: "torch_geometric.data.EdgeAttr",
     ) -> bool:
+        if self.__finalized:
+            raise NotImplementedError(
+                "Adding edges to a finalized GraphStore is not supported."
+            )
+
         if edge_attr.layout != torch_geometric.data.graph_store.EdgeLayout.COO:
             raise ValueError("Only COO format supported")
 
@@ -182,6 +192,11 @@ class GraphStore(
         return ei
 
     def _remove_edge_index(self, edge_attr: "torch_geometric.data.EdgeAttr") -> bool:
+        if self.__finalized:
+            raise NotImplementedError(
+                "Removing edges from a finalized GraphStore is not supported."
+            )
+
         del self.__edge_indices[edge_attr.edge_type]
 
         # invalidate the graph
