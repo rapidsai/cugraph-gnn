@@ -253,11 +253,11 @@ class GraphStore(
         if self.__graph is None:
             edgelist_dict = self.__get_edgelist(finalize=finalize)
 
+            num_vertices = sum(self._num_vertices().values())
             if self.is_multi_gpu:
                 rank = torch.distributed.get_rank()
                 world_size = torch.distributed.get_world_size()
 
-                num_vertices = sum(self._num_vertices().values())
                 vertices_per_rank, remainder = divmod(num_vertices, world_size)
                 vertices_array = cupy.arange(
                     rank * vertices_per_rank + min(rank, remainder),
@@ -286,9 +286,7 @@ class GraphStore(
                     graph_properties,
                     cupy.asarray(edgelist_dict["src"]).astype("int64"),
                     cupy.asarray(edgelist_dict["dst"]).astype("int64"),
-                    vertices_array=cupy.arange(
-                        sum(self._num_vertices().values()), dtype="int64"
-                    ),
+                    vertices_array=cupy.arange(num_vertices, dtype="int64"),
                     edge_id_array=cupy.asarray(edgelist_dict["eid"]),
                     edge_type_array=cupy.asarray(edgelist_dict["etp"]),
                     weight_array=cupy.asarray(edgelist_dict["wgt"])
