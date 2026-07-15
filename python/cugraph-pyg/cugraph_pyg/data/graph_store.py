@@ -86,13 +86,21 @@ class GraphStore(
         super().__init__()
 
     def __clear_graph(self):
+        if self.__finalized:
+            raise NotImplementedError(
+                "Modifying a finalized GraphStore is not supported."
+            )
         self.__graph = None
         self.__vertex_offsets = None
         self.__weight_attr = None
         self.__time_attr = None
         self.__numeric_edge_types = None
 
-    def finalize(self):
+    def finalize(
+        self,
+        weight_attr: Optional[Tuple["torch_geometric.data.FeatureStore", str]] = None,
+        time_attr: Optional[Tuple["torch_geometric.data.FeatureStore", str]] = None,
+    ):
         """
         Finalizes the graph store, constructing the cuGraph graph object
         on device, and deleting the precusor edge index tensors. The graph
@@ -100,6 +108,11 @@ class GraphStore(
         """
         if self.__finalized:
             raise RuntimeError("This GraphStore object has already been finalized.")
+
+        if weight_attr is not None:
+            self._set_weight_attr(weight_attr)
+        if time_attr is not None:
+            self._set_time_attr(time_attr)
 
         self.__construct_graph(finalize=True)
         self.__finalized = True
