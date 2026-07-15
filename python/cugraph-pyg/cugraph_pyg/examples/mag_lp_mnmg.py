@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -541,6 +541,7 @@ if __name__ == "__main__":
             + feature_store[dst_type, "bc", None][dst]
         ).to(dtype).reshape((-1, 1)) / 2.0
 
+    graph_store.finalize()
     print("training model...")
 
     model = Classifier(
