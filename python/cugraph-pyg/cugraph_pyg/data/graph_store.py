@@ -298,7 +298,9 @@ class GraphStore(
                     if "etime" in edgelist_dict
                     else None,
                 )
-
+        elif finalize:
+            for t in list(self.__edge_indices.keys()):
+                self.__edge_indices[t] = EmptyEdgeIndex()
         return self.__graph
 
     @property
