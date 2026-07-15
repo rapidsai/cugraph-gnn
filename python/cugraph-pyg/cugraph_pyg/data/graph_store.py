@@ -32,13 +32,13 @@ TensorType = Union[
 
 class EmptyEdgeIndex:
     def __getattr__(self, name):
-        raise ValueError(
+        raise AttributeError(
             "This GraphStore object has been finalized,"
             " and the edge index is no longer available."
         )
 
     def __getitem__(self, key):
-        raise ValueError(
+        raise AttributeError(
             "This GraphStore object has been finalized,"
             " and the edge index is no longer available."
         )
