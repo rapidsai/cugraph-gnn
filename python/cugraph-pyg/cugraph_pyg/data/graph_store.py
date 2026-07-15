@@ -464,7 +464,7 @@ class GraphStore(
 
         return self.__numeric_edge_types
 
-    def __get_edge_index(self, finalize=False):
+    def __construct_edge_index(self, finalize=False):
         # note that this still follows the PyG convention of (dst, rel, src)
         # i.e. (author, writes, paper): [[0,1,2],[2,0,1]] is referring to a
         # cuGraph graph where (paper 2) -> (author 0), (paper 0) -> (author 1),
@@ -543,7 +543,7 @@ class GraphStore(
             )
             num_edges_all_t = num_edges_t.reshape((1, num_edges_t.numel()))
 
-        edge_index = self.__get_edge_index(finalize=finalize)
+        edge_index = self.__construct_edge_index(finalize=finalize)
 
         edge_id_array = torch.concat(
             [
