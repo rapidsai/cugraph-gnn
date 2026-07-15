@@ -97,6 +97,7 @@ class GraphStore(
         on device, and deleting the precusor edge index tensors. The graph
         store can no longer be modified after this call.
         """
+        self.__construct_graph(finalize=True)
 
     def _put_edge_index(
         self,
