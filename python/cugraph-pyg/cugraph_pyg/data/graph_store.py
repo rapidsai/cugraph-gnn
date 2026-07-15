@@ -103,6 +103,7 @@ class GraphStore(
 
         self.__construct_graph(finalize=True)
         self.__finalized = True
+        return self
 
     def _put_edge_index(
         self,
