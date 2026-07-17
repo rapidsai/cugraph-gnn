@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -89,7 +89,15 @@ class NodeLoader:
         if transform_sampler_output is not None:
             warnings.warn("transform_sampler_output is currently ignored.")
 
-        self.__input_nodes = input_nodes
+        self.__has_explicit_input_nodes = not (
+            input_nodes is None or isinstance(input_nodes, str)
+        )
+        if (
+            isinstance(input_nodes, (list, tuple))
+            and len(input_nodes) == 2
+            and isinstance(input_nodes[0], str)
+        ):
+            self.__has_explicit_input_nodes = input_nodes[1] is not None
 
         (
             input_type,
@@ -130,22 +138,6 @@ class NodeLoader:
         self.__shuffle = shuffle
         self.__drop_last = drop_last
 
-    @property
-    def _has_explicit_input_nodes(self):
-        input_nodes = self.__input_nodes
-
-        if input_nodes is None or isinstance(input_nodes, str):
-            return False
-
-        if (
-            isinstance(input_nodes, (list, tuple))
-            and len(input_nodes) == 2
-            and isinstance(input_nodes[0], str)
-        ):
-            return input_nodes[1] is not None
-
-        return True
-
     def __iter__(self):
         if self.__shuffle:
             perm = torch.randperm(self.__input_data.node.numel())
@@ -174,7 +166,7 @@ class NodeLoader:
         )
 
     def __len__(self):
-        if not self._has_explicit_input_nodes:
+        if not self.__has_explicit_input_nodes:
             raise ValueError(
                 "len(loader) is only supported when the loader was constructed "
                 "with an explicit number of seeds via input_nodes for now."

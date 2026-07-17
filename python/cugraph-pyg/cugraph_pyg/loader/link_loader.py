@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -109,7 +109,15 @@ class LinkLoader:
             )
 
         neg_sampling = torch_geometric.sampler.NegativeSampling.cast(neg_sampling)
-        self.__edge_label_index = edge_label_index
+
+        self.__has_explicit_edge_label_index = edge_label_index is not None
+        if isinstance(edge_label_index, (list, tuple)):
+            if len(edge_label_index) == 3 and all(
+                isinstance(value, str) for value in edge_label_index
+            ):
+                self.__has_explicit_edge_label_index = False
+            elif len(edge_label_index) == 2:
+                self.__has_explicit_edge_label_index = edge_label_index[1] is not None
 
         (
             input_type,
@@ -180,27 +188,6 @@ class LinkLoader:
         self.__shuffle = shuffle
         self.__drop_last = drop_last
 
-    @property
-    def _has_explicit_edge_label_index(self):
-        edge_label_index = self.__edge_label_index
-
-        if edge_label_index is None:
-            return False
-
-        if isinstance(edge_label_index, torch.Tensor):
-            return True
-
-        if isinstance(edge_label_index, (list, tuple)):
-            if len(edge_label_index) == 3 and all(
-                isinstance(value, str) for value in edge_label_index
-            ):
-                return False
-
-            if len(edge_label_index) == 2:
-                return edge_label_index[1] is not None
-
-        return True
-
     def __iter__(self):
         if self.__shuffle:
             perm = torch.randperm(self.__input_data.row.numel())
@@ -235,7 +222,7 @@ class LinkLoader:
         )
 
     def __len__(self):
-        if not self._has_explicit_edge_label_index:
+        if not self.__has_explicit_edge_label_index:
             raise ValueError(
                 "len(loader) is only supported when the loader was constructed "
                 "with an explicit number of seeds via edge_label_index for now."
