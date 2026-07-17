@@ -68,6 +68,9 @@ class GraphStore(
         """
         self.__edge_indices = {}
         self.__sizes = {}
+
+        if location not in ["cpu", "cuda"]:
+            raise ValueError("location must be 'cpu' or 'cuda'")
         self.__wg_location = location
 
         self.__handle = None
