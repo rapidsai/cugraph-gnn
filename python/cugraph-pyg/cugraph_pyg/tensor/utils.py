@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
@@ -100,6 +100,7 @@ def create_wg_dist_tensor_from_files(
     location: str = "cpu",
     partition_book: Union[List[int], None] = None,
     backend: str = "nccl",
+    file_format: str = "binary",
     **kwargs,
 ):
     """
@@ -124,6 +125,8 @@ def create_wg_dist_tensor_from_files(
         Defaults to an even partitioning scheme.
     backend : str, optional
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
+    file_format : str, optional
+        The input format [ "binary" | "pytorch" | "parquet" | "auto" ]
     """
     global_comm = wgth.get_global_communicator()
 
@@ -151,6 +154,7 @@ def create_wg_dist_tensor_from_files(
             shape[1],
             cache_policy=cache_policy,
             embedding_entry_partition=partition_book,
+            file_format=file_format,
             **kwargs,
         )
     else:
@@ -166,6 +170,7 @@ def create_wg_dist_tensor_from_files(
             dtype,
             last_dim_size,
             tensor_entry_partition=partition_book,
+            file_format=file_format,
         )
     return wm_embedding
 
