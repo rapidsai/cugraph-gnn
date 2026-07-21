@@ -250,6 +250,16 @@ class GraphStore(
             is_multigraph=True, is_symmetric=False
         )
 
+        # Save the number of vertices before the edge indices are deleted.
+        if finalize and any(size is None for size in self.__sizes.values()):
+            num_vertices = self._num_vertices()
+            for edge_type, size in self.__sizes.items():
+                if size is None:
+                    self.__sizes[edge_type] = (
+                        num_vertices[edge_type[0]],
+                        num_vertices[edge_type[2]],
+                    )
+
         if self.__graph is None:
             edgelist_dict = self.__get_edgelist(finalize=finalize)
 
@@ -524,7 +534,13 @@ class GraphStore(
                 Note that these start from 0 for each edge type.
             etp: edge types for each edge (int32)
                 Note that these are in lexicographic order.
+
+        Warning
+        -------
+        If ``finalize=True``, the edge indices will be deleted after the edge
+        list is constructed.
         """
+
         sorted_keys = sorted(list(self.__edge_indices.keys()))
 
         edge_type_array = torch.arange(
