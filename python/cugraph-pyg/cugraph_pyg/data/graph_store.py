@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -40,24 +40,38 @@ class GraphStore(
 ):
     """
     cuGraph-backed PyG GraphStore implementation that distributes
-    the graph across workers.  This object uses lazy graph creation.
-    Users can repeatedly call put_edge_index, and the tensors won't
-    be converted into a cuGraph graph until one is needed
-    (i.e. when creating a loader). Supports
-    single-node/single-GPU, single-node/multi-GPU, and
+    the graph across workers. Users can repeatedly call put_edge_index
+    to store edge indices in WholeGraph memory. The final cuGraph graph
+    is always constructed in GPU device memory, regardless of the
+    WholeGraph memory location. Construction occurs lazily when the graph
+    is needed by a loader, or eagerly when the user calls finalize().
+
+    Supports single-node/single-GPU, single-node/multi-GPU, and
     multi-node/multi-GPU graph storage.
 
     Each worker should have a slice of the graph locally, and
     call put_edge_index with its slice.
     """
 
-    def __init__(self):
+    def __init__(self, location="cpu"):
         """
         Constructs a new, empty GraphStore object.  This object
         represents one slice of a graph on particular worker.
+
+        Parameters
+        ----------
+        location: str(optional, default='cpu')
+            The WholeGraph memory location ('cpu' or 'cuda') used to store
+            edge indices before the cuGraph graph is constructed. This does
+            not affect the final graph location; the cuGraph graph is always
+            constructed in GPU device memory when it's needed.
         """
         self.__edge_indices = {}
         self.__sizes = {}
+
+        if location not in ["cpu", "cuda"]:
+            raise ValueError("location must be 'cpu' or 'cuda'")
+        self.__wg_location = location
 
         self.__handle = None
 
@@ -118,7 +132,10 @@ class GraphStore(
             self.__edge_indices[edge_attr.edge_type] = edge_index
         else:
             self.__edge_indices[edge_attr.edge_type] = DistMatrix(
-                shape=(size, size), dtype=torch.long, backend=self.__backend
+                shape=(size, size),
+                dtype=torch.long,
+                device=self.__wg_location,
+                backend=self.__backend,
             )
 
             if isinstance(edge_index[0], DistTensor) and isinstance(
