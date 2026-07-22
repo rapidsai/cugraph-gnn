@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -37,6 +37,11 @@ class FeatureStore(
     get_tensor, multi_get_tensor, etc., the entire tensor can be accessed
     regardless of what worker's partition the desired slice of the tensor
     is on.
+
+    When a :class:`~cugraph_pyg.tensor.DistTensor` is passed to
+    ``put_tensor`` without an index, it is stored by reference and its data is
+    not copied. Subsequent changes to the distributed tensor are therefore
+    visible to the store. Indexed insertion of a DistTensor is not supported.
     """
 
     def __init__(self, memory_type=None, location="cpu"):
@@ -185,6 +190,15 @@ class FeatureStore(
         tensor: "torch_geometric.typing.FeatureTensorType",
         attr: "torch_geometric.data.feature_store.TensorAttr",
     ) -> bool:
+        if isinstance(tensor, DistTensor):
+            if attr.is_set("index") and attr.index is not None:
+                raise ValueError(
+                    "An index cannot be specified when storing a DistTensor "
+                    "by reference"
+                )
+            self.__features[(attr.group_name, attr.attr_name)] = tensor
+            return True
+
         if attr.is_set("index") and attr.index is not None:
             if (attr.group_name, attr.attr_name) not in self.__features:
                 self.__features[(attr.group_name, attr.attr_name)] = (
