@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -46,6 +46,33 @@ def run_test_dist_matrix_creation(rank, world_size, device):
     assert result.shape == (2, 10)
     assert torch.allclose(result[0], col[idx])
     assert torch.allclose(result[1], row[idx])
+
+    torch.distributed.barrier()
+
+    # Test transpose view
+    transposed_view = dist_matrix.transpose(view=True)
+    assert transposed_view._format == "coo"
+    assert transposed_view._col is dist_matrix._row
+    assert transposed_view._row is dist_matrix._col
+    result = transposed_view[idx]
+    assert torch.allclose(result[0], row[idx])
+    assert torch.allclose(result[1], col[idx])
+
+    # Test construction from DistTensor objects retains their references
+    dist_matrix_view = DistMatrix(
+        src=(dist_matrix._col, dist_matrix._row), format="coo"
+    )
+    assert dist_matrix_view._col is dist_matrix._col
+    assert dist_matrix_view._row is dist_matrix._row
+
+    # Test transpose copy
+    transposed = dist_matrix.transpose()
+    assert transposed._format == "coo"
+    assert transposed._col is not dist_matrix._row
+    assert transposed._row is not dist_matrix._col
+    result = transposed[idx]
+    assert torch.allclose(result[0], row[idx])
+    assert torch.allclose(result[1], col[idx])
 
     torch.distributed.barrier()
 
@@ -134,6 +161,30 @@ def run_test_dist_matrix_invalid_cases(rank, world_size, device):
     row = torch.randint(0, 100, (200,), dtype=torch.long, device="cuda")
     with pytest.raises(ValueError):
         DistMatrix(src=(col, row), format="coo", device=device)
+
+    # Test that a CSC transpose view is a CSR sharing the same storage
+    col = torch.randint(0, 100, (100,), dtype=torch.long, device="cuda")
+    row = torch.randint(0, 100, (100,), dtype=torch.long, device="cuda")
+    dist_matrix = DistMatrix(src=(col, row), format="csc", device=device)
+    transposed_view = dist_matrix.transpose(view=True)
+    assert transposed_view._format == "csr"
+    assert transposed_view._col is dist_matrix._row
+    assert transposed_view._row is dist_matrix._col
+
+    # Transposing the CSR view produces a CSC view of the original storage
+    round_trip_view = transposed_view.transpose(view=True)
+    assert round_trip_view._format == "csc"
+    assert round_trip_view._col is dist_matrix._col
+    assert round_trip_view._row is dist_matrix._row
+
+    # Test that copying a transpose converts CSC to CSR and CSR to CSC
+    transposed = dist_matrix.transpose()
+    assert transposed._format == "csr"
+    assert transposed._col is not dist_matrix._row
+    assert transposed._row is not dist_matrix._col
+
+    transposed = transposed.transpose()
+    assert transposed._format == "csc"
 
     wm_finalize()
     torch.distributed.destroy_process_group()

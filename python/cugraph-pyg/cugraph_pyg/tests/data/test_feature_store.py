@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -43,8 +43,12 @@ def test_feature_store_basic_api(single_pytorch_worker):
 
     assert len(feature_store.get_all_tensor_attrs()) == 3
 
+    dist_tensor = feature_store["node", "feat1", None]
+    feature_store["node", "feat1_alias", None] = dist_tensor
+    assert feature_store["node", "feat1_alias", None] is dist_tensor
+
     del feature_store["node", "feat0", None]
-    assert len(feature_store.get_all_tensor_attrs()) == 2
+    assert len(feature_store.get_all_tensor_attrs()) == 3
 
 
 @pytest.mark.skipif(
