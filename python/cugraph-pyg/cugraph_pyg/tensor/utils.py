@@ -1,7 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
 
@@ -142,6 +140,9 @@ def create_wg_dist_tensor_from_files(
         raise ValueError(f"Unsupported backend: {backend}")
     embedding_wholememory_location = location
 
+    # The low-level pylibwholegraph constructors validate shape[0] using
+    # metadata, allocate the final WholeMemory object, and only then stream
+    # structured data into each rank's local partition.
     if "cache_policy" in kwargs:
         assert len(shape) == 2, "The shape of the embedding tensor must be 2D."
         cache_policy = kwargs["cache_policy"]

@@ -17,7 +17,7 @@ from pylibwholegraph.torch.initialize import (
     init_torch_env_and_create_wm_comm,
 )
 from pylibwholegraph.torch.tensor import (
-    _iter_parquet_tensors,
+    _iter_structured_tensors,
     create_wholememory_tensor,
     create_wholememory_tensor_from_filelist,
     destroy_wholememory_tensor,
@@ -39,6 +39,9 @@ def _gpu_count():
 
 
 def _current_rss_bytes():
+    # mmap intentionally reserves virtual address space for an entire PyTorch
+    # file, so VMS is not a useful memory-regression signal. VmRSS measures the
+    # pages and decode buffers that are actually resident in host memory.
     if sys.platform.startswith("linux"):
         with open("/proc/self/status", encoding="utf-8") as status_file:
             for line in status_file:
@@ -59,6 +62,7 @@ def _structured_io_worker(
     world_size,
     filename,
     file_format,
+    memory_location,
     row_count,
     column_count,
 ):
@@ -70,14 +74,18 @@ def _structured_io_worker(
         wm_tensor = create_wholememory_tensor_from_filelist(
             comm,
             "distributed",
-            "cuda",
+            memory_location,
             [filename],
             torch.float32,
             column_count,
             file_format=file_format,
             expected_entry_count=row_count,
         )
-        local_tensor, local_start = wm_tensor.get_local_tensor()
+        # Read host WholeMemory through its native CPU view so this validates
+        # the host-to-host path rather than a CUDA mapping of host allocation.
+        local_tensor, local_start = wm_tensor.get_local_tensor(
+            host_view=memory_location == "cpu"
+        )
         local_end = local_start + local_tensor.shape[0]
         expected = torch.arange(
             local_start * column_count,
@@ -92,10 +100,12 @@ def _structured_io_worker(
         finalize()
 
 
-def _parquet_memory_worker(
+def _structured_memory_worker(
     world_rank,
     world_size,
     filename,
+    file_format,
+    memory_location,
     row_count,
     column_count,
     max_peak_increase,
@@ -108,13 +118,14 @@ def _parquet_memory_worker(
         warmup_tensor = create_wholememory_tensor(
             comm,
             "distributed",
-            "cuda",
+            memory_location,
             [1, column_count],
             torch.float32,
             None,
         )
         destroy_wholememory_tensor(warmup_tensor)
-        torch.cuda.synchronize()
+        if memory_location == "cuda":
+            torch.cuda.synchronize()
         gc.collect()
         baseline_rss = _current_rss_bytes()
         peak_rss = [baseline_rss]
@@ -127,11 +138,11 @@ def _parquet_memory_worker(
             wm_tensor = create_wholememory_tensor_from_filelist(
                 comm,
                 "distributed",
-                "cuda",
+                memory_location,
                 [filename],
                 torch.float32,
                 column_count,
-                file_format="parquet",
+                file_format=file_format,
                 expected_entry_count=row_count,
             )
         finally:
@@ -139,7 +150,9 @@ def _parquet_memory_worker(
             monitor.join()
         peak_increase = peak_rss[0] - baseline_rss
         assert peak_increase <= max_peak_increase, (
-            f"Parquet read increased peak host RSS by {peak_increase / 2**20:.1f} MiB; "
+            f"{file_format} read into {memory_location} WholeMemory increased "
+            f"peak host RSS by "
+            f"{peak_increase / 2**20:.1f} MiB; "
             f"limit is {max_peak_increase / 2**20:.1f} MiB"
         )
         assert tuple(wm_tensor.shape) == (row_count, column_count)
@@ -149,10 +162,11 @@ def _parquet_memory_worker(
         finalize()
 
 
-def _parquet_reader_memory_worker(
+def _structured_reader_memory_worker(
     world_rank,
     world_size,
     filename,
+    file_format,
     row_count,
     column_count,
     max_peak_increase,
@@ -167,7 +181,9 @@ def _parquet_reader_memory_worker(
     try:
         rows_read = sum(
             batch.shape[0]
-            for batch in _iter_parquet_tensors(filename, torch.float32, 2, column_count)
+            for batch in _iter_structured_tensors(
+                filename, file_format, torch.float32, 2, column_count
+            )
         )
     finally:
         stop_event.set()
@@ -176,7 +192,8 @@ def _parquet_reader_memory_worker(
     peak_increase = peak_rss[0] - baseline_rss
     assert rows_read == row_count
     assert peak_increase <= max_peak_increase, (
-        f"Parquet reader increased peak host RSS by {peak_increase / 2**20:.1f} MiB; "
+        f"{file_format} reader increased peak host RSS by "
+        f"{peak_increase / 2**20:.1f} MiB; "
         f"limit is {max_peak_increase / 2**20:.1f} MiB"
     )
 
@@ -201,8 +218,22 @@ def _write_parquet(filename, row_count, column_count, row_group_size):
             )
 
 
+def _write_pytorch(filename, row_count, column_count):
+    torch.save(torch.rand((row_count, column_count), dtype=torch.float32), filename)
+
+
+def _write_structured_file(filename, file_format, row_count, column_count):
+    if file_format == "parquet":
+        _write_parquet(filename, row_count, column_count, row_group_size=64 * 1024)
+    else:
+        _write_pytorch(filename, row_count, column_count)
+
+
+@pytest.mark.parametrize("memory_location", ["cpu", "cuda"])
 @pytest.mark.parametrize("file_format", ["pytorch", "parquet"])
-def test_create_wholememory_tensor_from_structured_file(tmp_path, file_format):
+def test_create_wholememory_tensor_from_structured_file(
+    tmp_path, file_format, memory_location
+):
     gpu_count = _gpu_count()
     if gpu_count == 0:
         pytest.skip("WholeGraph structured I/O requires at least one GPU")
@@ -233,30 +264,44 @@ def test_create_wholememory_tensor_from_structured_file(tmp_path, file_format):
             _structured_io_worker,
             filename=os.fspath(filename),
             file_format=file_format,
+            memory_location=memory_location,
             row_count=row_count,
             column_count=column_count,
         ),
     )
 
 
-def test_parquet_read_has_bounded_peak_host_memory(tmp_path):
+@pytest.mark.parametrize("memory_location", ["cpu", "cuda"])
+@pytest.mark.parametrize("file_format", ["pytorch", "parquet"])
+def test_structured_read_has_bounded_peak_host_memory(
+    tmp_path, file_format, memory_location
+):
     if _gpu_count() == 0:
         pytest.skip("WholeGraph structured I/O requires at least one GPU")
 
     row_count = 1024 * 1024
     column_count = 16
-    filename = tmp_path / "large_tensor.parquet"
-    _write_parquet(filename, row_count, column_count, row_group_size=64 * 1024)
+    suffix = "pt" if file_format == "pytorch" else "parquet"
+    filename = tmp_path / f"large_tensor.{suffix}"
+    _write_structured_file(filename, file_format, row_count, column_count)
 
-    # The uncompressed tensor is 64 MiB. Allow 96 MiB for PyArrow, NumPy, and
-    # allocator overhead. The previous full-table implementation needed at
-    # least one full Arrow table plus another full column-stacked allocation.
-    max_peak_increase = 96 * 1024 * 1024
+    # CUDA WholeMemory does not contribute its allocation to host RSS. CPU
+    # WholeMemory necessarily adds the 64 MiB destination to RSS, so include
+    # that required storage plus the same 96 MiB ceiling for mmap pages,
+    # PyArrow decoding, bounded staging batches, and allocator overhead.
+    destination_bytes = (
+        row_count * column_count * torch.tensor([], dtype=torch.float32).element_size()
+        if memory_location == "cpu"
+        else 0
+    )
+    max_peak_increase = destination_bytes + 96 * 1024 * 1024
     multiprocess_run(
         1,
         partial(
-            _parquet_memory_worker,
+            _structured_memory_worker,
             filename=os.fspath(filename),
+            file_format=file_format,
+            memory_location=memory_location,
             row_count=row_count,
             column_count=column_count,
             max_peak_increase=max_peak_increase,
@@ -264,17 +309,20 @@ def test_parquet_read_has_bounded_peak_host_memory(tmp_path):
     )
 
 
-def test_parquet_reader_has_bounded_peak_host_memory(tmp_path):
+@pytest.mark.parametrize("file_format", ["pytorch", "parquet"])
+def test_structured_reader_has_bounded_peak_host_memory(tmp_path, file_format):
     row_count = 1024 * 1024
     column_count = 16
-    filename = tmp_path / "large_tensor.parquet"
-    _write_parquet(filename, row_count, column_count, row_group_size=64 * 1024)
+    suffix = "pt" if file_format == "pytorch" else "parquet"
+    filename = tmp_path / f"large_tensor.{suffix}"
+    _write_structured_file(filename, file_format, row_count, column_count)
 
     multiprocess_run(
         1,
         partial(
-            _parquet_reader_memory_worker,
+            _structured_reader_memory_worker,
             filename=os.fspath(filename),
+            file_format=file_format,
             row_count=row_count,
             column_count=column_count,
             max_peak_increase=96 * 1024 * 1024,

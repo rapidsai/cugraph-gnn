@@ -1,7 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
 
 import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.utils.imports import MissingModule, import_optional
@@ -523,7 +521,6 @@ def create_embedding_from_filelist(
     :param memory_type: WholeMemory type, should be continuous, chunked or distributed
     :param memory_location: WholeMemory location, should be cpu or cuda
     :param filelist: list of binary, PyTorch, or Parquet files
-    :param filelist: list of binary, PyTorch, or Parquet files
     :param dtype: data type
     :param last_dim_size: size of last dim
     :param cache_policy: cache policy
@@ -541,11 +538,7 @@ def create_embedding_from_filelist(
     """
     filelist = _normalize_filelist(filelist)
     file_format = _resolve_file_format(filelist, file_format)
-    filelist = _normalize_filelist(filelist)
-    file_format = _resolve_file_format(filelist, file_format)
     assert last_dim_size > 0
-    if file_format != "binary" and round_robin_size != 0:
-        raise ValueError("round_robin_size is only supported for binary file loading")
     if file_format != "binary" and round_robin_size != 0:
         raise ValueError("round_robin_size is only supported for binary file loading")
     if embedding_entry_partition is not None and cache_policy is not None:
@@ -556,6 +549,9 @@ def create_embedding_from_filelist(
             "round_robin_size is ignored because embedding_entry_partition is specified"
         )
         round_robin_size = 0
+    # Determine the embedding shape without materializing structured tensor
+    # contents. Parquet uses footer metadata and PyTorch uses mmap-backed shape
+    # inspection.
     total_entry_count = _get_filelist_entry_count(
         filelist, file_format, dtype, last_dim_size
     )
@@ -564,6 +560,8 @@ def create_embedding_from_filelist(
             f"Files contain {total_entry_count} entries, but "
             f"expected_entry_count is {expected_entry_count}"
         )
+    # Allocate the final embedding first. The tensor loader then writes bounded
+    # chunks directly into this embedding's local WholeMemory partition.
     wm_embedding = create_embedding(
         comm,
         memory_type,
@@ -574,9 +572,6 @@ def create_embedding_from_filelist(
         embedding_entry_partition=embedding_entry_partition,
         gather_sms=gather_sms,
         round_robin_size=round_robin_size,
-    )
-    wm_embedding.get_embedding_tensor().from_filelist(
-        filelist, round_robin_size, file_format=file_format
     )
     wm_embedding.get_embedding_tensor().from_filelist(
         filelist, round_robin_size, file_format=file_format

@@ -21,8 +21,11 @@ torch = import_optional("torch")
 np = import_optional("numpy")
 pq = import_optional("pyarrow.parquet")
 
-_PARQUET_BATCH_SIZE = 64 * 1024
-_PARQUET_BATCH_SIZE_BYTES = 16 * 1024 * 1024
+# Structured formats must be decoded before they can be copied into WholeMemory.
+# Bound both the row count and approximate decoded bytes so this temporary
+# staging memory remains independent of the total dataset size.
+_STRUCTURED_BATCH_SIZE = 64 * 1024
+_STRUCTURED_BATCH_SIZE_BYTES = 16 * 1024 * 1024
 
 WholeMemoryMemoryType = wmb.WholeMemoryMemoryType
 WholeMemoryMemoryLocation = wmb.WholeMemoryMemoryLocation
@@ -78,13 +81,18 @@ def _resolve_file_format(filelist: List[str], file_format: str) -> str:
     return detected_formats.pop()
 
 
-def _load_pytorch_tensor(filename: str):
+def _open_pytorch_tensor(filename: str):
+    # mmap=True maps tensor storages instead of eagerly copying them into RAM.
+    # The mapping can be large in virtual address space, but pages become
+    # resident only as the chunk iterator below accesses them.
     try:
         value = torch.load(filename, map_location="cpu", mmap=True, weights_only=True)
     except RuntimeError as error:
-        if "mmap can only be used" not in str(error):
-            raise
-        value = torch.load(filename, map_location="cpu", weights_only=True)
+        raise ValueError(
+            f"PyTorch file {filename!r} cannot be memory-mapped. Re-save it with "
+            "the current torch.save format or convert it to binary before loading "
+            "it into WholeMemory."
+        ) from error
     if isinstance(value, torch.Tensor):
         return value.detach()
     if isinstance(value, dict):
@@ -98,6 +106,8 @@ def _load_pytorch_tensor(filename: str):
 
 
 def _parquet_file_metadata(filename: str, dim: int, last_dim_size: int) -> int:
+    # Parquet footers contain row counts and schemas, so allocation can be
+    # planned without decoding any data pages.
     parquet_file = pq.ParquetFile(filename)
     schema = parquet_file.schema_arrow
     column_count = len(schema)
@@ -130,6 +140,9 @@ def _parquet_file_metadata(filename: str, dim: int, last_dim_size: int) -> int:
 
 
 def _parquet_batch_to_tensor(batch, filename: str):
+    # Parquet is columnar whereas WholeMemory tensors are dense row-major
+    # tensors. This conversion necessarily allocates one temporary dense batch,
+    # which is bounded by _STRUCTURED_BATCH_SIZE_BYTES.
     try:
         columns = [column.to_numpy(zero_copy_only=False) for column in batch.columns]
         return torch.as_tensor(np.column_stack(columns))
@@ -137,6 +150,37 @@ def _parquet_batch_to_tensor(batch, filename: str):
         raise ValueError(
             f"Parquet file {filename!r} must contain only scalar numeric columns"
         ) from error
+
+
+def _get_structured_batch_size(input_row_size: int, output_row_size: int) -> int:
+    # Budget for decoded input, a dense row-major conversion, and a possible
+    # dtype-converted output. PyTorch does not always need all three buffers,
+    # but using the same conservative bound keeps both paths predictable.
+    approximate_staging_row_size = 2 * input_row_size + output_row_size
+    return min(
+        _STRUCTURED_BATCH_SIZE,
+        max(
+            1,
+            _STRUCTURED_BATCH_SIZE_BYTES // approximate_staging_row_size,
+        ),
+    )
+
+
+def _validate_row_range(
+    filename: str,
+    file_format: str,
+    row_count: int,
+    row_start: int,
+    row_end: Union[int, None],
+) -> int:
+    if row_end is None:
+        row_end = row_count
+    if row_start < 0 or row_end < row_start or row_end > row_count:
+        raise ValueError(
+            f"Invalid {file_format} row range [{row_start}, {row_end}) for "
+            f"{row_count} rows in {filename!r}"
+        )
+    return row_end
 
 
 def _iter_parquet_tensors(
@@ -156,20 +200,15 @@ def _iter_parquet_tensors(
     output_row_size = torch.tensor([], dtype=dtype).element_size() * (
         last_dim_size if dim == 2 else 1
     )
-    batch_size = min(
-        _PARQUET_BATCH_SIZE,
-        max(
-            1,
-            _PARQUET_BATCH_SIZE_BYTES // max(source_row_size, output_row_size),
-        ),
+    batch_size = _get_structured_batch_size(
+        source_row_size,
+        output_row_size,
     )
-    if row_end is None:
-        row_end = row_count
-    if row_start < 0 or row_end < row_start or row_end > row_count:
-        raise ValueError(
-            f"Invalid Parquet row range [{row_start}, {row_end}) for {row_count} rows"
-        )
+    row_end = _validate_row_range(filename, "Parquet", row_count, row_start, row_end)
 
+    # Each rank scans metadata for every file but decodes only row groups that
+    # intersect its local WholeMemory partition. At most one bounded batch is
+    # live at a time.
     row_group_start = 0
     for row_group in range(parquet_file.num_row_groups):
         row_group_count = parquet_file.metadata.row_group(row_group).num_rows
@@ -197,7 +236,41 @@ def _iter_parquet_tensors(
         row_group_start = row_group_end
 
 
-def _load_structured_tensor(
+def _iter_pytorch_tensors(
+    filename: str,
+    dtype: "torch.dtype",
+    dim: int,
+    last_dim_size: int,
+    row_start: int = 0,
+    row_end: Union[int, None] = None,
+):
+    tensor = _open_pytorch_tensor(filename)
+    _validate_tensor_shape(tensor, filename, dim, last_dim_size)
+    row_end = _validate_row_range(
+        filename, "PyTorch", tensor.shape[0], row_start, row_end
+    )
+
+    source_width = tensor.shape[1] if tensor.dim() == 2 else 1
+    source_row_size = tensor.element_size() * source_width
+    output_width = last_dim_size if dim == 2 else 1
+    output_row_size = torch.tensor([], dtype=dtype).element_size() * output_width
+    batch_size = _get_structured_batch_size(
+        source_row_size,
+        output_row_size,
+    )
+
+    # Slicing an mmap-backed tensor produces a view and faults in only the
+    # pages needed by this batch. Dtype conversion or contiguity fixes are also
+    # limited to this batch instead of the rank's entire partition.
+    for batch_start in range(row_start, row_end, batch_size):
+        batch_end = min(batch_start + batch_size, row_end)
+        batch = tensor[batch_start:batch_end]
+        if dim == 1 and batch.dim() == 2:
+            batch = batch[:, 0]
+        yield batch.to(device="cpu", dtype=dtype).contiguous()
+
+
+def _iter_structured_tensors(
     filename: str,
     file_format: str,
     dtype: "torch.dtype",
@@ -206,29 +279,16 @@ def _load_structured_tensor(
     row_start: int = 0,
     row_end: Union[int, None] = None,
 ):
-    if file_format == "pytorch":
-        tensor = _load_pytorch_tensor(filename)
-    elif file_format == "parquet":
-        tensors = list(
-            _iter_parquet_tensors(
-                filename, dtype, dim, last_dim_size, row_start, row_end
-            )
+    if file_format == "parquet":
+        yield from _iter_parquet_tensors(
+            filename, dtype, dim, last_dim_size, row_start, row_end
         )
-        if tensors:
-            return torch.cat(tensors)
-        shape = (0,) if dim == 1 else (0, last_dim_size)
-        return torch.empty(shape, dtype=dtype)
+    elif file_format == "pytorch":
+        yield from _iter_pytorch_tensors(
+            filename, dtype, dim, last_dim_size, row_start, row_end
+        )
     else:
         raise ValueError(f"Unsupported structured file format {file_format!r}")
-
-    _validate_tensor_shape(tensor, filename, dim, last_dim_size)
-
-    if dim == 1 and tensor.dim() == 2:
-        tensor = tensor[:, 0]
-    if row_end is None:
-        row_end = tensor.shape[0]
-    tensor = tensor[row_start:row_end]
-    return tensor.to(device="cpu", dtype=dtype).contiguous()
 
 
 def _validate_tensor_shape(tensor, filename: str, dim: int, last_dim_size: int):
@@ -269,7 +329,10 @@ def _get_file_entry_count(
     dim = 2 if last_dim_size > 0 else 1
     if file_format == "parquet":
         return _parquet_file_metadata(filename, dim, last_dim_size)
-    tensor = _load_pytorch_tensor(filename)
+    # Loading a PyTorch checkpoint's object graph is required to discover its
+    # shape, but mmap keeps the underlying tensor storage lazy and resident
+    # memory bounded.
+    tensor = _open_pytorch_tensor(filename)
     _validate_tensor_shape(tensor, filename, dim, last_dim_size)
     return tensor.shape[0]
 
@@ -280,6 +343,9 @@ def _get_filelist_entry_count(
     dtype: "torch.dtype",
     last_dim_size: int,
 ) -> int:
+    # This is a metadata-only planning pass for Parquet and binary files and an
+    # mmap-backed shape inspection for PyTorch files. No source tensors are
+    # concatenated or materialized here.
     return sum(
         _get_file_entry_count(filename, file_format, dtype, last_dim_size)
         for filename in filelist
@@ -428,15 +494,15 @@ class WholeMemoryTensor(object):
           using round robin shard strategy
         :param file_format: file format, one of binary, pytorch, parquet, or auto.
           PyTorch files must contain a tensor or a dictionary with exactly one
-          tensor. Parquet files must contain only numeric columns.
-        :param file_format: file format, one of binary, pytorch, parquet, or auto.
-          PyTorch files must contain a tensor or a dictionary with exactly one
-          tensor. Parquet files must contain only numeric columns.
+          tensor saved in an mmap-capable format. Parquet files must contain
+          only scalar numeric columns.
         :return: None
         """
         filelist = _normalize_filelist(filelist)
         file_format = _resolve_file_format(filelist, file_format)
         if file_format == "binary":
+            # Raw binary already matches WholeMemory's dense layout, so retain
+            # the native loader as the zero-decode, lowest-overhead fast path.
             self.wmb_tensor.from_filelist(filelist, round_robin_size)
             return
 
@@ -445,11 +511,21 @@ class WholeMemoryTensor(object):
                 "round_robin_size is only supported for binary file loading"
             )
 
-        local_tensor, local_start = self.get_local_tensor()
+        memory_location = self.wmb_tensor.get_wholememory_handle().get_memory_location()
+        is_host_memory = memory_location == WholeMemoryMemoryLocation.MlHost
+
+        # Request a view in the destination's native location. In particular,
+        # CPU WholeMemory should be populated directly from the CPU staging
+        # batches instead of mapping it through a CUDA view and performing an
+        # unnecessary host-to-device copy.
+        local_tensor, local_start = self.get_local_tensor(host_view=is_host_memory)
         local_end = local_start + local_tensor.shape[0]
         file_start = 0
         last_dim_size = self.shape[1] if self.dim() == 2 else 0
 
+        # Treat the file list as one logical row-major tensor. Every rank maps
+        # its local WholeMemory row interval onto that logical tensor and reads
+        # only intersecting source rows.
         for filename in filelist:
             file_entry_count = _get_file_entry_count(
                 filename, file_format, self.dtype, last_dim_size
@@ -461,34 +537,20 @@ class WholeMemoryTensor(object):
                 source_start = copy_start - file_start
                 destination_start = copy_start - local_start
                 source_end = copy_end - file_start
-                if file_format == "parquet":
-                    for file_tensor in _iter_parquet_tensors(
-                        filename,
-                        self.dtype,
-                        self.dim(),
-                        last_dim_size,
-                        source_start,
-                        source_end,
-                    ):
-                        copy_count = file_tensor.shape[0]
-                        local_tensor[
-                            destination_start : destination_start + copy_count
-                        ].copy_(file_tensor)
-                        destination_start += copy_count
-                else:
-                    file_tensor = _load_structured_tensor(
-                        filename,
-                        file_format,
-                        self.dtype,
-                        self.dim(),
-                        last_dim_size,
-                        source_start,
-                        source_end,
-                    )
+                for file_tensor in _iter_structured_tensors(
+                    filename,
+                    file_format,
+                    self.dtype,
+                    self.dim(),
+                    last_dim_size,
+                    source_start,
+                    source_end,
+                ):
                     copy_count = file_tensor.shape[0]
                     local_tensor[
                         destination_start : destination_start + copy_count
                     ].copy_(file_tensor)
+                    destination_start += copy_count
             file_start = file_end
 
         if file_start != self.shape[0]:
@@ -496,7 +558,10 @@ class WholeMemoryTensor(object):
                 f"Files contain {file_start} entries, but the WholeMemory tensor "
                 f"expects {self.shape[0]} entries"
             )
-        torch.cuda.synchronize()
+        # CPU copies are synchronous. CUDA copies may be enqueued on the
+        # current stream and must complete before ranks leave the load phase.
+        if not is_host_memory:
+            torch.cuda.synchronize()
         self.get_comm().barrier()
 
     def from_file_prefix(self, file_prefix: str, part_count: Union[int, None] = None):
@@ -616,10 +681,11 @@ def create_wholememory_tensor_from_filelist(
     """
     filelist = _normalize_filelist(filelist)
     file_format = _resolve_file_format(filelist, file_format)
-    filelist = _normalize_filelist(filelist)
-    file_format = _resolve_file_format(filelist, file_format)
     if last_dim_strides == -1:
         last_dim_strides = last_dim_size if last_dim_size > 0 else 1
+
+    # Phase 1 only inspects file sizes/metadata (or mmap-backed PyTorch
+    # metadata). The complete source dataset is never assembled in CPU memory.
     total_entry_count = _get_filelist_entry_count(
         filelist, file_format, dtype, last_dim_size
     )
@@ -634,6 +700,10 @@ def create_wholememory_tensor_from_filelist(
     else:
         sizes = [total_entry_count, last_dim_size]
         strides = [last_dim_strides, 1]
+
+    # Phase 2 allocates the final destination before decoding any structured
+    # data. from_filelist() then fills the local partition one bounded batch at
+    # a time, keeping peak staging memory independent of dataset size.
     wm_tensor = create_wholememory_tensor(
         comm,
         memory_type,
@@ -643,7 +713,6 @@ def create_wholememory_tensor_from_filelist(
         strides,
         tensor_entry_partition,
     )
-    wm_tensor.from_filelist(filelist, file_format=file_format)
     wm_tensor.from_filelist(filelist, file_format=file_format)
     return wm_tensor
 
