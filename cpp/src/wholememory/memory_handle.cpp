@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "memory_handle.hpp"
@@ -14,8 +14,13 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include <atomic>
+#include <memory>
 #include <mutex>
 #include <vector>
+
+#include <rmm/cuda_stream_view.hpp>
+#include <rmm/device_buffer.hpp>
 
 #include "cuda_macros.hpp"
 #include "error.hpp"
@@ -32,6 +37,14 @@
 
 #endif
 namespace wholememory {
+
+namespace {
+std::atomic<bool> rmm_enabled{false};
+}
+
+void set_rmm_enabled(bool enabled) noexcept { rmm_enabled.store(enabled); }
+
+bool is_rmm_enabled() noexcept { return rmm_enabled.load(); }
 
 enum wm_memory_op : int32_t {
   WM_MEM_OP_CREATE = 0xEEEEE,
@@ -363,7 +376,11 @@ class distributed_wholememory_impl : public wholememory_impl {
       return;
     }
 
-    if (on_device) {
+    if (on_device && is_rmm_enabled()) {
+      rmm_device_buffer_ =
+        std::make_unique<rmm::device_buffer>(alloc_size, rmm::cuda_stream_default);
+      dev_ptr = rmm_device_buffer_->data();
+    } else if (on_device) {
       WM_CUDA_CHECK(cudaMalloc(&dev_ptr, alloc_size));
     } else {
       WM_CUDA_CHECK(cudaMallocHost(&dev_ptr, alloc_size));
@@ -378,7 +395,11 @@ class distributed_wholememory_impl : public wholememory_impl {
       if (no_ipc_handle_.local_alloc_mem_ptr == nullptr) return;
       bool on_device = location_ == WHOLEMEMORY_ML_DEVICE;
       if (on_device) {
-        WM_CUDA_CHECK(cudaFree(ptr));
+        if (rmm_device_buffer_ != nullptr) {
+          rmm_device_buffer_.reset();
+        } else {
+          WM_CUDA_CHECK(cudaFree(ptr));
+        }
       } else {
         WM_CUDA_CHECK(cudaFreeHost(ptr));
       }
@@ -393,6 +414,7 @@ class distributed_wholememory_impl : public wholememory_impl {
   struct no_ipc_handle {
     void* local_alloc_mem_ptr = nullptr;
   } no_ipc_handle_;
+  std::unique_ptr<rmm::device_buffer> rmm_device_buffer_;
 };
 
 // Implementation for host wholememory that need global map.
@@ -1817,10 +1839,18 @@ wholememory_error_code_t create_wholememory(wholememory_handle_t* wholememory_ha
     WM_COMM_CHECK_ALL_SAME(comm, WM_MEM_OP_CREATE);
     wholememory_create_param wcp(total_size, memory_type, memory_location, data_granularity);
     WM_COMM_CHECK_ALL_SAME(comm, wcp);
+    WM_COMM_CHECK_ALL_SAME(comm, is_rmm_enabled());
+
+    bool const rmm_device_allocation = is_rmm_enabled() && memory_location == WHOLEMEMORY_ML_DEVICE;
 
     if (memory_type == WHOLEMEMORY_MT_DISTRIBUTED) {
 #ifdef WITH_NVSHMEM_SUPPORT
       if (comm->bind_to_nvshmem) {
+        if (rmm_device_allocation && comm->world_rank == 0) {
+          WHOLEMEMORY_WARN(
+            "RMM is enabled, but NVSHMEM device allocations require symmetric memory and cannot "
+            "use RMM. Falling back to nvshmem_malloc.");
+        }
         whole_memory_handle->impl = new nvshmem_device_wholememory_impl(whole_memory_handle,
                                                                         total_size,
                                                                         comm,
@@ -1840,6 +1870,11 @@ wholememory_error_code_t create_wholememory(wholememory_handle_t* wholememory_ha
                                                                      rank_entry_partition);
       }
     } else if (memory_type == WHOLEMEMORY_MT_CONTINUOUS) {
+      if (rmm_device_allocation && comm->world_rank == 0) {
+        WHOLEMEMORY_WARN(
+          "RMM is enabled, but CONTINUOUS device allocations require CUDA virtual memory APIs and "
+          "cannot use RMM. Falling back to the existing allocation path.");
+      }
       if (is_intranode_communicator(comm) || !SupportEGM()) {
         if (memory_location == WHOLEMEMORY_ML_HOST) {
           whole_memory_handle->impl = new global_mapped_host_wholememory_impl(whole_memory_handle,
@@ -1873,6 +1908,11 @@ wholememory_error_code_t create_wholememory(wholememory_handle_t* wholememory_ha
       }
     } else if (memory_type == WHOLEMEMORY_MT_CHUNKED) {
       WHOLEMEMORY_CHECK_NOTHROW(is_intranode_communicator(comm));
+      if (rmm_device_allocation && comm->world_rank == 0) {
+        WHOLEMEMORY_WARN(
+          "RMM is enabled, but CHUNKED device allocations require CUDA IPC and cannot use RMM. "
+          "Falling back to cudaMalloc.");
+      }
       if (memory_location == WHOLEMEMORY_ML_HOST) {
         whole_memory_handle->impl = new global_mapped_host_wholememory_impl(whole_memory_handle,
                                                                             total_size,

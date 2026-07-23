@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -95,6 +95,29 @@ wholememory_error_code_t wholememory_init(unsigned int flags, LogLevel log_level
  * @return : wholememory_error_code_t
  */
 wholememory_error_code_t wholememory_finalize();
+
+/**
+ * Enable or disable RMM for supported WholeMemory device allocations.
+ *
+ * When enabled, future DISTRIBUTED and HIERARCHY device allocations use the RMM memory resource
+ * configured for the current CUDA device. Existing allocations retain their original allocation
+ * method. Other memory types and host allocations continue to use their specialized allocation
+ * paths.
+ *
+ * The caller must configure an RMM resource for each CUDA device before enabling this option and
+ * keep that resource alive until all WholeMemory allocations using it have been destroyed.
+ *
+ * @param enabled : true to use RMM for supported allocations, false to use the default allocator
+ * @return : wholememory_error_code_t
+ */
+wholememory_error_code_t wholememory_set_rmm_enabled(bool enabled);
+
+/**
+ * Return whether RMM is enabled for supported WholeMemory device allocations.
+ *
+ * @return : true if RMM is enabled
+ */
+bool wholememory_is_rmm_enabled();
 
 /**
  * @brief Opaque handle to communicator
