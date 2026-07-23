@@ -108,7 +108,9 @@ class GraphStore(
 
         if isinstance(edge_index, DistMatrix):
             if edge_index._format != "coo":
-                raise ValueError("Only COO format supported")
+                raise ValueError(
+                    "Only COO format is supported when passing a DistMatrix."
+                )
 
             self.__edge_indices[edge_attr.edge_type] = edge_index
             self.__sizes[edge_attr.edge_type] = edge_attr.size
@@ -125,8 +127,8 @@ class GraphStore(
         ):
             if edge_index[0].shape[0] != edge_index[1].shape[0]:
                 raise ValueError(
-                    "Only COO format is supported for construction "
-                    "from DistTensor tuples."
+                    "GraphStore currently only supports COO format, "
+                    "which requires that the two tensors have the same number of elements."
                 )
 
             dist_matrix = DistMatrix(
