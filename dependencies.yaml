@@ -399,7 +399,6 @@ dependencies:
             packages:
           - matrix:
             packages:
-              - torchdata
               - pydantic
   test_python_pylibwholegraph:
     common:

@@ -42,6 +42,5 @@ dependencies:
 - scikit-build-core>=0.11.0
 - scipy
 - setuptools>=77.0.0
-- torchdata
 - wheel
 name: all_cuda-133_arch-aarch64
