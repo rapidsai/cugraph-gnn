@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -15,14 +15,13 @@ memory during the initial loading phase on rank 0. The OGB WikiKG2 dataset is
 large and requires substantial RAM for loading and temporary buffers. Ensure
 you have sufficient memory (typically 16+ GB) for the rank 0 process.
 
-Can be run with: torchrun --nproc-per-node=<num_gpus> rgcn_link_class_mnmg.py
+Can be run with: TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1 torchrun --nproc-per-node=<num_gpus> rgcn_link_class_mnmg.py
 """
 
 import os
 import argparse
 import warnings
 
-import numpy
 
 import torch
 import torch_geometric
@@ -172,7 +171,6 @@ def parse_args():
     parser.add_argument("--dataset", type=str, default="ogbl-wikikg2")
     parser.add_argument("--dataset_root", type=str, default="datasets")
     parser.add_argument("--seeds_per_call", type=int, default=-1)
-    parser.add_argument("--n_devices", type=int, default=-1)
 
     return parser.parse_args()
 
@@ -291,22 +289,11 @@ if __name__ == "__main__":
                 # This is a large knowledge graph dataset and requires significant host memory.
                 # The dataset is then broadcast or distributed to other ranks. Ensure rank 0
                 # has 16+ GB of available RAM to avoid out-of-memory errors.
-                with torch.serialization.safe_globals(
-                    [
-                        torch_geometric.data.data.DataEdgeAttr,
-                        torch_geometric.data.data.DataTensorAttr,
-                        torch_geometric.data.storage.GlobalStorage,
-                        numpy.core.multiarray._reconstruct,
-                        numpy.ndarray,
-                        numpy.dtype,
-                        numpy.dtypes.Int64DType,
-                    ]
-                ):
-                    data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
-                    dataset = data[0]
-                    print(dataset, flush=True)
+                data = PygLinkPropPredDataset(args.dataset, root=args.dataset_root)
+                dataset = data[0]
+                print(dataset, flush=True)
 
-                    splits = data.get_edge_split()
+                splits = data.get_edge_split()
 
                 nr = [dataset.num_nodes, int(dataset.edge_reltype.max()) + 1]
             else:
@@ -390,7 +377,7 @@ if __name__ == "__main__":
                 global_rank,
                 local_rank,
                 model,
-                (feature_store, graph_store),
+                (feature_store, graph_store.finalize()),
                 edge_feature_store,
                 splits_storage,
                 args,
