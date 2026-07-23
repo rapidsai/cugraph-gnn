@@ -21,6 +21,9 @@ torch = import_optional("torch")
 np = import_optional("numpy")
 pq = import_optional("pyarrow.parquet")
 
+_PARQUET_BATCH_SIZE = 64 * 1024
+_PARQUET_BATCH_SIZE_BYTES = 16 * 1024 * 1024
+
 WholeMemoryMemoryType = wmb.WholeMemoryMemoryType
 WholeMemoryMemoryLocation = wmb.WholeMemoryMemoryLocation
 
@@ -40,10 +43,10 @@ _FILE_FORMAT_ALIASES = {
 
 
 def _normalize_filelist(filelist: Union[List[str], str]) -> List[str]:
-    if isinstance(filelist, str):
-        normalized_filelist = [filelist]
+    if isinstance(filelist, (str, os.PathLike)):
+        normalized_filelist = [os.fspath(filelist)]
     else:
-        normalized_filelist = list(filelist)
+        normalized_filelist = [os.fspath(filename) for filename in filelist]
     if not normalized_filelist:
         raise ValueError("filelist must contain at least one file")
     return normalized_filelist
@@ -76,7 +79,12 @@ def _resolve_file_format(filelist: List[str], file_format: str) -> str:
 
 
 def _load_pytorch_tensor(filename: str):
-    value = torch.load(filename, map_location="cpu", weights_only=True)
+    try:
+        value = torch.load(filename, map_location="cpu", mmap=True, weights_only=True)
+    except RuntimeError as error:
+        if "mmap can only be used" not in str(error):
+            raise
+        value = torch.load(filename, map_location="cpu", weights_only=True)
     if isinstance(value, torch.Tensor):
         return value.detach()
     if isinstance(value, dict):
@@ -89,20 +97,104 @@ def _load_pytorch_tensor(filename: str):
     )
 
 
-def _load_parquet_tensor(filename: str):
-    table = pq.read_table(filename)
-    if table.num_columns == 0:
+def _parquet_file_metadata(filename: str, dim: int, last_dim_size: int) -> int:
+    parquet_file = pq.ParquetFile(filename)
+    schema = parquet_file.schema_arrow
+    column_count = len(schema)
+    if column_count == 0:
         raise ValueError(f"Parquet file {filename!r} contains no columns")
+    if dim == 1 and column_count != 1:
+        raise ValueError(
+            f"File {filename!r} has {column_count} columns, expected a 1-D tensor"
+        )
+    if dim == 2 and column_count != last_dim_size:
+        raise ValueError(
+            f"File {filename!r} has {column_count} columns, expected shape "
+            f"(N, {last_dim_size})"
+        )
+
     try:
-        columns = [
-            column.combine_chunks().to_numpy(zero_copy_only=False)
-            for column in table.columns
-        ]
+        column_dtypes = [np.dtype(field.type.to_pandas_dtype()) for field in schema]
+    except (RuntimeError, TypeError, ValueError) as error:
+        raise ValueError(
+            f"Parquet file {filename!r} must contain only scalar numeric columns"
+        ) from error
+    if any(
+        not (np.issubdtype(dtype, np.number) or np.issubdtype(dtype, np.bool_))
+        for dtype in column_dtypes
+    ):
+        raise ValueError(
+            f"Parquet file {filename!r} must contain only scalar numeric columns"
+        )
+    return parquet_file.metadata.num_rows
+
+
+def _parquet_batch_to_tensor(batch, filename: str):
+    try:
+        columns = [column.to_numpy(zero_copy_only=False) for column in batch.columns]
         return torch.as_tensor(np.column_stack(columns))
     except (TypeError, ValueError) as error:
         raise ValueError(
-            f"Parquet file {filename!r} must contain only numeric columns"
+            f"Parquet file {filename!r} must contain only scalar numeric columns"
         ) from error
+
+
+def _iter_parquet_tensors(
+    filename: str,
+    dtype: "torch.dtype",
+    dim: int,
+    last_dim_size: int,
+    row_start: int = 0,
+    row_end: Union[int, None] = None,
+):
+    parquet_file = pq.ParquetFile(filename)
+    row_count = _parquet_file_metadata(filename, dim, last_dim_size)
+    source_row_size = sum(
+        np.dtype(field.type.to_pandas_dtype()).itemsize
+        for field in parquet_file.schema_arrow
+    )
+    output_row_size = torch.tensor([], dtype=dtype).element_size() * (
+        last_dim_size if dim == 2 else 1
+    )
+    batch_size = min(
+        _PARQUET_BATCH_SIZE,
+        max(
+            1,
+            _PARQUET_BATCH_SIZE_BYTES // max(source_row_size, output_row_size),
+        ),
+    )
+    if row_end is None:
+        row_end = row_count
+    if row_start < 0 or row_end < row_start or row_end > row_count:
+        raise ValueError(
+            f"Invalid Parquet row range [{row_start}, {row_end}) for {row_count} rows"
+        )
+
+    row_group_start = 0
+    for row_group in range(parquet_file.num_row_groups):
+        row_group_count = parquet_file.metadata.row_group(row_group).num_rows
+        row_group_end = row_group_start + row_group_count
+        if row_group_end <= row_start:
+            row_group_start = row_group_end
+            continue
+        if row_group_start >= row_end:
+            break
+
+        batch_start = row_group_start
+        for batch in parquet_file.iter_batches(
+            batch_size=batch_size, row_groups=[row_group]
+        ):
+            batch_end = batch_start + batch.num_rows
+            copy_start = max(row_start, batch_start)
+            copy_end = min(row_end, batch_end)
+            if copy_start < copy_end:
+                tensor = _parquet_batch_to_tensor(batch, filename)
+                tensor = tensor[copy_start - batch_start : copy_end - batch_start]
+                if dim == 1:
+                    tensor = tensor[:, 0]
+                yield tensor.to(device="cpu", dtype=dtype).contiguous()
+            batch_start = batch_end
+        row_group_start = row_group_end
 
 
 def _load_structured_tensor(
@@ -111,17 +203,38 @@ def _load_structured_tensor(
     dtype: "torch.dtype",
     dim: int,
     last_dim_size: int,
+    row_start: int = 0,
+    row_end: Union[int, None] = None,
 ):
     if file_format == "pytorch":
         tensor = _load_pytorch_tensor(filename)
     elif file_format == "parquet":
-        tensor = _load_parquet_tensor(filename)
+        tensors = list(
+            _iter_parquet_tensors(
+                filename, dtype, dim, last_dim_size, row_start, row_end
+            )
+        )
+        if tensors:
+            return torch.cat(tensors)
+        shape = (0,) if dim == 1 else (0, last_dim_size)
+        return torch.empty(shape, dtype=dtype)
     else:
         raise ValueError(f"Unsupported structured file format {file_format!r}")
 
+    _validate_tensor_shape(tensor, filename, dim, last_dim_size)
+
+    if dim == 1 and tensor.dim() == 2:
+        tensor = tensor[:, 0]
+    if row_end is None:
+        row_end = tensor.shape[0]
+    tensor = tensor[row_start:row_end]
+    return tensor.to(device="cpu", dtype=dtype).contiguous()
+
+
+def _validate_tensor_shape(tensor, filename: str, dim: int, last_dim_size: int):
     if dim == 1:
         if tensor.dim() == 2 and tensor.shape[1] == 1:
-            tensor = tensor[:, 0]
+            return
         if tensor.dim() != 1:
             raise ValueError(
                 f"File {filename!r} has shape {tuple(tensor.shape)}, expected a "
@@ -133,11 +246,9 @@ def _load_structured_tensor(
             f"(N, {last_dim_size})"
         )
 
-    return tensor.to(device="cpu", dtype=dtype).contiguous()
 
-
-def _get_filelist_entry_count(
-    filelist: List[str],
+def _get_file_entry_count(
+    filename: str,
     file_format: str,
     dtype: "torch.dtype",
     last_dim_size: int,
@@ -147,22 +258,30 @@ def _get_filelist_entry_count(
         file_entry_size = (
             element_size * last_dim_size if last_dim_size > 0 else element_size
         )
-        total_file_size = 0
-        for filename in filelist:
-            file_size = get_file_size(filename)
-            if file_size % file_entry_size != 0:
-                raise ValueError(
-                    "File %s size is %d not multiple of %d"
-                    % (filename, file_size, file_entry_size)
-                )
-            total_file_size += file_size
-        return total_file_size // file_entry_size
+        file_size = get_file_size(filename)
+        if file_size % file_entry_size != 0:
+            raise ValueError(
+                "File %s size is %d not multiple of %d"
+                % (filename, file_size, file_entry_size)
+            )
+        return file_size // file_entry_size
 
     dim = 2 if last_dim_size > 0 else 1
+    if file_format == "parquet":
+        return _parquet_file_metadata(filename, dim, last_dim_size)
+    tensor = _load_pytorch_tensor(filename)
+    _validate_tensor_shape(tensor, filename, dim, last_dim_size)
+    return tensor.shape[0]
+
+
+def _get_filelist_entry_count(
+    filelist: List[str],
+    file_format: str,
+    dtype: "torch.dtype",
+    last_dim_size: int,
+) -> int:
     return sum(
-        _load_structured_tensor(filename, file_format, dtype, dim, last_dim_size).shape[
-            0
-        ]
+        _get_file_entry_count(filename, file_format, dtype, last_dim_size)
         for filename in filelist
     )
 
@@ -329,19 +448,44 @@ class WholeMemoryTensor(object):
         last_dim_size = self.shape[1] if self.dim() == 2 else 0
 
         for filename in filelist:
-            file_tensor = _load_structured_tensor(
-                filename, file_format, self.dtype, self.dim(), last_dim_size
+            file_entry_count = _get_file_entry_count(
+                filename, file_format, self.dtype, last_dim_size
             )
-            file_end = file_start + file_tensor.shape[0]
+            file_end = file_start + file_entry_count
             copy_start = max(file_start, local_start)
             copy_end = min(file_end, local_end)
             if copy_start < copy_end:
                 source_start = copy_start - file_start
                 destination_start = copy_start - local_start
-                copy_count = copy_end - copy_start
-                local_tensor[destination_start : destination_start + copy_count].copy_(
-                    file_tensor[source_start : source_start + copy_count]
-                )
+                source_end = copy_end - file_start
+                if file_format == "parquet":
+                    for file_tensor in _iter_parquet_tensors(
+                        filename,
+                        self.dtype,
+                        self.dim(),
+                        last_dim_size,
+                        source_start,
+                        source_end,
+                    ):
+                        copy_count = file_tensor.shape[0]
+                        local_tensor[
+                            destination_start : destination_start + copy_count
+                        ].copy_(file_tensor)
+                        destination_start += copy_count
+                else:
+                    file_tensor = _load_structured_tensor(
+                        filename,
+                        file_format,
+                        self.dtype,
+                        self.dim(),
+                        last_dim_size,
+                        source_start,
+                        source_end,
+                    )
+                    copy_count = file_tensor.shape[0]
+                    local_tensor[
+                        destination_start : destination_start + copy_count
+                    ].copy_(file_tensor)
             file_start = file_end
 
         if file_start != self.shape[0]:
@@ -446,6 +590,7 @@ def create_wholememory_tensor_from_filelist(
     last_dim_strides: int = -1,
     tensor_entry_partition: Union[List[int], None] = None,
     file_format: str = "binary",
+    expected_entry_count: Union[int, None] = None,
 ):
     """
     Create WholeMemory Tensor from a list of files.
@@ -462,6 +607,8 @@ def create_wholememory_tensor_from_filelist(
       i and shoud be a positive integer; the sum of tensor_entry_partition
       should equal to total entry count; entries will be equally partitioned if None
     :param file_format: file format, one of binary, pytorch, parquet, or auto
+    :param expected_entry_count: optional expected number of rows. An error is
+      raised before allocation when the files contain a different row count.
     :return: WholeMemoryTensor
     """
     filelist = _normalize_filelist(filelist)
@@ -471,6 +618,11 @@ def create_wholememory_tensor_from_filelist(
     total_entry_count = _get_filelist_entry_count(
         filelist, file_format, dtype, last_dim_size
     )
+    if expected_entry_count is not None and total_entry_count != expected_entry_count:
+        raise ValueError(
+            f"Files contain {total_entry_count} entries, but "
+            f"expected_entry_count is {expected_entry_count}"
+        )
     if last_dim_size == 0:
         sizes = [total_entry_count]
         strides = [1]

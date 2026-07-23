@@ -100,7 +100,7 @@ def create_wg_dist_tensor_from_files(
     location: str = "cpu",
     partition_book: Union[List[int], None] = None,
     backend: str = "nccl",
-    file_format: str = "binary",
+    file_format: str = "auto",
     **kwargs,
 ):
     """
@@ -155,6 +155,7 @@ def create_wg_dist_tensor_from_files(
             cache_policy=cache_policy,
             embedding_entry_partition=partition_book,
             file_format=file_format,
+            expected_entry_count=shape[0],
             **kwargs,
         )
     else:
@@ -171,6 +172,7 @@ def create_wg_dist_tensor_from_files(
             last_dim_size,
             tensor_entry_partition=partition_book,
             file_format=file_format,
+            expected_entry_count=shape[0],
         )
     return wm_embedding
 

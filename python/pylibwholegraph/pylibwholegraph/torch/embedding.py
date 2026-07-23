@@ -513,6 +513,7 @@ def create_embedding_from_filelist(
     gather_sms: int = -1,
     round_robin_size: int = 0,
     file_format: str = "binary",
+    expected_entry_count: Union[int, None] = None,
 ):
     r"""
     Create embedding from file list
@@ -531,6 +532,8 @@ def create_embedding_from_filelist(
     :param round_robin_size: continuous embedding size of a rank
       using round robin shard strategy
     :param file_format: file format, one of binary, pytorch, parquet, or auto
+    :param expected_entry_count: optional expected number of rows. An error is
+      raised before allocation when the files contain a different row count.
     :return:
     """
     filelist = _normalize_filelist(filelist)
@@ -549,6 +552,11 @@ def create_embedding_from_filelist(
     total_entry_count = _get_filelist_entry_count(
         filelist, file_format, dtype, last_dim_size
     )
+    if expected_entry_count is not None and total_entry_count != expected_entry_count:
+        raise ValueError(
+            f"Files contain {total_entry_count} entries, but "
+            f"expected_entry_count is {expected_entry_count}"
+        )
     wm_embedding = create_embedding(
         comm,
         memory_type,

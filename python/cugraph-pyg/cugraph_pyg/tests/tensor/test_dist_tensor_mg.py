@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -72,7 +72,7 @@ def test_dist_tensor_creation(device, clx, dtype):
     )
 
 
-def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
+def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype, file_format):
     """Test DistTensor creation from file"""
     torch.cuda.set_device(rank)
 
@@ -88,14 +88,38 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     features = torch.arange(0, world_size * 1000)
     features = features.reshape((features.numel() // 100, 100)).to(dtype)
 
-    with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
-        torch.save(features, f.name)
+    suffix = ".pt" if file_format == "pytorch" else ".parquet"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
         file_path = f.name
+    if file_format == "pytorch":
+        torch.save(features, file_path)
+    else:
+        import pyarrow
+        import pyarrow.parquet as parquet
+
+        parquet.write_table(
+            pyarrow.table(
+                {
+                    f"feature_{index}": features[:, index].numpy()
+                    for index in range(features.shape[1])
+                }
+            ),
+            file_path,
+        )
 
     # Load distributed tensor
     torch.distributed.barrier()
     print(f"loading from {file_path}...")
-    dist_tensor = clx.from_file(file_path, device=device)
+    if file_format == "pytorch":
+        dist_tensor = clx.from_file(file_path, device=device)
+    else:
+        dist_tensor = clx.from_file(
+            file_path,
+            device=device,
+            shape=features.shape,
+            dtype=features.dtype,
+            file_format="parquet",
+        )
     print("loaded...")
     assert dist_tensor.shape == features.shape
     assert dist_tensor.dtype == features.dtype
@@ -106,8 +130,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
 
     torch.distributed.barrier()
     # Clean up
-    if rank == 0:
-        os.unlink(file_path)
+    os.unlink(file_path)
 
     wm_finalize()
     torch.distributed.destroy_process_group()
@@ -120,8 +143,11 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
 @pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
+@pytest.mark.parametrize("file_format", ["pytorch", "parquet"])
 @pytest.mark.mg
-def test_dist_tensor_from_file(device, clx, dtype):
+def test_dist_tensor_from_file(device, clx, dtype, file_format):
+    if file_format == "parquet" and dtype != "float32":
+        pytest.skip("Parquet integration coverage uses a float32 source")
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
@@ -129,7 +155,7 @@ def test_dist_tensor_from_file(device, clx, dtype):
 
     torch.multiprocessing.spawn(
         run_test_dist_tensor_from_file,
-        args=(world_size, device, clx, dtype),
+        args=(world_size, device, clx, dtype, file_format),
         nprocs=world_size,
     )
 

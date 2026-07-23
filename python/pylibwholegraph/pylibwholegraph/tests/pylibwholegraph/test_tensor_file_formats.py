@@ -6,8 +6,10 @@ import pytest
 
 from pylibwholegraph.torch.tensor import (
     _get_filelist_entry_count,
+    _iter_parquet_tensors,
     _load_structured_tensor,
     _resolve_file_format,
+    create_wholememory_tensor_from_filelist,
 )
 
 torch = pytest.importorskip("torch")
@@ -45,6 +47,18 @@ def test_get_pytorch_filelist_entry_count(tmp_path):
     assert _get_filelist_entry_count(filenames, "pytorch", torch.float32, 3) == 10
 
 
+def test_load_pytorch_tensor_row_slice(tmp_path):
+    expected = torch.arange(30, dtype=torch.float32).reshape(10, 3)
+    filename = tmp_path / "tensor.pt"
+    torch.save(expected, filename)
+
+    actual = _load_structured_tensor(
+        str(filename), "pytorch", torch.float32, 2, 3, 3, 7
+    )
+
+    torch.testing.assert_close(actual, expected[3:7])
+
+
 def test_load_parquet_tensor(tmp_path):
     pyarrow = pytest.importorskip("pyarrow")
     parquet = pytest.importorskip("pyarrow.parquet")
@@ -58,6 +72,68 @@ def test_load_parquet_tensor(tmp_path):
     actual = _load_structured_tensor(str(filename), "parquet", torch.float32, 2, 3)
 
     torch.testing.assert_close(actual, torch.from_numpy(expected))
+
+
+def test_get_parquet_filelist_entry_count_uses_metadata(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filenames = []
+    for index, row_count in enumerate([4, 6]):
+        filename = tmp_path / f"tensor_{index}.parquet"
+        parquet.write_table(
+            pyarrow.table(
+                {
+                    f"feature_{i}": np.arange(row_count, dtype=np.float32)
+                    for i in range(3)
+                }
+            ),
+            filename,
+        )
+        filenames.append(str(filename))
+
+    assert _get_filelist_entry_count(filenames, "parquet", torch.float32, 3) == 10
+
+    with pytest.raises(ValueError, match="expected_entry_count is 11"):
+        create_wholememory_tensor_from_filelist(
+            None,
+            "distributed",
+            "cuda",
+            filenames,
+            torch.float32,
+            3,
+            file_format="parquet",
+            expected_entry_count=11,
+        )
+
+
+def test_iter_parquet_tensors_reads_requested_rows(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    expected = np.arange(36, dtype=np.float32).reshape(12, 3)
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table({f"feature_{i}": expected[:, i] for i in range(3)}),
+        filename,
+        row_group_size=3,
+    )
+
+    batches = list(
+        _iter_parquet_tensors(
+            str(filename), torch.float32, 2, 3, row_start=2, row_end=10
+        )
+    )
+
+    torch.testing.assert_close(torch.cat(batches), torch.from_numpy(expected[2:10]))
+
+
+def test_parquet_rejects_non_numeric_columns(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(pyarrow.table({"name": ["a", "b"]}), filename)
+
+    with pytest.raises(ValueError, match="scalar numeric columns"):
+        _get_filelist_entry_count([str(filename)], "parquet", torch.float32, 1)
 
 
 def test_structured_tensor_shape_validation(tmp_path):
