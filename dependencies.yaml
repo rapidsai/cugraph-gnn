@@ -551,7 +551,7 @@ dependencies:
     common:
       - output_types: [conda]
         packages:
-          - pytorch_geometric>=2.5,<2.8
+          - pytorch_geometric>=2.5,<2.9
     specific:
       # no 'pyproject'... we intentionally keep 'torch-geometric' out of wheel
       # metadata so it's possible to install 'cugraph-pyg' without 'torch'
@@ -562,7 +562,7 @@ dependencies:
             packages:
           - matrix:
             packages:
-              - torch-geometric>=2.5,<2.8
+              - torch-geometric>=2.5,<2.9
   depends_on_pylibwholegraph:
     common:
       - output_types: conda
