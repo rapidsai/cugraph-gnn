@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import List, Optional, Union, Literal
@@ -46,6 +46,12 @@ class DistTensor:
         Entries will be equally partitioned if None.
     backend : Optional[Literal["vmm", "nccl", "nvshmem", "chunked"]] = "nccl"
         The backend used for communication. Default is "nccl".
+    file_format : Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto"
+        Format used when ``src`` is a list of files or a Parquet file. ``auto``
+        detects PyTorch and Parquet files by extension and treats other files as
+        raw binary. Parquet files must contain only scalar numeric columns in
+        physical column order. Shape and dtype are required for file lists and
+        Parquet sources.
     """
 
     def __init__(
@@ -59,6 +65,7 @@ class DistTensor:
         ] = None,  # location memtype ?? backend?? ; engine; comm =  vmm/nccl ..
         backend: Optional[str] = "nccl",
         *args,
+        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
         **kwargs,
     ):
         self._tensor = None
@@ -79,15 +86,40 @@ class DistTensor:
         else:
             if isinstance(src, list):
                 # A list of file paths for a tensor
-                # Only support the binary file format directly loaded via WM API for now
                 if shape is None or dtype is None:
                     raise ValueError(
-                        "For now, reading from multiple files is only"
-                        " supported with binary format."
+                        "shape and dtype are required when reading from multiple files"
                     )
 
                 self._tensor = create_wg_dist_tensor_from_files(
-                    src, shape, dtype, device, partition_book, backend, *args, **kwargs
+                    src,
+                    shape,
+                    dtype,
+                    device,
+                    partition_book,
+                    backend,
+                    file_format,
+                    *args,
+                    **kwargs,
+                )
+                self.__dtype = dtype
+            elif isinstance(src, str) and (
+                src.lower().endswith((".parquet", ".pq")) or file_format == "parquet"
+            ):
+                if shape is None or dtype is None:
+                    raise ValueError(
+                        "shape and dtype are required when reading a Parquet file"
+                    )
+                self._tensor = create_wg_dist_tensor_from_files(
+                    [src],
+                    shape,
+                    dtype,
+                    device,
+                    partition_book,
+                    backend,
+                    file_format,
+                    *args,
+                    **kwargs,
                 )
                 self.__dtype = dtype
             else:
@@ -223,25 +255,40 @@ class DistTensor:
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
         partition_book: Union[List[int], None] = None,
         backend: Optional[str] = "nccl",
+        shape: Optional[Union[list, tuple]] = None,
+        dtype: Optional["torch.dtype"] = None,
+        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
     ):
         """Create a WholeGraph-backed Distributed Tensor from a file.
         Parameters
         ----------
         file_path : str
             The file path to the tensor.
-            The file can be in the format of PyTorch tensor or NumPy array.
+            The file can be a PyTorch tensor, NumPy array, or Parquet file.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
         backend : str, optional
             The backend used for communication. Default is "nccl".
+        shape : list or tuple, optional
+            Required for Parquet files.
+        dtype : torch.dtype, optional
+            Required for Parquet files.
+        file_format : str, optional
+            One of ``auto``, ``binary``, ``pytorch``, or ``parquet``.
         Returns:
         -------
         DistTensor
             The WholeGraph-backed Distributed Tensor.
         """
         return cls(
-            src=file_path, device=device, partition_book=partition_book, backend=backend
+            src=file_path,
+            shape=shape,
+            dtype=dtype,
+            device=device,
+            partition_book=partition_book,
+            backend=backend,
+            file_format=file_format,
         )
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):
@@ -370,6 +417,8 @@ class DistEmbedding(DistTensor):
         Whether to gather the embeddings on all GPUs. Default is False.
     round_robin_size: int = 0
         continuous embedding size of a rank using round robin shard strategy
+    file_format : Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto"
+        Format used for file lists and Parquet files.
     name : Optional[str]
         The name of the tensor.
     """
@@ -386,6 +435,7 @@ class DistEmbedding(DistTensor):
         gather_sms: Optional[int] = -1,
         round_robin_size: int = 0,
         name: Optional[str] = None,
+        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
     ):
         self._name = name
 
@@ -396,6 +446,7 @@ class DistEmbedding(DistTensor):
             device,
             partition_book,
             backend,
+            file_format=file_format,
             cache_policy=cache_policy,
             gather_sms=gather_sms,
             round_robin_size=round_robin_size,
@@ -449,6 +500,9 @@ class DistEmbedding(DistTensor):
         partition_book: Union[List[int], None] = None,
         name: Optional[str] = None,
         cache_policy=None,
+        shape: Optional[Union[list, tuple]] = None,
+        dtype: Optional["torch.dtype"] = None,
+        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
         *args,
         **kwargs,
     ):
@@ -457,7 +511,7 @@ class DistEmbedding(DistTensor):
         ----------
         file_path : str
             The file path to the tensor. The file can be in the
-            format of PyTorch tensor or NumPy array.
+            format of PyTorch tensor, NumPy array, or Parquet data.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
@@ -470,10 +524,13 @@ class DistEmbedding(DistTensor):
         """
         return cls(
             src=file_path,
+            shape=shape,
+            dtype=dtype,
             device=device,
             partition_book=partition_book,
             name=name,
             cache_policy=cache_policy,
+            file_format=file_format,
             *args,
             **kwargs,
         )

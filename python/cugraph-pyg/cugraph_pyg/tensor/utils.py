@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
@@ -100,6 +100,7 @@ def create_wg_dist_tensor_from_files(
     location: str = "cpu",
     partition_book: Union[List[int], None] = None,
     backend: str = "nccl",
+    file_format: str = "auto",
     **kwargs,
 ):
     """
@@ -124,6 +125,8 @@ def create_wg_dist_tensor_from_files(
         Defaults to an even partitioning scheme.
     backend : str, optional
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
+    file_format : str, optional
+        The input format [ "binary" | "pytorch" | "parquet" | "auto" ]
     """
     global_comm = wgth.get_global_communicator()
 
@@ -137,6 +140,9 @@ def create_wg_dist_tensor_from_files(
         raise ValueError(f"Unsupported backend: {backend}")
     embedding_wholememory_location = location
 
+    # The low-level pylibwholegraph constructors validate shape[0] using
+    # metadata, allocate the final WholeMemory object, and only then stream
+    # structured data into each rank's local partition.
     if "cache_policy" in kwargs:
         assert len(shape) == 2, "The shape of the embedding tensor must be 2D."
         cache_policy = kwargs["cache_policy"]
@@ -151,6 +157,8 @@ def create_wg_dist_tensor_from_files(
             shape[1],
             cache_policy=cache_policy,
             embedding_entry_partition=partition_book,
+            file_format=file_format,
+            expected_entry_count=shape[0],
             **kwargs,
         )
     else:
@@ -166,6 +174,8 @@ def create_wg_dist_tensor_from_files(
             dtype,
             last_dim_size,
             tensor_entry_partition=partition_book,
+            file_format=file_format,
+            expected_entry_count=shape[0],
         )
     return wm_embedding
 

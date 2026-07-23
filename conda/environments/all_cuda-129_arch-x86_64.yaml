@@ -29,6 +29,7 @@ dependencies:
 - numpy>=2.0,<3.0
 - pandas
 - pre-commit
+- pyarrow
 - pydantic
 - pylibcugraph==26.10.*,>=0.0.0a0
 - pytest
