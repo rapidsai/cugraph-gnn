@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -155,7 +155,7 @@ def load_partitioned_data(rank, edge_path, feature_path, label_path, meta_path):
         ("node", "rel", "node"), "coo", False, (meta["num_nodes"], meta["num_nodes"])
     ] = eix
 
-    return (feature_store, graph_store), split_idx, meta
+    return (feature_store, graph_store.finalize()), split_idx, meta
 
 
 def run_train(
