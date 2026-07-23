@@ -14,13 +14,16 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include <cuda/buffer>
+#include <cuda/memory_resource>
+#include <cuda/std/cstddef>
+
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <vector>
 
-#include <rmm/cuda_stream_view.hpp>
-#include <rmm/device_buffer.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 
 #include "cuda_macros.hpp"
 #include "error.hpp"
@@ -377,9 +380,15 @@ class distributed_wholememory_impl : public wholememory_impl {
     }
 
     if (on_device && is_rmm_enabled()) {
-      rmm_device_buffer_ =
-        std::make_unique<rmm::device_buffer>(alloc_size, rmm::cuda_stream_default);
-      dev_ptr = rmm_device_buffer_->data();
+      auto const alignment_env = cuda::std::execution::prop{
+        cuda::allocation_alignment, cuda::mr::default_cuda_malloc_alignment};
+      device_buffer_ = std::make_unique<cuda::device_buffer<cuda::std::byte>>(
+        cuda::stream_ref{cudaStream_t{nullptr}},
+        rmm::mr::get_current_device_resource_ref(),
+        alloc_size,
+        cuda::no_init,
+        alignment_env);
+      dev_ptr = device_buffer_->data();
     } else if (on_device) {
       WM_CUDA_CHECK(cudaMalloc(&dev_ptr, alloc_size));
     } else {
@@ -395,8 +404,8 @@ class distributed_wholememory_impl : public wholememory_impl {
       if (no_ipc_handle_.local_alloc_mem_ptr == nullptr) return;
       bool on_device = location_ == WHOLEMEMORY_ML_DEVICE;
       if (on_device) {
-        if (rmm_device_buffer_ != nullptr) {
-          rmm_device_buffer_.reset();
+        if (device_buffer_ != nullptr) {
+          device_buffer_.reset();
         } else {
           WM_CUDA_CHECK(cudaFree(ptr));
         }
@@ -414,7 +423,7 @@ class distributed_wholememory_impl : public wholememory_impl {
   struct no_ipc_handle {
     void* local_alloc_mem_ptr = nullptr;
   } no_ipc_handle_;
-  std::unique_ptr<rmm::device_buffer> rmm_device_buffer_;
+  std::unique_ptr<cuda::device_buffer<cuda::std::byte>> device_buffer_;
 };
 
 // Implementation for host wholememory that need global map.
