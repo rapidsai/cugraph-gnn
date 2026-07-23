@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -13,6 +13,50 @@ from .comm import (
 from .utils import str_to_wmb_wholememory_log_level
 
 torch = import_optional("torch")
+_memory_resources = []
+
+
+def set_memory_resource(memory_resource):
+    r"""Set the RMM memory resource used by supported WholeMemory allocations.
+
+    The resource is installed as RMM's current resource for the active CUDA device. Future
+    distributed and hierarchy WholeMemory tensors with device storage use this resource. Chunked,
+    continuous, and NVSHMEM device tensors retain their specialized allocation paths and emit a
+    warning when RMM is enabled.
+
+    Pass ``None`` to disable RMM for future WholeMemory allocations. Existing allocations retain
+    the allocator with which they were created.
+
+    This function must be called once per process after selecting the process's CUDA device and
+    before creating WholeMemory tensors.
+
+    :param memory_resource: An ``rmm.mr.DeviceMemoryResource``, or ``None`` to disable RMM.
+    :return: None
+    """
+    global _memory_resources
+    if memory_resource is None:
+        wmb.set_rmm_enabled(False)
+        return
+
+    try:
+        import rmm
+    except ImportError as exc:
+        raise ImportError(
+            "Setting a WholeMemory memory resource requires the Python rmm package."
+        ) from exc
+
+    if not isinstance(memory_resource, rmm.mr.DeviceMemoryResource):
+        raise TypeError("memory_resource must be an rmm.mr.DeviceMemoryResource")
+
+    rmm.mr.set_current_device_resource(memory_resource)
+    if all(memory_resource is not resource for resource in _memory_resources):
+        _memory_resources.append(memory_resource)
+    wmb.set_rmm_enabled(True)
+
+
+def is_rmm_enabled():
+    r"""Return whether RMM is enabled for supported WholeMemory device allocations."""
+    return wmb.is_rmm_enabled()
 
 
 def init(

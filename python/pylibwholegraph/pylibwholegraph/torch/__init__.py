@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from .comm import (
@@ -37,6 +37,8 @@ from .initialize import (
     init,
     init_torch_env,
     init_torch_env_and_create_wm_comm,
+    is_rmm_enabled,
+    set_memory_resource,
     finalize,
 )
 

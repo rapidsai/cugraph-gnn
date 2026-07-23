@@ -1,8 +1,13 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <gtest/gtest.h>
+
+#include <rmm/mr/per_device_resource.hpp>
+#include <rmm/mr/statistics_resource_adaptor.hpp>
+
+#include <utility>
 
 #include "parallel_utils.hpp"
 #include "wholememory/communicator.hpp"
@@ -193,3 +198,65 @@ INSTANTIATE_TEST_SUITE_P(
                     std::make_tuple(WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_ML_HOST),
                     std::make_tuple(WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_ML_DEVICE)));
 #endif
+
+TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
+{
+  int dev_count = ForkGetDeviceCount();
+  EXPECT_GE(dev_count, 1);
+  WHOLEMEMORY_CHECK(dev_count >= 1);
+  std::vector<std::array<int, 2>> pipes;
+  CreatePipes(&pipes, dev_count);
+  MultiProcessRun(
+    dev_count,
+    [&pipes](int rank, int world_size) {
+      EXPECT_EQ(wholememory_init(0), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(cudaSetDevice(rank), cudaSuccess);
+
+      wholememory_comm_t wm_comm = create_communicator_by_pipes(pipes, rank, world_size);
+      rmm::mr::statistics_resource_adaptor statistics_mr{
+        rmm::mr::get_current_device_resource_ref()};
+      auto previous_mr =
+        rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+
+      EXPECT_EQ(wholememory_set_rmm_enabled(true), WHOLEMEMORY_SUCCESS);
+      EXPECT_TRUE(wholememory_is_rmm_enabled());
+
+      size_t constexpr total_size{1024UL * 1024UL};
+      size_t constexpr granularity{128UL};
+
+      for (auto memory_type : {WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_MT_HIERARCHY}) {
+        auto const allocations_before = statistics_mr.get_allocations_counter().total;
+        auto const bytes_before       = statistics_mr.get_bytes_counter().value;
+        wholememory_handle_t handle;
+        EXPECT_EQ(wholememory::create_wholememory(
+                    &handle, total_size, wm_comm, memory_type, WHOLEMEMORY_ML_DEVICE, granularity),
+                  WHOLEMEMORY_SUCCESS);
+        EXPECT_GT(statistics_mr.get_allocations_counter().total, allocations_before);
+        EXPECT_GT(statistics_mr.get_bytes_counter().value, bytes_before);
+        EXPECT_EQ(wholememory::destroy_wholememory(handle), WHOLEMEMORY_SUCCESS);
+        EXPECT_EQ(statistics_mr.get_bytes_counter().value, bytes_before);
+      }
+
+      auto const fallback_allocations_before = statistics_mr.get_allocations_counter().total;
+      wholememory_handle_t chunked_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&chunked_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_CHUNKED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, fallback_allocations_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(chunked_handle), WHOLEMEMORY_SUCCESS);
+
+      EXPECT_EQ(wholememory_set_rmm_enabled(false), WHOLEMEMORY_SUCCESS);
+      EXPECT_FALSE(wholememory_is_rmm_enabled());
+      rmm::mr::set_current_device_resource(std::move(previous_mr));
+
+      EXPECT_EQ(wholememory::destroy_all_communicators(), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(wholememory_finalize(), WHOLEMEMORY_SUCCESS);
+      WHOLEMEMORY_CHECK(::testing::Test::HasFailure() == false);
+    },
+    true);
+  ClosePipes(&pipes);
+}
