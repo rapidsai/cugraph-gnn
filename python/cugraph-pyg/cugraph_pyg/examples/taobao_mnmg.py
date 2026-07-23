@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -538,8 +538,11 @@ if __name__ == "__main__":
             edge_label_index, edge_label
         )
 
+        feature_store, graph_store = data_l[0]
+        graph_store.finalize()
+
         return LinkNeighborLoader(
-            data=data_l[0],
+            data=(feature_store, graph_store),
             edge_label_index=(("user", "to", "item"), edge_label_index),
             edge_label=edge_label,
             neg_sampling="binary" if edge_label is None else None,
