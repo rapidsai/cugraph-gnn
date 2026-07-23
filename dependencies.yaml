@@ -391,16 +391,6 @@ dependencies:
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
-    specific:
-      - output_types: [conda]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - torchdata
-              - pydantic
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements]
