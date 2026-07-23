@@ -429,6 +429,9 @@ class WholeMemoryTensor(object):
         :param file_format: file format, one of binary, pytorch, parquet, or auto.
           PyTorch files must contain a tensor or a dictionary with exactly one
           tensor. Parquet files must contain only numeric columns.
+        :param file_format: file format, one of binary, pytorch, parquet, or auto.
+          PyTorch files must contain a tensor or a dictionary with exactly one
+          tensor. Parquet files must contain only numeric columns.
         :return: None
         """
         filelist = _normalize_filelist(filelist)
@@ -613,6 +616,8 @@ def create_wholememory_tensor_from_filelist(
     """
     filelist = _normalize_filelist(filelist)
     file_format = _resolve_file_format(filelist, file_format)
+    filelist = _normalize_filelist(filelist)
+    file_format = _resolve_file_format(filelist, file_format)
     if last_dim_strides == -1:
         last_dim_strides = last_dim_size if last_dim_size > 0 else 1
     total_entry_count = _get_filelist_entry_count(
@@ -638,6 +643,7 @@ def create_wholememory_tensor_from_filelist(
         strides,
         tensor_entry_partition,
     )
+    wm_tensor.from_filelist(filelist, file_format=file_format)
     wm_tensor.from_filelist(filelist, file_format=file_format)
     return wm_tensor
 
