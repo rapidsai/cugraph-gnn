@@ -22,6 +22,17 @@ mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_pylibwholegraph "${PIP_CONSTRAINT}"
 
+python -m venv libwholegraph-env
+. libwholegraph-env/bin/activate
+
+rapids-pip-retry install \
+    -v \
+    --prefer-binary \
+    --constraint "${PIP_CONSTRAINT}" \
+    "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
+python -c "import libwholegraph; libwholegraph.load_library()"
+deactivate
+
 PIP_INSTALL_ARGS=(
   --prefer-binary
   --constraint "${PIP_CONSTRAINT}"
