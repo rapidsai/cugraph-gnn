@@ -30,7 +30,7 @@ rapids-pip-retry install \
     --prefer-binary \
     --constraint "${PIP_CONSTRAINT}" \
     "${LIBWHOLEGRAPH_WHEELHOUSE}"/*.whl
-python -c "import libwholegraph; libwholegraph.load_library()"
+python -c "import libwholegraph; assert (libraries := libwholegraph.load_library()) and all(libraries)"
 deactivate
 
 PIP_INSTALL_ARGS=(
