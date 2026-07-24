@@ -65,6 +65,13 @@ class GraphStore(
 
     Each worker should have a slice of the graph locally, and
     call put_edge_index with its slice.
+
+    When a COO :class:`~cugraph_pyg.tensor.DistMatrix` is passed to
+    ``put_edge_index``, it is stored by reference and its data is not copied.
+    Likewise, when a pair of :class:`~cugraph_pyg.tensor.DistTensor` objects
+    is passed, the resulting matrix retains references to those tensors.
+    Subsequent changes to these distributed objects are therefore visible to
+    the store.
     """
 
     def __init__(self, location="cpu"):
@@ -145,6 +152,43 @@ class GraphStore(
         if edge_attr.layout != torch_geometric.data.graph_store.EdgeLayout.COO:
             raise ValueError("Only COO format supported")
 
+        if isinstance(edge_index, DistMatrix):
+            if edge_index._format != "coo":
+                raise ValueError(
+                    "Only COO format is supported when passing a DistMatrix."
+                )
+
+            self.__edge_indices[edge_attr.edge_type] = edge_index
+            self.__sizes[edge_attr.edge_type] = edge_attr.size
+
+            # invalidate the graph
+            self.__clear_graph()
+            return True
+
+        if (
+            isinstance(edge_index, (tuple, list))
+            and len(edge_index) == 2
+            and isinstance(edge_index[0], DistTensor)
+            and isinstance(edge_index[1], DistTensor)
+        ):
+            if edge_index[0].shape[0] != edge_index[1].shape[0]:
+                raise ValueError(
+                    "GraphStore currently only supports COO format, "
+                    "which requires that the two tensors have the same number of elements."
+                )
+
+            dist_matrix = DistMatrix(
+                src=(edge_index[1], edge_index[0]),
+                backend=self.__backend,
+                format="coo",
+            )
+            self.__edge_indices[edge_attr.edge_type] = dist_matrix
+            self.__sizes[edge_attr.edge_type] = edge_attr.size
+
+            # invalidate the graph
+            self.__clear_graph()
+            return True
+
         if isinstance(edge_index, (cupy.ndarray, cudf.Series)):
             edge_index = torch.as_tensor(edge_index, device="cuda")
         elif isinstance(edge_index, (np.ndarray)):
@@ -174,32 +218,18 @@ class GraphStore(
 
         offset = sizes[:rank].sum() if rank > 0 else 0
 
-        if isinstance(edge_index, DistMatrix):
-            self.__edge_indices[edge_attr.edge_type] = edge_index
-        else:
-            self.__edge_indices[edge_attr.edge_type] = DistMatrix(
-                shape=(size, size),
-                dtype=torch.long,
-                device=self.__wg_location,
-                backend=self.__backend,
-            )
+        self.__edge_indices[edge_attr.edge_type] = DistMatrix(
+            shape=(size, size),
+            dtype=torch.long,
+            device=self.__wg_location,
+            backend=self.__backend,
+        )
 
-            if isinstance(edge_index[0], DistTensor) and isinstance(
-                edge_index[1], DistTensor
-            ):
-                if edge_index[0].shape[0] != edge_index[1].shape[0]:
-                    raise ValueError(
-                        "Only COO format is supported for construction "
-                        "from DistTensor tuples."
-                    )
-                self.__edge_indices[edge_attr.edge_type]._row = edge_index[0]
-                self.__edge_indices[edge_attr.edge_type]._col = edge_index[1]
-            else:
-                if isinstance(edge_index, list):
-                    edge_index = torch.stack(edge_index)
-                self.__edge_indices[edge_attr.edge_type][
-                    offset : offset + local_size
-                ] = edge_index
+        if isinstance(edge_index, list):
+            edge_index = torch.stack(edge_index)
+        self.__edge_indices[edge_attr.edge_type][offset : offset + local_size] = (
+            edge_index
+        )
 
         self.__sizes[edge_attr.edge_type] = edge_attr.size
 

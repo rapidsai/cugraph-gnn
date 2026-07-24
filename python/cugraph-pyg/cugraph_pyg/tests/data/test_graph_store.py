@@ -6,6 +6,7 @@ import pytest
 from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
+from cugraph_pyg.tensor import DistMatrix
 from cugraph_pyg.data import FeatureStore, GraphStore
 from cugraph_pyg.loader import NeighborLoader
 
@@ -40,6 +41,35 @@ def test_graph_store_basic_api(single_pytorch_worker, location):
     graph_store.remove_edge_index(("person", "knows", "person"), "coo")
     edge_attrs = graph_store.get_all_edge_attrs()
     assert len(edge_attrs) == 0
+
+    dist_matrix = DistMatrix(src=(dst, src), device=location, format="coo")
+    graph_store.put_edge_index(
+        dist_matrix,
+        ("person", "follows", "person"),
+        "coo",
+        False,
+        (num_nodes, num_nodes),
+    )
+
+    stored_matrix = graph_store._GraphStore__edge_indices[
+        ("person", "follows", "person")
+    ]
+    assert stored_matrix is dist_matrix
+
+    rei = graph_store.get_edge_index(("person", "follows", "person"), "coo")
+    assert (ei == rei).all()
+
+    graph_store.put_edge_index(
+        (dist_matrix._row, dist_matrix._col),
+        ("person", "likes", "person"),
+        "coo",
+        False,
+        (num_nodes, num_nodes),
+    )
+
+    stored_matrix = graph_store._GraphStore__edge_indices[("person", "likes", "person")]
+    assert stored_matrix._row is dist_matrix._row
+    assert stored_matrix._col is dist_matrix._col
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
