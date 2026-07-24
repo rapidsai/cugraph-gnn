@@ -4,7 +4,7 @@
 
 import os
 import pytest
-from cugraph_pyg.tensor import DistMatrix
+from cugraph_pyg.tensor import DistMatrix, DistTensor
 
 from pylibwholegraph.torch.initialize import init as wm_init
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
@@ -73,6 +73,41 @@ def run_test_dist_matrix_creation(rank, world_size, device):
     result = transposed[idx]
     assert torch.allclose(result[0], row[idx])
     assert torch.allclose(result[1], col[idx])
+
+    # A transpose copy preserves non-uniform partitions and uses a local view
+    # matching the storage location.
+    partition_book = list(range(1, world_size + 1))
+    partitioned_size = sum(partition_book)
+    partitioned_col = torch.arange(partitioned_size, dtype=torch.long, device="cuda")
+    partitioned_row = partitioned_col.flip(0)
+    partitioned_matrix = DistMatrix(
+        src=(
+            DistTensor(
+                src=partitioned_col,
+                device=device,
+                partition_book=partition_book,
+            ),
+            DistTensor(
+                src=partitioned_row,
+                device=device,
+                partition_book=partition_book,
+            ),
+        ),
+        format="coo",
+    )
+    partitioned_transpose = partitioned_matrix.transpose()
+    assert partitioned_transpose._col.partition_book == partition_book
+    assert partitioned_transpose._row.partition_book == partition_book
+    local_col = partitioned_transpose._col.get_local_tensor(host_view=device == "cpu")
+    local_row = partitioned_transpose._row.get_local_tensor(host_view=device == "cpu")
+    assert local_col.device.type == device
+    assert local_row.device.type == device
+    local_start = sum(partition_book[:rank])
+    local_end = local_start + partition_book[rank]
+    expected_col = partitioned_row[local_start:local_end].to(device)
+    expected_row = partitioned_col[local_start:local_end].to(device)
+    assert torch.equal(local_col, expected_col)
+    assert torch.equal(local_row, expected_row)
 
     torch.distributed.barrier()
 

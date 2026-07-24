@@ -154,16 +154,24 @@ class DistMatrix:
                 shape=self._row.shape,
                 dtype=self._row.dtype,
                 device=self._row.device,
+                partition_book=self._row.partition_book,
                 backend=self.__backend,
             )
             transposed._row = DistTensor(
                 shape=self._col.shape,
                 dtype=self._col.dtype,
                 device=self._col.device,
+                partition_book=self._col.partition_book,
                 backend=self.__backend,
             )
-            transposed._col.get_local_tensor().copy_(self._row.get_local_tensor())
-            transposed._row.get_local_tensor().copy_(self._col.get_local_tensor())
+            col_host_view = self._row.device == "cpu"
+            row_host_view = self._col.device == "cpu"
+            transposed._col.get_local_tensor(host_view=col_host_view).copy_(
+                self._row.get_local_tensor(host_view=col_host_view)
+            )
+            transposed._row.get_local_tensor(host_view=row_host_view).copy_(
+                self._col.get_local_tensor(host_view=row_host_view)
+            )
 
         return transposed
 

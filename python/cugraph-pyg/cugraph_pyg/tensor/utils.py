@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
 
+import numpy as np
 import os
 
 from cugraph_pyg.utils.imports import import_optional
@@ -48,6 +49,9 @@ def create_wg_dist_tensor(
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
     """
     global_comm = wgth.get_global_communicator()
+    partition_book = (
+        None if partition_book is None else np.asarray(partition_book, dtype=np.uintp)
+    )
 
     if backend == "nccl":
         embedding_wholememory_type = "distributed"
@@ -126,6 +130,9 @@ def create_wg_dist_tensor_from_files(
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
     """
     global_comm = wgth.get_global_communicator()
+    partition_book = (
+        None if partition_book is None else np.asarray(partition_book, dtype=np.uintp)
+    )
 
     if backend == "nccl":
         embedding_wholememory_type = "distributed"
