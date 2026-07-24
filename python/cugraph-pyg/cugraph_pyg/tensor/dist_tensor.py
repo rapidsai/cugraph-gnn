@@ -70,6 +70,7 @@ class DistTensor:
     ):
         self._tensor = None
         self.__device = device
+        self.__partition_book = None if partition_book is None else list(partition_book)
         if src is None:
             # Create an empty WholeGraph tensor
             if shape is None:
@@ -367,6 +368,10 @@ class DistTensor:
     @property
     def device(self):
         return self.__device
+
+    @property
+    def partition_book(self):
+        return None if self.__partition_book is None else list(self.__partition_book)
 
     @property
     def dtype(self):
