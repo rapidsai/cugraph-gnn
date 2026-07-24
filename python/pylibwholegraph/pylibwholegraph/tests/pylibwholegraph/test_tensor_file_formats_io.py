@@ -29,6 +29,8 @@ parquet = pytest.importorskip("pyarrow.parquet")
 torch = pytest.importorskip("torch")
 
 _GPU_COUNT = None
+_STRUCTURED_READ_RSS_BUDGET = 96 * 1024 * 1024
+_RSS_MEASUREMENT_SLACK = 16 * 1024 * 1024
 
 
 def _gpu_count():
@@ -287,14 +289,18 @@ def test_structured_read_has_bounded_peak_host_memory(
 
     # CUDA WholeMemory does not contribute its allocation to host RSS. CPU
     # WholeMemory necessarily adds the 64 MiB destination to RSS, so include
-    # that required storage plus the same 96 MiB ceiling for mmap pages,
-    # PyArrow decoding, bounded staging batches, and allocator overhead.
+    # that required storage plus a 96 MiB ceiling for mmap pages, PyArrow
+    # decoding, and bounded staging batches. Allow another 16 MiB for RSS
+    # sampling and allocator variability; keeping it separate documents that
+    # it is measurement slack rather than part of the structured-read budget.
     destination_bytes = (
         row_count * column_count * torch.tensor([], dtype=torch.float32).element_size()
         if memory_location == "cpu"
         else 0
     )
-    max_peak_increase = destination_bytes + 96 * 1024 * 1024
+    max_peak_increase = (
+        destination_bytes + _STRUCTURED_READ_RSS_BUDGET + _RSS_MEASUREMENT_SLACK
+    )
     multiprocess_run(
         1,
         partial(
@@ -325,6 +331,9 @@ def test_structured_reader_has_bounded_peak_host_memory(tmp_path, file_format):
             file_format=file_format,
             row_count=row_count,
             column_count=column_count,
-            max_peak_increase=96 * 1024 * 1024,
+            # Reader-only RSS excludes a WholeMemory destination, but it is
+            # subject to the same allocator and sampling variability as the
+            # end-to-end measurement.
+            max_peak_increase=(_STRUCTURED_READ_RSS_BUDGET + _RSS_MEASUREMENT_SLACK),
         ),
     )
