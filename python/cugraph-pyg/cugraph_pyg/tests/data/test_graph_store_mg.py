@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -8,9 +8,17 @@ import pytest
 from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
-from cugraph_pyg.data import GraphStore
+from cugraph_pyg.data import FeatureStore, GraphStore
+from cugraph_pyg.loader import NeighborLoader
+
+from pylibcugraph.comms import (
+    cugraph_comms_create_unique_id,
+    cugraph_comms_init,
+    cugraph_comms_shutdown,
+)
 
 torch = import_optional("torch")
+torch_geometric = import_optional("torch_geometric")
 pylibwholegraph = import_optional("pylibwholegraph")
 
 
@@ -86,5 +94,66 @@ def test_graph_store_basic_api_mg():
     torch.multiprocessing.spawn(
         run_test_graph_store_basic_api,
         args=(world_size,),
+        nprocs=world_size,
+    )
+
+
+def run_test_graph_store_finalize(rank, uid, world_size):
+    torch.cuda.set_device(rank)
+
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
+    cugraph_comms_init(rank=rank, world_size=world_size, uid=uid, device=rank)
+
+    df = karate.get_edgelist()
+    src = torch.as_tensor(df["src"], device=f"cuda:{rank}").to(torch.int64)
+    dst = torch.as_tensor(df["dst"], device=f"cuda:{rank}").to(torch.int64)
+    edge_index = torch.tensor_split(torch.stack([dst, src]), world_size, dim=1)[rank]
+    edge_type = ("person", "knows", "person")
+    num_nodes = karate.number_of_nodes()
+
+    graph_store = GraphStore()
+    graph_store.put_edge_index(
+        edge_index, edge_type, "coo", False, (num_nodes, num_nodes)
+    )
+    graph_store.finalize()
+
+    with pytest.raises(NotImplementedError, match="Adding edges"):
+        graph_store.put_edge_index(
+            edge_index, edge_type, "coo", False, (num_nodes, num_nodes)
+        )
+    with pytest.raises(NotImplementedError, match="Removing edges"):
+        graph_store.remove_edge_index(edge_type, "coo")
+
+    feature_store = FeatureStore()
+    feature_store["person", "feat", None] = torch.arange(num_nodes).reshape(-1, 1)
+    input_nodes = torch.tensor_split(torch.arange(num_nodes), world_size)[rank]
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        [5, 5],
+        input_nodes=input_nodes,
+        batch_size=num_nodes,
+    )
+
+    batch = next(iter(loader))
+    assert isinstance(batch, torch_geometric.data.Data)
+    assert (feature_store["person", "feat", None][batch.n_id] == batch.feat).all()
+
+    cugraph_comms_shutdown()
+    pylibwholegraph.torch.initialize.finalize()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.mg
+def test_graph_store_finalize_mg():
+    uid = cugraph_comms_create_unique_id()
+    world_size = torch.cuda.device_count()
+
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+
+    torch.multiprocessing.spawn(
+        run_test_graph_store_finalize,
+        args=(uid, world_size),
         nprocs=world_size,
     )
