@@ -30,11 +30,11 @@ class DistTensor:
         The shape of the tensor. It has to be a one- or two-dimensional tensor
         for now.
         When the shape is omitted, the `src` has to be specified and must
-        be `pt` or `npy` file paths.
+        be an `npy` file path.
     dtype : Optional[torch.dtype]
         The dtype of the tensor.
         When the dtype is omitted, the `src` has to be specified
-        and must be `pt` or `npy` file paths.
+        and must be an `npy` file path.
     device : Optional[Literal["cpu", "cuda"]] = "cpu"
         The desired location to store the embedding [ "cpu" | "cuda" ].
         Default is "cpu", i.e., host-pinned memory (UVA).
@@ -46,12 +46,12 @@ class DistTensor:
         Entries will be equally partitioned if None.
     backend : Optional[Literal["vmm", "nccl", "nvshmem", "chunked"]] = "nccl"
         The backend used for communication. Default is "nccl".
-    file_format : Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto"
+    file_format : Optional[Literal["auto", "binary", "parquet"]] = "auto"
         Format used when ``src`` is a list of files or a Parquet file. ``auto``
-        detects PyTorch and Parquet files by extension and treats other files as
-        raw binary. Parquet files must contain only scalar numeric columns in
-        physical column order. Shape and dtype are required for file lists and
-        Parquet sources.
+        detects Parquet files by extension and treats other files as raw binary.
+        Parquet files must contain only scalar numeric columns in physical
+        column order. Shape and dtype are required for file lists and Parquet
+        sources.
     """
 
     def __init__(
@@ -65,7 +65,7 @@ class DistTensor:
         ] = None,  # location memtype ?? backend?? ; engine; comm =  vmm/nccl ..
         backend: Optional[str] = "nccl",
         *args,
-        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
+        file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
         **kwargs,
     ):
         self._tensor = None
@@ -157,18 +157,6 @@ class DistTensor:
             )
             self.__dtype = src.dtype
             host_tensor = src
-        elif isinstance(src, str) and src.endswith(".pt"):
-            host_tensor = torch.load(src, mmap=True)
-            self._tensor = create_wg_dist_tensor(
-                list(host_tensor.shape),
-                host_tensor.dtype,
-                device,
-                partition_book,
-                backend,
-                *args,
-                **kwargs,
-            )
-            self.__dtype = host_tensor.dtype
         elif isinstance(src, str) and src.endswith(".npy"):
             host_tensor = torch.from_numpy(np.load(src, mmap_mode="c"))
             self.__dtype = host_tensor.dtype
@@ -258,14 +246,14 @@ class DistTensor:
         backend: Optional[str] = "nccl",
         shape: Optional[Union[list, tuple]] = None,
         dtype: Optional["torch.dtype"] = None,
-        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
+        file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
     ):
         """Create a WholeGraph-backed Distributed Tensor from a file.
         Parameters
         ----------
         file_path : str
             The file path to the tensor.
-            The file can be a PyTorch tensor, NumPy array, or Parquet file.
+            The file can be a NumPy array or Parquet file.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
@@ -276,7 +264,7 @@ class DistTensor:
         dtype : torch.dtype, optional
             Required for Parquet files.
         file_format : str, optional
-            One of ``auto``, ``binary``, ``pytorch``, or ``parquet``.
+            One of ``auto``, ``binary``, or ``parquet``.
         Returns:
         -------
         DistTensor
@@ -422,7 +410,7 @@ class DistEmbedding(DistTensor):
         Whether to gather the embeddings on all GPUs. Default is False.
     round_robin_size: int = 0
         continuous embedding size of a rank using round robin shard strategy
-    file_format : Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto"
+    file_format : Optional[Literal["auto", "binary", "parquet"]] = "auto"
         Format used for file lists and Parquet files.
     name : Optional[str]
         The name of the tensor.
@@ -440,7 +428,7 @@ class DistEmbedding(DistTensor):
         gather_sms: Optional[int] = -1,
         round_robin_size: int = 0,
         name: Optional[str] = None,
-        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
+        file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
     ):
         self._name = name
 
@@ -507,7 +495,7 @@ class DistEmbedding(DistTensor):
         cache_policy=None,
         shape: Optional[Union[list, tuple]] = None,
         dtype: Optional["torch.dtype"] = None,
-        file_format: Optional[Literal["auto", "binary", "pytorch", "parquet"]] = "auto",
+        file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
         *args,
         **kwargs,
     ):
@@ -516,7 +504,7 @@ class DistEmbedding(DistTensor):
         ----------
         file_path : str
             The file path to the tensor. The file can be in the
-            format of PyTorch tensor, NumPy array, or Parquet data.
+            format of a NumPy array or Parquet data.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".

@@ -520,7 +520,7 @@ def create_embedding_from_filelist(
     :param comm: WholeMemoryCommunicator
     :param memory_type: WholeMemory type, should be continuous, chunked or distributed
     :param memory_location: WholeMemory location, should be cpu or cuda
-    :param filelist: list of binary, PyTorch, or Parquet files
+    :param filelist: list of binary or Parquet files
     :param dtype: data type
     :param last_dim_size: size of last dim
     :param cache_policy: cache policy
@@ -531,7 +531,7 @@ def create_embedding_from_filelist(
     :param gather_sms: the number of SMs used in gather process
     :param round_robin_size: continuous embedding size of a rank
       using round robin shard strategy
-    :param file_format: file format, one of binary, pytorch, parquet, or auto
+    :param file_format: file format, one of binary, parquet, or auto
     :param expected_entry_count: optional expected number of rows. An error is
       raised before allocation when the files contain a different row count.
     :return:
@@ -549,9 +549,8 @@ def create_embedding_from_filelist(
             "round_robin_size is ignored because embedding_entry_partition is specified"
         )
         round_robin_size = 0
-    # Determine the embedding shape without materializing structured tensor
-    # contents. Parquet uses footer metadata and PyTorch uses mmap-backed shape
-    # inspection.
+    # Determine the embedding shape from file sizes or Parquet footer metadata
+    # without materializing structured tensor contents.
     total_entry_count = _get_filelist_entry_count(
         filelist, file_format, dtype, last_dim_size
     )

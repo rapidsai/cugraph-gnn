@@ -130,7 +130,7 @@ def create_wg_dist_tensor_from_files(
     backend : str, optional
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
     file_format : str, optional
-        The input format [ "binary" | "pytorch" | "parquet" | "auto" ]
+        The input format [ "binary" | "parquet" | "auto" ]
     """
     global_comm = wgth.get_global_communicator()
     partition_book = (

@@ -72,7 +72,7 @@ def test_dist_tensor_creation(device, clx, dtype):
     )
 
 
-def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype, file_format):
+def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     """Test DistTensor creation from file"""
     torch.cuda.set_device(rank)
 
@@ -88,38 +88,31 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype, file_fo
     features = torch.arange(0, world_size * 1000)
     features = features.reshape((features.numel() // 100, 100)).to(dtype)
 
-    suffix = ".pt" if file_format == "pytorch" else ".parquet"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
         file_path = f.name
-    if file_format == "pytorch":
-        torch.save(features, file_path)
-    else:
-        import pyarrow
-        import pyarrow.parquet as parquet
+    import pyarrow
+    import pyarrow.parquet as parquet
 
-        parquet.write_table(
-            pyarrow.table(
-                {
-                    f"feature_{index}": features[:, index].numpy()
-                    for index in range(features.shape[1])
-                }
-            ),
-            file_path,
-        )
+    parquet.write_table(
+        pyarrow.table(
+            {
+                f"feature_{index}": features[:, index].numpy()
+                for index in range(features.shape[1])
+            }
+        ),
+        file_path,
+    )
 
     # Load distributed tensor
     torch.distributed.barrier()
     print(f"loading from {file_path}...")
-    if file_format == "pytorch":
-        dist_tensor = clx.from_file(file_path, device=device)
-    else:
-        dist_tensor = clx.from_file(
-            file_path,
-            device=device,
-            shape=features.shape,
-            dtype=features.dtype,
-            file_format="parquet",
-        )
+    dist_tensor = clx.from_file(
+        file_path,
+        device=device,
+        shape=features.shape,
+        dtype=features.dtype,
+        file_format="parquet",
+    )
     print("loaded...")
     assert dist_tensor.shape == features.shape
     assert dist_tensor.dtype == features.dtype
@@ -140,14 +133,11 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype, file_fo
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
-@pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
+@pytest.mark.parametrize("dtype", ["float32"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
-@pytest.mark.parametrize("file_format", ["pytorch", "parquet"])
 @pytest.mark.mg
-def test_dist_tensor_from_file(device, clx, dtype, file_format):
-    if file_format == "parquet" and dtype != "float32":
-        pytest.skip("Parquet integration coverage uses a float32 source")
+def test_dist_tensor_from_file(device, clx, dtype):
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
@@ -155,7 +145,7 @@ def test_dist_tensor_from_file(device, clx, dtype, file_format):
 
     torch.multiprocessing.spawn(
         run_test_dist_tensor_from_file,
-        args=(world_size, device, clx, dtype, file_format),
+        args=(world_size, device, clx, dtype),
         nprocs=world_size,
     )
 
