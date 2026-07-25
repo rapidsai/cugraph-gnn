@@ -109,9 +109,9 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     dist_tensor = clx.from_file(
         file_path,
         device=device,
-        shape=features.shape,
         dtype=features.dtype,
         file_format="parquet",
+        fail_on_dtype_mismatch=True,
     )
     print("loaded...")
     assert dist_tensor.shape == features.shape

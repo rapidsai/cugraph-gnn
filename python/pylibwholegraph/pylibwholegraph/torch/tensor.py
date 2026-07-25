@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import warnings
 
 import pylibwholegraph.binding.wholememory_binding as wmb
 from pylibwholegraph.utils.imports import import_optional
@@ -79,7 +80,13 @@ def _resolve_file_format(filelist: List[str], file_format: str) -> str:
     return detected_formats.pop()
 
 
-def _parquet_file_metadata(filename: str, dim: int, last_dim_size: int) -> int:
+def _parquet_file_metadata(
+    filename: str,
+    dim: int,
+    last_dim_size: int,
+    dtype: Union["torch.dtype", None] = None,
+    fail_on_dtype_mismatch: bool = False,
+) -> int:
     # Parquet footers contain row counts and schemas, so allocation can be
     # planned without decoding any data pages.
     parquet_file = pq.ParquetFile(filename)
@@ -110,7 +117,36 @@ def _parquet_file_metadata(filename: str, dim: int, last_dim_size: int) -> int:
         raise ValueError(
             f"Parquet file {filename!r} must contain only scalar numeric columns"
         )
+    if dtype is not None:
+        try:
+            requested_dtype = np.dtype(torch.empty((), dtype=dtype).numpy().dtype)
+        except TypeError:
+            requested_dtype = None
+        if requested_dtype is None or any(
+            column_dtype != requested_dtype for column_dtype in column_dtypes
+        ):
+            source_dtypes = ", ".join(
+                str(column_dtype) for column_dtype in column_dtypes
+            )
+            message = (
+                f"Parquet file {filename!r} has column dtype(s) "
+                f"[{source_dtypes}], which do not match requested dtype {dtype}"
+            )
+            if fail_on_dtype_mismatch:
+                raise ValueError(message)
+            warnings.warn(
+                f"{message}; values will be converted while loading",
+                UserWarning,
+                stacklevel=3,
+            )
     return parquet_file.metadata.num_rows
+
+
+def _parquet_column_count(filename: str) -> int:
+    column_count = len(pq.ParquetFile(filename).schema_arrow)
+    if column_count == 0:
+        raise ValueError(f"Parquet file {filename!r} contains no columns")
+    return column_count
 
 
 def _parquet_batch_to_tensor(batch, filename: str):
@@ -214,6 +250,7 @@ def _get_file_entry_count(
     file_format: str,
     dtype: "torch.dtype",
     last_dim_size: int,
+    fail_on_dtype_mismatch: bool = False,
 ) -> int:
     if file_format == "binary":
         element_size = torch.tensor([], dtype=dtype).element_size()
@@ -230,7 +267,13 @@ def _get_file_entry_count(
 
     dim = 2 if last_dim_size > 0 else 1
     if file_format == "parquet":
-        return _parquet_file_metadata(filename, dim, last_dim_size)
+        return _parquet_file_metadata(
+            filename,
+            dim,
+            last_dim_size,
+            dtype,
+            fail_on_dtype_mismatch,
+        )
     raise ValueError(f"Unsupported file format {file_format!r}")
 
 
@@ -239,13 +282,73 @@ def _get_filelist_entry_count(
     file_format: str,
     dtype: "torch.dtype",
     last_dim_size: int,
+    fail_on_dtype_mismatch: bool = False,
 ) -> int:
     # This is a metadata-only planning pass for Parquet and binary files. No
     # source tensors are concatenated or materialized here.
     return sum(
-        _get_file_entry_count(filename, file_format, dtype, last_dim_size)
+        _get_file_entry_count(
+            filename,
+            file_format,
+            dtype,
+            last_dim_size,
+            fail_on_dtype_mismatch,
+        )
         for filename in filelist
     )
+
+
+def _resolve_filelist_shape(
+    filelist: List[str],
+    file_format: str,
+    dtype: "torch.dtype",
+    last_dim_size: Union[int, None],
+    expected_shape: Union[List[int], tuple, None] = None,
+    fail_on_dtype_mismatch: bool = False,
+):
+    if expected_shape is not None:
+        expected_shape = tuple(expected_shape)
+        if len(expected_shape) not in (1, 2):
+            raise ValueError("expected_shape must describe a 1-D or 2-D tensor")
+        if expected_shape[0] < 0 or (
+            len(expected_shape) == 2 and expected_shape[1] <= 0
+        ):
+            raise ValueError("expected_shape dimensions must be positive")
+
+    if last_dim_size is None:
+        if file_format == "binary":
+            raise ValueError("last_dim_size is required for binary file loading")
+        if expected_shape is not None:
+            last_dim_size = 0 if len(expected_shape) == 1 else expected_shape[1]
+        else:
+            column_counts = {_parquet_column_count(filename) for filename in filelist}
+            if len(column_counts) != 1:
+                raise ValueError("All Parquet files must have the same column count")
+            column_count = column_counts.pop()
+            # A single Parquet column defaults to a 1-D tensor. Callers can
+            # request the distinct (N, 1) representation with expected_shape.
+            last_dim_size = 0 if column_count == 1 else column_count
+    elif last_dim_size < 0:
+        raise ValueError("last_dim_size must be non-negative")
+
+    total_entry_count = _get_filelist_entry_count(
+        filelist,
+        file_format,
+        dtype,
+        last_dim_size,
+        fail_on_dtype_mismatch,
+    )
+    actual_shape = (
+        (total_entry_count,)
+        if last_dim_size == 0
+        else (total_entry_count, last_dim_size)
+    )
+    if expected_shape is not None and actual_shape != expected_shape:
+        raise ValueError(
+            f"Files contain a tensor with shape {actual_shape}, but "
+            f"expected_shape is {expected_shape}"
+        )
+    return actual_shape
 
 
 class WholeMemoryTensor(object):
@@ -547,11 +650,13 @@ def create_wholememory_tensor_from_filelist(
     memory_location: str,
     filelist: Union[List[str], str],
     dtype: "torch.dtype",
-    last_dim_size: int = 0,
+    last_dim_size: Union[int, None] = None,
     last_dim_strides: int = -1,
     tensor_entry_partition: Union[List[int], None] = None,
     file_format: str = "binary",
     expected_entry_count: Union[int, None] = None,
+    expected_shape: Union[List[int], tuple, None] = None,
+    fail_on_dtype_mismatch: bool = False,
 ):
     """
     Create WholeMemory Tensor from a list of files.
@@ -560,8 +665,9 @@ def create_wholememory_tensor_from_filelist(
     :param memory_location: WholeMemory location, should be cpu or cuda
     :param filelist: list of files
     :param dtype: data type of the tensor
-    :param last_dim_size: 0 for create 1-D array, positive value for
-      create matrix column size
+    :param last_dim_size: 0 creates a 1-D array and a positive value creates a
+      matrix with that column count. Required for binary input and inferred
+      from Parquet metadata when omitted.
     :param last_dim_strides: stride of last_dim, -1 for same as size of last dim.
     :param tensor_entry_partition: rank partition based on entry;
       tensor_entry_partition[i] determines the entry count of rank
@@ -570,28 +676,38 @@ def create_wholememory_tensor_from_filelist(
     :param file_format: file format, one of binary, parquet, or auto
     :param expected_entry_count: optional expected number of rows. An error is
       raised before allocation when the files contain a different row count.
+    :param expected_shape: optional expected 1-D or 2-D shape. A one-column
+      Parquet file defaults to 1-D unless ``(N, 1)`` is specified here.
+    :param fail_on_dtype_mismatch: raise an error instead of warning and
+      converting when Parquet column dtypes differ from ``dtype``.
     :return: WholeMemoryTensor
     """
     filelist = _normalize_filelist(filelist)
     file_format = _resolve_file_format(filelist, file_format)
+    sizes = list(
+        _resolve_filelist_shape(
+            filelist,
+            file_format,
+            dtype,
+            last_dim_size,
+            expected_shape,
+            fail_on_dtype_mismatch,
+        )
+    )
+    resolved_last_dim_size = 0 if len(sizes) == 1 else sizes[1]
     if last_dim_strides == -1:
-        last_dim_strides = last_dim_size if last_dim_size > 0 else 1
+        last_dim_strides = resolved_last_dim_size if resolved_last_dim_size > 0 else 1
 
     # Phase 1 only inspects binary file sizes or Parquet metadata. The complete
     # source dataset is never assembled in CPU memory.
-    total_entry_count = _get_filelist_entry_count(
-        filelist, file_format, dtype, last_dim_size
-    )
-    if expected_entry_count is not None and total_entry_count != expected_entry_count:
+    if expected_entry_count is not None and sizes[0] != expected_entry_count:
         raise ValueError(
-            f"Files contain {total_entry_count} entries, but "
+            f"Files contain {sizes[0]} entries, but "
             f"expected_entry_count is {expected_entry_count}"
         )
-    if last_dim_size == 0:
-        sizes = [total_entry_count]
+    if len(sizes) == 1:
         strides = [1]
     else:
-        sizes = [total_entry_count, last_dim_size]
         strides = [last_dim_strides, 1]
 
     # Phase 2 allocates the final destination before decoding any structured

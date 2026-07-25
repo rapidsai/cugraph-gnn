@@ -8,6 +8,7 @@ from pylibwholegraph.torch.tensor import (
     _get_filelist_entry_count,
     _iter_parquet_tensors,
     _resolve_file_format,
+    _resolve_filelist_shape,
     create_wholememory_tensor_from_filelist,
 )
 
@@ -77,6 +78,103 @@ def test_get_parquet_filelist_entry_count_uses_metadata(tmp_path):
             3,
             file_format="parquet",
             expected_entry_count=11,
+        )
+
+
+def test_parquet_shape_inference(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table(
+            {f"feature_{i}": np.arange(4, dtype=np.float32) for i in range(3)}
+        ),
+        filename,
+    )
+
+    assert _resolve_filelist_shape([str(filename)], "parquet", torch.float32, None) == (
+        4,
+        3,
+    )
+
+
+def test_one_column_parquet_shape_inference(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table({"feature": np.arange(4, dtype=np.float32)}),
+        filename,
+    )
+
+    assert _resolve_filelist_shape([str(filename)], "parquet", torch.float32, None) == (
+        4,
+    )
+    assert _resolve_filelist_shape(
+        [str(filename)], "parquet", torch.float32, None, (4, 1)
+    ) == (4, 1)
+
+
+def test_expected_shape_validation(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table({"feature": np.arange(4, dtype=np.float32)}),
+        filename,
+    )
+
+    with pytest.raises(ValueError, match=r"expected_shape is \(5,\)"):
+        _resolve_filelist_shape([str(filename)], "parquet", torch.float32, None, (5,))
+
+
+def test_binary_requires_last_dim_size():
+    with pytest.raises(ValueError, match="last_dim_size is required"):
+        _resolve_filelist_shape(["tensor.bin"], "binary", torch.float32, None)
+
+
+def test_parquet_dtype_mismatch_warns(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table({"feature": np.arange(4, dtype=np.int64)}),
+        filename,
+    )
+
+    with pytest.warns(UserWarning, match="do not match requested dtype"):
+        assert _resolve_filelist_shape(
+            [str(filename)], "parquet", torch.float32, None
+        ) == (4,)
+
+
+def test_parquet_dtype_mismatch_can_fail(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table({"feature": np.arange(4, dtype=np.int64)}),
+        filename,
+    )
+
+    with pytest.raises(ValueError, match="do not match requested dtype"):
+        create_wholememory_tensor_from_filelist(
+            None,
+            "distributed",
+            "cuda",
+            [str(filename)],
+            torch.float32,
+            file_format="parquet",
+            fail_on_dtype_mismatch=True,
+        )
+
+    with pytest.raises(ValueError, match="do not match requested dtype"):
+        _resolve_filelist_shape(
+            [str(filename)],
+            "parquet",
+            torch.float32,
+            None,
+            fail_on_dtype_mismatch=True,
         )
 
 

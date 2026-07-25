@@ -18,9 +18,9 @@ from .comm import (
 )
 from .tensor import (
     WholeMemoryTensor,
-    _get_filelist_entry_count,
     _normalize_filelist,
     _resolve_file_format,
+    _resolve_filelist_shape,
 )
 from .wholegraph_env import wrap_torch_tensor, get_wholegraph_env_fns, get_stream
 
@@ -506,7 +506,7 @@ def create_embedding_from_filelist(
     memory_location: str,
     filelist: Union[List[str], str],
     dtype: "torch.dtype",
-    last_dim_size: int,
+    last_dim_size: Union[int, None] = None,
     *,
     cache_policy: Union[WholeMemoryCachePolicy, None] = None,
     embedding_entry_partition: Union[List[int], None] = None,
@@ -514,6 +514,8 @@ def create_embedding_from_filelist(
     round_robin_size: int = 0,
     file_format: str = "binary",
     expected_entry_count: Union[int, None] = None,
+    expected_shape: Union[List[int], tuple, None] = None,
+    fail_on_dtype_mismatch: bool = False,
 ):
     r"""
     Create embedding from file list
@@ -522,7 +524,8 @@ def create_embedding_from_filelist(
     :param memory_location: WholeMemory location, should be cpu or cuda
     :param filelist: list of binary or Parquet files
     :param dtype: data type
-    :param last_dim_size: size of last dim
+    :param last_dim_size: embedding width. Required for binary input and
+      inferred from Parquet metadata when omitted.
     :param cache_policy: cache policy
     :param embedding_entry_partition: rank partition based on entry;
       embedding_entry_partition[i] determines the entry count of rank
@@ -534,11 +537,27 @@ def create_embedding_from_filelist(
     :param file_format: file format, one of binary, parquet, or auto
     :param expected_entry_count: optional expected number of rows. An error is
       raised before allocation when the files contain a different row count.
+    :param expected_shape: optional expected 2-D embedding shape.
+    :param fail_on_dtype_mismatch: raise an error instead of warning and
+      converting when Parquet column dtypes differ from ``dtype``.
     :return:
     """
     filelist = _normalize_filelist(filelist)
     file_format = _resolve_file_format(filelist, file_format)
-    assert last_dim_size > 0
+    resolved_shape = _resolve_filelist_shape(
+        filelist,
+        file_format,
+        dtype,
+        last_dim_size,
+        expected_shape,
+        fail_on_dtype_mismatch,
+    )
+    if len(resolved_shape) != 2:
+        raise ValueError(
+            "Embeddings must be 2-D; pass last_dim_size=1 or "
+            "expected_shape=(N, 1) for one-column Parquet input"
+        )
+    total_entry_count, last_dim_size = resolved_shape
     if file_format != "binary" and round_robin_size != 0:
         raise ValueError("round_robin_size is only supported for binary file loading")
     if embedding_entry_partition is not None and cache_policy is not None:
@@ -551,9 +570,6 @@ def create_embedding_from_filelist(
         round_robin_size = 0
     # Determine the embedding shape from file sizes or Parquet footer metadata
     # without materializing structured tensor contents.
-    total_entry_count = _get_filelist_entry_count(
-        filelist, file_format, dtype, last_dim_size
-    )
     if expected_entry_count is not None and total_entry_count != expected_entry_count:
         raise ValueError(
             f"Files contain {total_entry_count} entries, but "

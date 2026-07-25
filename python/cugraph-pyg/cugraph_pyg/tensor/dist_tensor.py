@@ -27,10 +27,17 @@ class DistTensor:
         or a list of file paths.
         When the source is omitted, the tensor will be load later.
     shape : Optional[list, tuple]
-        The shape of the tensor. It has to be a one- or two-dimensional tensor
-        for now.
-        When the shape is omitted, the `src` has to be specified and must
-        be an `npy` file path.
+        Shape used when creating an empty tensor. It has to be one- or
+        two-dimensional.
+    expected_shape : Optional[list, tuple]
+        Optional expected shape when loading files. Parquet shape is inferred
+        when omitted.
+    last_dim_size : Optional[int]
+        Required for binary files and inferred for Parquet files when omitted.
+        Zero requests a 1-D tensor; a positive value requests a 2-D tensor.
+    fail_on_dtype_mismatch : bool
+        Raise an error instead of warning and converting when Parquet column
+        dtypes differ from ``dtype``.
     dtype : Optional[torch.dtype]
         The dtype of the tensor.
         When the dtype is omitted, the `src` has to be specified
@@ -50,8 +57,8 @@ class DistTensor:
         Format used when ``src`` is a list of files or a Parquet file. ``auto``
         detects Parquet files by extension and treats other files as raw binary.
         Parquet files must contain only scalar numeric columns in physical
-        column order. Shape and dtype are required for file lists and Parquet
-        sources.
+        column order. Dtype is required for file input; Parquet shape is
+        inferred unless expected_shape is supplied.
     """
 
     def __init__(
@@ -66,6 +73,9 @@ class DistTensor:
         backend: Optional[str] = "nccl",
         *args,
         file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
+        expected_shape: Optional[Union[list, tuple]] = None,
+        last_dim_size: Optional[int] = None,
+        fail_on_dtype_mismatch: bool = False,
         **kwargs,
     ):
         self._tensor = None
@@ -87,38 +97,46 @@ class DistTensor:
         else:
             if isinstance(src, list):
                 # A list of file paths for a tensor
-                if shape is None or dtype is None:
+                if shape is not None:
                     raise ValueError(
-                        "shape and dtype are required when reading from multiple files"
+                        "Use expected_shape, not shape, when reading from files"
                     )
+                if dtype is None:
+                    raise ValueError("dtype is required when reading from files")
 
                 self._tensor = create_wg_dist_tensor_from_files(
                     src,
-                    shape,
+                    expected_shape,
                     dtype,
                     device,
                     partition_book,
                     backend,
                     file_format,
+                    last_dim_size=last_dim_size,
+                    fail_on_dtype_mismatch=fail_on_dtype_mismatch,
                     *args,
                     **kwargs,
                 )
                 self.__dtype = dtype
             elif isinstance(src, str) and (
-                src.lower().endswith((".parquet", ".pq")) or file_format == "parquet"
+                not src.lower().endswith(".npy") or file_format in ("binary", "parquet")
             ):
-                if shape is None or dtype is None:
+                if shape is not None:
                     raise ValueError(
-                        "shape and dtype are required when reading a Parquet file"
+                        "Use expected_shape, not shape, when reading from files"
                     )
+                if dtype is None:
+                    raise ValueError("dtype is required when reading from files")
                 self._tensor = create_wg_dist_tensor_from_files(
                     [src],
-                    shape,
+                    expected_shape,
                     dtype,
                     device,
                     partition_book,
                     backend,
                     file_format,
+                    last_dim_size=last_dim_size,
+                    fail_on_dtype_mismatch=fail_on_dtype_mismatch,
                     *args,
                     **kwargs,
                 )
@@ -244,9 +262,11 @@ class DistTensor:
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
         partition_book: Union[List[int], None] = None,
         backend: Optional[str] = "nccl",
-        shape: Optional[Union[list, tuple]] = None,
+        expected_shape: Optional[Union[list, tuple]] = None,
         dtype: Optional["torch.dtype"] = None,
         file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
+        last_dim_size: Optional[int] = None,
+        fail_on_dtype_mismatch: bool = False,
     ):
         """Create a WholeGraph-backed Distributed Tensor from a file.
         Parameters
@@ -259,12 +279,17 @@ class DistTensor:
             Default is "cpu".
         backend : str, optional
             The backend used for communication. Default is "nccl".
-        shape : list or tuple, optional
-            Required for Parquet files.
+        expected_shape : list or tuple, optional
+            Expected tensor shape. Parquet shape is inferred when omitted.
         dtype : torch.dtype, optional
             Required for Parquet files.
         file_format : str, optional
             One of ``auto``, ``binary``, or ``parquet``.
+        last_dim_size : int, optional
+            Required for binary files and inferred for Parquet files.
+        fail_on_dtype_mismatch : bool, optional
+            Raise an error instead of warning and converting when Parquet
+            column dtypes differ from ``dtype``.
         Returns:
         -------
         DistTensor
@@ -272,12 +297,14 @@ class DistTensor:
         """
         return cls(
             src=file_path,
-            shape=shape,
+            expected_shape=expected_shape,
             dtype=dtype,
             device=device,
             partition_book=partition_book,
             backend=backend,
             file_format=file_format,
+            last_dim_size=last_dim_size,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
         )
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):
@@ -412,6 +439,13 @@ class DistEmbedding(DistTensor):
         continuous embedding size of a rank using round robin shard strategy
     file_format : Optional[Literal["auto", "binary", "parquet"]] = "auto"
         Format used for file lists and Parquet files.
+    expected_shape : Optional[list, tuple]
+        Optional expected shape for file input.
+    last_dim_size : Optional[int]
+        Required for binary files and inferred for Parquet files.
+    fail_on_dtype_mismatch : bool
+        Raise an error instead of warning and converting when Parquet column
+        dtypes differ from ``dtype``.
     name : Optional[str]
         The name of the tensor.
     """
@@ -429,6 +463,9 @@ class DistEmbedding(DistTensor):
         round_robin_size: int = 0,
         name: Optional[str] = None,
         file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
+        expected_shape: Optional[Union[list, tuple]] = None,
+        last_dim_size: Optional[int] = None,
+        fail_on_dtype_mismatch: bool = False,
     ):
         self._name = name
 
@@ -440,6 +477,9 @@ class DistEmbedding(DistTensor):
             partition_book,
             backend,
             file_format=file_format,
+            expected_shape=expected_shape,
+            last_dim_size=last_dim_size,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
             cache_policy=cache_policy,
             gather_sms=gather_sms,
             round_robin_size=round_robin_size,
@@ -493,9 +533,11 @@ class DistEmbedding(DistTensor):
         partition_book: Union[List[int], None] = None,
         name: Optional[str] = None,
         cache_policy=None,
-        shape: Optional[Union[list, tuple]] = None,
+        expected_shape: Optional[Union[list, tuple]] = None,
         dtype: Optional["torch.dtype"] = None,
         file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
+        last_dim_size: Optional[int] = None,
+        fail_on_dtype_mismatch: bool = False,
         *args,
         **kwargs,
     ):
@@ -510,6 +552,13 @@ class DistEmbedding(DistTensor):
             Default is "cpu".
         name : str, optional
             The name of the tensor.
+        expected_shape : list or tuple, optional
+            Expected tensor shape. Parquet shape is inferred when omitted.
+        last_dim_size : int, optional
+            Required for binary files and inferred for Parquet files.
+        fail_on_dtype_mismatch : bool, optional
+            Raise an error instead of warning and converting when Parquet
+            column dtypes differ from ``dtype``.
         Returns:
         -------
         DistTensor
@@ -517,13 +566,15 @@ class DistEmbedding(DistTensor):
         """
         return cls(
             src=file_path,
-            shape=shape,
+            expected_shape=expected_shape,
             dtype=dtype,
             device=device,
             partition_book=partition_book,
             name=name,
             cache_policy=cache_policy,
             file_format=file_format,
+            last_dim_size=last_dim_size,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
             *args,
             **kwargs,
         )

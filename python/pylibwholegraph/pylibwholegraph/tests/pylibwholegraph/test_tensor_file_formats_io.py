@@ -68,6 +68,8 @@ def _structured_io_worker(
     memory_location,
     row_count,
     column_count,
+    last_dim_size=None,
+    expected_shape=None,
 ):
     comm, _ = init_torch_env_and_create_wm_comm(
         world_rank, world_size, world_rank, world_size
@@ -80,9 +82,10 @@ def _structured_io_worker(
             memory_location,
             [filename],
             torch.float32,
-            column_count,
+            last_dim_size,
             file_format="parquet",
             expected_entry_count=row_count,
+            expected_shape=expected_shape,
         )
         # Read host WholeMemory through its native CPU view so this validates
         # the host-to-host path rather than a CUDA mapping of host allocation.
@@ -95,7 +98,9 @@ def _structured_io_worker(
             local_end * column_count,
             device=local_tensor.device,
             dtype=torch.float32,
-        ).reshape(-1, column_count)
+        )
+        if local_tensor.dim() == 2:
+            expected = expected.reshape(-1, column_count)
         torch.testing.assert_close(local_tensor, expected)
     finally:
         if wm_tensor is not None:
@@ -281,6 +286,35 @@ def test_create_wholememory_tensor_from_parquet_file(tmp_path, memory_location):
             memory_location=memory_location,
             row_count=row_count,
             column_count=column_count,
+        ),
+    )
+
+
+@pytest.mark.parametrize("memory_location", ["cpu", "cuda"])
+@pytest.mark.parametrize("expected_shape", [None, (31, 1)])
+def test_create_wholememory_tensor_from_one_column_parquet(
+    tmp_path, memory_location, expected_shape
+):
+    if _gpu_count() == 0:
+        pytest.skip("WholeGraph structured I/O requires at least one GPU")
+
+    row_count = 31
+    filename = tmp_path / "one_column.parquet"
+    parquet.write_table(
+        pyarrow.table({"feature": np.arange(row_count, dtype=np.float32)}),
+        filename,
+        row_group_size=7,
+    )
+
+    multiprocess_run(
+        1,
+        partial(
+            _structured_io_worker,
+            filename=os.fspath(filename),
+            memory_location=memory_location,
+            row_count=row_count,
+            column_count=1,
+            expected_shape=expected_shape,
         ),
     )
 
