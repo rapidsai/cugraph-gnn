@@ -60,16 +60,20 @@ def _resolve_file_format(filelist: List[str], file_format: str) -> str:
             "file_format must be one of 'binary', 'parquet', or 'auto'"
         ) from None
 
+    for filename in filelist:
+        extension = os.path.splitext(os.fspath(filename))[1].lower()
+        if extension in (".pt", ".pth", ".npy"):
+            raise ValueError(
+                f"{extension} files are not supported; convert them to "
+                "Parquet or binary"
+            )
+
     if normalized_format != "auto":
         return normalized_format
 
     detected_formats = set()
     for filename in filelist:
         extension = os.path.splitext(os.fspath(filename))[1].lower()
-        if extension in (".pt", ".pth"):
-            raise ValueError(
-                "PyTorch files are not supported; convert them to Parquet or binary"
-            )
         if extension in (".parquet", ".pq"):
             detected_formats.add("parquet")
         else:

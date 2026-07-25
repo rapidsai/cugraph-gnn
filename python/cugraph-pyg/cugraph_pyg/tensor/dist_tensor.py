@@ -3,8 +3,6 @@
 
 from typing import List, Optional, Union, Literal
 
-import numpy as np
-
 from cugraph_pyg.tensor.utils import (
     copy_host_global_tensor_to_local,
     create_wg_dist_tensor,
@@ -28,7 +26,7 @@ class DistTensor:
         When the source is omitted, the tensor will be load later.
     shape : Optional[list, tuple]
         Shape used when creating an empty tensor. It has to be one- or
-        two-dimensional.
+        two-dimensional and is required when ``src`` is omitted.
     expected_shape : Optional[list, tuple]
         Optional expected shape when loading files. Parquet shape is inferred
         when omitted.
@@ -39,9 +37,8 @@ class DistTensor:
         Raise an error instead of warning and converting when Parquet column
         dtypes differ from ``dtype``.
     dtype : Optional[torch.dtype]
-        The dtype of the tensor.
-        When the dtype is omitted, the `src` has to be specified
-        and must be an `npy` file path.
+        The dtype of the tensor. Required for file input and inferred from an
+        in-memory ``torch.Tensor`` source.
     device : Optional[Literal["cpu", "cuda"]] = "cpu"
         The desired location to store the embedding [ "cpu" | "cuda" ].
         Default is "cpu", i.e., host-pinned memory (UVA).
@@ -118,9 +115,7 @@ class DistTensor:
                     **kwargs,
                 )
                 self.__dtype = dtype
-            elif isinstance(src, str) and (
-                not src.lower().endswith(".npy") or file_format in ("binary", "parquet")
-            ):
+            elif isinstance(src, str):
                 if shape is not None:
                     raise ValueError(
                         "Use expected_shape, not shape, when reading from files"
@@ -175,18 +170,6 @@ class DistTensor:
             )
             self.__dtype = src.dtype
             host_tensor = src
-        elif isinstance(src, str) and src.endswith(".npy"):
-            host_tensor = torch.from_numpy(np.load(src, mmap_mode="c"))
-            self.__dtype = host_tensor.dtype
-            self._tensor = create_wg_dist_tensor(
-                list(host_tensor.shape),
-                host_tensor.dtype,
-                device,
-                partition_book,
-                backend,
-                *args,
-                **kwargs,
-            )
         else:
             raise ValueError(
                 "Unsupported source type. Please provide "
@@ -273,7 +256,7 @@ class DistTensor:
         ----------
         file_path : str
             The file path to the tensor.
-            The file can be a NumPy array or Parquet file.
+            The file can contain raw binary or Parquet data.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
@@ -545,8 +528,7 @@ class DistEmbedding(DistTensor):
         Parameters
         ----------
         file_path : str
-            The file path to the tensor. The file can be in the
-            format of a NumPy array or Parquet data.
+            The file path to raw binary or Parquet data.
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".

@@ -27,11 +27,17 @@ def test_resolve_file_format():
     with pytest.raises(ValueError, match="same format"):
         _resolve_file_format(["tensor.bin", "tensor.parquet"], "auto")
 
-    with pytest.raises(ValueError, match="PyTorch files are not supported"):
+    with pytest.raises(ValueError, match=r"\.pt files are not supported"):
         _resolve_file_format(["tensor.pt"], "auto")
 
     with pytest.raises(ValueError, match="must be one of"):
         _resolve_file_format(["tensor.pt"], "pytorch")
+
+    with pytest.raises(ValueError, match=r"\.npy files are not supported"):
+        _resolve_file_format(["tensor.npy"], "auto")
+
+    with pytest.raises(ValueError, match=r"\.npy files are not supported"):
+        _resolve_file_format(["tensor.npy"], "binary")
 
 
 def test_load_parquet_tensor(tmp_path):
