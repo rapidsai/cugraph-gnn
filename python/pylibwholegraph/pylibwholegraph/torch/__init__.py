@@ -38,7 +38,7 @@ from .initialize import (
     init_torch_env,
     init_torch_env_and_create_wm_comm,
     is_rmm_enabled,
-    set_memory_resource,
+    set_rmm_enabled,
     finalize,
 )
 

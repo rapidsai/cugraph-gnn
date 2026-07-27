@@ -43,7 +43,7 @@ namespace wholememory {
 
 namespace {
 std::atomic<bool> rmm_enabled{false};
-}
+}  // namespace
 
 void set_rmm_enabled(bool enabled) noexcept { rmm_enabled.store(enabled); }
 

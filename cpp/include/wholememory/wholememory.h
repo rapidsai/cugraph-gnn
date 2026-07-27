@@ -99,13 +99,13 @@ wholememory_error_code_t wholememory_finalize();
 /**
  * Enable or disable RMM for supported WholeMemory device allocations.
  *
- * When enabled, future DISTRIBUTED and HIERARCHY device allocations use the RMM memory resource
- * configured for the current CUDA device. Existing allocations retain their original allocation
- * method. Other memory types and host allocations continue to use their specialized allocation
- * paths.
+ * When enabled, future DISTRIBUTED and HIERARCHY device allocations use RMM's current memory
+ * resource for the active CUDA device at allocation time. Existing allocations retain their
+ * original allocation method. Other memory types and host allocations continue to use their
+ * specialized allocation paths.
  *
- * The caller must configure an RMM resource for each CUDA device before enabling this option and
- * keep that resource alive until all WholeMemory allocations using it have been destroyed.
+ * This function does not change RMM's current memory resource. Configure the desired per-device
+ * resource through RMM before creating a WholeMemory allocation.
  *
  * @param enabled : true to use RMM for supported allocations, false to use the default allocator
  * @return : wholememory_error_code_t
