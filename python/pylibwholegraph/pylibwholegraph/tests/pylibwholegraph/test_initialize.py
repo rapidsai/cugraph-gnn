@@ -20,7 +20,7 @@ def restore_memory_resource():
         rmm.mr.set_current_device_resource(previous_resource)
 
 
-def test_set_rmm_enabled_uses_current_resource(restore_memory_resource):
+def test_set_rmm_enabled_uses_current_resource(torch, restore_memory_resource):
     memory_resource = rmm.mr.CudaMemoryResource()
     rmm.mr.set_current_device_resource(memory_resource)
     wgth.set_rmm_enabled(True)
@@ -29,7 +29,7 @@ def test_set_rmm_enabled_uses_current_resource(restore_memory_resource):
     assert rmm.mr.get_current_device_resource() is memory_resource
 
 
-def test_finalize_disables_rmm(restore_memory_resource):
+def test_finalize_disables_rmm(torch, restore_memory_resource):
     wmb.init(0)
     current_resource = rmm.mr.get_current_device_resource()
     wgth.set_rmm_enabled(True)
