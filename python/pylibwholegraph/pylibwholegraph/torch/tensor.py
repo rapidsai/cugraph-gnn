@@ -20,6 +20,7 @@ from .wholegraph_env import wrap_torch_tensor, get_wholegraph_env_fns, get_strea
 
 torch = import_optional("torch")
 np = import_optional("numpy")
+pa = import_optional("pyarrow")
 pq = import_optional("pyarrow.parquet")
 
 # Structured formats must be decoded before they can be copied into WholeMemory.
@@ -40,6 +41,26 @@ _FILE_FORMAT_ALIASES = {
     "pq": "parquet",
     "auto": "auto",
 }
+
+
+def _parquet_type_to_numpy_dtype(parquet_type):
+    """Map supported scalar Arrow types without going through pandas."""
+    if pa.types.is_boolean(parquet_type):
+        return np.dtype(np.bool_)
+    if pa.types.is_signed_integer(parquet_type):
+        return np.dtype(f"int{parquet_type.bit_width}")
+    if pa.types.is_unsigned_integer(parquet_type):
+        return np.dtype(f"uint{parquet_type.bit_width}")
+    if pa.types.is_floating(parquet_type):
+        return np.dtype(f"float{parquet_type.bit_width}")
+    raise ValueError(f"unsupported Parquet column type {parquet_type}")
+
+
+def _parquet_type_staging_itemsize(parquet_type):
+    """Return bytes per value after Arrow converts a column to NumPy."""
+    # Arrow stores booleans as one bit, but Array.to_numpy() expands them to
+    # one byte per value. Numeric types retain their Arrow bit width.
+    return max(1, (parquet_type.bit_width + 7) // 8)
 
 
 def _normalize_filelist(filelist: Union[List[str], str]) -> List[str]:
@@ -109,18 +130,11 @@ def _parquet_file_metadata(
         )
 
     try:
-        column_dtypes = [np.dtype(field.type.to_pandas_dtype()) for field in schema]
-    except (RuntimeError, TypeError, ValueError) as error:
+        column_dtypes = [_parquet_type_to_numpy_dtype(field.type) for field in schema]
+    except (AttributeError, TypeError, ValueError) as error:
         raise ValueError(
             f"Parquet file {filename!r} must contain only scalar numeric columns"
         ) from error
-    if any(
-        not (np.issubdtype(dtype, np.number) or np.issubdtype(dtype, np.bool_))
-        for dtype in column_dtypes
-    ):
-        raise ValueError(
-            f"Parquet file {filename!r} must contain only scalar numeric columns"
-        )
     if dtype is not None:
         try:
             requested_dtype = np.dtype(torch.empty((), dtype=dtype).numpy().dtype)
@@ -207,7 +221,7 @@ def _iter_parquet_tensors(
     parquet_file = pq.ParquetFile(filename)
     row_count = _parquet_file_metadata(filename, dim, last_dim_size)
     source_row_size = sum(
-        np.dtype(field.type.to_pandas_dtype()).itemsize
+        _parquet_type_staging_itemsize(field.type)
         for field in parquet_file.schema_arrow
     )
     output_row_size = torch.tensor([], dtype=dtype).element_size() * (
