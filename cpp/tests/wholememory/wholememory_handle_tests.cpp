@@ -213,16 +213,53 @@ TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
       EXPECT_EQ(cudaSetDevice(rank), cudaSuccess);
 
       wholememory_comm_t wm_comm = create_communicator_by_pipes(pipes, rank, world_size);
-      rmm::mr::statistics_resource_adaptor statistics_mr{
-        rmm::mr::get_current_device_resource_ref()};
+      auto const upstream_mr     = rmm::mr::get_current_device_resource_ref();
+      rmm::mr::statistics_resource_adaptor statistics_mr{upstream_mr};
+      rmm::mr::statistics_resource_adaptor alternate_statistics_mr{upstream_mr};
       auto previous_mr =
         rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+
+      EXPECT_FALSE(wholememory_is_rmm_enabled());
+
+      size_t constexpr total_size{1024UL * 1024UL};
+      size_t constexpr granularity{128UL};
+
+      auto const disabled_allocations_before = statistics_mr.get_allocations_counter().total;
+      wholememory_handle_t disabled_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&disabled_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, disabled_allocations_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(disabled_handle), WHOLEMEMORY_SUCCESS);
 
       EXPECT_EQ(wholememory_set_rmm_enabled(true), WHOLEMEMORY_SUCCESS);
       EXPECT_TRUE(wholememory_is_rmm_enabled());
 
-      size_t constexpr total_size{1024UL * 1024UL};
-      size_t constexpr granularity{128UL};
+      auto const retained_allocations_before = statistics_mr.get_allocations_counter().total;
+      auto const retained_bytes_before       = statistics_mr.get_bytes_counter().value;
+      wholememory_handle_t retained_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&retained_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_GT(statistics_mr.get_allocations_counter().total, retained_allocations_before);
+      EXPECT_GT(statistics_mr.get_bytes_counter().value, retained_bytes_before);
+
+      auto const alternate_allocations_before =
+        alternate_statistics_mr.get_allocations_counter().total;
+      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{alternate_statistics_mr});
+      EXPECT_EQ(wholememory::destroy_wholememory(retained_handle), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_bytes_counter().value, retained_bytes_before);
+      EXPECT_EQ(alternate_statistics_mr.get_allocations_counter().total,
+                alternate_allocations_before);
+      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
 
       for (auto memory_type : {WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_MT_HIERARCHY}) {
         auto const allocations_before = statistics_mr.get_allocations_counter().total;
@@ -237,24 +274,33 @@ TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
         EXPECT_EQ(statistics_mr.get_bytes_counter().value, bytes_before);
       }
 
-      auto const fallback_allocations_before = statistics_mr.get_allocations_counter().total;
-      wholememory_handle_t chunked_handle;
-      EXPECT_EQ(wholememory::create_wholememory(&chunked_handle,
+      for (auto memory_type : {WHOLEMEMORY_MT_CHUNKED, WHOLEMEMORY_MT_CONTINUOUS}) {
+        auto const fallback_allocations_before = statistics_mr.get_allocations_counter().total;
+        wholememory_handle_t fallback_handle;
+        EXPECT_EQ(
+          wholememory::create_wholememory(
+            &fallback_handle, total_size, wm_comm, memory_type, WHOLEMEMORY_ML_DEVICE, granularity),
+          WHOLEMEMORY_SUCCESS);
+        EXPECT_EQ(statistics_mr.get_allocations_counter().total, fallback_allocations_before);
+        EXPECT_EQ(wholememory::destroy_wholememory(fallback_handle), WHOLEMEMORY_SUCCESS);
+      }
+
+      auto const host_allocations_before = statistics_mr.get_allocations_counter().total;
+      wholememory_handle_t host_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&host_handle,
                                                 total_size,
                                                 wm_comm,
-                                                WHOLEMEMORY_MT_CHUNKED,
-                                                WHOLEMEMORY_ML_DEVICE,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_HOST,
                                                 granularity),
                 WHOLEMEMORY_SUCCESS);
-      EXPECT_EQ(statistics_mr.get_allocations_counter().total, fallback_allocations_before);
-      EXPECT_EQ(wholememory::destroy_wholememory(chunked_handle), WHOLEMEMORY_SUCCESS);
-
-      EXPECT_EQ(wholememory_set_rmm_enabled(false), WHOLEMEMORY_SUCCESS);
-      EXPECT_FALSE(wholememory_is_rmm_enabled());
-      rmm::mr::set_current_device_resource(std::move(previous_mr));
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, host_allocations_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(host_handle), WHOLEMEMORY_SUCCESS);
 
       EXPECT_EQ(wholememory::destroy_all_communicators(), WHOLEMEMORY_SUCCESS);
       EXPECT_EQ(wholememory_finalize(), WHOLEMEMORY_SUCCESS);
+      EXPECT_FALSE(wholememory_is_rmm_enabled());
+      rmm::mr::set_current_device_resource(std::move(previous_mr));
       WHOLEMEMORY_CHECK(::testing::Test::HasFailure() == false);
     },
     true);
