@@ -30,7 +30,6 @@ dependencies:
 - pandas
 - pre-commit
 - pyarrow
-- pydantic
 - pylibcugraph==26.10.*,>=0.0.0a0
 - pytest
 - pytest-benchmark
@@ -43,6 +42,5 @@ dependencies:
 - scikit-build-core>=0.11.0
 - scipy
 - setuptools>=77.0.0
-- torchdata
 - wheel
 name: all_cuda-129_arch-x86_64
