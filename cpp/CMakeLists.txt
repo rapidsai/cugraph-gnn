@@ -105,9 +105,9 @@ endif()
 
 rapids_cpm_init()
 
+include(./cmake/thirdparty/get_rmm.cmake)
 include(./cmake/thirdparty/get_raft.cmake)
 include(./cmake/thirdparty/get_nccl.cmake)
-find_package(rmm "${RAPIDS_VERSION}" REQUIRED)
 if(BUILD_WITH_NVSHMEM)
   include(./cmake/thirdparty/get_nvshmem.cmake)
 endif()
