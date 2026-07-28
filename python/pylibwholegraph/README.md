@@ -27,5 +27,12 @@ WholeMemory looks up RMM's current resource when each supported allocation is cr
 RMM per-device resource configuration applies. Call `wgth.set_rmm_enabled(False)` to use
 WholeMemory's default allocator for future allocations.
 
+> [!WARNING]
+> RMM-backed WholeMemory allocations retain a reference to the memory resource that created them,
+> and that resource must remain alive until those allocations are destroyed. Destroy all
+> WholeMemory tensors and other WholeMemory allocations before calling `rmm.reinitialize()` or
+> otherwise replacing or destroying RMM's current device memory resource. Disabling RMM only
+> affects future WholeMemory allocations and does not remove this requirement for existing ones.
+
 Chunked, continuous, and NVSHMEM device tensors require specialized CUDA allocation mechanisms.
 When RMM is enabled, these tensors emit a warning and use their existing allocation path.

@@ -23,6 +23,12 @@ def set_rmm_enabled(enabled):
     through RMM before creating the tensors. Chunked, continuous, and NVSHMEM device tensors retain
     their specialized allocation paths.
 
+    .. warning::
+        RMM-backed WholeMemory allocations retain a reference to the resource that created them.
+        Destroy all WholeMemory tensors and other WholeMemory allocations before calling
+        ``rmm.reinitialize()`` or otherwise replacing or destroying RMM's current device memory
+        resource. Disabling RMM only affects future allocations.
+
     :param enabled: Whether supported WholeMemory device allocations should use RMM.
     :return: None
     """

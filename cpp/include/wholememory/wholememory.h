@@ -107,6 +107,12 @@ wholememory_error_code_t wholememory_finalize();
  * This function does not change RMM's current memory resource. Configure the desired per-device
  * resource through RMM before creating a WholeMemory allocation.
  *
+ * @warning RMM-backed WholeMemory allocations retain a reference to the resource used to allocate
+ * their storage. The resource must remain alive until every such allocation is destroyed. Destroy
+ * all WholeMemory allocations before replacing or destroying RMM's current device memory resource.
+ * Disabling RMM only affects future allocations and does not remove this requirement for existing
+ * allocations.
+ *
  * @param enabled : true to use RMM for supported allocations, false to use the default allocator
  * @return : wholememory_error_code_t
  */
