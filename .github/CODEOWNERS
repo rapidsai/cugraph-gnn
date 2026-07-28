@@ -15,9 +15,10 @@ cpp/               @rapidsai/wholegraph-cpp-codeowners
 # CI code owners
 /.flake8                 @rapidsai/ci-codeowners
 /.github/                @rapidsai/ci-codeowners
-/ci/                     @rapidsai/ci-codeowners
 /.codecov.yml            @rapidsai/ci-codeowners
 /.pre-commit-config.yaml @rapidsai/ci-codeowners
+/.yamllint.yaml          @rapidsai/ci-codeowners
+/ci/                     @rapidsai/ci-codeowners
 /print_env.sh            @rapidsai/ci-codeowners
 
 # packaging code owners
