@@ -136,6 +136,7 @@ jobs:
       package-name: cugraph-pyg
       package-type: python
       pure-wheel: true
+      version-suffix: ${{ needs.build-details.outputs.package-version-suffix }}
     permissions:
       actions: read
       contents: read
@@ -174,6 +175,7 @@ jobs:
       script: ci/build_wheel_libwholegraph.sh
       package-name: libwholegraph
       package-type: cpp
+      version-suffix: ${{ needs.build-details.outputs.package-version-suffix }}
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
     permissions:
@@ -195,6 +197,7 @@ jobs:
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
       package-type: python
+      version-suffix: ${{ needs.build-details.outputs.package-version-suffix }}
       # Build a wheel for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
     permissions:
