@@ -516,6 +516,7 @@ def create_embedding_from_filelist(
     expected_entry_count: Union[int, None] = None,
     expected_shape: Union[List[int], tuple, None] = None,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ):
     r"""
     Create embedding from file list
@@ -540,6 +541,8 @@ def create_embedding_from_filelist(
     :param expected_shape: optional expected 2-D embedding shape.
     :param fail_on_dtype_mismatch: raise an error instead of warning and
       converting when Parquet column dtypes differ from ``dtype``.
+    :param columns: Parquet column name or ordered list of column names to
+      read. By default, all columns are read in physical order.
     :return:
     """
     filelist = _normalize_filelist(filelist)
@@ -551,6 +554,7 @@ def create_embedding_from_filelist(
         last_dim_size,
         expected_shape,
         fail_on_dtype_mismatch,
+        columns,
     )
     if len(resolved_shape) != 2:
         raise ValueError(
@@ -589,7 +593,7 @@ def create_embedding_from_filelist(
         round_robin_size=round_robin_size,
     )
     wm_embedding.get_embedding_tensor().from_filelist(
-        filelist, round_robin_size, file_format=file_format
+        filelist, round_robin_size, file_format=file_format, columns=columns
     )
     return wm_embedding
 

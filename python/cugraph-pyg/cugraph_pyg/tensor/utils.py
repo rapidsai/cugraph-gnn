@@ -107,6 +107,7 @@ def create_wg_dist_tensor_from_files(
     file_format: str = "auto",
     last_dim_size: Union[int, None] = None,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
     **kwargs,
 ):
     """
@@ -137,6 +138,8 @@ def create_wg_dist_tensor_from_files(
     fail_on_dtype_mismatch : bool, optional
         Raise an error instead of warning and converting when Parquet column
         dtypes differ from ``dtype``.
+    columns : str or list of str, optional
+        Parquet column name or ordered list of column names to read.
     """
     global_comm = wgth.get_global_communicator()
     partition_book = (
@@ -172,6 +175,7 @@ def create_wg_dist_tensor_from_files(
             file_format=file_format,
             expected_shape=expected_shape,
             fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+            columns=columns,
             **kwargs,
         )
     else:
@@ -186,6 +190,7 @@ def create_wg_dist_tensor_from_files(
             file_format=file_format,
             expected_shape=expected_shape,
             fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+            columns=columns,
         )
     return wm_embedding
 

@@ -36,6 +36,9 @@ class DistTensor:
     fail_on_dtype_mismatch : bool
         Raise an error instead of warning and converting when Parquet column
         dtypes differ from ``dtype``.
+    columns : str or list of str, optional
+        Parquet column name or ordered list of column names to read. A single
+        selected column is inferred as a 1-D tensor.
     dtype : Optional[torch.dtype]
         The dtype of the tensor. Required for file input and inferred from an
         in-memory ``torch.Tensor`` source.
@@ -73,6 +76,7 @@ class DistTensor:
         expected_shape: Optional[Union[list, tuple]] = None,
         last_dim_size: Optional[int] = None,
         fail_on_dtype_mismatch: bool = False,
+        columns: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         self._tensor = None
@@ -111,6 +115,7 @@ class DistTensor:
                     file_format,
                     last_dim_size=last_dim_size,
                     fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+                    columns=columns,
                     *args,
                     **kwargs,
                 )
@@ -132,6 +137,7 @@ class DistTensor:
                     file_format,
                     last_dim_size=last_dim_size,
                     fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+                    columns=columns,
                     *args,
                     **kwargs,
                 )
@@ -250,6 +256,7 @@ class DistTensor:
         file_format: Optional[Literal["auto", "binary", "parquet"]] = "auto",
         last_dim_size: Optional[int] = None,
         fail_on_dtype_mismatch: bool = False,
+        columns: Optional[Union[str, List[str]]] = None,
     ):
         """Create a WholeGraph-backed Distributed Tensor from a file.
         Parameters
@@ -273,6 +280,8 @@ class DistTensor:
         fail_on_dtype_mismatch : bool, optional
             Raise an error instead of warning and converting when Parquet
             column dtypes differ from ``dtype``.
+        columns : str or list of str, optional
+            Parquet column name or ordered list of column names to read.
         Returns:
         -------
         DistTensor
@@ -288,6 +297,7 @@ class DistTensor:
             file_format=file_format,
             last_dim_size=last_dim_size,
             fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+            columns=columns,
         )
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):

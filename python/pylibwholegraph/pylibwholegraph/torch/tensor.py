@@ -63,6 +63,44 @@ def _parquet_type_staging_itemsize(parquet_type):
     return max(1, (parquet_type.bit_width + 7) // 8)
 
 
+def _normalize_parquet_columns(columns):
+    if columns is None:
+        return None
+    if isinstance(columns, str):
+        columns = [columns]
+    elif isinstance(columns, (list, tuple)):
+        columns = list(columns)
+    else:
+        raise TypeError("columns must be a column name or a list of column names")
+    if not columns:
+        raise ValueError("columns must contain at least one column name")
+    if any(not isinstance(column, str) for column in columns):
+        raise TypeError("columns must contain only column names")
+    if len(set(columns)) != len(columns):
+        raise ValueError("columns must not contain duplicate column names")
+    return columns
+
+
+def _get_parquet_fields(filename, schema, columns):
+    columns = _normalize_parquet_columns(columns)
+    if columns is None:
+        return list(schema)
+
+    fields = []
+    for column in columns:
+        matching_fields = [field for field in schema if field.name == column]
+        if not matching_fields:
+            raise ValueError(
+                f"Parquet file {filename!r} does not contain column {column!r}"
+            )
+        if len(matching_fields) > 1:
+            raise ValueError(
+                f"Parquet file {filename!r} contains multiple columns named {column!r}"
+            )
+        fields.append(matching_fields[0])
+    return fields
+
+
 def _normalize_filelist(filelist: Union[List[str], str]) -> List[str]:
     if isinstance(filelist, (str, os.PathLike)):
         normalized_filelist = [os.fspath(filelist)]
@@ -111,12 +149,14 @@ def _parquet_file_metadata(
     last_dim_size: int,
     dtype: Union["torch.dtype", None] = None,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ) -> int:
     # Parquet footers contain row counts and schemas, so allocation can be
     # planned without decoding any data pages.
     parquet_file = pq.ParquetFile(filename)
     schema = parquet_file.schema_arrow
-    column_count = len(schema)
+    fields = _get_parquet_fields(filename, schema, columns)
+    column_count = len(fields)
     if column_count == 0:
         raise ValueError(f"Parquet file {filename!r} contains no columns")
     if dim == 1 and column_count != 1:
@@ -130,7 +170,7 @@ def _parquet_file_metadata(
         )
 
     try:
-        column_dtypes = [_parquet_type_to_numpy_dtype(field.type) for field in schema]
+        column_dtypes = [_parquet_type_to_numpy_dtype(field.type) for field in fields]
     except (AttributeError, TypeError, ValueError) as error:
         raise ValueError(
             f"Parquet file {filename!r} must contain only scalar numeric columns"
@@ -160,8 +200,12 @@ def _parquet_file_metadata(
     return parquet_file.metadata.num_rows
 
 
-def _parquet_column_count(filename: str) -> int:
-    column_count = len(pq.ParquetFile(filename).schema_arrow)
+def _parquet_column_count(
+    filename: str,
+    columns: Union[str, List[str], None] = None,
+) -> int:
+    schema = pq.ParquetFile(filename).schema_arrow
+    column_count = len(_get_parquet_fields(filename, schema, columns))
     if column_count == 0:
         raise ValueError(f"Parquet file {filename!r} contains no columns")
     return column_count
@@ -217,12 +261,23 @@ def _iter_parquet_tensors(
     last_dim_size: int,
     row_start: int = 0,
     row_end: Union[int, None] = None,
+    columns: Union[str, List[str], None] = None,
 ):
+    columns = _normalize_parquet_columns(columns)
     parquet_file = pq.ParquetFile(filename)
-    row_count = _parquet_file_metadata(filename, dim, last_dim_size)
+    row_count = _parquet_file_metadata(
+        filename,
+        dim,
+        last_dim_size,
+        columns=columns,
+    )
+    fields = _get_parquet_fields(
+        filename,
+        parquet_file.schema_arrow,
+        columns,
+    )
     source_row_size = sum(
-        _parquet_type_staging_itemsize(field.type)
-        for field in parquet_file.schema_arrow
+        _parquet_type_staging_itemsize(field.type) for field in fields
     )
     output_row_size = torch.tensor([], dtype=dtype).element_size() * (
         last_dim_size if dim == 2 else 1
@@ -247,9 +302,15 @@ def _iter_parquet_tensors(
             break
 
         batch_start = row_group_start
-        for batch in parquet_file.iter_batches(
-            batch_size=batch_size, row_groups=[row_group]
-        ):
+        batch_options = {
+            "batch_size": batch_size,
+            "row_groups": [row_group],
+        }
+        if columns is not None:
+            # Arrow projects these columns before decoding and preserves the
+            # requested order. This avoids staging unselected columns.
+            batch_options["columns"] = columns
+        for batch in parquet_file.iter_batches(**batch_options):
             batch_end = batch_start + batch.num_rows
             copy_start = max(row_start, batch_start)
             copy_end = min(row_end, batch_end)
@@ -269,6 +330,7 @@ def _get_file_entry_count(
     dtype: "torch.dtype",
     last_dim_size: int,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ) -> int:
     if file_format == "binary":
         element_size = torch.tensor([], dtype=dtype).element_size()
@@ -291,6 +353,7 @@ def _get_file_entry_count(
             last_dim_size,
             dtype,
             fail_on_dtype_mismatch,
+            columns,
         )
     raise ValueError(f"Unsupported file format {file_format!r}")
 
@@ -301,6 +364,7 @@ def _get_filelist_entry_count(
     dtype: "torch.dtype",
     last_dim_size: int,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ) -> int:
     # This is a metadata-only planning pass for Parquet and binary files. No
     # source tensors are concatenated or materialized here.
@@ -311,6 +375,7 @@ def _get_filelist_entry_count(
             dtype,
             last_dim_size,
             fail_on_dtype_mismatch,
+            columns,
         )
         for filename in filelist
     )
@@ -323,7 +388,11 @@ def _resolve_filelist_shape(
     last_dim_size: Union[int, None],
     expected_shape: Union[List[int], tuple, None] = None,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ):
+    columns = _normalize_parquet_columns(columns)
+    if columns is not None and file_format != "parquet":
+        raise ValueError("columns is only supported for Parquet file loading")
     if expected_shape is not None:
         expected_shape = tuple(expected_shape)
         if len(expected_shape) not in (1, 2):
@@ -339,7 +408,9 @@ def _resolve_filelist_shape(
         if expected_shape is not None:
             last_dim_size = 0 if len(expected_shape) == 1 else expected_shape[1]
         else:
-            column_counts = {_parquet_column_count(filename) for filename in filelist}
+            column_counts = {
+                _parquet_column_count(filename, columns) for filename in filelist
+            }
             if len(column_counts) != 1:
                 raise ValueError("All Parquet files must have the same column count")
             column_count = column_counts.pop()
@@ -355,6 +426,7 @@ def _resolve_filelist_shape(
         dtype,
         last_dim_size,
         fail_on_dtype_mismatch,
+        columns,
     )
     actual_shape = (
         (total_entry_count,)
@@ -503,6 +575,7 @@ class WholeMemoryTensor(object):
         filelist: Union[List[str], str],
         round_robin_size: int = 0,
         file_format: str = "binary",
+        columns: Union[str, List[str], None] = None,
     ):
         """
         Load WholeMemory Tensor from file lists
@@ -511,10 +584,15 @@ class WholeMemoryTensor(object):
           using round robin shard strategy
         :param file_format: file format, one of binary, parquet, or auto.
           Parquet files must contain only scalar numeric columns.
+        :param columns: Parquet column name or ordered list of column names to
+          read. By default, all columns are read in physical order.
         :return: None
         """
         filelist = _normalize_filelist(filelist)
         file_format = _resolve_file_format(filelist, file_format)
+        columns = _normalize_parquet_columns(columns)
+        if columns is not None and file_format != "parquet":
+            raise ValueError("columns is only supported for Parquet file loading")
         if file_format == "binary":
             # Raw binary already matches WholeMemory's dense layout, so retain
             # the native loader as the zero-decode, lowest-overhead fast path.
@@ -543,7 +621,11 @@ class WholeMemoryTensor(object):
         # only intersecting source rows.
         for filename in filelist:
             file_entry_count = _get_file_entry_count(
-                filename, file_format, self.dtype, last_dim_size
+                filename,
+                file_format,
+                self.dtype,
+                last_dim_size,
+                columns=columns,
             )
             file_end = file_start + file_entry_count
             copy_start = max(file_start, local_start)
@@ -559,6 +641,7 @@ class WholeMemoryTensor(object):
                     last_dim_size,
                     source_start,
                     source_end,
+                    columns,
                 ):
                     copy_count = file_tensor.shape[0]
                     local_tensor[
@@ -675,6 +758,7 @@ def create_wholememory_tensor_from_filelist(
     expected_entry_count: Union[int, None] = None,
     expected_shape: Union[List[int], tuple, None] = None,
     fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
 ):
     """
     Create WholeMemory Tensor from a list of files.
@@ -698,6 +782,8 @@ def create_wholememory_tensor_from_filelist(
       Parquet file defaults to 1-D unless ``(N, 1)`` is specified here.
     :param fail_on_dtype_mismatch: raise an error instead of warning and
       converting when Parquet column dtypes differ from ``dtype``.
+    :param columns: Parquet column name or ordered list of column names to
+      read. By default, all columns are read in physical order.
     :return: WholeMemoryTensor
     """
     filelist = _normalize_filelist(filelist)
@@ -710,6 +796,7 @@ def create_wholememory_tensor_from_filelist(
             last_dim_size,
             expected_shape,
             fail_on_dtype_mismatch,
+            columns,
         )
     )
     resolved_last_dim_size = 0 if len(sizes) == 1 else sizes[1]
@@ -740,7 +827,7 @@ def create_wholememory_tensor_from_filelist(
         strides,
         tensor_entry_partition,
     )
-    wm_tensor.from_filelist(filelist, file_format=file_format)
+    wm_tensor.from_filelist(filelist, file_format=file_format, columns=columns)
     return wm_tensor
 
 

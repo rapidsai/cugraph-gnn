@@ -12,6 +12,11 @@ torch = import_optional("torch")
 class DistMatrix:
     """
     WholeGraph-backed Distributed Matrix Interface for PyTorch.
+
+    Parquet edge lists can be loaded directly into two final 1-D DistTensor
+    allocations by passing a file path or ordered file list as ``src`` and
+    selecting the source and destination columns. The file is scanned once
+    per selected column; no intermediate two-column tensor is created.
     """
 
     def __init__(
@@ -29,18 +34,63 @@ class DistMatrix:
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
         backend: Optional[Literal["nccl", "vmm"]] = "nccl",
         format: Optional[Literal["csr", "csc", "coo"]] = "coo",
+        *,
+        source: Optional[str] = None,
+        destination: Optional[str] = None,
+        partition_book: Optional[List[int]] = None,
+        file_format: Optional[Literal["auto", "parquet"]] = "auto",
+        expected_shape: Optional[Union[list, tuple]] = None,
+        fail_on_dtype_mismatch: bool = False,
     ):
         self.__backend = backend
         self._format = format
 
-        if isinstance(src, (tuple, list)):
+        is_file_list = isinstance(src, list) and (
+            not src or all(isinstance(filename, str) for filename in src)
+        )
+        if isinstance(src, str) or is_file_list:
+            if not src:
+                raise ValueError("src must contain at least one file")
+            if dtype is None:
+                raise ValueError("dtype is required when reading from files")
+            if shape is not None:
+                raise ValueError(
+                    "Use expected_shape, not shape, when reading from files"
+                )
+            if self._format != "coo":
+                raise ValueError(
+                    "Parquet file loading is only supported for COO format"
+                )
+
+            source = "src" if source is None else source
+            destination = "dst" if destination is None else destination
+            if not isinstance(source, str) or not isinstance(destination, str):
+                raise TypeError("source and destination must be Parquet column names")
+
+            file_options = {
+                "src": src,
+                "expected_shape": expected_shape,
+                "dtype": dtype,
+                "device": device,
+                "partition_book": partition_book,
+                "backend": backend,
+                "file_format": file_format,
+                "fail_on_dtype_mismatch": fail_on_dtype_mismatch,
+            }
+            # Read directly into the two final WholeMemory allocations. Arrow
+            # projects one column per pass, so neither pass materializes an
+            # E-by-2 tensor or copies a completed DistTensor.
+            self._col = DistTensor(columns=source, **file_options)
+            self._row = DistTensor(columns=destination, **file_options)
+            if self._col.shape != self._row.shape:
+                raise ValueError(
+                    "source and destination columns must have the same number "
+                    "of elements"
+                )
+        elif isinstance(src, (tuple, list)):
             if len(src) != 2:
                 raise ValueError("src must be a tuple of two tensors")
-            if isinstance(src[0], str):
-                raise NotImplementedError(
-                    "Constructing from a file or list of files is not yet supported."
-                )
-            elif isinstance(src[0], DistTensor) and isinstance(src[1], DistTensor):
+            if isinstance(src[0], DistTensor) and isinstance(src[1], DistTensor):
                 self._col = src[0]
                 self._row = src[1]
             elif isinstance(src[0], DistTensor) or isinstance(src[1], DistTensor):
@@ -80,12 +130,67 @@ class DistMatrix:
                 shape=(shape[1],),
                 backend=self.__backend,
             )
-        elif isinstance(src, str):
-            raise NotImplementedError(
-                "Constructing from a file or list of files is not yet supported."
-            )
         else:
             raise ValueError("Invalid src type")
+
+    @classmethod
+    def from_file(
+        cls,
+        file_path: str,
+        *,
+        source: str = "src",
+        destination: str = "dst",
+        dtype: "torch.dtype",
+        device: Optional[Literal["cpu", "cuda"]] = "cpu",
+        partition_book: Optional[List[int]] = None,
+        backend: Optional[Literal["nccl", "vmm"]] = "nccl",
+        file_format: Optional[Literal["auto", "parquet"]] = "auto",
+        expected_shape: Optional[Union[list, tuple]] = None,
+        fail_on_dtype_mismatch: bool = False,
+    ) -> "DistMatrix":
+        """Load a COO matrix from source and destination Parquet columns."""
+        return cls.from_files(
+            [file_path],
+            source=source,
+            destination=destination,
+            dtype=dtype,
+            device=device,
+            partition_book=partition_book,
+            backend=backend,
+            file_format=file_format,
+            expected_shape=expected_shape,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+        )
+
+    @classmethod
+    def from_files(
+        cls,
+        file_paths: List[str],
+        *,
+        source: str = "src",
+        destination: str = "dst",
+        dtype: "torch.dtype",
+        device: Optional[Literal["cpu", "cuda"]] = "cpu",
+        partition_book: Optional[List[int]] = None,
+        backend: Optional[Literal["nccl", "vmm"]] = "nccl",
+        file_format: Optional[Literal["auto", "parquet"]] = "auto",
+        expected_shape: Optional[Union[list, tuple]] = None,
+        fail_on_dtype_mismatch: bool = False,
+    ) -> "DistMatrix":
+        """Load a COO matrix from an ordered list of Parquet files."""
+        return cls(
+            src=file_paths,
+            dtype=dtype,
+            device=device,
+            partition_book=partition_book,
+            backend=backend,
+            format="coo",
+            source=source,
+            destination=destination,
+            file_format=file_format,
+            expected_shape=expected_shape,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+        )
 
     def __setitem__(
         self,

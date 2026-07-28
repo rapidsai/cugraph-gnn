@@ -55,6 +55,98 @@ def test_load_parquet_tensor(tmp_path):
     torch.testing.assert_close(actual, torch.from_numpy(expected))
 
 
+def test_load_selected_parquet_columns(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table(
+            {
+                "dst": np.arange(10, 15, dtype=np.int64),
+                "unused": ["a", "b", "c", "d", "e"],
+                "src": np.arange(5, dtype=np.int64),
+            }
+        ),
+        filename,
+        row_group_size=2,
+    )
+
+    src = _collect_parquet_tensors(str(filename), torch.int64, 1, 0, columns="src")
+    reversed_coo = _collect_parquet_tensors(
+        str(filename), torch.int64, 2, 2, columns=["src", "dst"]
+    )
+
+    assert src.shape == (5,)
+    torch.testing.assert_close(src, torch.arange(5))
+    torch.testing.assert_close(
+        reversed_coo,
+        torch.stack((torch.arange(5), torch.arange(10, 15)), dim=1),
+    )
+
+
+def test_selected_parquet_columns_determine_inferred_shape(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filenames = []
+    for index in range(2):
+        filename = tmp_path / f"tensor_{index}.parquet"
+        parquet.write_table(
+            pyarrow.table(
+                {
+                    "src": np.arange(3, dtype=np.int64),
+                    "dst": np.arange(3, dtype=np.int64) + 10,
+                }
+            ),
+            filename,
+        )
+        filenames.append(str(filename))
+
+    assert _resolve_filelist_shape(
+        filenames, "parquet", torch.int64, None, columns="src"
+    ) == (6,)
+    assert _resolve_filelist_shape(
+        filenames, "parquet", torch.int64, None, columns=["dst", "src"]
+    ) == (6, 2)
+
+
+def test_selected_parquet_column_validation(tmp_path):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    filename = tmp_path / "tensor.parquet"
+    parquet.write_table(
+        pyarrow.table(
+            {
+                "src": np.arange(3, dtype=np.int64),
+                "label": ["a", "b", "c"],
+            }
+        ),
+        filename,
+    )
+
+    with pytest.raises(ValueError, match="does not contain column 'dst'"):
+        _resolve_filelist_shape(
+            [str(filename)], "parquet", torch.int64, None, columns="dst"
+        )
+    with pytest.raises(ValueError, match="at least one"):
+        _resolve_filelist_shape(
+            [str(filename)], "parquet", torch.int64, None, columns=[]
+        )
+    with pytest.raises(ValueError, match="duplicate"):
+        _resolve_filelist_shape(
+            [str(filename)],
+            "parquet",
+            torch.int64,
+            None,
+            columns=["src", "src"],
+        )
+    with pytest.raises(ValueError, match="scalar numeric columns"):
+        _resolve_filelist_shape(
+            [str(filename)], "parquet", torch.int64, None, columns="label"
+        )
+    with pytest.raises(ValueError, match="only supported for Parquet"):
+        _resolve_filelist_shape(["tensor.bin"], "binary", torch.int64, 0, columns="src")
+
+
 def test_get_parquet_filelist_entry_count_uses_metadata(tmp_path):
     pyarrow = pytest.importorskip("pyarrow")
     parquet = pytest.importorskip("pyarrow.parquet")
