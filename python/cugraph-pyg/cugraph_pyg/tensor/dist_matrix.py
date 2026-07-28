@@ -5,6 +5,7 @@ from typing import Optional, Union, Tuple, List, Literal
 
 from cugraph_pyg.utils.imports import import_optional
 from cugraph_pyg.tensor import DistTensor
+from cugraph_pyg.tensor.utils import synchronize_stream_and_barrier
 
 torch = import_optional("torch")
 
@@ -94,7 +95,8 @@ class DistMatrix:
     ):
         if isinstance(idx, slice):
             size = self._col.shape[0]
-            idx = torch.arange(size)[idx]
+            start, stop, step = idx.indices(size)
+            idx = torch.arange(start, stop, step)
 
         if self._format != "coo":
             raise ValueError("Updating is currently only supported for COO format")
@@ -112,6 +114,12 @@ class DistMatrix:
                 raise ValueError("val must be a tuple of two tensors")
             self._col[idx] = val[0]
             self._row[idx] = val[1]
+
+        # WholeMemory scatter runs on the current PyTorch CUDA stream, while
+        # the communicator barrier runs on an internal stream.  Order the
+        # streams before synchronizing ranks so local views cannot observe
+        # an incomplete local or remote update.
+        synchronize_stream_and_barrier(self._col.get_comm())
 
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
         if self._format != "coo":
@@ -177,35 +185,11 @@ class DistMatrix:
 
     @property
     def local_col(self) -> "torch.Tensor":
-        world_size = torch.distributed.get_world_size()
-        rank = torch.distributed.get_rank()
-
-        sz = self._col.shape[0]
-
-        q = sz // world_size
-        r = sz % world_size
-
-        if rank < r:
-            ix = torch.arange(q * rank + rank, q * (rank + 1) + rank + 1)
-        else:
-            ix = torch.arange(q * rank + r, q * (rank + 1) + r)
-        return self._col[ix]
+        return self._col.get_local_tensor()
 
     @property
     def local_row(self) -> "torch.Tensor":
-        world_size = torch.distributed.get_world_size()
-        rank = torch.distributed.get_rank()
-
-        sz = self._row.shape[0]
-
-        q = sz // world_size
-        r = sz % world_size
-
-        if rank < r:
-            ix = torch.arange(q * rank + rank, q * (rank + 1) + rank + 1)
-        else:
-            ix = torch.arange(q * rank + r, q * (rank + 1) + r)
-        return self._row[ix]
+        return self._row.get_local_tensor()
 
     @property
     def local_coo(self) -> "torch.Tensor":

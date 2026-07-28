@@ -109,6 +109,14 @@ def run_test_dist_matrix_creation(rank, world_size, device):
     assert torch.equal(local_col, expected_col)
     assert torch.equal(local_row, expected_row)
 
+    # Matrix accessors use the actual partition and share WholeGraph storage.
+    local_col = partitioned_matrix.local_col
+    local_row = partitioned_matrix.local_row
+    assert local_col.data_ptr() == partitioned_matrix._col.get_local_tensor().data_ptr()
+    assert local_row.data_ptr() == partitioned_matrix._row.get_local_tensor().data_ptr()
+    assert torch.equal(local_col.cpu(), partitioned_col[local_start:local_end].cpu())
+    assert torch.equal(local_row.cpu(), partitioned_row[local_start:local_end].cpu())
+
     torch.distributed.barrier()
 
     wm_finalize()
@@ -158,6 +166,21 @@ def run_test_dist_matrix_empty_creation(rank, world_size, device):
     out = dist_matrix[perm]
     assert torch.allclose(out[0], val_col)
     assert torch.allclose(out[1], val_row)
+
+    # Local access is a zero-copy view and observes the completed scatter.
+    local_start = dist_matrix._col.get_local_offset()
+    local_size = dist_matrix._col.get_local_tensor().shape[0]
+    local_end = local_start + local_size
+    expected_col = torch.empty_like(val_col)
+    expected_row = torch.empty_like(val_row)
+    expected_col[perm] = val_col
+    expected_row[perm] = val_row
+    local_col = dist_matrix.local_col
+    local_row = dist_matrix.local_row
+    assert local_col.data_ptr() == dist_matrix._col.get_local_tensor().data_ptr()
+    assert local_row.data_ptr() == dist_matrix._row.get_local_tensor().data_ptr()
+    assert torch.equal(local_col.cpu(), expected_col[local_start:local_end].cpu())
+    assert torch.equal(local_row.cpu(), expected_row[local_start:local_end].cpu())
 
     wm_finalize()
     torch.distributed.destroy_process_group()
