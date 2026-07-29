@@ -53,7 +53,7 @@ def _parquet_type_to_numpy_dtype(parquet_type):
         return np.dtype(f"uint{parquet_type.bit_width}")
     if pa.types.is_floating(parquet_type):
         return np.dtype(f"float{parquet_type.bit_width}")
-    raise ValueError(f"unsupported Parquet column type {parquet_type}")
+    raise ValueError(f"unsupported Parquet column type '{parquet_type}'")
 
 
 def _parquet_type_staging_itemsize(parquet_type):
