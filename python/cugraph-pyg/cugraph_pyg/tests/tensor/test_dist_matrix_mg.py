@@ -220,6 +220,25 @@ def run_test_dist_matrix_invalid_cases(rank, world_size, device):
     with pytest.raises(ValueError):
         DistMatrix(src=(col, row), format="coo", device=device)
 
+    # COO coordinates must use the same partitioning so local pairs align.
+    if world_size > 1:
+        size = 2 * world_size
+        values = torch.arange(size, dtype=torch.long, device="cuda")
+        col_partition_book = [1] * (world_size - 1) + [world_size + 1]
+        row_partition_book = [2] * world_size
+        col = DistTensor(
+            src=values,
+            device=device,
+            partition_book=col_partition_book,
+        )
+        row = DistTensor(
+            src=values,
+            device=device,
+            partition_book=row_partition_book,
+        )
+        with pytest.raises(ValueError, match="matching partition books"):
+            DistMatrix(src=(col, row), format="coo")
+
     # Test that a CSC transpose view is a CSR sharing the same storage
     col = torch.randint(0, 100, (100,), dtype=torch.long, device="cuda")
     row = torch.randint(0, 100, (100,), dtype=torch.long, device="cuda")

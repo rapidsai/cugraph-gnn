@@ -62,6 +62,10 @@ class DistMatrix:
                         "col and row must have the same number of "
                         "elements for COO format"
                     )
+                if self._col.partition_book != self._row.partition_book:
+                    raise ValueError(
+                        "col and row must have matching partition books for COO format"
+                    )
         elif src is None:
             if dtype is None or shape is None:
                 raise ValueError("dtype and shape must be provided if src is None")
