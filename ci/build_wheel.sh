@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -40,15 +40,6 @@ if [[ "${package_name}" != "libwholegraph" ]]; then
     EXCLUDE_ARGS+=(
         --exclude libwholegraph.so
     )
-fi
-
-if ! [ -d /tmp/gha-tools ]; then
-    git clone \
-        --depth 1 \
-        --branch version-suffixes \
-        https://github.com/rapidsai/gha-tools.git \
-        /tmp/gha-tools
-    export PATH="/tmp/gha-tools/tools:${PATH}"
 fi
 
 source rapids-configure-sccache
