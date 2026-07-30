@@ -78,6 +78,9 @@ files:
       - test_python_pylibwholegraph
   py_build_libwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/libwholegraph
     extras:
       table: build-system
@@ -85,6 +88,9 @@ files:
       - rapids_build_skbuild
   py_rapids_build_libwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/libwholegraph
     extras:
       table: tool.rapids-build-backend
@@ -95,6 +101,9 @@ files:
       - depends_on_librmm
   py_run_libwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/libwholegraph
     extras:
       table: project
@@ -103,6 +112,9 @@ files:
       - depends_on_nccl
   py_build_pylibwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/pylibwholegraph
     extras:
       table: build-system
@@ -110,6 +122,9 @@ files:
       - rapids_build_skbuild
   py_rapids_build_pylibwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/pylibwholegraph
     extras:
       table: tool.rapids-build-backend
@@ -122,6 +137,9 @@ files:
       - depends_on_librmm
   py_run_pylibwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/pylibwholegraph
     extras:
       table: project
@@ -130,6 +148,9 @@ files:
       - depends_on_libwholegraph
   py_test_pylibwholegraph:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/pylibwholegraph
     extras:
       table: project.optional-dependencies
@@ -139,6 +160,9 @@ files:
       - test_python_pylibwholegraph
   py_build_cugraph_pyg:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/cugraph-pyg
     extras:
       table: build-system
@@ -146,6 +170,9 @@ files:
       - rapids_build_setuptools
   py_run_cugraph_pyg:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/cugraph-pyg
     extras:
       table: project
@@ -156,6 +183,9 @@ files:
       - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
+    matrix:
+      use_cuda_wheels: ["true"]
+      cuda_suffixed: ["false"]
     pyproject_dir: python/cugraph-pyg
     extras:
       table: project.optional-dependencies
@@ -800,10 +830,12 @@ dependencies:
               - *cupy_cu13
           - matrix:
               cuda: "12.*"
+              use_cuda_wheels: "true"
             packages:
               - cupy-cuda12x[ctk]>=14.0.1,!=14.1.0
           # fallback to CUDA 13 versions if 'cuda' is '13.*' or not provided
           - matrix:
+              use_cuda_wheels: "true"
             packages:
               - cupy-cuda13x[ctk]>=14.0.1,!=14.1.0
   depends_on_cugraph_pyg:
