@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Union, Tuple, List, Literal
 
 from cugraph_pyg.utils.imports import import_optional
 from cugraph_pyg.tensor import DistTensor
+from cugraph_pyg.tensor.utils import synchronize_stream_and_barrier
 
 torch = import_optional("torch")
 
@@ -28,19 +29,26 @@ class DistMatrix:
         dtype: Optional["torch.dtype"] = None,
         device: Optional[Literal["cpu", "cuda"]] = "cpu",
         backend: Optional[Literal["nccl", "vmm"]] = "nccl",
-        format: Optional[Literal["csc", "coo"]] = "coo",
+        format: Optional[Literal["csr", "csc", "coo"]] = "coo",
     ):
         self.__backend = backend
         self._format = format
 
         if isinstance(src, (tuple, list)):
+            if len(src) != 2:
+                raise ValueError("src must be a tuple of two tensors")
             if isinstance(src[0], str):
                 raise NotImplementedError(
                     "Constructing from a file or list of files is not yet supported."
                 )
+            elif isinstance(src[0], DistTensor) and isinstance(src[1], DistTensor):
+                self._col = src[0]
+                self._row = src[1]
+            elif isinstance(src[0], DistTensor) or isinstance(src[1], DistTensor):
+                raise ValueError(
+                    "src must contain either two DistTensor objects or two tensors"
+                )
             else:
-                if len(src) != 2:
-                    raise ValueError("src must be a tuple of two tensors")
                 self._col = DistTensor(
                     src=src[0], device=device, dtype=(dtype or src[0].dtype)
                 )
@@ -48,12 +56,16 @@ class DistMatrix:
                     src=src[1], device=device, dtype=(dtype or src[1].dtype)
                 )
 
-                if self._format == "coo":
-                    if self._col.shape[0] != self._row.shape[0]:
-                        raise ValueError(
-                            "col and row must have the same number of "
-                            "elements for COO format"
-                        )
+            if self._format == "coo":
+                if self._col.shape[0] != self._row.shape[0]:
+                    raise ValueError(
+                        "col and row must have the same number of "
+                        "elements for COO format"
+                    )
+                if self._col.partition_book != self._row.partition_book:
+                    raise ValueError(
+                        "col and row must have matching partition books for COO format"
+                    )
         elif src is None:
             if dtype is None or shape is None:
                 raise ValueError("dtype and shape must be provided if src is None")
@@ -87,7 +99,8 @@ class DistMatrix:
     ):
         if isinstance(idx, slice):
             size = self._col.shape[0]
-            idx = torch.arange(size)[idx]
+            start, stop, step = idx.indices(size)
+            idx = torch.arange(start, stop, step)
 
         if self._format != "coo":
             raise ValueError("Updating is currently only supported for COO format")
@@ -106,6 +119,12 @@ class DistMatrix:
             self._col[idx] = val[0]
             self._row[idx] = val[1]
 
+        # WholeMemory scatter runs on the current PyTorch CUDA stream, while
+        # the communicator barrier runs on an internal stream.  Order the
+        # streams before synchronizing ranks so local views cannot observe
+        # an incomplete local or remote update.
+        synchronize_stream_and_barrier(self._col.get_comm())
+
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
         if self._format != "coo":
             raise ValueError("Getting is currently only supported for COO format")
@@ -117,37 +136,64 @@ class DistMatrix:
     def get_local_tensor(self) -> Tuple["torch.Tensor", "torch.Tensor"]:
         return (self._col.get_local_tensor(), self._row.get_local_tensor())
 
+    def transpose(self, view: bool = False) -> "DistMatrix":
+        """Return the transpose of this matrix.
+
+        Parameters
+        ----------
+        view : bool, optional
+            If ``True``, return a view that shares the underlying distributed
+            tensors with this matrix. If ``False``, copy the distributed
+            tensors.
+
+        Returns
+        -------
+        DistMatrix
+            A matrix whose column and row tensors are reversed.
+        """
+        transposed = self.__class__.__new__(self.__class__)
+        transposed.__backend = self.__backend
+        transposed._format = {
+            "csr": "csc",
+            "csc": "csr",
+        }.get(self._format, self._format)
+
+        if view:
+            transposed._col = self._row
+            transposed._row = self._col
+        else:
+            transposed._col = DistTensor(
+                shape=self._row.shape,
+                dtype=self._row.dtype,
+                device=self._row.device,
+                partition_book=self._row.partition_book,
+                backend=self.__backend,
+            )
+            transposed._row = DistTensor(
+                shape=self._col.shape,
+                dtype=self._col.dtype,
+                device=self._col.device,
+                partition_book=self._col.partition_book,
+                backend=self.__backend,
+            )
+            col_host_view = self._row.device == "cpu"
+            row_host_view = self._col.device == "cpu"
+            transposed._col.get_local_tensor(host_view=col_host_view).copy_(
+                self._row.get_local_tensor(host_view=col_host_view)
+            )
+            transposed._row.get_local_tensor(host_view=row_host_view).copy_(
+                self._col.get_local_tensor(host_view=row_host_view)
+            )
+
+        return transposed
+
     @property
     def local_col(self) -> "torch.Tensor":
-        world_size = torch.distributed.get_world_size()
-        rank = torch.distributed.get_rank()
-
-        sz = self._col.shape[0]
-
-        q = sz // world_size
-        r = sz % world_size
-
-        if rank < r:
-            ix = torch.arange(q * rank + rank, q * (rank + 1) + rank + 1)
-        else:
-            ix = torch.arange(q * rank + r, q * (rank + 1) + r)
-        return self._col[ix]
+        return self._col.get_local_tensor()
 
     @property
     def local_row(self) -> "torch.Tensor":
-        world_size = torch.distributed.get_world_size()
-        rank = torch.distributed.get_rank()
-
-        sz = self._row.shape[0]
-
-        q = sz // world_size
-        r = sz % world_size
-
-        if rank < r:
-            ix = torch.arange(q * rank + rank, q * (rank + 1) + rank + 1)
-        else:
-            ix = torch.arange(q * rank + r, q * (rank + 1) + r)
-        return self._row[ix]
+        return self._row.get_local_tensor()
 
     @property
     def local_coo(self) -> "torch.Tensor":

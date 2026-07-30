@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
 
-import cugraph_pyg
 from typing import Union, Tuple, Callable, Optional
+
+import cugraph_pyg
 
 from cugraph_pyg.utils.imports import import_optional
 from .utils import generate_seed
@@ -109,6 +110,15 @@ class LinkLoader:
 
         neg_sampling = torch_geometric.sampler.NegativeSampling.cast(neg_sampling)
 
+        self.__has_explicit_edge_label_index = edge_label_index is not None
+        if isinstance(edge_label_index, (list, tuple)):
+            if len(edge_label_index) == 3 and all(
+                isinstance(value, str) for value in edge_label_index
+            ):
+                self.__has_explicit_edge_label_index = False
+            elif len(edge_label_index) == 2:
+                self.__has_explicit_edge_label_index = edge_label_index[1] is not None
+
         (
             input_type,
             edge_label_index,
@@ -210,3 +220,15 @@ class LinkLoader:
                 random_state=generate_seed(),
             ),
         )
+
+    def __len__(self):
+        if not self.__has_explicit_edge_label_index:
+            raise ValueError(
+                "len(loader) is only supported when the loader was constructed "
+                "with an explicit number of seeds via edge_label_index for now."
+            )
+
+        num_seeds = self.__input_data.row.numel()
+        if self.__drop_last:
+            return num_seeds // self.__batch_size
+        return (num_seeds + self.__batch_size - 1) // self.__batch_size

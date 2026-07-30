@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -463,7 +463,7 @@ if __name__ == "__main__":
         del data
 
         kwargs = dict(
-            data=(feature_store, graph_store),
+            data=(feature_store, graph_store.finalize()),
             num_neighbors={
                 ("user", "rates", "movie"): [5, 5, 5],
                 ("movie", "rev_rates", "user"): [5, 5, 5],

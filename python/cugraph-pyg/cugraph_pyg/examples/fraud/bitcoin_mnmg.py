@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # This example trains a GNN model on the EllipticBitcoin dataset
@@ -102,6 +102,7 @@ if __name__ == "__main__":
     ] = data.edge_index if rank == 0 else empty(dim=2)
     feature_store["entity", "x", None] = data.x if rank == 0 else empty(dim=2)
     feature_store["entity", "y", None] = data.y if rank == 0 else empty(dim=1)
+    graph_store.finalize()
     torch.distributed.barrier()
 
     if args.encoder.lower() == "sage":

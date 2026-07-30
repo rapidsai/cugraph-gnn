@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Union, List
 
+import numpy as np
 import os
 
 from cugraph_pyg.utils.imports import import_optional
@@ -11,11 +12,17 @@ torch = import_optional("torch")
 wgth = import_optional("pylibwholegraph.torch")
 
 
+def synchronize_stream_and_barrier(wm_comm):
+    """Wait for work on the current PyTorch stream, then synchronize ranks."""
+    torch.cuda.current_stream().synchronize()
+    wm_comm.barrier()
+
+
 def copy_host_global_tensor_to_local(wm_tensor, host_tensor, wm_comm):
     local_tensor, local_start = wm_tensor.get_local_tensor(host_view=False)
 
     local_tensor.copy_(host_tensor[local_start : local_start + local_tensor.shape[0]])
-    wm_comm.barrier()
+    synchronize_stream_and_barrier(wm_comm)
 
 
 def create_wg_dist_tensor(
@@ -48,6 +55,9 @@ def create_wg_dist_tensor(
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
     """
     global_comm = wgth.get_global_communicator()
+    partition_book = (
+        None if partition_book is None else np.asarray(partition_book, dtype=np.uintp)
+    )
 
     if backend == "nccl":
         embedding_wholememory_type = "distributed"
@@ -126,6 +136,9 @@ def create_wg_dist_tensor_from_files(
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
     """
     global_comm = wgth.get_global_communicator()
+    partition_book = (
+        None if partition_book is None else np.asarray(partition_book, dtype=np.uintp)
+    )
 
     if backend == "nccl":
         embedding_wholememory_type = "distributed"
