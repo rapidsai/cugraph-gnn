@@ -125,7 +125,7 @@ jobs:
       pull-requests: read
   wheel-build-cugraph-pyg:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
     needs: [build-details]
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
@@ -168,7 +168,7 @@ jobs:
       pull-requests: read
   wheel-build-libwholegraph:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
     needs: [build-details]
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
@@ -191,7 +191,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: [build-details, wheel-build-libwholegraph]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
