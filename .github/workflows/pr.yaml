@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   pr-builder:
     needs:
+      - build-details
       - check-nightly-ci
       - changed-files
       - devcontainer
@@ -31,6 +32,8 @@ jobs:
       needs: ${{ toJSON(needs) }}
     permissions:
       contents: read
+  build-details:
+    uses: rapidsai/shared-workflows/.github/workflows/compute-build-details.yaml@compute-build-details-pt2
   check-nightly-ci:
     runs-on: ubuntu-latest
     permissions:
@@ -198,11 +201,12 @@ jobs:
     permissions:
       contents: read
   conda-cpp-build:
-    needs: checks
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@compute-build-details-pt2
     with:
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       node_type: cpu8
       script: ci/build_cpp.sh
     permissions:
@@ -226,11 +230,12 @@ jobs:
       packages: read
       pull-requests: read
   conda-python-build:
-    needs: conda-cpp-build
+    needs: [build-details, conda-cpp-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@compute-build-details-pt2
     with:
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       script: ci/build_python.sh
       # Build a conda package for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
@@ -241,11 +246,12 @@ jobs:
       packages: read
       pull-requests: read
   conda-python-build-noarch:
-    needs: [conda-cpp-build, conda-python-build]
+    needs: [build-details, conda-cpp-build, conda-python-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@compute-build-details-pt2
     with:
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       script: ci/build_python_noarch.sh
       pure-conda: true
     permissions:
@@ -288,11 +294,12 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-libwholegraph:
-    needs: checks
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       script: ci/build_wheel_libwholegraph.sh
       node_type: cpu8
       package-name: libwholegraph
@@ -306,11 +313,12 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-pylibwholegraph:
-    needs: [checks, wheel-build-libwholegraph]
+    needs: [build-details, checks, wheel-build-libwholegraph]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       node_type: cpu8
       script: ci/build_wheel_pylibwholegraph.sh
       package-name: pylibwholegraph
@@ -338,13 +346,14 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-cugraph-pyg:
-    needs: checks
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
       matrix_filter: map(select(.ARCH == "amd64")) | group_by(.CUDA_VER|split(".")|map(tonumber)|.[0]) | map(max_by([(.PY_VER|split(".")|map(tonumber)), (.CUDA_VER|split(".")|map(tonumber))]))
       build_type: pull-request
+      build-datetime: ${{ needs.build-details.outputs.build-datetime }}
       node_type: cpu4
       script: ci/build_wheel_cugraph-pyg.sh
       package-name: cugraph-pyg
