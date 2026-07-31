@@ -550,6 +550,7 @@ dependencies:
             packages:
               - nvidia-nccl-cu13>=2.19
           - matrix:
+              cuda_suffixed: "false"
             packages:
   depends_on_ogb:
     common:
