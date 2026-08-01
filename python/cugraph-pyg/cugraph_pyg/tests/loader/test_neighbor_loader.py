@@ -1197,7 +1197,7 @@ def test_link_neighbor_loader_temporal_negative_sampling_homogeneous(
     num_papers = 6
 
     # Create node timestamps (papers are created/published at specific times)
-    node_time = torch.tensor([0, 1, 2, 3, 4])  # paper timestamps
+    node_time = torch.tensor([0, 1, 2, 3, 4, 5, 6])  # paper timestamps
 
     graph_store = GraphStore()
     feature_store = FeatureStore()
