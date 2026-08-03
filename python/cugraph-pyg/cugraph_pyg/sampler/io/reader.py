@@ -15,8 +15,8 @@ class BufferedSampleReader:
 
     Parameters
     ----------
-    nodes_call_groups : list[torch.Tensor]
-        Groups of node tensors to process in successive sampling calls.
+    nodes_call_groups : Iterator[Tuple[torch.Tensor, ...]]
+        Structured groups of node tensors to process in successive sampling calls.
     sample_fn : Callable
         Sampling function called for each input group. It must return an
         iterator over sampling result tuples.
