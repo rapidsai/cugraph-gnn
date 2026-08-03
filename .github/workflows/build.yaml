@@ -32,10 +32,10 @@ concurrency:
 permissions: {}
 jobs:
   build-details:
-    uses: rapidsai/shared-workflows/.github/workflows/compute-build-details.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/compute-build-details.yaml@main
   cpp-build:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
     needs: [build-details]
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
@@ -54,7 +54,7 @@ jobs:
   python-build:
     needs: [build-details, cpp-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -73,7 +73,7 @@ jobs:
   python-build-noarch:
     needs: [build-details, cpp-build, python-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -125,7 +125,7 @@ jobs:
       pull-requests: read
   wheel-build-cugraph-pyg:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     needs: [build-details]
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
@@ -168,7 +168,7 @@ jobs:
       pull-requests: read
   wheel-build-libwholegraph:
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     needs: [build-details]
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
@@ -191,7 +191,7 @@ jobs:
   wheel-build-pylibwholegraph:
     needs: [build-details, wheel-build-libwholegraph]
     secrets: inherit # zizmor: ignore[secrets-inherit]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@compute-build-details-pt2
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
