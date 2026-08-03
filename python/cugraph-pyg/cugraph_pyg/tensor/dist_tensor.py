@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import List, Optional, Union, Literal
@@ -63,6 +63,7 @@ class DistTensor:
     ):
         self._tensor = None
         self.__device = device
+        self.__partition_book = None if partition_book is None else list(partition_book)
         if src is None:
             # Create an empty WholeGraph tensor
             if shape is None:
@@ -320,6 +321,10 @@ class DistTensor:
     @property
     def device(self):
         return self.__device
+
+    @property
+    def partition_book(self):
+        return None if self.__partition_book is None else list(self.__partition_book)
 
     @property
     def dtype(self):
