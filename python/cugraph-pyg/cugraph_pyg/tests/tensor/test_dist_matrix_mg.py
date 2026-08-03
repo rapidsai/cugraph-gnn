@@ -3,11 +3,113 @@
 
 
 import os
+import numpy as np
 import pytest
 from cugraph_pyg.tensor import DistMatrix, DistTensor
 
 from pylibwholegraph.torch.initialize import init as wm_init
 from pylibwholegraph.binding.wholememory_binding import finalize as wm_finalize
+
+
+def test_dist_matrix_file_loading_keeps_projected_dist_tensors(monkeypatch):
+    created = []
+
+    class FakeDistTensor:
+        def __init__(self, **kwargs):
+            self.options = kwargs
+            self.shape = (12,)
+            self.dtype = kwargs["dtype"]
+            created.append(self)
+
+    monkeypatch.setattr("cugraph_pyg.tensor.dist_matrix.DistTensor", FakeDistTensor)
+    files = ["part-0.parquet", "part-1.parquet"]
+    dtype = object()
+
+    matrix = DistMatrix.from_files(
+        files,
+        source="source_id",
+        destination="destination_id",
+        dtype=dtype,
+        device="cuda",
+        partition_book=[5, 7],
+        backend="vmm",
+        expected_shape=(12,),
+        fail_on_dtype_mismatch=True,
+    )
+
+    assert [tensor.options["columns"] for tensor in created] == [
+        "source_id",
+        "destination_id",
+    ]
+    for tensor in created:
+        assert tensor.options["src"] is files
+        assert tensor.options["expected_shape"] == (12,)
+        assert tensor.options["partition_book"] == [5, 7]
+        assert tensor.options["file_format"] == "auto"
+        assert tensor.options["fail_on_dtype_mismatch"] is True
+    # DistMatrix retains the two allocations returned by DistTensor directly.
+    assert matrix._col is created[0]
+    assert matrix._row is created[1]
+
+
+def run_test_dist_matrix_from_parquet(rank, world_size, device, file_path, edge_count):
+    """Test direct Parquet projection into the final COO DistTensors."""
+    torch = pytest.importorskip("torch")
+    torch.cuda.set_device(rank)
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
+    wm_init(rank, world_size, rank, world_size)
+
+    matrix = DistMatrix.from_file(
+        file_path,
+        source="source_id",
+        destination="destination_id",
+        dtype=torch.int64,
+        device=device,
+        file_format="parquet",
+        expected_shape=(edge_count,),
+        fail_on_dtype_mismatch=True,
+    )
+
+    assert matrix.shape == (edge_count, edge_count)
+    assert matrix._col.shape == (edge_count,)
+    assert matrix._row.shape == (edge_count,)
+    indices = torch.arange(edge_count)
+    expected = torch.stack((indices, indices + edge_count))
+    torch.testing.assert_close(matrix[indices].cpu(), expected)
+
+    wm_finalize()
+    torch.distributed.destroy_process_group()
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_dist_matrix_from_parquet(tmp_path, device, torch):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    world_size = torch.cuda.device_count()
+    if world_size == 0:
+        pytest.skip("WholeGraph distributed I/O requires at least one GPU")
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+    edge_count = 31
+    file_path = tmp_path / "coo.parquet"
+    parquet.write_table(
+        pyarrow.table(
+            {
+                # Physical order is intentionally reversed.
+                "destination_id": np.arange(edge_count, 2 * edge_count, dtype=np.int64),
+                "source_id": np.arange(edge_count, dtype=np.int64),
+            }
+        ),
+        file_path,
+        row_group_size=7,
+    )
+
+    torch.multiprocessing.spawn(
+        run_test_dist_matrix_from_parquet,
+        args=(world_size, device, os.fspath(file_path), edge_count),
+        nprocs=world_size,
+    )
 
 
 def run_test_dist_matrix_creation(rank, world_size, device):

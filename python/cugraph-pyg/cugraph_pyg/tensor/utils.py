@@ -105,11 +105,15 @@ def create_wg_dist_tensor(
 
 def create_wg_dist_tensor_from_files(
     file_list: List[str],
-    shape: list,
+    expected_shape: Union[List[int], tuple, None],
     dtype: "torch.dtype",
     location: str = "cpu",
     partition_book: Union[List[int], None] = None,
     backend: str = "nccl",
+    file_format: str = "auto",
+    last_dim_size: Union[int, None] = None,
+    fail_on_dtype_mismatch: bool = False,
+    columns: Union[str, List[str], None] = None,
     **kwargs,
 ):
     """
@@ -119,11 +123,9 @@ def create_wg_dist_tensor_from_files(
     ----------
     file_list : list
         The list of files to load the embedding tensor.
-    shape : list
-        The shape of the tensor. It has to be a two-dimensional
-        or one-dimensional tensor for now.
-        The first dimension typically is the number of nodes/edges.
-        The second dimension is the feature/embedding dimension.
+    expected_shape : list or tuple, optional
+        Expected one- or two-dimensional tensor shape. Parquet shape is
+        inferred when omitted.
     dtype : torch.dtype
         The dtype of the tensor.
     location : str, optional
@@ -134,6 +136,16 @@ def create_wg_dist_tensor_from_files(
         Defaults to an even partitioning scheme.
     backend : str, optional
         The backend for the distributed tensor [ "nccl" | "vmm" | "nvshmem" ]
+    file_format : str, optional
+        The input format [ "binary" | "parquet" | "auto" ]
+    last_dim_size : int, optional
+        Zero requests a 1-D tensor and a positive value requests a 2-D tensor
+        with that width. Required for binary input and inferred for Parquet.
+    fail_on_dtype_mismatch : bool, optional
+        Raise an error instead of warning and converting when Parquet column
+        dtypes differ from ``dtype``.
+    columns : str or list of str, optional
+        Parquet column name or ordered list of column names to read.
     """
     global_comm = wgth.get_global_communicator()
     partition_book = (
@@ -150,8 +162,10 @@ def create_wg_dist_tensor_from_files(
         raise ValueError(f"Unsupported backend: {backend}")
     embedding_wholememory_location = location
 
+    # The low-level constructors infer Parquet shape from metadata, optionally
+    # validate expected_shape, allocate the final WholeMemory object, and only
+    # then stream data into each rank's local partition.
     if "cache_policy" in kwargs:
-        assert len(shape) == 2, "The shape of the embedding tensor must be 2D."
         cache_policy = kwargs["cache_policy"]
         kwargs.pop("cache_policy")
 
@@ -161,16 +175,16 @@ def create_wg_dist_tensor_from_files(
             embedding_wholememory_location,
             file_list,
             dtype,
-            shape[1],
+            last_dim_size,
             cache_policy=cache_policy,
             embedding_entry_partition=partition_book,
+            file_format=file_format,
+            expected_shape=expected_shape,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+            columns=columns,
             **kwargs,
         )
     else:
-        assert len(shape) == 2 or len(shape) == 1, (
-            "The shape of the tensor must be 2D or 1D."
-        )
-        last_dim_size = 0 if len(shape) == 1 else shape[1]
         wm_embedding = wgth.create_wholememory_tensor_from_filelist(
             global_comm,
             embedding_wholememory_type,
@@ -179,6 +193,10 @@ def create_wg_dist_tensor_from_files(
             dtype,
             last_dim_size,
             tensor_entry_partition=partition_book,
+            file_format=file_format,
+            expected_shape=expected_shape,
+            fail_on_dtype_mismatch=fail_on_dtype_mismatch,
+            columns=columns,
         )
     return wm_embedding
 

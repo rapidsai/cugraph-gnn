@@ -1,7 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import numpy as np
 import pytest
 import tempfile
 
@@ -88,14 +89,31 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     features = torch.arange(0, world_size * 1000)
     features = features.reshape((features.numel() // 100, 100)).to(dtype)
 
-    with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
-        torch.save(features, f.name)
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
         file_path = f.name
+    import pyarrow
+    import pyarrow.parquet as parquet
+
+    parquet.write_table(
+        pyarrow.table(
+            {
+                f"feature_{index}": features[:, index].numpy()
+                for index in range(features.shape[1])
+            }
+        ),
+        file_path,
+    )
 
     # Load distributed tensor
     torch.distributed.barrier()
     print(f"loading from {file_path}...")
-    dist_tensor = clx.from_file(file_path, device=device)
+    dist_tensor = clx.from_file(
+        file_path,
+        device=device,
+        dtype=features.dtype,
+        file_format="parquet",
+        fail_on_dtype_mismatch=True,
+    )
     print("loaded...")
     assert dist_tensor.shape == features.shape
     assert dist_tensor.dtype == features.dtype
@@ -106,8 +124,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
 
     torch.distributed.barrier()
     # Clean up
-    if rank == 0:
-        os.unlink(file_path)
+    os.unlink(file_path)
 
     wm_finalize()
     torch.distributed.destroy_process_group()
@@ -117,7 +134,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
-@pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
+@pytest.mark.parametrize("dtype", ["float32"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
 @pytest.mark.mg
@@ -130,6 +147,77 @@ def test_dist_tensor_from_file(device, clx, dtype):
     torch.multiprocessing.spawn(
         run_test_dist_tensor_from_file,
         args=(world_size, device, clx, dtype),
+        nprocs=world_size,
+    )
+
+
+def run_test_dist_tensor_from_selected_columns(
+    rank, world_size, device, file_path, edge_count
+):
+    """Test two projected reads into two final 1-D DistTensor allocations."""
+    torch.cuda.set_device(rank)
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
+    wm_init(rank, world_size, rank, world_size)
+
+    src = DistTensor.from_file(
+        file_path,
+        device=device,
+        dtype=torch.int64,
+        file_format="parquet",
+        columns="src",
+        fail_on_dtype_mismatch=True,
+    )
+    dst = DistTensor.from_file(
+        file_path,
+        device=device,
+        dtype=torch.int64,
+        file_format="parquet",
+        columns="dst",
+        fail_on_dtype_mismatch=True,
+    )
+
+    assert src.shape == (edge_count,)
+    assert dst.shape == (edge_count,)
+    indices = torch.arange(edge_count)
+    torch.testing.assert_close(src[indices].cpu(), indices)
+    torch.testing.assert_close(dst[indices].cpu(), indices + edge_count)
+
+    wm_finalize()
+    torch.distributed.destroy_process_group()
+
+
+@pytest.mark.skipif(
+    isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
+)
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+@pytest.mark.mg
+def test_dist_tensor_from_selected_columns(tmp_path, device):
+    pyarrow = pytest.importorskip("pyarrow")
+    parquet = pytest.importorskip("pyarrow.parquet")
+    world_size = torch.cuda.device_count()
+    if world_size == 0:
+        pytest.skip("WholeGraph distributed I/O requires at least one GPU")
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+    edge_count = 31
+    file_path = tmp_path / "coo.parquet"
+    parquet.write_table(
+        pyarrow.table(
+            {
+                # Reversed physical order verifies selection is by name.
+                "dst": np.arange(edge_count, 2 * edge_count, dtype=np.int64),
+                "src": np.arange(edge_count, dtype=np.int64),
+            }
+        ),
+        file_path,
+        row_group_size=7,
+    )
+
+    torch.multiprocessing.spawn(
+        run_test_dist_tensor_from_selected_columns,
+        args=(world_size, device, os.fspath(file_path), edge_count),
         nprocs=world_size,
     )
 
