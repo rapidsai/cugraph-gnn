@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -780,6 +780,9 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
+        # pylibcugraph requires temporal sampling to be disjoint.
+        disjoint = disjoint or temporal
+
         self.__fanout = fanout
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),
@@ -808,6 +811,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         if temporal:
             self.__func_kwargs["temporal_property_name"] = "time"
             self.__func_kwargs["temporal_sampling_comparison"] = temporal_comparison
+            self.__func_kwargs["starting_vertex_start_times"] = None
 
         if heterogeneous:
             if vertex_type_offsets is None:
@@ -897,7 +901,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         }
         kwargs.update(self.__func_kwargs)
         if seed_times is not None:
-            kwargs.update({"starting_vertex_times": cupy.asarray(seed_times)})
+            kwargs.update({"starting_vertex_start_times": cupy.asarray(seed_times)})
 
         sampling_results_dict = self.__func(**kwargs)
 
