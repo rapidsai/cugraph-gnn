@@ -1,3 +1,37 @@
+# cugraph-gnn 26.08.00 (5 Aug 2026)
+
+### 🚨 Breaking Changes
+* build CUDA 13 wheels with latest CTK (13.3.0), require C++20 for all builds by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/487
+### 🐛 Bug Fixes
+* Fp16 embedding train by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/462
+* fix shm permission, avoid shm access from other user by @linhu-nv in https://github.com/rapidsai/cugraph-gnn/pull/463
+* [BUG] Fix hashing and node id issues in disjoint sampling test by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/474
+* Update RAPIDS.cmake to log source of rapids-cmake by @arhag23 in https://github.com/rapidsai/cugraph-gnn/pull/486
+* fix(clang-format): preserve SPDX comments by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/489
+### 📖 Documentation
+* [DOC] Add Clarifying Comments & Explanations to cuGraph-PyG Examples by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/480
+### 🚀 New Features
+* [FEA] Update MAG example to show fp16/bf16 support by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/464
+* [FEA] Support Length in Loaders by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/485
+### 🛠️ Improvements
+* Require CMake 4.0 by @KyleFromNVIDIA in https://github.com/rapidsai/cugraph-gnn/pull/459
+* Improve devcontainer startup times by @trxcllnt in https://github.com/rapidsai/cugraph-gnn/pull/465
+* Add SECURITY.md by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/467
+* merge release/26.06 into main by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/472
+* fix(ci): fix configuration for breaking change notification workflow by @jameslamb in https://github.com/rapidsai/cugraph-gnn/pull/473
+* Build and test with CUDA 13.3.0 by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/476
+* refactor: switch to `rapids-artifact-name` for consistent artifact naming by @gforsyth in https://github.com/rapidsai/cugraph-gnn/pull/477
+* Use main shared-workflows branch by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/478
+* Update CuPy and NumPy dependency specs by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/479
+* Reuse CuPy dependency anchors by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/481
+* Empty commit to trigger a build by @bdice in https://github.com/rapidsai/cugraph-gnn/pull/495
+* [FEA] Support Finalizing Graph Store, Improve Edge Index Concatenation by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/491
+
+## New Contributors
+* @arhag23 made their first contribution in https://github.com/rapidsai/cugraph-gnn/pull/486
+
+**Full Changelog**: https://github.com/rapidsai/cugraph-gnn/compare/v26.08.00a...release/26.08
+
 # cugraph-gnn 26.06.00 (3 Jun 2026)
 
 ### 🚨 Breaking Changes
