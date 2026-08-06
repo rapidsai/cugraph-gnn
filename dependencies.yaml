@@ -222,7 +222,7 @@ channels:
 dependencies:
   checks:
     common:
-      - output_types: [conda, requirements]
+      - output_types: [conda, requirements, constraints]
         packages:
           - pre-commit
   # 'cuda_version' intentionally does not contain fallback entries... we want
@@ -263,7 +263,7 @@ dependencies:
               cuda: "13.3"
             packages:
               - cuda-version=13.3
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         matrices:
           # if use_cuda_wheels=false is provided, do not add dependencies on any CUDA wheels
           # (e.g. for DLFW and pip devcontainers)
@@ -326,7 +326,7 @@ dependencies:
           - libcusparse-dev
   common_build:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - &cmake_ver cmake>=4.0
           - ninja
@@ -376,34 +376,34 @@ dependencies:
               - python>=3.11
   python_build_cythonize:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - cython>=3.2.2
   python_run_pylibwholegraph:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - &numpy numpy>=2.0,<3.0
   python_run_cugraph_pyg:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - *numpy
           - pandas
   rapids_build_skbuild:
     common:
-      - output_types: [conda, requirements, pyproject]
+      - output_types: [conda, requirements, constraints, pyproject]
         packages:
           - &rapids_build_backend rapids-build-backend>=0.4.0,<0.5.0
       - output_types: conda
         packages:
           - scikit-build-core>=0.11.0
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         packages:
           - scikit-build-core[pyproject]>=0.11.0
   rapids_build_setuptools:
     common:
-      - output_types: [conda, requirements, pyproject]
+      - output_types: [conda, requirements, constraints, pyproject]
         packages:
           - *rapids_build_backend
           - setuptools>=77.0.0
@@ -415,7 +415,7 @@ dependencies:
           - *cmake_ver
   test_python_common:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - pytest
           - pytest-benchmark
@@ -423,7 +423,7 @@ dependencies:
           - pytest-xdist
   test_python_pylibwholegraph:
     common:
-      - output_types: [conda, pyproject, requirements]
+      - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - pytest-forked
           - scipy
@@ -474,7 +474,7 @@ dependencies:
       # This list only contains entries exactly matching CUDA {major}.{minor} that we test in RAPIDS CI,
       # to ensure a loud error alerts us to the need to update this list (or CI scripts) when new
       # CTKs are added to the support matrix.
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         matrices:
           # avoid pulling in 'torch' in places like DLFW builds that prefer to install it other ways
           - matrix:
@@ -537,7 +537,7 @@ dependencies:
         packages:
           - nccl>=2.19
     specific:
-      - output_types: [pyproject, requirements]
+      - output_types: [pyproject, requirements, constraints]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -560,7 +560,7 @@ dependencies:
   # for MovieLens example
   depends_on_sentence_transformers:
     specific:
-      - output_types: [conda, requirements, pyproject]
+      - output_types: [conda, requirements, constraints, pyproject]
         matrices:
           - matrix:
               no_pytorch: "true"
@@ -576,7 +576,7 @@ dependencies:
     specific:
       # no 'pyproject'... we intentionally keep 'torch-geometric' out of wheel
       # metadata so it's possible to install 'cugraph-pyg' without 'torch'
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         matrices:
           - matrix:
               no_pytorch: "true"
@@ -589,13 +589,13 @@ dependencies:
       - output_types: conda
         packages:
           - &pylibwholegraph_unsuffixed pylibwholegraph==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.nvidia.com
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -615,12 +615,12 @@ dependencies:
       - output_types: conda
         packages:
           - &libraft_unsuffixed libraft==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -640,12 +640,12 @@ dependencies:
       - output_types: conda
         packages:
           - &librmm_unsuffixed librmm==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -665,12 +665,12 @@ dependencies:
       - output_types: conda
         packages:
           - &libwholegraph_unsuffixed libwholegraph==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -695,12 +695,12 @@ dependencies:
       - output_types: conda
         packages:
           - &rmm_unsuffixed rmm==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -720,12 +720,12 @@ dependencies:
       - output_types: conda
         packages:
           - &pylibcugraph_unsuffixed pylibcugraph==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -745,13 +745,13 @@ dependencies:
       - output_types: conda
         packages:
           - &cugraph_unsuffixed cugraph==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.nvidia.com
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -771,12 +771,12 @@ dependencies:
       - output_types: conda
         packages:
           - &cuml_unsuffixed cuml==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -796,12 +796,12 @@ dependencies:
       - output_types: conda
         packages:
           - &cudf_unsuffixed cudf==26.10.*,>=0.0.0a0
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
           - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
-      - output_types: [requirements, pyproject]
+      - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
               cuda: "12.*"
@@ -825,7 +825,7 @@ dependencies:
     #       other packages with -cu{nn}x suffixes in this file.
     #       All RAPIDS wheel builds (including in devcontainers) expect cupy to be suffixed.
     specific:
-      - output_types: requirements
+      - output_types: [requirements, constraints]
         matrices:
           - matrix:
               cuda: "12.*"
