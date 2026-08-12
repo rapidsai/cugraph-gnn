@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -62,3 +62,13 @@ else
     echo "No dependency on 'torch' found"
     exit 0
 fi
+
+rapids-logger "validate packages with 'abi3audit'"
+
+# 'abi3audit' fails on wheels with DSOs that lack an ABI tag (e.g. 'lib*' wheels).
+# Filtering by '*abi*' avoids those.
+find \
+    "${wheel_dir_relative_path}" \
+    -type f \
+    -name '*abi*' \
+    -exec abi3audit --strict --summary --verbose '{}' \+
