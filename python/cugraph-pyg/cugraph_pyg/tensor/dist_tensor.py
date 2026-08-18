@@ -20,12 +20,13 @@ pylibwholegraph = import_optional("pylibwholegraph")
 class DistTensor:
     """
     WholeGraph-backed Distributed Tensor Interface for PyTorch.
+
     Parameters
     ----------
-    src: Optional[Union[torch.Tensor, str, List[str]]]
+    src : Optional[Union[torch.Tensor, str, List[str]]]
         The source of the tensor. It can be a torch.Tensor on host, a file path,
         or a list of file paths.
-        When the source is omitted, the tensor will be load later.
+        When the source is omitted, the tensor will be loaded later.
     shape : Optional[list, tuple]
         The shape of the tensor. It has to be a one- or two-dimensional tensor
         for now.
@@ -41,8 +42,8 @@ class DistTensor:
     partition_book : Union[List[int], None] = None
         1-D Range partition based on entry (dim-0).
         partition_book[i] determines the
-        entry count of rank i and shoud be a positive integer;
-        the sum of partition_book should equal to shape[0].
+        entry count of rank i and should be a positive integer;
+        the sum of partition_book should equal shape[0].
         Entries will be equally partitioned if None.
     backend : Optional[Literal["vmm", "nccl", "nvshmem", "chunked"]] = "nccl"
         The backend used for communication. Default is "nccl".
@@ -199,6 +200,7 @@ class DistTensor:
         backend: Optional[str] = "nccl",
     ):
         """Create a WholeGraph-backed Distributed Tensor from a PyTorch tensor.
+
         Parameters
         ----------
         tensor : torch.Tensor
@@ -206,9 +208,13 @@ class DistTensor:
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
+        partition_book : Union[List[int], None], optional
+            Number of tensor entries assigned to each rank. Entries are
+            partitioned equally when omitted.
         backend : str, optional
             The backend used for communication. Default is "nccl".
-        Returns:
+
+        Returns
         -------
         DistTensor
             The WholeGraph-backed Distributed Tensor.
@@ -226,6 +232,7 @@ class DistTensor:
         backend: Optional[str] = "nccl",
     ):
         """Create a WholeGraph-backed Distributed Tensor from a file.
+
         Parameters
         ----------
         file_path : str
@@ -234,9 +241,13 @@ class DistTensor:
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
+        partition_book : Union[List[int], None], optional
+            Number of tensor entries assigned to each rank. Entries are
+            partitioned equally when omitted.
         backend : str, optional
             The backend used for communication. Default is "nccl".
-        Returns:
+
+        Returns
         -------
         DistTensor
             The WholeGraph-backed Distributed Tensor.
@@ -247,7 +258,9 @@ class DistTensor:
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):
         """Set the embeddings for the specified node indices.
+
         This call must be called by all processes.
+
         Parameters
         ----------
         idx : torch.Tensor
@@ -265,12 +278,15 @@ class DistTensor:
 
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
         """Get the embeddings for the specified node indices (remotely).
+
         This call must be called by all processes.
+
         Parameters
         ----------
         idx : torch.Tensor
             Index of the embeddings to collect.
-        Returns:
+
+        Returns
         -------
         torch.Tensor
             The requested node embeddings.
@@ -281,28 +297,31 @@ class DistTensor:
         return output_tensor
 
     def get_local_tensor(self, host_view=False):
-        """Get the local embedding tensor and its element offset at current rank.
-        Returns:
+        """Get the local embedding tensor at the current rank.
+
+        Returns
         -------
-        (torch.Tensor, int)
-            Tuple of local torch Tensor (converted from DLPack) and its offset.
+        torch.Tensor
+            The local tensor, converted from DLPack.
         """
         local_tensor, offset = self._tensor.get_local_tensor(host_view=host_view)
         return local_tensor
 
     def get_local_offset(self):
-        """Get the local embedding tensor and its element offset at current rank.
-        Returns:
+        """Get the local embedding tensor offset at the current rank.
+
+        Returns
         -------
-        (torch.Tensor, int)
-            Tuple of local torch Tensor (converted from DLPack) and its offset.
+        int
+            The local tensor's element offset.
         """
         _, offset = self._tensor.get_local_tensor()
         return offset
 
     def get_comm(self):
         """Get the communicator of the WholeGraph embedding.
-        Returns:
+
+        Returns
         -------
         WholeMemoryCommunicator
             The WholeGraph global communicator of the WholeGraph embedding.
@@ -344,12 +363,13 @@ class DistTensor:
 
 class DistEmbedding(DistTensor):
     """WholeGraph-backed Distributed Embedding Interface for PyTorch.
+
     Parameters
     ----------
-    src: Optional[Union[torch.Tensor, str, List[str]]]
+    src : Optional[Union[torch.Tensor, str, List[str]]]
         The source of the tensor. It can be a torch.Tensor on host,
         a file path, or a list of file paths.
-        When the source is omitted, the tensor will be load later.
+        When the source is omitted, the tensor will be loaded later.
     shape : Optional[list, tuple]
         The shape of the tensor. It has to be a one- or two-dimensional tensor
         for now.
@@ -357,15 +377,15 @@ class DistEmbedding(DistTensor):
         must be `pt` or `npy` file paths.
     dtype : Optional[torch.dtype]
         The dtype of the tensor.
-        Whne the dtype is omitted, the `src` has to be specified
+        When the dtype is omitted, the `src` has to be specified
         and must be `pt` or `npy` file paths.
     device : Optional[Literal["cpu", "cuda"]] = "cpu"
         The desired location to store the embedding [ "cpu" | "cuda" ].
         Default is "cpu", i.e., host-pinned memory (UVA).
     partition_book : Union[List[int], None] = None
         1-D Range partition based on entry (dim-0). partition_book[i] determines the
-        entry count of rank i and shoud be a positive integer;
-        the sum of partition_book should equal to shape[0].
+        entry count of rank i and should be a positive integer;
+        the sum of partition_book should equal shape[0].
         Entries will be equally partitioned if None.
     backend : Optional[Literal["vmm", "nccl", "nvshmem", "chunked"]] = "nccl"
         The backend used for communication. Default is "nccl".
@@ -373,8 +393,8 @@ class DistEmbedding(DistTensor):
         The cache policy for the tensor if it is an embedding. Default is None.
     gather_sms : Optional[int] = -1
         Whether to gather the embeddings on all GPUs. Default is False.
-    round_robin_size: int = 0
-        continuous embedding size of a rank using round robin shard strategy
+    round_robin_size : int, optional
+        Continuous embedding size of a rank using the round-robin shard strategy.
     name : Optional[str]
         The name of the tensor.
     """
@@ -422,6 +442,7 @@ class DistEmbedding(DistTensor):
         """
         Create a WholeGraph-backed Distributed Embedding
         (hooked with PyT's grad tracing) from a PyTorch tensor.
+
         Parameters
         ----------
         tensor : torch.Tensor
@@ -429,9 +450,19 @@ class DistEmbedding(DistTensor):
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
+        partition_book : Union[List[int], None], optional
+            Number of embedding entries assigned to each rank. Entries are
+            partitioned equally when omitted.
         name : str, optional
             The name of the tensor.
-        Returns:
+        cache_policy : WholeMemoryCachePolicy, optional
+            WholeGraph cache policy for the embedding.
+        *args
+            Additional positional arguments passed to the embedding constructor.
+        **kwargs
+            Additional keyword arguments passed to the embedding constructor.
+
+        Returns
         -------
         DistEmbedding
             The WholeGraph-backed Distributed Tensor.
@@ -457,7 +488,8 @@ class DistEmbedding(DistTensor):
         *args,
         **kwargs,
     ):
-        """Create a WholeGraph-backed Distributed Tensor from a file.
+        """Create a WholeGraph-backed Distributed Embedding from a file.
+
         Parameters
         ----------
         file_path : str
@@ -466,12 +498,22 @@ class DistEmbedding(DistTensor):
         device : str, optional
             The desired location to store the embedding [ "cpu" | "cuda" ].
             Default is "cpu".
+        partition_book : Union[List[int], None], optional
+            Number of embedding entries assigned to each rank. Entries are
+            partitioned equally when omitted.
         name : str, optional
             The name of the tensor.
-        Returns:
+        cache_policy : WholeMemoryCachePolicy, optional
+            WholeGraph cache policy for the embedding.
+        *args
+            Additional positional arguments passed to the embedding constructor.
+        **kwargs
+            Additional keyword arguments passed to the embedding constructor.
+
+        Returns
         -------
-        DistTensor
-            The WholeGraph-backed Distributed Tensor.
+        DistEmbedding
+            The WholeGraph-backed Distributed Embedding.
         """
         return cls(
             src=file_path,
@@ -485,7 +527,9 @@ class DistEmbedding(DistTensor):
 
     def __setitem__(self, idx: "torch.Tensor", val: "torch.Tensor"):
         """Set the embeddings for the specified node indices.
+
         This call must be called by all processes.
+
         Parameters
         ----------
         idx : torch.Tensor
@@ -504,12 +548,15 @@ class DistEmbedding(DistTensor):
 
     def __getitem__(self, idx: "torch.Tensor") -> "torch.Tensor":
         """Get the embeddings for the specified node indices (remotely).
+
         This call must be called by all processes.
+
         Parameters
         ----------
         idx : torch.Tensor
             Index of the embeddings to collect.
-        Returns:
+
+        Returns
         -------
         torch.Tensor
             The requested node embeddings.
