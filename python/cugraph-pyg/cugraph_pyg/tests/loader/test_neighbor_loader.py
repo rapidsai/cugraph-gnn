@@ -920,11 +920,15 @@ def test_neighbor_loader_disjoint_heterogeneous_batch(single_pytorch_worker):
     )
     batch = next(iter(loader))
 
+    assert batch["paper"].n_id.tolist() == [0, 1]
+    assert batch["author"].n_id.tolist() == [0]
     assert batch["paper"].batch.tolist() == [0, 1]
     assert batch["author"].batch.shape == batch["author"].n_id.shape
     assert (batch["author"].batch >= 0).all()
 
     edge_index = batch["author", "writes", "paper"].edge_index
+    assert edge_index.tolist() == [[0], [0]]
+    assert batch["author", "writes", "paper"].e_id.tolist() == [0]
     assert (
         batch["author"].batch[edge_index[0]] == batch["paper"].batch[edge_index[1]]
     ).all()

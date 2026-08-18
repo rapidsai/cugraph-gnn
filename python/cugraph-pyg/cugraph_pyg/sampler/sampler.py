@@ -376,6 +376,39 @@ class HeterogeneousSampleReader(SampleReader):
     def __decode_coo(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
         num_edge_types = self.__src_types.numel()
         fanout_length = raw_sample_data["fanout"].numel() // num_edge_types
+        num_samples = raw_sample_data["input_offsets"].numel() - 1
+        has_typed_renumber_map = raw_sample_data["renumber_map_offsets"].numel() == (
+            num_samples * self.__num_vertex_types + 1
+        )
+
+        if not has_typed_renumber_map and num_edge_types != 1:
+            raise ValueError(
+                "Heterogeneous sampling returned a global renumber map for "
+                "a graph with multiple edge types"
+            )
+
+        global_map = None
+        global_to_type_local = None
+        if not has_typed_renumber_map:
+            map_ptr_beg = raw_sample_data["renumber_map_offsets"][index]
+            map_ptr_end = raw_sample_data["renumber_map_offsets"][index + 1]
+            global_map = raw_sample_data["map"][map_ptr_beg:map_ptr_end]
+            global_to_type_local = []
+            for vertex_type in range(self.__num_vertex_types):
+                type_mask = (global_map >= self.__vertex_offsets[vertex_type]) & (
+                    global_map < self.__vertex_offsets[vertex_type + 1]
+                )
+                type_positions = torch.nonzero(type_mask, as_tuple=False).flatten()
+                lookup = torch.full(
+                    (global_map.numel(),),
+                    -1,
+                    dtype=torch.int64,
+                    device=global_map.device,
+                )
+                lookup[type_positions] = torch.arange(
+                    type_positions.numel(), device=global_map.device
+                )
+                global_to_type_local.append((type_positions, lookup))
 
         num_sampled_nodes = [
             torch.zeros((fanout_length + 1,), dtype=torch.int64, device="cuda")
@@ -397,23 +430,26 @@ class HeterogeneousSampleReader(SampleReader):
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
-            jx = self.__src_types[etype] + index * self.__num_vertex_types
-            map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
-            map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
+            src_type = int(self.__src_types[etype])
+            dst_type = int(self.__dst_types[etype])
+            if has_typed_renumber_map:
+                jx = src_type + index * self.__num_vertex_types
+                map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
+                map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
+                map_src = raw_sample_data["map"][map_ptr_src_beg:map_ptr_src_end]
 
-            map_src = raw_sample_data["map"][map_ptr_src_beg:map_ptr_src_end]
-            node[pyg_can_etype[0]] = (
-                map_src - self.__vertex_offsets[self.__src_types[etype]]
-            ).cpu()
+                kx = dst_type + index * self.__num_vertex_types
+                map_ptr_dst_beg = raw_sample_data["renumber_map_offsets"][kx]
+                map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][kx + 1]
+                map_dst = raw_sample_data["map"][map_ptr_dst_beg:map_ptr_dst_end]
+            else:
+                src_positions, _ = global_to_type_local[src_type]
+                dst_positions, _ = global_to_type_local[dst_type]
+                map_src = global_map[src_positions]
+                map_dst = global_map[dst_positions]
 
-            kx = self.__dst_types[etype] + index * self.__num_vertex_types
-            map_ptr_dst_beg = raw_sample_data["renumber_map_offsets"][kx]
-            map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][kx + 1]
-
-            map_dst = raw_sample_data["map"][map_ptr_dst_beg:map_ptr_dst_end]
-            node[pyg_can_etype[2]] = (
-                map_dst - self.__vertex_offsets[self.__dst_types[etype]]
-            ).cpu()
+            node[pyg_can_etype[0]] = (map_src - self.__vertex_offsets[src_type]).cpu()
+            node[pyg_can_etype[2]] = (map_dst - self.__vertex_offsets[dst_type]).cpu()
 
             edge_ptr_beg = (
                 index * num_edge_types * fanout_length + etype * fanout_length
@@ -421,33 +457,46 @@ class HeterogeneousSampleReader(SampleReader):
             edge_ptr_end = (
                 index * num_edge_types * fanout_length + (etype + 1) * fanout_length
             )
-            lho = raw_sample_data["label_type_hop_offsets"][
-                edge_ptr_beg : edge_ptr_end + 1
-            ]
+            lho_key = (
+                "label_type_hop_offsets"
+                if "label_type_hop_offsets" in raw_sample_data
+                else "label_hop_offsets"
+            )
+            lho = raw_sample_data[lho_key][edge_ptr_beg : edge_ptr_end + 1]
 
             num_sampled_edges[pyg_can_etype] = (lho).diff()
 
             eid_i = raw_sample_data["edge_id"][lho[0] : lho[-1]]
 
-            eirx = (index * num_edge_types) + etype
-            edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
-            edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
+            if "edge_renumber_map" in raw_sample_data:
+                eirx = (index * num_edge_types) + etype
+                edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
+                edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
+                emap = raw_sample_data["edge_renumber_map"][
+                    edge_id_ptr_beg:edge_id_ptr_end
+                ]
+                edge[pyg_can_etype] = emap[eid_i]
+            else:
+                edge[pyg_can_etype] = eid_i
 
-            emap = raw_sample_data["edge_renumber_map"][edge_id_ptr_beg:edge_id_ptr_end]
-            edge[pyg_can_etype] = emap[eid_i]
-
-            col[pyg_can_etype] = raw_sample_data["majors"][lho[0] : lho[-1]]
-            row[pyg_can_etype] = raw_sample_data["minors"][lho[0] : lho[-1]]
+            col_i = raw_sample_data["majors"][lho[0] : lho[-1]]
+            row_i = raw_sample_data["minors"][lho[0] : lho[-1]]
+            if not has_typed_renumber_map:
+                col_i = global_to_type_local[dst_type][1][col_i]
+                row_i = global_to_type_local[src_type][1][row_i]
+            col[pyg_can_etype] = col_i
+            row[pyg_can_etype] = row_i
 
             for hop in range(fanout_length):
-                vx = raw_sample_data["majors"][: lho[hop + 1]]
+                hop_end = lho[hop + 1] - lho[0]
+                vx = col[pyg_can_etype][:hop_end]
                 if vx.numel() > 0:
                     num_sampled_nodes[self.__dst_types[etype]][hop + 1] = torch.max(
                         num_sampled_nodes[self.__dst_types[etype]][hop + 1],
                         vx.max() + 1,
                     )
 
-                vy = raw_sample_data["minors"][: lho[hop + 1]]
+                vy = row[pyg_can_etype][:hop_end]
                 if vy.numel() > 0:
                     num_sampled_nodes[self.__src_types[etype]][hop + 1] = torch.max(
                         num_sampled_nodes[self.__src_types[etype]][hop + 1],
