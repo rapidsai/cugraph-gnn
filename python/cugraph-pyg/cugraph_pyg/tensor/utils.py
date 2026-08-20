@@ -12,11 +12,17 @@ torch = import_optional("torch")
 wgth = import_optional("pylibwholegraph.torch")
 
 
+def synchronize_stream_and_barrier(wm_comm):
+    """Wait for work on the current PyTorch stream, then synchronize ranks."""
+    torch.cuda.current_stream().synchronize()
+    wm_comm.barrier()
+
+
 def copy_host_global_tensor_to_local(wm_tensor, host_tensor, wm_comm):
     local_tensor, local_start = wm_tensor.get_local_tensor(host_view=False)
 
     local_tensor.copy_(host_tensor[local_start : local_start + local_tensor.shape[0]])
-    wm_comm.barrier()
+    synchronize_stream_and_barrier(wm_comm)
 
 
 def create_wg_dist_tensor(

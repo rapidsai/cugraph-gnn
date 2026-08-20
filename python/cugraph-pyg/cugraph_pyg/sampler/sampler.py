@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Optional, Iterator, Union, Dict, Tuple, List
@@ -741,6 +741,18 @@ class HomogeneousSampleReader(SampleReader):
 
 
 class BaseSampler:
+    """Adapt a distributed cuGraph sampler to PyG sampler interfaces.
+
+    Parameters
+    ----------
+    sampler : DistributedNeighborSampler
+        The distributed cuGraph neighbor sampler.
+    data : Tuple[FeatureStore, GraphStore]
+        The PyG feature store and graph store to sample from.
+    batch_size : int, optional
+        Number of input nodes or edges in each minibatch.
+    """
+
     def __init__(
         self,
         sampler: DistributedNeighborSampler,

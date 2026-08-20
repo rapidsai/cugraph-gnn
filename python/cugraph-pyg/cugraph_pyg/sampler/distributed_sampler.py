@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import warnings
@@ -752,6 +752,46 @@ class BaseDistributedSampler:
 
 
 class DistributedNeighborSampler(BaseDistributedSampler):
+    """Sample graph neighborhoods across one or more GPUs.
+
+    Parameters
+    ----------
+    graph : Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph]
+        The pylibcugraph graph to sample.
+    local_seeds_per_call : int, optional
+        Number of seeds on each rank to process in one sampling call. When
+        omitted, a value is estimated from the sampling configuration.
+    retain_original_seeds : bool, optional
+        Whether to retain input seeds that do not otherwise appear in the
+        sampled minibatch.
+    fanout : List[int], optional
+        Number of neighbors to sample at each hop. ``-1`` selects all neighbors.
+    prior_sources_behavior : str, optional
+        How sources from previous hops are handled by the sampling operation.
+    deduplicate_sources : bool, optional
+        Whether to remove duplicate source vertices between sampling hops.
+    compression : str, optional
+        Output graph format, such as ``"COO"``, ``"CSR"``, or ``"CSC"``.
+    compress_per_hop : bool, optional
+        Whether to organize compressed output separately for each hop.
+    with_replacement : bool, optional
+        Whether to sample neighbors with replacement.
+    disjoint : bool, optional
+        Whether to produce disjoint samples for individual input seeds.
+    biased : bool, optional
+        Whether to sample neighbors according to graph edge weights.
+    heterogeneous : bool, optional
+        Whether the graph contains multiple vertex or edge types.
+    temporal : bool, optional
+        Whether to apply temporal constraints during sampling.
+    temporal_comparison : str, optional
+        Temporal comparison mode passed to pylibcugraph.
+    vertex_type_offsets : TensorType, optional
+        Offsets separating vertex types. Required for heterogeneous sampling.
+    num_edge_types : int, optional
+        Number of edge types in the graph.
+    """
+
     # Number of vertices in the output minibatch, based
     # on benchmarking.
     BASE_VERTICES_PER_BYTE = 0.1107662486009992
@@ -780,6 +820,9 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
+        # pylibcugraph requires temporal sampling to be disjoint.
+        disjoint = disjoint or temporal
+
         self.__fanout = fanout
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),
@@ -808,6 +851,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         if temporal:
             self.__func_kwargs["temporal_property_name"] = "time"
             self.__func_kwargs["temporal_sampling_comparison"] = temporal_comparison
+            self.__func_kwargs["starting_vertex_start_times"] = None
 
         if heterogeneous:
             if vertex_type_offsets is None:
@@ -897,7 +941,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         }
         kwargs.update(self.__func_kwargs)
         if seed_times is not None:
-            kwargs.update({"starting_vertex_times": cupy.asarray(seed_times)})
+            kwargs.update({"starting_vertex_start_times": cupy.asarray(seed_times)})
 
         sampling_results_dict = self.__func(**kwargs)
 
