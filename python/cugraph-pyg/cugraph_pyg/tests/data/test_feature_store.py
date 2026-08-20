@@ -44,9 +44,7 @@ def test_feature_store_basic_api(single_pytorch_worker):
     assert len(feature_store.get_all_tensor_attrs()) == 3
 
     dist_tensor = feature_store["node", "feat1", None]
-    warning = (
-        "Putting a DistTensor into a FeatureStore performs a zero-copy operation"
-    )
+    warning = "Putting a DistTensor into a FeatureStore performs a zero-copy operation"
     with pytest.warns(UserWarning, match=warning):
         feature_store["node", "feat1_alias", None] = dist_tensor
     assert feature_store["node", "feat1_alias", None] is dist_tensor
