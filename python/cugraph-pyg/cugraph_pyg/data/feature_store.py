@@ -196,6 +196,14 @@ class FeatureStore(
                     "An index cannot be specified when storing a DistTensor "
                     "by reference"
                 )
+            warnings.warn(
+                "Putting a DistTensor into a FeatureStore performs a zero-copy "
+                "operation. The DistTensor is stored by reference and is not moved "
+                "to the FeatureStore's configured storage location, even when the "
+                "FeatureStore and DistTensor storage locations differ.",
+                UserWarning,
+                stacklevel=2,
+            )
             self.__features[(attr.group_name, attr.attr_name)] = tensor
             return True
 
