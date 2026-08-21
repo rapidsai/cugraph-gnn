@@ -990,6 +990,44 @@ def test_neighbor_loader_temporal_simple(single_pytorch_worker, biased):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.parametrize("biased", [True, False])
 @pytest.mark.sg
+def test_neighbor_loader_temporal_fixed_window(single_pytorch_worker, biased):
+    src_cite = torch.tensor([3, 2, 1, 2])
+    dst_cite = torch.tensor([2, 1, 0, 0])
+    tme_cite = torch.tensor([0, 1, 2, 0])
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+    graph_store[("paper", "cites", "paper"), "coo", False, (4, 4)] = [
+        dst_cite,
+        src_cite,
+    ]
+    feature_store[("paper", "cites", "paper"), "time", None] = tme_cite
+    feature_store[("paper", "cites", "paper"), "bias", None] = torch.ones(
+        src_cite.numel(), device="cuda"
+    )
+
+    loader = cugraph_pyg.loader.NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[-1, -1],
+        batch_size=1,
+        input_nodes=torch.tensor([3]),
+        input_start_time=torch.tensor([0]),
+        input_end_time=torch.tensor([0]),
+        time_attr="time",
+        weight_attr="bias" if biased else None,
+        shuffle=False,
+    )
+
+    out = next(iter(loader))
+    assert out.n_id.tolist() == [3, 2, 0]
+    assert out.e_id.tolist() == [0, 3]
+    assert out.num_sampled_nodes.tolist() == [1, 1, 1]
+    assert out.num_sampled_edges.tolist() == [1, 1]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("biased", [True, False])
+@pytest.mark.sg
 def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):
     """
     Test negative sampling for heterogeneous graphs with different edge types.

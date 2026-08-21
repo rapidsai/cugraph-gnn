@@ -57,6 +57,8 @@ class NeighborLoader(NodeLoader):
         compression: Optional[str] = None,
         local_seeds_per_call: Optional[int] = None,
         temporal_comparison: Optional[str] = None,
+        input_start_time: "torch_geometric.typing.OptTensor" = None,
+        input_end_time: "torch_geometric.typing.OptTensor" = None,
         **kwargs,
     ):
         """
@@ -124,16 +126,35 @@ class NeighborLoader(NodeLoader):
         temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
             ('strictly_increasing', 'monotonically_increasing',
-            'strictly_decreasing', 'monotonically_decreasing', 'last').
+            'strictly_decreasing', 'monotonically_decreasing', 'fixed_window',
+            'last'). ``fixed_window`` is selected automatically when
+            ``input_start_time`` and ``input_end_time`` are provided.
             Note that this should be 'last' for temporal_strategy='last'.
             See cugraph_pyg.sampler.BaseDistributedSampler.
+        input_start_time: OptTensor (optional)
+            Lower time-window bounds for each input node. Must be passed together
+            with ``input_end_time`` and instead of ``input_time``.
+        input_end_time: OptTensor (optional)
+            Upper time-window bounds for each input node. Must be passed together
+            with ``input_start_time`` and instead of ``input_time``.
         **kwargs
             Other keyword arguments passed to the superclass.
         """
 
         subgraph_type = torch_geometric.sampler.base.SubgraphType(subgraph_type)
 
-        if temporal_comparison is None:
+        has_time_window = input_start_time is not None or input_end_time is not None
+        if has_time_window:
+            if input_start_time is None or input_end_time is None:
+                raise ValueError(
+                    "input_start_time and input_end_time must be provided together"
+                )
+            if input_time is not None:
+                raise ValueError(
+                    "input_time cannot be combined with input_start_time or input_end_time"
+                )
+            temporal_comparison = "fixed_window"
+        elif temporal_comparison is None:
             temporal_comparison = "monotonically_decreasing"
 
         if not directed:
@@ -172,10 +193,15 @@ class NeighborLoader(NodeLoader):
 
         is_temporal = time_attr is not None
 
+        if has_time_window and not is_temporal:
+            raise ValueError(
+                "time_attr is required when input_start_time and input_end_time are set"
+            )
+
         if is_temporal:
             graph_store._set_time_attr((feature_store, time_attr))
 
-            if input_time is None:
+            if input_time is None and not has_time_window:
                 input_type, input_nodes, _ = (
                     torch_geometric.loader.utils.get_input_nodes(
                         data, input_nodes, None
@@ -228,6 +254,8 @@ class NeighborLoader(NodeLoader):
             sampler,
             input_nodes=input_nodes,
             input_time=input_time,
+            input_start_time=input_start_time,
+            input_end_time=input_end_time,
             transform=transform,
             transform_sampler_output=transform_sampler_output,
             filter_per_worker=filter_per_worker,
