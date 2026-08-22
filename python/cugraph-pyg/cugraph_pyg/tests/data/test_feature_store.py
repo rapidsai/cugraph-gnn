@@ -6,6 +6,7 @@ import pytest
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import FeatureStore
+from cugraph_pyg.tensor import DistEmbedding
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
@@ -51,6 +52,45 @@ def test_feature_store_basic_api(single_pytorch_worker):
 
     del feature_store["node", "feat0", None]
     assert len(feature_store.get_all_tensor_attrs()) == 3
+
+
+@pytest.mark.skipif(
+    isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
+)
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize("source_device", ["cpu", "cuda"])
+@pytest.mark.parametrize("noncontiguous", [False, True])
+def test_feature_store_scatter_staging(
+    single_pytorch_worker, monkeypatch, source_device, noncontiguous
+):
+    source = torch.arange(40, dtype=torch.float32, device=source_device).reshape(10, 4)
+    source = source[:, ::2] if noncontiguous else source[:, :2].contiguous()
+    assert source.is_contiguous() != noncontiguous
+
+    captured = {}
+    original_setitem = DistEmbedding.__setitem__
+
+    def capture_scatter_tensor(self, index, value):
+        captured["tensor"] = value
+        return original_setitem(self, index, value)
+
+    monkeypatch.setattr(DistEmbedding, "__setitem__", capture_scatter_tensor)
+
+    feature_store = FeatureStore()
+    feature_store["node", "feat", None] = source
+
+    scatter_tensor = captured["tensor"]
+    assert scatter_tensor.is_contiguous()
+    if source_device == "cuda" and not noncontiguous:
+        assert scatter_tensor.data_ptr() == source.data_ptr()
+    else:
+        assert scatter_tensor.data_ptr() != source.data_ptr()
+    if source_device == "cpu":
+        assert scatter_tensor.is_pinned()
+
+    actual = feature_store["node", "feat", None].get_local_tensor().cpu()
+    assert (actual == source.cpu()).all()
 
 
 @pytest.mark.skipif(

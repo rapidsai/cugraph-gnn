@@ -182,7 +182,20 @@ class FeatureStore(
         if ix.dim() != 1:
             raise ValueError("Index must be 1D")
 
-        tx[ix] = tensor.cpu().clone(memory_format=torch.contiguous_format).pin_memory()
+        if tensor.is_cuda:
+            # WholeMemory scatter can consume CUDA-visible input directly. Calling
+            # contiguous() preserves an already-contiguous allocation while still
+            # materializing layouts that WholeMemory cannot consume.
+            scatter_tensor = tensor.contiguous()
+        else:
+            # Keep the copy for CPU tensors. In addition to producing the layout
+            # required by WholeMemory, this gives deserialized tensors fresh storage
+            # before it is made CUDA-visible through pinned memory.
+            scatter_tensor = tensor.cpu().clone(
+                memory_format=torch.contiguous_format
+            ).pin_memory()
+
+        tx[ix] = scatter_tensor
         return tx
 
     def _put_tensor(
