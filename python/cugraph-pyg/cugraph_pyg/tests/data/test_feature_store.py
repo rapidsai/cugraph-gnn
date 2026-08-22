@@ -59,13 +59,16 @@ def test_feature_store_basic_api(single_pytorch_worker):
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-@pytest.mark.parametrize("source_device", ["cpu", "cuda"])
+@pytest.mark.parametrize("source_device", ["cpu", "pinned_cpu", "cuda"])
 @pytest.mark.parametrize("noncontiguous", [False, True])
 def test_feature_store_scatter_staging(
     single_pytorch_worker, monkeypatch, source_device, noncontiguous
 ):
-    source = torch.arange(40, dtype=torch.float32, device=source_device).reshape(10, 4)
+    device = "cpu" if source_device == "pinned_cpu" else source_device
+    source = torch.arange(40, dtype=torch.float32, device=device).reshape(10, 4)
     source = source[:, ::2] if noncontiguous else source[:, :2].contiguous()
+    if source_device == "pinned_cpu":
+        source = source.pin_memory()
     assert source.is_contiguous() != noncontiguous
 
     captured = {}
@@ -82,11 +85,11 @@ def test_feature_store_scatter_staging(
 
     scatter_tensor = captured["tensor"]
     assert scatter_tensor.is_contiguous()
-    if source_device == "cuda" and not noncontiguous:
+    if source_device in ("cuda", "pinned_cpu") and not noncontiguous:
         assert scatter_tensor.data_ptr() == source.data_ptr()
     else:
         assert scatter_tensor.data_ptr() != source.data_ptr()
-    if source_device == "cpu":
+    if source_device != "cuda":
         assert scatter_tensor.is_pinned()
 
     actual = feature_store["node", "feat", None].get_local_tensor().cpu()
