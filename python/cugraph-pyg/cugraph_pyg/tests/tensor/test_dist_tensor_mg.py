@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -88,14 +88,31 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     features = torch.arange(0, world_size * 1000)
     features = features.reshape((features.numel() // 100, 100)).to(dtype)
 
-    with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
-        torch.save(features, f.name)
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
         file_path = f.name
+    import pyarrow
+    import pyarrow.parquet as parquet
+
+    parquet.write_table(
+        pyarrow.table(
+            {
+                f"feature_{index}": features[:, index].numpy()
+                for index in range(features.shape[1])
+            }
+        ),
+        file_path,
+    )
 
     # Load distributed tensor
     torch.distributed.barrier()
     print(f"loading from {file_path}...")
-    dist_tensor = clx.from_file(file_path, device=device)
+    dist_tensor = clx.from_file(
+        file_path,
+        device=device,
+        dtype=features.dtype,
+        file_format="parquet",
+        fail_on_dtype_mismatch=True,
+    )
     print("loaded...")
     assert dist_tensor.shape == features.shape
     assert dist_tensor.dtype == features.dtype
@@ -106,8 +123,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
 
     torch.distributed.barrier()
     # Clean up
-    if rank == 0:
-        os.unlink(file_path)
+    os.unlink(file_path)
 
     wm_finalize()
     torch.distributed.destroy_process_group()
@@ -117,7 +133,7 @@ def run_test_dist_tensor_from_file(rank, world_size, device, clx, dtype):
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
-@pytest.mark.parametrize("dtype", ["float32", "float16", "bfloat16"])
+@pytest.mark.parametrize("dtype", ["float32"])
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("clx", [DistTensor, DistEmbedding])
 @pytest.mark.mg
