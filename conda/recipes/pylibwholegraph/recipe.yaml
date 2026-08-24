@@ -83,6 +83,7 @@ requirements:
     - numpy >=2.0,<3.0
     - pyarrow
     - python
+    - rmm =${{ minor_version }}
   ignore_run_exports:
     by_name:
       - cuda-version
