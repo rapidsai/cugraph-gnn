@@ -6,34 +6,10 @@
 # =============================================================================
 
 # This function finds RMM and sets any additional necessary environment variables.
-function(find_and_configure_rmm BUILD_SHARED EXCLUDE_FROM_ALL)
+function(find_and_configure_rmm)
   include(${rapids-cmake-dir}/cpm/rmm.cmake)
 
-  if(EXCLUDE_FROM_ALL)
-    set(_exclude_flag EXCLUDE_FROM_ALL)
-  else()
-    set(_exclude_flag)
-  endif()
-
-  # Find or install RMM.
-  set(_rmm_args)
-  if(NOT EXCLUDE_FROM_ALL)
-    list(APPEND _rmm_args BUILD_EXPORT_SET wholegraph-exports INSTALL_EXPORT_SET wholegraph-exports)
-  endif()
-  rapids_cpm_rmm(${_rmm_args} ${_exclude_flag} CPM_ARGS OPTIONS "BUILD_SHARED_LIBS ${BUILD_SHARED}")
-
-  # If RMM was found as a pre-existing shared library (e.g. conda), we need find_dependency(rmm) in
-  # the build and installed configs even when EXCLUDE_FROM_ALL is set. EXCLUDE_FROM_ALL controls
-  # whether CPM-built targets are installed, but a pre-existing shared library is not absorbed into
-  # libwholegraph and must be findable by downstream consumers.
-  if(EXCLUDE_FROM_ALL)
-    get_target_property(_rmm_type rmm::rmm TYPE)
-    if(NOT _rmm_type STREQUAL "STATIC_LIBRARY")
-      include("${rapids-cmake-dir}/export/package.cmake")
-      rapids_export_package(BUILD rmm wholegraph-exports VERSION ${rmm_VERSION})
-      rapids_export_package(INSTALL rmm wholegraph-exports VERSION ${rmm_VERSION})
-    endif()
-  endif()
+  rapids_cpm_rmm(BUILD_EXPORT_SET wholegraph-exports INSTALL_EXPORT_SET wholegraph-exports)
 
   # Propagate RMM source/binary dirs to parent scope.
   set(rmm_SOURCE_DIR
@@ -46,4 +22,4 @@ function(find_and_configure_rmm BUILD_SHARED EXCLUDE_FROM_ALL)
   )
 endfunction()
 
-find_and_configure_rmm(${BUILD_SHARED_LIBS} TRUE)
+find_and_configure_rmm()
