@@ -1026,6 +1026,50 @@ def test_neighbor_loader_temporal_fixed_window(single_pytorch_worker, biased):
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_temporal_last(single_pytorch_worker):
+    src = torch.tensor([0, 0, 0, 2, 2])
+    dst = torch.tensor([1, 2, 3, 4, 5])
+    edge_time = torch.tensor([1, 3, 2, 2, 4])
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+    graph_store[("paper", "cites", "paper"), "coo", False, (6, 6)] = [
+        dst,
+        src,
+    ]
+    feature_store[("paper", "cites", "paper"), "time", None] = edge_time
+
+    with pytest.raises(ValueError, match="requires both input_start_time"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1, 1],
+            input_nodes=torch.tensor([0]),
+            input_time=torch.tensor([3]),
+            time_attr="time",
+            temporal_strategy="last",
+        )
+
+    with pytest.warns(UserWarning, match=r"exceed 2\*\*53"):
+        loader = NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1, 1],
+            input_nodes=torch.tensor([0]),
+            input_start_time=torch.tensor([0]),
+            input_end_time=torch.tensor([3]),
+            time_attr="time",
+            temporal_strategy="last",
+            shuffle=False,
+        )
+
+    out = next(iter(loader))
+    assert out.n_id.tolist() == [0, 2, 4]
+    assert out.e_id.tolist() == [1, 3]
+    assert out.num_sampled_nodes.tolist() == [1, 1, 1]
+    assert out.num_sampled_edges.tolist() == [1, 1]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.parametrize("biased", [True, False])
 @pytest.mark.sg
 def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):

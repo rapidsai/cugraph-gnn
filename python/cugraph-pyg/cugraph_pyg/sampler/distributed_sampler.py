@@ -806,6 +806,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         Whether to apply temporal constraints during sampling.
     temporal_comparison : str, optional
         Temporal comparison mode passed to pylibcugraph.
+    temporal_strategy : str, optional
+        Temporal neighbor selection strategy (``"uniform"`` or ``"last"``).
+    fixed_window : bool, optional
+        Whether to retain each seed's original time window at every hop.
     vertex_type_offsets : TensorType, optional
         Offsets separating vertex types. Required for heterogeneous sampling.
     num_edge_types : int, optional
@@ -837,13 +841,39 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         heterogeneous: bool = False,
         temporal: bool = False,
         temporal_comparison: Optional[str] = None,
+        temporal_strategy: str = "uniform",
+        fixed_window: bool = False,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
+        if temporal_strategy not in ("uniform", "last"):
+            raise ValueError(
+                "Invalid temporal strategy "
+                f"'{temporal_strategy}' (expected 'uniform' or 'last')"
+            )
+        if temporal_strategy == "last":
+            if not temporal:
+                raise ValueError(
+                    "The 'last' temporal strategy requires temporal sampling"
+                )
+            if not fixed_window:
+                raise ValueError(
+                    "The 'last' temporal strategy requires fixed-window sampling"
+                )
+            if with_replacement:
+                raise ValueError(
+                    "The 'last' temporal strategy does not support replacement"
+                )
+            if biased:
+                raise ValueError(
+                    "The 'last' temporal strategy does not support biased sampling"
+                )
+
         # pylibcugraph requires temporal sampling to be disjoint.
         disjoint = disjoint or temporal
 
         self.__fanout = fanout
+        self.__fixed_window = fixed_window
         self.__temporal_comparison = (
             temporal_comparison or "monotonically_decreasing" if temporal else None
         )
@@ -859,6 +889,8 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "num_edge_types": num_edge_types,
             "use_edge_weights_as_biases": biased,
             "temporal_sampling_comparison": self.__temporal_comparison,
+            "neighbor_selection": "last" if temporal_strategy == "last" else "random",
+            "fixed_window": fixed_window,
         }
 
         if heterogeneous:
@@ -962,7 +994,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             )
 
         if seed_times is not None:
-            if self.__temporal_comparison == "fixed_window":
+            if self.__fixed_window:
                 raise ValueError(
                     "fixed-window sampling requires input_start_time and "
                     "input_end_time instead of input_time"
@@ -975,12 +1007,17 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             )
             kwargs[time_key] = cupy.asarray(seed_times)
         elif seed_start_times is not None:
-            if self.__temporal_comparison != "fixed_window":
+            if not self.__fixed_window:
                 raise ValueError(
                     "input_start_time and input_end_time require fixed-window sampling"
                 )
             kwargs["starting_vertex_start_times"] = cupy.asarray(seed_start_times)
             kwargs["starting_vertex_end_times"] = cupy.asarray(seed_end_times)
+        elif self.__fixed_window:
+            raise ValueError(
+                "fixed-window sampling requires both input_start_time and "
+                "input_end_time"
+            )
 
         sampling_results_dict = pylibcugraph.neighbor_sample(**kwargs)
 

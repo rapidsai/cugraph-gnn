@@ -131,8 +131,7 @@ class LinkNeighborLoader(LinkLoader):
         temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
             ('strictly_increasing', 'monotonically_increasing',
-            'strictly_decreasing', 'monotonically_decreasing', 'last').
-            Note that this should be 'last' for temporal_strategy='last'.
+            'strictly_decreasing', 'monotonically_decreasing').
             See cugraph_pyg.sampler.BaseDistributedSampler.
         **kwargs
             Other keyword arguments passed to the superclass.

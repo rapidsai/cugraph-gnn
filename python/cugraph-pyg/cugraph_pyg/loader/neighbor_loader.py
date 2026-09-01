@@ -15,6 +15,7 @@ from cugraph_pyg.sampler.distributed_sampler import DistributedNeighborSampler
 from cugraph_pyg.utils.imports import import_optional
 
 torch_geometric = import_optional("torch_geometric")
+torch = import_optional("torch")
 
 
 class NeighborLoader(NodeLoader):
@@ -83,7 +84,10 @@ class NeighborLoader(NodeLoader):
             Whether to perform disjoint sampling.
             See torch_geometric.loader.NeighborLoader.
         temporal_strategy: str (optional, default='uniform')
-            Currently only 'uniform' is suppported.
+            The temporal sampling strategy (``'uniform'`` or ``'last'``).
+            ``'last'`` selects the most recent neighbors within each seed's
+            fixed time window and therefore requires ``input_start_time`` and
+            ``input_end_time``.
             See torch_geometric.loader.NeighborLoader.
         time_attr: str (optional, default=None)
             Used for temporal sampling.
@@ -126,10 +130,11 @@ class NeighborLoader(NodeLoader):
         temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
             ('strictly_increasing', 'monotonically_increasing',
-            'strictly_decreasing', 'monotonically_decreasing', 'fixed_window',
-            'last'). ``fixed_window`` is selected automatically when
-            ``input_start_time`` and ``input_end_time`` are provided.
-            Note that this should be 'last' for temporal_strategy='last'.
+            'strictly_decreasing', 'monotonically_decreasing'). Fixed-window
+            sampling is selected automatically when ``input_start_time`` and
+            ``input_end_time`` are provided. ``temporal_strategy='last'`` uses
+            ``'monotonically_increasing'`` to match PyG's inclusive, most-recent
+            neighbor selection.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         input_start_time: OptTensor (optional)
             Lower time-window bounds for each input node. Must be passed together
@@ -153,7 +158,33 @@ class NeighborLoader(NodeLoader):
                 raise ValueError(
                     "input_time cannot be combined with input_start_time or input_end_time"
                 )
-            temporal_comparison = "fixed_window"
+        if temporal_strategy not in ("uniform", "last"):
+            raise ValueError(
+                "Invalid temporal strategy "
+                f"'{temporal_strategy}' (expected 'uniform' or 'last')"
+            )
+        if temporal_strategy == "last":
+            if not has_time_window:
+                raise ValueError(
+                    "temporal_strategy='last' requires both input_start_time "
+                    "and input_end_time"
+                )
+            if replace:
+                raise ValueError(
+                    "temporal_strategy='last' does not support replacement"
+                )
+            if weight_attr is not None:
+                raise ValueError(
+                    "temporal_strategy='last' does not support biased sampling"
+                )
+            if temporal_comparison not in (None, "monotonically_increasing"):
+                raise ValueError(
+                    "temporal_strategy='last' requires "
+                    "temporal_comparison='monotonically_increasing'"
+                )
+            temporal_comparison = "monotonically_increasing"
+        elif has_time_window and temporal_comparison is None:
+            temporal_comparison = "monotonically_increasing"
         elif temporal_comparison is None:
             temporal_comparison = "monotonically_decreasing"
 
@@ -165,8 +196,6 @@ class NeighborLoader(NodeLoader):
             )
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")
-        if temporal_strategy != "uniform":
-            warnings.warn("Only the uniform temporal strategy is currently supported")
         if neighbor_sampler is not None:
             raise ValueError("Passing a neighbor sampler is currently unsupported")
         if is_sorted:
@@ -200,6 +229,22 @@ class NeighborLoader(NodeLoader):
 
         if is_temporal:
             graph_store._set_time_attr((feature_store, time_attr))
+
+            if temporal_strategy == "last":
+                if any(
+                    (edge_time := feature_store[edge_attr.edge_type, time_attr, None])
+                    is not None
+                    and edge_time.dtype != torch.bool
+                    and not edge_time.dtype.is_floating_point
+                    and not edge_time.dtype.is_complex
+                    for edge_attr in graph_store.get_all_edge_attrs()
+                ):
+                    warnings.warn(
+                        "temporal_strategy='last' may be inexact when integer "
+                        "edge timestamps exceed 2**53 because cuGraph converts "
+                        "timestamps to double precision for neighbor ranking.",
+                        UserWarning,
+                    )
 
             if input_time is None and not has_time_window:
                 input_type, input_nodes, _ = (
@@ -242,6 +287,8 @@ class NeighborLoader(NodeLoader):
                 heterogeneous=(not graph_store.is_homogeneous),
                 temporal=is_temporal,
                 temporal_comparison=temporal_comparison,
+                temporal_strategy=temporal_strategy,
+                fixed_window=has_time_window,
                 vertex_type_offsets=graph_store._vertex_offset_array,
                 num_edge_types=len(graph_store.get_all_edge_attrs()),
             ),
