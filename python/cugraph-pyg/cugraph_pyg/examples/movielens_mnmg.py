@@ -307,11 +307,9 @@ class Model(torch.nn.Module):
         )
         self.decoder = EdgeDecoder(hidden_channels)
 
-    def forward(self, x_dict, edge_index_dict, num_samples):
+    def forward(self, x_dict, edge_index_dict, edge_label_index):
         x_dict = self.encoder(x_dict, edge_index_dict)
-        return self.decoder(
-            x_dict, edge_index_dict["user", "rates", "movie"][:, :num_samples]
-        )
+        return self.decoder(x_dict, edge_label_index)
 
 
 def train(train_loader, model, optimizer):
@@ -325,7 +323,7 @@ def train(train_loader, model, optimizer):
         out = model(
             batch.x_dict,
             batch.edge_index_dict,
-            batch["user", "rates", "movie"].edge_label.shape[0],
+            batch["user", "rates", "movie"].edge_label_index,
         )
 
         y = batch["user", "rates", "movie"].edge_label
@@ -352,7 +350,7 @@ def test(test_loader, model):
             model(
                 batch.x_dict,
                 batch.edge_index_dict,
-                batch["user", "rates", "movie"].edge_label.shape[0],
+                batch["user", "rates", "movie"].edge_label_index,
             )
             .sigmoid()
             .view(-1)
@@ -463,7 +461,10 @@ if __name__ == "__main__":
         del data
 
         kwargs = dict(
-            data=(feature_store, graph_store.finalize()),
+            data=(
+                feature_store,
+                graph_store.finalize(time_attr=(feature_store, "time")),
+            ),
             num_neighbors={
                 ("user", "rates", "movie"): [5, 5, 5],
                 ("movie", "rev_rates", "user"): [5, 5, 5],

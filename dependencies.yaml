@@ -109,6 +109,7 @@ files:
       table: project
     includes:
       - depends_on_libraft
+      - depends_on_librmm
       - depends_on_nccl
   py_build_pylibwholegraph:
     output: pyproject
@@ -146,6 +147,7 @@ files:
     includes:
       - python_run_pylibwholegraph
       - depends_on_libwholegraph
+      - depends_on_rmm
   py_test_pylibwholegraph:
     output: pyproject
     matrix:

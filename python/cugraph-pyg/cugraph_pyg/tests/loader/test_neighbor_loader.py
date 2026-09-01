@@ -1095,8 +1095,11 @@ def test_neighbor_loader_temporal_hetero(single_pytorch_worker, biased):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.parametrize("biased", [True, False])
+@pytest.mark.parametrize("finalized", [True, False])
 @pytest.mark.sg
-def test_neighbor_loader_temporal_linkpred_homogeneous(single_pytorch_worker, biased):
+def test_neighbor_loader_temporal_linkpred_homogeneous(
+    single_pytorch_worker, biased, finalized
+):
     """
     Test negative sampling for heterogeneous graphs with different edge types.
     """
@@ -1120,6 +1123,12 @@ def test_neighbor_loader_temporal_linkpred_homogeneous(single_pytorch_worker, bi
     feature_store[("paper", "cites", "paper"), "bias", None] = torch.tensor(
         [1.0] * src_cite.numel(), device="cuda"
     )
+
+    if finalized:
+        graph_store.finalize(
+            time_attr=(feature_store, "time"),
+            weight_attr=(feature_store, "bias") if biased else None,
+        )
 
     loader = cugraph_pyg.loader.LinkNeighborLoader(
         (feature_store, graph_store),
