@@ -88,7 +88,9 @@ class LinkNeighborLoader(LinkLoader):
             Whether to perform disjoint sampling.
             See torch_geometric.loader.LinkNeighborLoader.
         temporal_strategy: str (optional, default='uniform')
-            Currently only 'uniform' is suppported.
+            Currently only ``'uniform'`` is supported.
+            ``'last'`` and fixed-window sampling are not yet available via
+            ``LinkNeighborLoader``; use ``NeighborLoader`` instead.
             See torch_geometric.loader.LinkNeighborLoader.
         time_attr: str (optional, default=None)
             Used for temporal sampling.
@@ -151,7 +153,11 @@ class LinkNeighborLoader(LinkLoader):
         if subgraph_type != torch_geometric.sampler.base.SubgraphType.directional:
             raise ValueError("Only directional subgraphs are currently supported")
         if temporal_strategy != "uniform":
-            warnings.warn("Only the uniform temporal strategy is currently supported")
+            raise ValueError(
+                f"Invalid temporal strategy {temporal_strategy!r}; "
+                "LinkNeighborLoader only supports 'uniform'. "
+                "Use NeighborLoader for 'last' or fixed-window sampling."
+            )
         if neighbor_sampler is not None:
             raise ValueError("Passing a neighbor sampler is currently unsupported")
         if is_sorted:

@@ -1027,6 +1027,118 @@ def test_neighbor_loader_temporal_fixed_window(single_pytorch_worker, biased):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
+def test_neighbor_loader_temporal_last_unsupported_options(single_pytorch_worker):
+    """
+    Verify that unsupported option combinations with temporal_strategy='last'
+    and fixed-window sampling raise ValueError immediately at construction time.
+    """
+    src = torch.tensor([0, 0, 0])
+    dst = torch.tensor([1, 2, 3])
+    edge_time = torch.tensor([1, 3, 2])
+
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+    graph_store[("paper", "cites", "paper"), "coo", False, (4, 4)] = [dst, src]
+    feature_store[("paper", "cites", "paper"), "time", None] = edge_time
+
+    common = dict(
+        num_neighbors=[1],
+        input_nodes=torch.tensor([0]),
+        input_start_time=torch.tensor([0]),
+        input_end_time=torch.tensor([3]),
+        time_attr="time",
+    )
+
+    # 'last' with replacement is not supported
+    with pytest.raises(ValueError, match="does not support replacement"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            **common,
+            temporal_strategy="last",
+            replace=True,
+        )
+
+    # 'last' with biased sampling is not supported
+    feature_store[("paper", "cites", "paper"), "w", None] = torch.ones(3)
+    with pytest.raises(ValueError, match="does not support biased"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            **common,
+            temporal_strategy="last",
+            weight_attr="w",
+        )
+
+    # 'last' requires monotonically_increasing; any other comparison is rejected
+    with pytest.raises(ValueError, match="requires.*monotonically_increasing"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            **common,
+            temporal_strategy="last",
+            temporal_comparison="strictly_increasing",
+        )
+
+    # 'last' requires a fixed time window (input_start_time + input_end_time)
+    with pytest.raises(ValueError, match="requires both input_start_time"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1],
+            input_nodes=torch.tensor([0]),
+            input_time=torch.tensor([3]),
+            time_attr="time",
+            temporal_strategy="last",
+        )
+
+    # Unknown temporal_strategy name
+    with pytest.raises(ValueError, match="Invalid temporal strategy"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            **common,
+            temporal_strategy="newest",
+        )
+
+    # Fixed-window sampling only supports monotonically_increasing ordering
+    with pytest.raises(ValueError, match="only supports.*monotonically_increasing"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            **common,
+            temporal_comparison="strictly_increasing",
+        )
+
+    # input_start_time without input_end_time is rejected
+    with pytest.raises(ValueError, match="must be provided together"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1],
+            input_nodes=torch.tensor([0]),
+            input_start_time=torch.tensor([0]),
+            time_attr="time",
+        )
+
+    # input_time combined with input_start_time is rejected
+    with pytest.raises(ValueError, match="cannot be combined"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1],
+            input_nodes=torch.tensor([0]),
+            input_time=torch.tensor([0]),
+            input_start_time=torch.tensor([0]),
+            input_end_time=torch.tensor([3]),
+            time_attr="time",
+        )
+
+    # fixed-window requires time_attr
+    with pytest.raises(ValueError, match="time_attr is required"):
+        NeighborLoader(
+            (feature_store, graph_store),
+            num_neighbors=[1],
+            input_nodes=torch.tensor([0]),
+            input_start_time=torch.tensor([0]),
+            input_end_time=torch.tensor([3]),
+        )
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
 def test_neighbor_loader_temporal_last(single_pytorch_worker):
     src = torch.tensor([0, 0, 0, 2, 2])
     dst = torch.tensor([1, 2, 3, 4, 5])

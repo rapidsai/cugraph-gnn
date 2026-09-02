@@ -130,11 +130,11 @@ class NeighborLoader(NodeLoader):
         temporal_comparison: str (optional, default='monotonically_decreasing')
             The comparison operator for temporal sampling
             ('strictly_increasing', 'monotonically_increasing',
-            'strictly_decreasing', 'monotonically_decreasing'). Fixed-window
-            sampling is selected automatically when ``input_start_time`` and
-            ``input_end_time`` are provided. ``temporal_strategy='last'`` uses
-            ``'monotonically_increasing'`` to match PyG's inclusive, most-recent
-            neighbor selection.
+            'strictly_decreasing', 'monotonically_decreasing').
+            Fixed-window sampling (``input_start_time`` / ``input_end_time``)
+            only supports ``'monotonically_increasing'``; passing any other
+            value raises a ``ValueError``. ``temporal_strategy='last'`` also
+            requires ``'monotonically_increasing'`` and sets it automatically.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         input_start_time: OptTensor (optional)
             Lower time-window bounds for each input node. Must be passed together
@@ -183,7 +183,13 @@ class NeighborLoader(NodeLoader):
                     "temporal_comparison='monotonically_increasing'"
                 )
             temporal_comparison = "monotonically_increasing"
-        elif has_time_window and temporal_comparison is None:
+        elif has_time_window:
+            if temporal_comparison not in (None, "monotonically_increasing"):
+                raise ValueError(
+                    "fixed-window sampling only supports "
+                    "'monotonically_increasing' ordering; "
+                    f"got temporal_comparison={temporal_comparison!r}"
+                )
             temporal_comparison = "monotonically_increasing"
         elif temporal_comparison is None:
             temporal_comparison = "monotonically_decreasing"

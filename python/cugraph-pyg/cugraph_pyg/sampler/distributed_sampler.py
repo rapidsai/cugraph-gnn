@@ -84,10 +84,11 @@ class BaseDistributedSampler:
     def sample_batches(
         self,
         seeds: TensorType,
-        time: Optional[TensorType],
+        seed_times: Optional[TensorType],
         batch_id_offsets: TensorType,
+        seed_start_times: Optional[TensorType] = None,
+        seed_end_times: Optional[TensorType] = None,
         random_state: int = 0,
-        assume_equal_input_size: bool = False,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Dict[str, TensorType]:
         """
@@ -98,18 +99,21 @@ class BaseDistributedSampler:
         ----------
         seeds: TensorType
             Input seeds for a single call group (node ids).
-        time: Optional[TensorType]
-            Input times for a single call group (node times).
+        seed_times: Optional[TensorType]
+            Per-seed times for temporal sampling (non-fixed-window).  Mutually
+            exclusive with ``seed_start_times`` / ``seed_end_times``.
         batch_id_offsets: TensorType
             Offsets (start/end) of each batch.  i.e. 0, 5, 10
             corresponds to 2 batches, the first from index 0-4,
             inclusive, and the second from index 5-9, inclusive.
+        seed_start_times: Optional[TensorType]
+            Per-seed lower time-window bounds for fixed-window sampling.
+            Must be provided together with ``seed_end_times``.
+        seed_end_times: Optional[TensorType]
+            Per-seed upper time-window bounds for fixed-window sampling.
+            Must be provided together with ``seed_start_times``.
         random_state: int
             The random seed to use for sampling.
-        assume_equal_input_size: bool
-            If True, will assume all ranks have the same number of inputs,
-            and will skip the synchronization/gather steps to check for
-            and handle uneven inputs.
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
             Metadata for the graph.  This is used to determine the
             type of the graph and the edge types.  This is only
@@ -846,10 +850,20 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
+        # fixed_window implies temporal — enable it automatically rather than
+        # requiring the caller to pass both flags.
+        if fixed_window and not temporal:
+            temporal = True
+
         if temporal_strategy not in ("uniform", "last"):
             raise ValueError(
                 "Invalid temporal strategy "
                 f"'{temporal_strategy}' (expected 'uniform' or 'last')"
+            )
+        if fixed_window and temporal_comparison not in (None, "monotonically_increasing"):
+            raise ValueError(
+                "fixed-window sampling only supports 'monotonically_increasing' ordering; "
+                f"got temporal_comparison={temporal_comparison!r}"
             )
         if temporal_strategy == "last":
             if not temporal:
