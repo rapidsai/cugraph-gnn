@@ -860,7 +860,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                 "Invalid temporal strategy "
                 f"'{temporal_strategy}' (expected 'uniform' or 'last')"
             )
-        if fixed_window and temporal_comparison not in (None, "monotonically_increasing"):
+        if fixed_window and temporal_comparison not in (
+            None,
+            "monotonically_increasing",
+        ):
             raise ValueError(
                 "fixed-window sampling only supports 'monotonically_increasing' ordering; "
                 f"got temporal_comparison={temporal_comparison!r}"
