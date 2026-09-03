@@ -44,17 +44,20 @@ class FeatureStore(
     visible to the store. Indexed insertion of a DistTensor is not supported.
     """
 
-    def __init__(self, memory_type=None, location="cpu"):
+    def __init__(self, location="cpu", backend=None):
         """
         Constructs an empty FeatureStore.
 
         Parameters
         ----------
-        memory_type: str (optional, default=None)
-            Has no effect.  Retained for compatibility purposes.
-
         location: str(optional, default='cpu')
             The location ('cpu' or 'cuda') where data is stored.
+
+        backend: str(optional, default=None)
+            The WholeGraph backend ('nccl' or 'vmm') used to store data. When
+            omitted, 'vmm' is selected for single-node and multinode NVLink
+            configurations, and 'nccl' is selected for other multinode
+            configurations.
         """
         super().__init__()
 
@@ -62,16 +65,14 @@ class FeatureStore(
 
         self.__wg_location = location
 
-        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+        if backend is not None:
+            if backend not in ["nccl", "vmm"]:
+                raise ValueError("backend must be 'nccl' or 'vmm'")
+            self.__backend = backend
+        elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
             self.__backend = "vmm"
         else:
             self.__backend = "vmm" if has_nvlink_network() else "nccl"
-
-        if memory_type is not None:
-            warnings.warn(
-                "The memory_type argument is deprecated. "
-                "Memory type is now automatically inferred."
-            )
 
     def __make_wg_tensor(self, tensor, ix=None):
         world_size = torch.distributed.get_world_size()
