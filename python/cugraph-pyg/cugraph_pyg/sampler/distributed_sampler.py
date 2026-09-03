@@ -256,6 +256,16 @@ class BaseDistributedSampler:
 
         minibatch_dict["input_index"] = current_ix.cuda()
         minibatch_dict["input_offsets"] = input_offsets
+        if getattr(self, "_disjoint", False):
+            # Retained seeds are sorted by vertex ID during cuGraph's output
+            # renumbering. Preserve their positions in the loader input so a
+            # PyG-compatible batch vector can identify the original center.
+            minibatch_dict["seed_batch"] = torch.concat(
+                [
+                    torch.argsort(seed_batch, stable=True)
+                    for seed_batch in current_seeds.split(batch_size)
+                ]
+            )
 
         # rename renumber_map -> map to match unbuffered format
         minibatch_dict["map"] = minibatch_dict["renumber_map"]
@@ -822,6 +832,7 @@ class DistributedNeighborSampler(BaseDistributedSampler):
     ):
         # pylibcugraph requires temporal sampling to be disjoint.
         disjoint = disjoint or temporal
+        self._disjoint = disjoint
 
         self.__fanout = fanout
         self.__func_kwargs = {
