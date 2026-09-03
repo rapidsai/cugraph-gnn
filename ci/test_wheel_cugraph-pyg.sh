@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -eoxu pipefail
@@ -14,7 +14,7 @@ PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name
 CUGRAPH_PYG_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python cugraph-pyg cugraph-gnn --pure --arch any --cuda "$RAPIDS_CUDA_VERSION")")
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
-rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}"
+rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}" constraints
 
 PIP_INSTALL_ARGS=(
   --prefer-binary

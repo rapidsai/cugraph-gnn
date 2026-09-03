@@ -20,7 +20,7 @@ RAPIDS_COVERAGE_DIR=${RAPIDS_COVERAGE_DIR:-"${PWD}/coverage-results"}
 mkdir -p "${RAPIDS_TESTS_DIR}" "${RAPIDS_COVERAGE_DIR}"
 
 # generate constraints (possibly pinning to oldest support versions of dependencies)
-rapids-generate-pip-constraints test_pylibwholegraph "${PIP_CONSTRAINT}"
+rapids-generate-pip-constraints test_pylibwholegraph "${PIP_CONSTRAINT}" constraints
 
 python -m venv libwholegraph-env
 . libwholegraph-env/bin/activate
