@@ -25,12 +25,6 @@
 [RAPIDS](https://rapids.ai) cuGraph GNN is a monorepo containing packages for GPU-accelerated graph neural networks (GNNs).
 cuGraph-GNN supports the creation and manipulation of graphs followed by the execution of scalable fast graph algorithms.
 
-<div align="center">
-
-[GNN Support](./readme_pages/gnn_support.md)
-
-</div>
-
 -----
 ## News
 
