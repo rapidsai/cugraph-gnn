@@ -15,8 +15,10 @@ pylibwholegraph = import_optional("pylibwholegraph")
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_feature_store_basic_api(single_pytorch_worker):
-    feature_store = FeatureStore()
+@pytest.mark.parametrize("backend", ["nccl", "vmm"])
+def test_feature_store_basic_api(single_pytorch_worker, backend):
+    feature_store = FeatureStore(backend=backend)
+    assert feature_store._FeatureStore__backend == backend
 
     node_features_0 = torch.randint(128, (100, 1000))
     node_features_1 = torch.randint(256, (100, 10))
@@ -52,6 +54,34 @@ def test_feature_store_basic_api(single_pytorch_worker):
 
     del feature_store["node", "feat0", None]
     assert len(feature_store.get_all_tensor_attrs()) == 3
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_feature_store_invalid_backend(single_pytorch_worker):
+    with pytest.raises(ValueError, match="backend must be 'nccl' or 'vmm'"):
+        FeatureStore(backend="invalid")
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize(
+    ("local_world_size", "world_size", "expected_backend"),
+    [(2, 2, "vmm"), (1, 2, "nccl")],
+)
+def test_feature_store_default_backend(
+    single_pytorch_worker,
+    monkeypatch,
+    local_world_size,
+    world_size,
+    expected_backend,
+):
+    monkeypatch.setenv("LOCAL_WORLD_SIZE", str(local_world_size))
+    monkeypatch.setattr(torch.distributed, "get_world_size", lambda: world_size)
+
+    feature_store = FeatureStore()
+
+    assert feature_store._FeatureStore__backend == expected_backend
 
 
 @pytest.mark.skipif(
