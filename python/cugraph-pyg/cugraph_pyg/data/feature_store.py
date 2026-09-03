@@ -7,7 +7,7 @@ import os
 from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
-from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
+from cugraph_pyg.tensor.utils import is_empty
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 
@@ -55,9 +55,8 @@ class FeatureStore(
 
         backend: str(optional, default=None)
             The WholeGraph backend ('nccl' or 'vmm') used to store data. When
-            omitted, 'vmm' is selected for single-node and multinode NVLink
-            configurations, and 'nccl' is selected for other multinode
-            configurations.
+            omitted, 'vmm' is selected for single-node configurations and
+            'nccl' is selected for multinode configurations.
         """
         super().__init__()
 
@@ -72,7 +71,7 @@ class FeatureStore(
         elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
             self.__backend = "vmm"
         else:
-            self.__backend = "vmm" if has_nvlink_network() else "nccl"
+            self.__backend = "nccl"
 
     def __make_wg_tensor(self, tensor, ix=None):
         world_size = torch.distributed.get_world_size()

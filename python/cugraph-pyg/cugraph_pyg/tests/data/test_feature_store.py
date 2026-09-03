@@ -63,6 +63,27 @@ def test_feature_store_invalid_backend(single_pytorch_worker):
         FeatureStore(backend="invalid")
 
 
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize(
+    ("local_world_size", "world_size", "expected_backend"),
+    [(2, 2, "vmm"), (1, 2, "nccl")],
+)
+def test_feature_store_default_backend(
+    single_pytorch_worker,
+    monkeypatch,
+    local_world_size,
+    world_size,
+    expected_backend,
+):
+    monkeypatch.setenv("LOCAL_WORLD_SIZE", str(local_world_size))
+    monkeypatch.setattr(torch.distributed, "get_world_size", lambda: world_size)
+
+    feature_store = FeatureStore()
+
+    assert feature_store._FeatureStore__backend == expected_backend
+
+
 @pytest.mark.skipif(
     isinstance(pylibwholegraph, MissingModule), reason="wholegraph not available"
 )
