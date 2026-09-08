@@ -285,7 +285,7 @@ jobs:
     with:
       arch: "amd64"
       build_type: pull-request
-      container_image: "rapidsai/ci-conda:26.10-latest"
+      container_image: "rapidsai/ci-conda:26.12-latest"
       script: "ci/build_docs.sh"
     permissions:
       actions: read
