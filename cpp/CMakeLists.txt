@@ -13,6 +13,7 @@ include(rapids-cpm)
 include(rapids-cuda)
 include(rapids-export)
 include(rapids-find)
+include(${rapids-cmake-dir}/cython-core/find_prefix_paths.cmake)
 
 rapids_cuda_init_architectures(WHOLEGRAPH)
 
@@ -21,6 +22,14 @@ project(
   VERSION "${RAPIDS_VERSION}"
   LANGUAGES CXX CUDA
 )
+
+# Find CMake packages provided by installed wheels.
+find_package(Python COMPONENTS Interpreter)
+if(Python_FOUND)
+  rapids_cython_find_prefix_paths("${Python_EXECUTABLE}" wheel_prefix_paths)
+  set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS TRUE)
+  list(PREPEND CMAKE_PREFIX_PATH ${wheel_prefix_paths})
+endif()
 
 # Write the version header
 rapids_cmake_write_version_file(include/wholegraph/version_config.hpp)
