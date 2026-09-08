@@ -34,6 +34,16 @@ torch = pytest.importorskip("torch")
 _GPU_COUNT = None
 _MAX_OVERHEAD_GROWTH = 32 * 1024 * 1024
 _SCALING_DATASET_SIZES_MIB = (32, 128)
+_RUN_PARQUET_MEMORY_TESTS = (
+    os.getenv("PYLIBWHOLEGRAPH_RUN_PARQUET_MEMORY_TESTS") == "1"
+)
+_parquet_memory_test = pytest.mark.skipif(
+    not _RUN_PARQUET_MEMORY_TESTS,
+    reason=(
+        "Parquet peak RSS varies across CI environments; set "
+        "PYLIBWHOLEGRAPH_RUN_PARQUET_MEMORY_TESTS=1 to run this test"
+    ),
+)
 
 
 def _gpu_count():
@@ -372,6 +382,7 @@ def test_create_wholememory_tensor_from_one_column_parquet(
 
 
 @pytest.mark.parametrize("memory_location", ["cpu", "cuda"])
+@_parquet_memory_test
 def test_parquet_read_has_bounded_peak_host_memory(tmp_path, memory_location):
     if _gpu_count() == 0:
         pytest.skip("WholeGraph structured I/O requires at least one GPU")
@@ -407,9 +418,7 @@ def test_parquet_read_has_bounded_peak_host_memory(tmp_path, memory_location):
     )
 
 
-@pytest.mark.skip(
-    reason="Peak RSS includes nondeterministic process startup allocations in CI"
-)
+@_parquet_memory_test
 def test_parquet_reader_has_bounded_peak_host_memory(tmp_path):
     column_count = 16
     row_size = column_count * torch.tensor([], dtype=torch.float32).element_size()
