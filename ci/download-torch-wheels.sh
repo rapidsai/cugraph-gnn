@@ -35,7 +35,7 @@ fi
 # Not appending this to PIP_CONSTRAINT, because we don't want the torch '--extra-index-url'
 # to leak outside of this script into other 'pip {download,install}'' calls.
 rapids-dependency-file-generator \
-    --output requirements \
+    --output constraints \
     --file-key "torch_only" \
     --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};dependencies=${RAPIDS_DEPENDENCIES};require_gpu=true" \
 | tee ./torch-constraints.txt
