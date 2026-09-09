@@ -541,6 +541,18 @@ if __name__ == "__main__":
             + feature_store[dst_type, "bc", None][dst]
         ).to(dtype).reshape((-1, 1)) / 2.0
 
+    assigned_edges = graph_store[("paper", "cites", "paper"), "coo", None]
+    mask = (torch.rand(assigned_edges.shape[1]) < 0.8).to(torch.bool).to(device)
+    train_edges = assigned_edges[:, mask]
+    test_edges = assigned_edges[:, ~mask]
+
+    train_sz = torch.tensor([train_edges.shape[1]], device="cuda", dtype=torch.int64)
+    test_sz = torch.tensor([test_edges.shape[1]], device="cuda", dtype=torch.int64)
+    torch.distributed.all_reduce(train_sz, op=torch.distributed.ReduceOp.MIN)
+    torch.distributed.all_reduce(test_sz, op=torch.distributed.ReduceOp.MIN)
+    train_edges = train_edges[:, :train_sz]
+    test_edges = test_edges[:, :test_sz]
+
     graph_store.finalize()
     print("training model...")
 
@@ -576,18 +588,6 @@ if __name__ == "__main__":
         wm_optimizer = None
 
     model = DDP(model, device_ids=[local_rank], find_unused_parameters=True)
-
-    assigned_edges = graph_store[("paper", "cites", "paper"), "coo", None]
-    mask = (torch.rand(assigned_edges.shape[1]) < 0.8).to(torch.bool).to(device)
-    train_edges = assigned_edges[:, mask]
-    test_edges = assigned_edges[:, ~mask]
-
-    train_sz = torch.tensor([train_edges.shape[1]], device="cuda", dtype=torch.int64)
-    test_sz = torch.tensor([test_edges.shape[1]], device="cuda", dtype=torch.int64)
-    torch.distributed.all_reduce(train_sz, op=torch.distributed.ReduceOp.MIN)
-    torch.distributed.all_reduce(test_sz, op=torch.distributed.ReduceOp.MIN)
-    train_edges = train_edges[:, :train_sz]
-    test_edges = test_edges[:, :test_sz]
 
     from cugraph_pyg.loader import LinkNeighborLoader
 

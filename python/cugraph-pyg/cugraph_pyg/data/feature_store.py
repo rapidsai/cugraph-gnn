@@ -182,7 +182,24 @@ class FeatureStore(
         if ix.dim() != 1:
             raise ValueError("Index must be 1D")
 
-        tx[ix] = tensor.cpu().clone(memory_format=torch.contiguous_format).pin_memory()
+        cuda_visible = tensor.is_cuda or tensor.is_pinned()
+        if cuda_visible and tensor.is_contiguous():
+            scatter_tensor = tensor
+        elif tensor.is_cuda:
+            scatter_tensor = tensor.contiguous()
+        else:
+            # Allocate the final layout directly instead of cloning into pageable
+            # memory before pinning it. The copy still gives tensors deserialized
+            # with torch.load fresh storage.
+            scatter_tensor = torch.empty_like(
+                tensor,
+                device="cpu",
+                pin_memory=True,
+                memory_format=torch.contiguous_format,
+            )
+            scatter_tensor.copy_(tensor)
+
+        tx[ix] = scatter_tensor
         return tx
 
     def _put_tensor(
@@ -196,6 +213,14 @@ class FeatureStore(
                     "An index cannot be specified when storing a DistTensor "
                     "by reference"
                 )
+            warnings.warn(
+                "Putting a DistTensor into a FeatureStore performs a zero-copy "
+                "operation. The DistTensor is stored by reference and is not moved "
+                "to the FeatureStore's configured storage location, even when the "
+                "FeatureStore and DistTensor storage locations differ.",
+                UserWarning,
+                stacklevel=2,
+            )
             self.__features[(attr.group_name, attr.attr_name)] = tensor
             return True
 

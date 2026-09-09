@@ -1,6 +1,6 @@
 # =============================================================================
 # cmake-format: off
-# SPDX-FileCopyrightText: Copyright (c) 2018-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2018-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # cmake-format: on
 # =============================================================================
@@ -105,6 +105,7 @@ endif()
 
 rapids_cpm_init()
 
+include(./cmake/thirdparty/get_rmm.cmake)
 include(./cmake/thirdparty/get_raft.cmake)
 include(./cmake/thirdparty/get_nccl.cmake)
 if(BUILD_WITH_NVSHMEM)
@@ -168,7 +169,7 @@ target_include_directories(
 target_link_libraries(
   wholegraph
   PUBLIC CUDA::cuda_driver CUDA::cudart_static raft::raft
-  PRIVATE NCCL::NCCL
+  PRIVATE NCCL::NCCL rmm::rmm
 )
 
 if(CUDAToolkit_VERSION VERSION_GREATER "12.3")

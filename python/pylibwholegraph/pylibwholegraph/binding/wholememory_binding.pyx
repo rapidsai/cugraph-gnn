@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # cython: profile=False
@@ -69,6 +69,10 @@ cdef extern from "wholememory/wholememory.h":
     cdef wholememory_error_code_t wholememory_init(unsigned int flags, LogLevel log_level)
 
     cdef wholememory_error_code_t wholememory_finalize()
+
+    cdef wholememory_error_code_t wholememory_set_rmm_enabled(bool enabled)
+
+    cdef bool wholememory_is_rmm_enabled()
 
     cdef struct wholememory_unique_id_t:
         char internal[128]
@@ -1009,6 +1013,12 @@ def init(unsigned int flags, LogLevel log_level = LEVEL_INFO):
 
 def finalize():
     check_wholememory_error_code(wholememory_finalize())
+
+def set_rmm_enabled(bool enabled):
+    check_wholememory_error_code(wholememory_set_rmm_enabled(enabled))
+
+def is_rmm_enabled():
+    return wholememory_is_rmm_enabled()
 
 def create_unique_id():
     py_uid = PyWholeMemoryUniqueID()

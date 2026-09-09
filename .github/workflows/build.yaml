@@ -27,7 +27,7 @@ on:
         type: string
         default: nightly
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.build_type || 'branch' }}
   cancel-in-progress: true
 permissions: {}
 jobs:
@@ -96,7 +96,7 @@ jobs:
       arch: "amd64"
       branch: ${{ inputs.branch }}
       build_type: ${{ inputs.build_type || 'branch' }}
-      container_image: "rapidsai/ci-conda:26.10-latest"
+      container_image: "rapidsai/ci-conda:26.12-latest"
       date: ${{ inputs.date }}
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}

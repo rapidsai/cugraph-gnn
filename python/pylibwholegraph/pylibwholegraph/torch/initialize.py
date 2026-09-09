@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -13,6 +13,31 @@ from .comm import (
 from .utils import str_to_wmb_wholememory_log_level
 
 torch = import_optional("torch")
+
+
+def set_rmm_enabled(enabled):
+    r"""Enable or disable RMM for supported WholeMemory device allocations.
+
+    When enabled, future distributed and hierarchy WholeMemory tensors with device storage use
+    RMM's current resource for the active CUDA device at allocation time. Configure that resource
+    through RMM before creating the tensors. Chunked, continuous, and NVSHMEM device tensors retain
+    their specialized allocation paths.
+
+    .. warning::
+        RMM-backed WholeMemory allocations retain a reference to the resource that created them.
+        Destroy all WholeMemory tensors and other WholeMemory allocations before calling
+        ``rmm.reinitialize()`` or otherwise replacing or destroying RMM's current device memory
+        resource. Disabling RMM only affects future allocations.
+
+    :param enabled: Whether supported WholeMemory device allocations should use RMM.
+    :return: None
+    """
+    wmb.set_rmm_enabled(enabled)
+
+
+def is_rmm_enabled():
+    r"""Return whether RMM is enabled for supported WholeMemory device allocations."""
+    return wmb.is_rmm_enabled()
 
 
 def init(
