@@ -283,7 +283,7 @@ jobs:
       contents: read
     uses: rapidsai/shared-workflows/.github/workflows/compute-matrix.yaml@release/26.10
     with:
-      build_type: pull-request
+      build_type: ${{ inputs.build_type || 'branch' }}
       matrix_name: docs-build
   docs-build:
     needs: [docs-build-matrix, conda-cpp-build, changed-files]
