@@ -88,15 +88,25 @@ jobs:
       id-token: write
       packages: read
       pull-requests: read
+  docs-build-matrix:
+    permissions:
+      contents: read
+    uses: rapidsai/shared-workflows/.github/workflows/compute-matrix.yaml@release/26.10
+    with:
+      build_type: ${{ inputs.build_type || 'branch' }}
+      matrix_name: docs-build
   docs-build:
     needs: cpp-build
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/26.10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.docs-build-matrix.outputs.matrix) }}
     with:
-      arch: "amd64"
+      arch: "${{ matrix.arch }}"
       branch: ${{ inputs.branch }}
       build_type: ${{ inputs.build_type || 'branch' }}
-      container_image: "rapidsai/ci-conda:26.10-latest"
+      container_image: "rapidsai/ci-conda:26.10-cuda${{ matrix.CUDA_VER }}-${{ matrix.LINUX_VER }}-py${{ matrix.PY_VER }}"
       date: ${{ inputs.date }}
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}
