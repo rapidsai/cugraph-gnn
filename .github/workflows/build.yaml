@@ -96,7 +96,7 @@ jobs:
       build_type: ${{ inputs.build_type || 'branch' }}
       matrix_name: docs-build
   docs-build:
-    needs: cpp-build
+    needs: [docs-build-matrix, cpp-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/26.10
     strategy:
