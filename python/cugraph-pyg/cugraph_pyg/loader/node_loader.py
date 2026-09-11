@@ -41,6 +41,8 @@ class NodeLoader:
         batch_size: int = 1,
         shuffle: bool = False,
         drop_last: bool = False,
+        input_start_time: "torch_geometric.typing.OptTensor" = None,
+        input_end_time: "torch_geometric.typing.OptTensor" = None,
         **kwargs,
     ):
         """
@@ -54,6 +56,10 @@ class NodeLoader:
                 See torch_geometric.loader.NodeLoader.
             input_time: OptTensor
                 See torch_geometric.loader.NodeLoader.
+            input_start_time: OptTensor
+                Lower time-window bounds for the input nodes.
+            input_end_time: OptTensor
+                Upper time-window bounds for the input nodes.
             transform: Callable (optional, default=None)
                 This argument currently has no effect.
             transform_sampler_output: Callable (optional, default=None)
@@ -110,6 +116,24 @@ class NodeLoader:
         )
         input_nodes = input_nodes.detach().clone()
 
+        if input_time is not None and (
+            input_start_time is not None or input_end_time is not None
+        ):
+            raise ValueError(
+                "input_time cannot be combined with input_start_time or input_end_time"
+            )
+        if (input_start_time is None) != (input_end_time is None):
+            raise ValueError(
+                "input_start_time and input_end_time must be provided together"
+            )
+        if input_start_time is not None:
+            if len(input_start_time) != len(input_nodes) or len(input_end_time) != len(
+                input_nodes
+            ):
+                raise ValueError(
+                    "input_start_time and input_end_time must match input_nodes"
+                )
+
         if input_nodes.numel() < batch_size and drop_last:
             raise ValueError(
                 "The number of input nodes is less than the batch size"
@@ -129,6 +153,8 @@ class NodeLoader:
             time=input_time,
             input_type=input_type,
         )
+        self.__input_start_time = input_start_time
+        self.__input_end_time = input_end_time
 
         self.__data = data
 
@@ -161,7 +187,14 @@ class NodeLoader:
         return cugraph_pyg.sampler.SampleIterator(
             self.__data,
             self.__node_sampler.sample_from_nodes(
-                input_data, random_state=generate_seed()
+                input_data,
+                input_start_time=None
+                if self.__input_start_time is None
+                else self.__input_start_time[perm],
+                input_end_time=None
+                if self.__input_end_time is None
+                else self.__input_end_time[perm],
+                random_state=generate_seed(),
             ),
         )
 
