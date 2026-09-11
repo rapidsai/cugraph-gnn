@@ -17,7 +17,8 @@ torch_geometric = import_optional("torch_geometric")
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("location", ["cpu", "cuda"])
-def test_graph_store_basic_api(single_pytorch_worker, location):
+@pytest.mark.parametrize("backend", ["nccl", "vmm"])
+def test_graph_store_basic_api(single_pytorch_worker, location, backend):
     df = karate.get_edgelist()
     src = torch.as_tensor(df["src"], device="cuda")
     dst = torch.as_tensor(df["dst"], device="cuda")
@@ -26,7 +27,8 @@ def test_graph_store_basic_api(single_pytorch_worker, location):
 
     num_nodes = karate.number_of_nodes()
 
-    graph_store = GraphStore(location=location)
+    graph_store = GraphStore(location=location, backend=backend)
+    assert graph_store._GraphStore__backend == backend
     graph_store.put_edge_index(
         ei, ("person", "knows", "person"), "coo", False, (num_nodes, num_nodes)
     )
@@ -70,6 +72,34 @@ def test_graph_store_basic_api(single_pytorch_worker, location):
     stored_matrix = graph_store._GraphStore__edge_indices[("person", "likes", "person")]
     assert stored_matrix._row is dist_matrix._row
     assert stored_matrix._col is dist_matrix._col
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_graph_store_invalid_backend(single_pytorch_worker):
+    with pytest.raises(ValueError, match="backend must be 'nccl' or 'vmm'"):
+        GraphStore(backend="invalid")
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+@pytest.mark.parametrize(
+    ("local_world_size", "world_size", "expected_backend"),
+    [(2, 2, "vmm"), (1, 2, "nccl")],
+)
+def test_graph_store_default_backend(
+    single_pytorch_worker,
+    monkeypatch,
+    local_world_size,
+    world_size,
+    expected_backend,
+):
+    monkeypatch.setenv("LOCAL_WORLD_SIZE", str(local_world_size))
+    monkeypatch.setattr(torch.distributed, "get_world_size", lambda: world_size)
+
+    graph_store = GraphStore()
+
+    assert graph_store._GraphStore__backend == expected_backend
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
