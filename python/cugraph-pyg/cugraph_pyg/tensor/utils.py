@@ -4,7 +4,6 @@
 from typing import Union, List
 
 import numpy as np
-import os
 
 from cugraph_pyg.utils.imports import import_optional
 
@@ -194,29 +193,6 @@ def create_wg_dist_tensor_from_files(
             fail_on_dtype_mismatch=fail_on_dtype_mismatch,
         )
     return wm_embedding
-
-
-def has_nvlink_network():
-    r"""Check if the current hardware supports cross-node NVLink network."""
-
-    global_comm = wgth.comm.get_global_communicator("nccl")
-    local_size = int(os.environ["LOCAL_WORLD_SIZE"])
-
-    world_size = torch.distributed.get_world_size()
-
-    # Intra-node communication
-    if local_size == world_size:
-        # use WholeGraph to check if the current hardware supports direct p2p
-        return global_comm.support_type_location("continuous", "cuda")
-
-    # Check for multi-node support
-    is_cuda_supported = global_comm.support_type_location("continuous", "cuda")
-    is_cpu_supported = global_comm.support_type_location("continuous", "cpu")
-
-    if is_cuda_supported and is_cpu_supported:
-        return True
-
-    return False
 
 
 def is_empty(a):
