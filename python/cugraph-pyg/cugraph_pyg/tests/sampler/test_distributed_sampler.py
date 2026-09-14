@@ -225,9 +225,12 @@ def test_dist_sampler_fixed_window_auto_temporal():
     graph = _make_simple_graph()
 
     # Should not raise — temporal is force-set to True internally.
+    # Set local_seeds_per_call explicitly because wheel tests also run without
+    # torch, and the default auto-sizing path queries torch.cuda device memory.
     sampler = DistributedNeighborSampler(
         graph,
         fanout=[1],
+        local_seeds_per_call=1,
         temporal=False,
         fixed_window=True,
     )
@@ -247,9 +250,12 @@ def test_dist_sampler_sample_batches_time_guards():
     graph = _make_simple_graph()
 
     # Non-fixed-window sampler: rejects seed_start_times
+    # Set local_seeds_per_call explicitly because wheel tests also run without
+    # torch, and the default auto-sizing path queries torch.cuda device memory.
     sampler = DistributedNeighborSampler(
         graph,
         fanout=[1],
+        local_seeds_per_call=1,
         temporal=True,
         temporal_comparison="monotonically_increasing",
     )
@@ -285,6 +291,8 @@ def test_dist_sampler_sample_batches_time_guards():
     fw_sampler = DistributedNeighborSampler(
         graph,
         fanout=[1],
+        # Avoid the torch-dependent auto-sizing path in no-torch wheel tests.
+        local_seeds_per_call=1,
         temporal=True,
         fixed_window=True,
     )
