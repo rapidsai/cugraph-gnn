@@ -14,7 +14,7 @@ from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
-from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
+from cugraph_pyg.tensor.utils import is_empty
 
 from typing import Union, Optional, List, Dict, Tuple, Callable
 
@@ -74,7 +74,7 @@ class GraphStore(
     the store.
     """
 
-    def __init__(self, location="cpu"):
+    def __init__(self, location="cpu", backend=None):
         """
         Constructs a new, empty GraphStore object.  This object
         represents one slice of a graph on particular worker.
@@ -86,6 +86,12 @@ class GraphStore(
             edge indices before the cuGraph graph is constructed. This does
             not affect the final graph location; the cuGraph graph is always
             constructed in GPU device memory when it's needed.
+
+        backend: str(optional, default=None)
+            The WholeGraph backend ('nccl' or 'vmm') used to store edge
+            indices. When omitted, 'vmm' is selected for single-node
+            configurations and 'nccl' is selected for multinode
+            configurations.
         """
         self.__edge_indices = {}
         self.__sizes = {}
@@ -99,10 +105,14 @@ class GraphStore(
 
         self.__clear_graph()
 
-        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+        if backend is not None:
+            if backend not in ["nccl", "vmm"]:
+                raise ValueError("backend must be 'nccl' or 'vmm'")
+            self.__backend = backend
+        elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
             self.__backend = "vmm"
         else:
-            self.__backend = "vmm" if has_nvlink_network() else "nccl"
+            self.__backend = "nccl"
 
         super().__init__()
 
