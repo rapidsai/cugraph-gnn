@@ -34,9 +34,7 @@ torch = pytest.importorskip("torch")
 _GPU_COUNT = None
 _MAX_OVERHEAD_GROWTH = 32 * 1024 * 1024
 _SCALING_DATASET_SIZES_MIB = (32, 128)
-_RUN_PARQUET_MEMORY_TESTS = (
-    os.getenv("PYLIBWHOLEGRAPH_RUN_PARQUET_MEMORY_TESTS") == "1"
-)
+_RUN_PARQUET_MEMORY_TESTS = os.getenv("PYLIBWHOLEGRAPH_RUN_PARQUET_MEMORY_TESTS") == "1"
 _parquet_memory_test = pytest.mark.skipif(
     not _RUN_PARQUET_MEMORY_TESTS,
     reason=(

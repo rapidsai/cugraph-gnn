@@ -98,6 +98,7 @@ jobs:
       build_type: ${{ inputs.build_type || 'branch' }}
       container_image: "rapidsai/ci-conda:26.12-latest"
       date: ${{ inputs.date }}
+      node_type: "cpu8"
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}
     permissions:
