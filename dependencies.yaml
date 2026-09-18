@@ -340,7 +340,7 @@ dependencies:
       - output_types: [conda]
         packages:
           - breathe
-          - doxygen
+          - doxygen=1.18.0
           - graphviz
   py_version:
     specific:
