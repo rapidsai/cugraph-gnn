@@ -14,6 +14,98 @@ torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
 
 
+def _assign_unclaimed_node_batch(
+    batch: "torch.Tensor",
+    src: "torch.Tensor",
+    membership: "torch.Tensor",
+) -> None:
+    """Propagate owned memberships without overwriting earlier hops."""
+    valid = membership >= 0
+
+    # Indexed assignment is unsafe when a source occurs more than once: CUDA
+    # does not define which duplicate write wins. A reduction is deterministic,
+    # and all candidates must agree when the sampled seed trees are disjoint.
+    candidates = torch.full_like(batch, -1)
+    candidates.scatter_reduce_(
+        0,
+        src[valid],
+        membership[valid],
+        reduce="amax",
+        include_self=True,
+    )
+    unclaimed = (batch < 0) & (candidates >= 0)
+    batch[unclaimed] = candidates[unclaimed]
+
+
+def _propagate_homogeneous_node_batch(
+    row: "torch.Tensor",
+    col: "torch.Tensor",
+    num_sampled_edges: "torch.Tensor",
+    num_nodes: int,
+    seed_batch: "torch.Tensor",
+) -> "torch.Tensor":
+    """Propagate seed membership through a hop-ordered homogeneous sample."""
+    batch = torch.full((num_nodes,), -1, dtype=torch.int64, device=row.device)
+    batch[: seed_batch.numel()] = seed_batch
+
+    edge_start = 0
+    for edge_count in num_sampled_edges.tolist():
+        edge_end = edge_start + edge_count
+        _assign_unclaimed_node_batch(
+            batch,
+            row[edge_start:edge_end],
+            batch[col[edge_start:edge_end]],
+        )
+        edge_start = edge_end
+
+    return batch
+
+
+def _propagate_heterogeneous_node_batch(
+    node: Dict[str, "torch.Tensor"],
+    row: Dict[Tuple[str, str, str], "torch.Tensor"],
+    col: Dict[Tuple[str, str, str], "torch.Tensor"],
+    num_sampled_edges: Dict[Tuple[str, str, str], "torch.Tensor"],
+    input_type: str,
+    seed_batch: "torch.Tensor",
+) -> Dict[str, "torch.Tensor"]:
+    """Propagate seed membership through a hop-ordered heterogeneous sample."""
+    device = next(iter(row.values())).device
+    batch = {
+        node_type: torch.full((node_ids.numel(),), -1, dtype=torch.int64, device=device)
+        for node_type, node_ids in node.items()
+    }
+    batch[input_type][: seed_batch.numel()] = seed_batch
+
+    edge_starts = {edge_type: 0 for edge_type in row}
+    num_hops = max((counts.numel() for counts in num_sampled_edges.values()), default=0)
+    for hop in range(num_hops):
+        assignments = {}
+        for edge_type, edge_row in row.items():
+            edge_count = int(num_sampled_edges[edge_type][hop])
+            edge_start = edge_starts[edge_type]
+            edge_end = edge_start + edge_count
+            src_type, _, dst_type = edge_type
+            assignments.setdefault(src_type, []).append(
+                (
+                    edge_row[edge_start:edge_end],
+                    batch[dst_type][col[edge_type][edge_start:edge_end]],
+                )
+            )
+            edge_starts[edge_type] = edge_end
+
+        # Apply after collecting all edge types so ownership only propagates
+        # from the previous hop, never transitively within the current hop.
+        for src_type, src_assignments in assignments.items():
+            _assign_unclaimed_node_batch(
+                batch[src_type],
+                torch.cat([src for src, _ in src_assignments]),
+                torch.cat([membership for _, membership in src_assignments]),
+            )
+
+    return batch
+
+
 class SampleIterator:
     """
     Iterator that combines output graphs with their
@@ -242,6 +334,7 @@ class HeterogeneousSampleReader(SampleReader):
         vertex_offsets: "torch.Tensor",
         edge_types: List[Tuple[str, str, str]],
         vertex_types: List[str],
+        disjoint: bool = False,
     ):
         """
         Constructs a new HeterogeneousSampleReader
@@ -265,6 +358,8 @@ class HeterogeneousSampleReader(SampleReader):
         vertex_types: List[str]
             List of vertex types, in order so they can be mapped to
             numeric vertex types.
+        disjoint: bool, optional
+            Whether to construct seed-tree membership for disjoint node samples.
         """
 
         self.__src_types = src_types
@@ -272,6 +367,7 @@ class HeterogeneousSampleReader(SampleReader):
         self.__edge_types = edge_types
         self.__vertex_types = vertex_types
         self.__num_vertex_types = len(vertex_types)
+        self.__disjoint = disjoint
 
         self.__vertex_offsets = vertex_offsets
 
@@ -280,6 +376,39 @@ class HeterogeneousSampleReader(SampleReader):
     def __decode_coo(self, raw_sample_data: Dict[str, "torch.Tensor"], index: int):
         num_edge_types = self.__src_types.numel()
         fanout_length = raw_sample_data["fanout"].numel() // num_edge_types
+        num_samples = raw_sample_data["input_offsets"].numel() - 1
+        has_typed_renumber_map = raw_sample_data["renumber_map_offsets"].numel() == (
+            num_samples * self.__num_vertex_types + 1
+        )
+
+        if not has_typed_renumber_map and num_edge_types != 1:
+            raise ValueError(
+                "Heterogeneous sampling returned a global renumber map for "
+                "a graph with multiple edge types"
+            )
+
+        global_map = None
+        global_to_type_local = None
+        if not has_typed_renumber_map:
+            map_ptr_beg = raw_sample_data["renumber_map_offsets"][index]
+            map_ptr_end = raw_sample_data["renumber_map_offsets"][index + 1]
+            global_map = raw_sample_data["map"][map_ptr_beg:map_ptr_end]
+            global_to_type_local = []
+            for vertex_type in range(self.__num_vertex_types):
+                type_mask = (global_map >= self.__vertex_offsets[vertex_type]) & (
+                    global_map < self.__vertex_offsets[vertex_type + 1]
+                )
+                type_positions = torch.nonzero(type_mask, as_tuple=False).flatten()
+                lookup = torch.full(
+                    (global_map.numel(),),
+                    -1,
+                    dtype=torch.int64,
+                    device=global_map.device,
+                )
+                lookup[type_positions] = torch.arange(
+                    type_positions.numel(), device=global_map.device
+                )
+                global_to_type_local.append((type_positions, lookup))
 
         num_sampled_nodes = [
             torch.zeros((fanout_length + 1,), dtype=torch.int64, device="cuda")
@@ -301,23 +430,26 @@ class HeterogeneousSampleReader(SampleReader):
         for etype in range(num_edge_types):
             pyg_can_etype = self.__edge_types[etype]
 
-            jx = self.__src_types[etype] + index * self.__num_vertex_types
-            map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
-            map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
+            src_type = int(self.__src_types[etype])
+            dst_type = int(self.__dst_types[etype])
+            if has_typed_renumber_map:
+                jx = src_type + index * self.__num_vertex_types
+                map_ptr_src_beg = raw_sample_data["renumber_map_offsets"][jx]
+                map_ptr_src_end = raw_sample_data["renumber_map_offsets"][jx + 1]
+                map_src = raw_sample_data["map"][map_ptr_src_beg:map_ptr_src_end]
 
-            map_src = raw_sample_data["map"][map_ptr_src_beg:map_ptr_src_end]
-            node[pyg_can_etype[0]] = (
-                map_src - self.__vertex_offsets[self.__src_types[etype]]
-            ).cpu()
+                kx = dst_type + index * self.__num_vertex_types
+                map_ptr_dst_beg = raw_sample_data["renumber_map_offsets"][kx]
+                map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][kx + 1]
+                map_dst = raw_sample_data["map"][map_ptr_dst_beg:map_ptr_dst_end]
+            else:
+                src_positions, _ = global_to_type_local[src_type]
+                dst_positions, _ = global_to_type_local[dst_type]
+                map_src = global_map[src_positions]
+                map_dst = global_map[dst_positions]
 
-            kx = self.__dst_types[etype] + index * self.__num_vertex_types
-            map_ptr_dst_beg = raw_sample_data["renumber_map_offsets"][kx]
-            map_ptr_dst_end = raw_sample_data["renumber_map_offsets"][kx + 1]
-
-            map_dst = raw_sample_data["map"][map_ptr_dst_beg:map_ptr_dst_end]
-            node[pyg_can_etype[2]] = (
-                map_dst - self.__vertex_offsets[self.__dst_types[etype]]
-            ).cpu()
+            node[pyg_can_etype[0]] = (map_src - self.__vertex_offsets[src_type]).cpu()
+            node[pyg_can_etype[2]] = (map_dst - self.__vertex_offsets[dst_type]).cpu()
 
             edge_ptr_beg = (
                 index * num_edge_types * fanout_length + etype * fanout_length
@@ -325,33 +457,46 @@ class HeterogeneousSampleReader(SampleReader):
             edge_ptr_end = (
                 index * num_edge_types * fanout_length + (etype + 1) * fanout_length
             )
-            lho = raw_sample_data["label_type_hop_offsets"][
-                edge_ptr_beg : edge_ptr_end + 1
-            ]
+            lho_key = (
+                "label_type_hop_offsets"
+                if "label_type_hop_offsets" in raw_sample_data
+                else "label_hop_offsets"
+            )
+            lho = raw_sample_data[lho_key][edge_ptr_beg : edge_ptr_end + 1]
 
             num_sampled_edges[pyg_can_etype] = (lho).diff()
 
             eid_i = raw_sample_data["edge_id"][lho[0] : lho[-1]]
 
-            eirx = (index * num_edge_types) + etype
-            edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
-            edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
+            if "edge_renumber_map" in raw_sample_data:
+                eirx = (index * num_edge_types) + etype
+                edge_id_ptr_beg = raw_sample_data["edge_renumber_map_offsets"][eirx]
+                edge_id_ptr_end = raw_sample_data["edge_renumber_map_offsets"][eirx + 1]
+                emap = raw_sample_data["edge_renumber_map"][
+                    edge_id_ptr_beg:edge_id_ptr_end
+                ]
+                edge[pyg_can_etype] = emap[eid_i]
+            else:
+                edge[pyg_can_etype] = eid_i
 
-            emap = raw_sample_data["edge_renumber_map"][edge_id_ptr_beg:edge_id_ptr_end]
-            edge[pyg_can_etype] = emap[eid_i]
-
-            col[pyg_can_etype] = raw_sample_data["majors"][lho[0] : lho[-1]]
-            row[pyg_can_etype] = raw_sample_data["minors"][lho[0] : lho[-1]]
+            col_i = raw_sample_data["majors"][lho[0] : lho[-1]]
+            row_i = raw_sample_data["minors"][lho[0] : lho[-1]]
+            if not has_typed_renumber_map:
+                col_i = global_to_type_local[dst_type][1][col_i]
+                row_i = global_to_type_local[src_type][1][row_i]
+            col[pyg_can_etype] = col_i
+            row[pyg_can_etype] = row_i
 
             for hop in range(fanout_length):
-                vx = raw_sample_data["majors"][: lho[hop + 1]]
+                hop_end = lho[hop + 1] - lho[0]
+                vx = col[pyg_can_etype][:hop_end]
                 if vx.numel() > 0:
                     num_sampled_nodes[self.__dst_types[etype]][hop + 1] = torch.max(
                         num_sampled_nodes[self.__dst_types[etype]][hop + 1],
                         vx.max() + 1,
                     )
 
-                vy = raw_sample_data["minors"][: lho[hop + 1]]
+                vy = row[pyg_can_etype][:hop_end]
                 if vy.numel() > 0:
                     num_sampled_nodes[self.__src_types[etype]][hop + 1] = torch.max(
                         num_sampled_nodes[self.__src_types[etype]][hop + 1],
@@ -478,12 +623,29 @@ class HeterogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
 
+        batch = (
+            _propagate_heterogeneous_node_batch(
+                node,
+                row,
+                col,
+                num_sampled_edges,
+                input_type,
+                raw_sample_data["seed_batch"][
+                    raw_sample_data["input_offsets"][index] : raw_sample_data[
+                        "input_offsets"
+                    ][index + 1]
+                ],
+            )
+            if self.__disjoint and isinstance(input_type, str)
+            else None
+        )
+
         return torch_geometric.sampler.HeteroSamplerOutput(
             node=node,
             row=row,
             col=col,
             edge=edge,
-            batch=None,
+            batch=batch,
             num_sampled_nodes=num_sampled_nodes,
             num_sampled_edges=num_sampled_edges,
             metadata=metadata,
@@ -509,7 +671,9 @@ class HomogeneousSampleReader(SampleReader):
     """
 
     def __init__(
-        self, base_reader: Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]
+        self,
+        base_reader: Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]],
+        disjoint: bool = False,
     ):
         """
         Constructs a new HomogeneousSampleReader
@@ -520,6 +684,7 @@ class HomogeneousSampleReader(SampleReader):
             The iterator responsible for loading saved samples produced by
             the cuGraph distributed sampler.
         """
+        self.__disjoint = disjoint
         super().__init__(base_reader)
 
     def __decode_csc(
@@ -628,12 +793,28 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
 
+        col = torch_geometric.edge_index.ptr2index(major_offsets, edge_id.numel())
+
+        batch = None
+        if self.__disjoint and edge_inverse is None:
+            batch = _propagate_homogeneous_node_batch(
+                minors,
+                col,
+                num_sampled_edges,
+                renumber_map.numel(),
+                raw_sample_data["seed_batch"][
+                    raw_sample_data["input_offsets"][index] : raw_sample_data[
+                        "input_offsets"
+                    ][index + 1]
+                ],
+            )
+
         return torch_geometric.sampler.SamplerOutput(
             node=renumber_map.cpu(),
             row=minors,
-            col=major_offsets,
+            col=col,
             edge=edge_id.cpu(),
-            batch=renumber_map[:num_seeds],
+            batch=batch,
             num_sampled_nodes=num_sampled_nodes.cpu(),
             num_sampled_edges=num_sampled_edges.cpu(),
             metadata=metadata,
@@ -718,12 +899,28 @@ class HomogeneousSampleReader(SampleReader):
                 None,  # TODO this will eventually include time
             )
 
+        batch = (
+            _propagate_homogeneous_node_batch(
+                minors,
+                majors,
+                num_sampled_edges,
+                renumber_map.numel(),
+                raw_sample_data["seed_batch"][
+                    raw_sample_data["input_offsets"][index] : raw_sample_data[
+                        "input_offsets"
+                    ][index + 1]
+                ],
+            )
+            if self.__disjoint and edge_inverse is None
+            else None
+        )
+
         return torch_geometric.sampler.SamplerOutput(
             node=renumber_map.cpu(),
             row=minors,
             col=majors,
             edge=edge_id,
-            batch=renumber_map[:num_seeds],
+            batch=batch,
             num_sampled_nodes=num_sampled_nodes,
             num_sampled_edges=num_sampled_edges,
             metadata=metadata,
@@ -749,8 +946,10 @@ class BaseSampler:
         The distributed cuGraph neighbor sampler.
     data : Tuple[FeatureStore, GraphStore]
         The PyG feature store and graph store to sample from.
-    batch_size : int, optional
-        Number of input nodes or edges in each minibatch.
+        batch_size : int, optional
+            Number of input nodes or edges in each minibatch.
+        disjoint : bool, optional
+            Whether node samples are disjoint and need seed-tree membership.
     """
 
     def __init__(
@@ -760,10 +959,12 @@ class BaseSampler:
             "torch_geometric.data.FeatureStore", "torch_geometric.data.GraphStore"
         ],
         batch_size: int = 16,
+        disjoint: bool = False,
     ):
         self.__sampler = sampler
         self.__feature_store, self.__graph_store = data
         self.__batch_size = batch_size
+        self.__disjoint = disjoint
 
     def sample_from_nodes(
         self, index: "torch_geometric.sampler.NodeSamplerInput", **kwargs
@@ -795,7 +996,7 @@ class BaseSampler:
             len(edge_attrs) == 1
             and edge_attrs[0].edge_type[0] == edge_attrs[0].edge_type[2]
         ):
-            return HomogeneousSampleReader(reader)
+            return HomogeneousSampleReader(reader, disjoint=self.__disjoint)
         else:
             edge_types, src_types, dst_types = self.__graph_store._numeric_edge_types
 
@@ -806,6 +1007,7 @@ class BaseSampler:
                 edge_types=edge_types,
                 vertex_types=sorted(self.__graph_store._num_vertices().keys()),
                 vertex_offsets=self.__graph_store._vertex_offset_array,
+                disjoint=self.__disjoint,
             )
 
     def sample_from_edges(
