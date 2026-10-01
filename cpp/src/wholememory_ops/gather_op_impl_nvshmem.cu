@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #ifdef WITH_NVSHMEM_SUPPORT
@@ -25,7 +25,6 @@
 #include "wholememory_ops/register.hpp"
 #include "wholememory_ops/temp_memory_handle.hpp"
 #include "wholememory_ops/thrust_allocator.hpp"
-#include <cub/cub.cuh>
 #include <nvshmem.h>
 #include <nvshmemx.h>
 #include <thrust/sequence.h>
