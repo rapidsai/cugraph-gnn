@@ -10,6 +10,15 @@ if [[ "${CI:-}" == "true" ]]; then
   rm -rf /usr/lib64/libnccl*
 fi
 
+if [[ ! -d /tmp/gha-tools ]]; then
+  git clone \
+    --depth 1 \
+    --branch ci/proxy-cache \
+    https://github.com/rapidsai/gha-tools \
+    /tmp/gha-tools
+  export PATH="/tmp/gha-tools/tools:${PATH}"
+fi
+
 source rapids-init-pip
 
 LIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_cpp libwholegraph cugraph-gnn --cuda "$RAPIDS_CUDA_VERSION")")
