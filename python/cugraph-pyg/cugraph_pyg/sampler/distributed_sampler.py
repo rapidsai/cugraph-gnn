@@ -809,11 +809,21 @@ class DistributedNeighborSampler(BaseDistributedSampler):
     temporal : bool, optional
         Whether to apply temporal constraints during sampling.
     temporal_comparison : str, optional
-        Temporal comparison mode passed to pylibcugraph.
+        One of ``"strictly_increasing"``, ``"monotonically_increasing"``,
+        ``"strictly_decreasing"``, or ``"monotonically_decreasing"``.
+        Defaults to ``"monotonically_increasing"`` for fixed windows and
+        ``"monotonically_decreasing"`` for ordinary temporal walks.
     temporal_strategy : str, optional
         Temporal neighbor selection strategy (``"uniform"`` or ``"last"``).
+        ``"last"`` selects the latest eligible neighbors for increasing
+        comparisons and the earliest for decreasing comparisons. Both
+        strategies support ordinary walks and fixed windows.
     fixed_window : bool, optional
-        Whether to retain each seed's original time window at every hop.
+        Whether to retain each seed's original time window at every hop,
+        instead of updating the frontier time to the sampled edge time.
+        Enables temporal sampling. Both bounds are inclusive for monotonic
+        comparisons; strictly increasing excludes the lower bound and
+        strictly decreasing excludes the upper bound.
     vertex_type_offsets : TensorType, optional
         Offsets separating vertex types. Required for heterogeneous sampling.
     num_edge_types : int, optional
@@ -860,22 +870,18 @@ class DistributedNeighborSampler(BaseDistributedSampler):
                 "Invalid temporal strategy "
                 f"'{temporal_strategy}' (expected 'uniform' or 'last')"
             )
-        if fixed_window and temporal_comparison not in (
+        if temporal_comparison not in (
             None,
+            "strictly_increasing",
             "monotonically_increasing",
+            "strictly_decreasing",
+            "monotonically_decreasing",
         ):
-            raise ValueError(
-                "fixed-window sampling only supports 'monotonically_increasing' ordering; "
-                f"got temporal_comparison={temporal_comparison!r}"
-            )
+            raise ValueError(f"Invalid temporal comparison {temporal_comparison!r}")
         if temporal_strategy == "last":
             if not temporal:
                 raise ValueError(
                     "The 'last' temporal strategy requires temporal sampling"
-                )
-            if not fixed_window:
-                raise ValueError(
-                    "The 'last' temporal strategy requires fixed-window sampling"
                 )
             if with_replacement:
                 raise ValueError(
@@ -891,9 +897,13 @@ class DistributedNeighborSampler(BaseDistributedSampler):
 
         self.__fanout = fanout
         self.__fixed_window = fixed_window
-        self.__temporal_comparison = (
-            temporal_comparison or "monotonically_decreasing" if temporal else None
-        )
+        if temporal_comparison is None:
+            temporal_comparison = (
+                "monotonically_increasing"
+                if fixed_window
+                else "monotonically_decreasing"
+            )
+        self.__temporal_comparison = temporal_comparison if temporal else None
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),
             "prior_sources_behavior": prior_sources_behavior,
