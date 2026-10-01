@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -172,6 +172,94 @@ def test_neighbor_loader_biased_mg():
             uid,
             world_size,
         ),
+        nprocs=world_size,
+    )
+
+
+def run_test_neighbor_loader_temporal_comparisons_mg(
+    rank, uid, world_size, comparison, strategy
+):
+    init_pytorch_worker(rank, world_size, uid)
+    try:
+        # Each rank contributes a component with one seed and two sampling hops.
+        src = torch.tensor([0, 1, 1, 1, 1, 1]) + 7 * rank
+        dst = torch.tensor([1, 2, 3, 4, 5, 6]) + 7 * rank
+        graph_store = GraphStore()
+        feature_store = FeatureStore()
+        edge_type = ("paper", "cites", "paper")
+        size = (7 * world_size, 7 * world_size)
+        graph_store[edge_type, "coo", False, size] = [dst, src]
+        feature_store[edge_type, "time", None] = torch.tensor(
+            [2, 0, 1, 2, 3, 4], dtype=torch.int32
+        )
+        increasing = comparison.endswith("_increasing")
+
+        for fixed_window in [False, True]:
+            if fixed_window:
+                time_args = dict(
+                    input_start_time=torch.tensor([1], dtype=torch.int32),
+                    input_end_time=torch.tensor([3], dtype=torch.int32),
+                )
+                expected = {
+                    "monotonically_increasing": [2, 3, 4],
+                    "strictly_increasing": [3, 4],
+                    "monotonically_decreasing": [2, 3, 4],
+                    "strictly_decreasing": [2, 3],
+                }[comparison]
+            else:
+                time_args = dict(
+                    input_time=torch.tensor([1 if increasing else 3], dtype=torch.int32)
+                )
+                expected = {
+                    "monotonically_increasing": [3, 4, 5],
+                    "strictly_increasing": [4, 5],
+                    "monotonically_decreasing": [1, 2, 3],
+                    "strictly_decreasing": [1, 2],
+                }[comparison]
+            if strategy == "last":
+                expected = [max(expected) if increasing else min(expected)]
+
+            loader = NeighborLoader(
+                (feature_store, graph_store),
+                num_neighbors=[1, 1 if strategy == "last" else 5],
+                input_nodes=torch.tensor([7 * rank]),
+                time_attr="time",
+                temporal_strategy=strategy,
+                temporal_comparison=comparison,
+                batch_size=1,
+                shuffle=False,
+                **time_args,
+            )
+            (out,) = list(loader)
+            assert sorted((out.e_id - 6 * rank).tolist()) == [0] + expected
+            assert out.num_sampled_edges.tolist() == [1, len(expected)]
+    finally:
+        cugraph_comms_shutdown()
+        pylibwholegraph.torch.initialize.finalize()
+        torch.distributed.destroy_process_group()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize(
+    "comparison",
+    [
+        "monotonically_increasing",
+        "strictly_increasing",
+        "monotonically_decreasing",
+        "strictly_decreasing",
+    ],
+)
+@pytest.mark.parametrize("strategy", ["uniform", "last"])
+@pytest.mark.mg
+def test_neighbor_loader_temporal_comparisons_mg(comparison, strategy):
+    world_size = torch.cuda.device_count()
+    if world_size < 2:
+        pytest.skip("requires at least two GPUs")
+    uid = cugraph_comms_create_unique_id()
+    os.environ["LOCAL_WORLD_SIZE"] = str(world_size)
+    torch.multiprocessing.spawn(
+        run_test_neighbor_loader_temporal_comparisons_mg,
+        args=(uid, world_size, comparison, strategy),
         nprocs=world_size,
     )
 
