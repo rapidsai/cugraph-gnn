@@ -42,6 +42,15 @@ if [[ "${package_name}" != "libwholegraph" ]]; then
     )
 fi
 
+if [[ -d /tmp/gha-tools ]]; then
+  git clone \
+    --depth 1 \
+    --branch ci/proxy-cache \
+    https://github.com/rapidsai/gha-tools \
+    /tmp/gha-tools
+  export PATH="/tmp/gha-tools/tools:${PATH}"
+fi
+
 source rapids-configure-sccache
 source rapids-datetime-string
 source rapids-init-pip
