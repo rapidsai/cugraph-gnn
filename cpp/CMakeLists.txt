@@ -296,7 +296,7 @@ rapids_export(
 # ##################################################################################################
 # * doxygen docs -------------------------------------------------------------
 
-find_package(Doxygen 1.8.11)
+find_package(Doxygen 1.18.0)
 if(Doxygen_FOUND)
   add_custom_command(
     OUTPUT WHOLEGRAPH_DOXYGEN
