@@ -1,3 +1,8 @@
+# cugraph-gnn 26.10.00 (Unreleased)
+
+### 🛠️ Improvements
+* Expose all temporal comparisons for fixed-window sampling, allow LAST on ordinary temporal walks, and default fixed windows to monotonically increasing by @alexbarghi-nv in https://github.com/rapidsai/cugraph-gnn/pull/550
+
 # cugraph-gnn 26.08.00 (5 Aug 2026)
 
 ### 🚨 Breaking Changes
