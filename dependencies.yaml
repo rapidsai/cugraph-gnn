@@ -589,10 +589,6 @@ dependencies:
       - output_types: conda
         packages:
           - &pylibwholegraph_unsuffixed pylibwholegraph==26.12.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
       - output_types: [requirements, pyproject]
         matrices:
@@ -727,7 +723,7 @@ dependencies:
       - output_types: requirements
         packages:
           # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+          - --extra-index-url=pypi.nvidia.com
     specific:
       - output_types: [requirements, pyproject]
         matrices:
@@ -749,10 +745,6 @@ dependencies:
       - output_types: conda
         packages:
           - &cuml_unsuffixed cuml==26.12.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
       - output_types: [requirements, pyproject]
         matrices:
@@ -774,10 +766,6 @@ dependencies:
       - output_types: conda
         packages:
           - &cudf_unsuffixed cudf==26.12.*,>=0.0.0a0
-      - output_types: requirements
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
     specific:
       - output_types: [requirements, pyproject]
         matrices:
