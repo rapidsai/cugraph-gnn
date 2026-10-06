@@ -4,15 +4,6 @@
 
 set -euo pipefail
 
-if [[ ! -d /tmp/gha-tools ]]; then
-  git clone \
-    --depth 1 \
-    --branch ci/proxy-cache \
-    https://github.com/rapidsai/gha-tools \
-    /tmp/gha-tools
-  export PATH="/tmp/gha-tools/tools:${PATH}"
-fi
-
 source rapids-init-pip
 
 package_dir="python/pylibwholegraph"
