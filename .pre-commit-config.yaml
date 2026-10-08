@@ -58,6 +58,10 @@ repos:
             [.]flake8$|
             [.]coveragerc$
       - id: verify-alpha-spec
+        args:
+          - --fix
+          - --mode
+          - release
       - id: verify-hardcoded-version
         exclude: |
           (?x)
