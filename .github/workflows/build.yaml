@@ -48,7 +48,7 @@ jobs:
   build-details:
     uses: rapidsai/shared-workflows/.github/workflows/compute-build-details.yaml@main
   cpp-build:
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     needs: [build-details]
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
@@ -66,7 +66,7 @@ jobs:
       pull-requests: read
   python-build:
     needs: [build-details, cpp-build]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -84,7 +84,7 @@ jobs:
       pull-requests: read
   python-build-noarch:
     needs: [build-details, cpp-build, python-build]
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -138,7 +138,7 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-cugraph-pyg:
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     needs: [build-details]
     with:
       # This selects "ARCH=amd64 + the latest supported Python + CUDA".
@@ -181,7 +181,7 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-libwholegraph:
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     needs: [build-details]
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
@@ -203,7 +203,7 @@ jobs:
       pull-requests: read
   wheel-build-pylibwholegraph:
     needs: [build-details, wheel-build-libwholegraph]
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@f21ce227be8bfb9351989684f3fc5809b9cd703d
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@9ac257258ee48137e797fc3e122f992f9ab17b9c
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
