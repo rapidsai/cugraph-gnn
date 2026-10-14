@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <wholememory/wholememory.h>
@@ -19,7 +19,20 @@ wholememory_error_code_t wholememory_init(unsigned int flags, LogLevel log_level
   return wholememory::init(flags, log_level);
 }
 
-wholememory_error_code_t wholememory_finalize() { return wholememory::finalize(); }
+wholememory_error_code_t wholememory_finalize()
+{
+  auto const result = wholememory::finalize();
+  if (result == WHOLEMEMORY_SUCCESS) { wholememory::set_rmm_enabled(false); }
+  return result;
+}
+
+wholememory_error_code_t wholememory_set_rmm_enabled(bool enabled)
+{
+  wholememory::set_rmm_enabled(enabled);
+  return WHOLEMEMORY_SUCCESS;
+}
+
+bool wholememory_is_rmm_enabled() { return wholememory::is_rmm_enabled(); }
 
 wholememory_error_code_t wholememory_create_unique_id(wholememory_unique_id_t* unique_id)
 {

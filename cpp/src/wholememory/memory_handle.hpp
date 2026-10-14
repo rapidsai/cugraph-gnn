@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -23,6 +23,10 @@ struct wholememory_handle_ {
 };
 
 namespace wholememory {
+
+void set_rmm_enabled(bool enabled) noexcept;
+
+bool is_rmm_enabled() noexcept;
 
 wholememory_error_code_t create_wholememory(wholememory_handle_t* wholememory_handle_ptr,
                                             size_t total_size,

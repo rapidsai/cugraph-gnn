@@ -49,50 +49,6 @@ class BaseDistributedSampler:
     ...     pass
     """
 
-    # homogeneous/heterogeneous, uniform/biased, temporal?
-    _func_table = {
-        (
-            "homogeneous",
-            "uniform",
-            True,
-        ): pylibcugraph.homogeneous_uniform_temporal_neighbor_sample,
-        (
-            "homogeneous",
-            "uniform",
-            False,
-        ): pylibcugraph.homogeneous_uniform_neighbor_sample,
-        (
-            "homogeneous",
-            "biased",
-            True,
-        ): pylibcugraph.homogeneous_biased_temporal_neighbor_sample,
-        (
-            "homogeneous",
-            "biased",
-            False,
-        ): pylibcugraph.homogeneous_biased_neighbor_sample,
-        (
-            "heterogeneous",
-            "uniform",
-            True,
-        ): pylibcugraph.heterogeneous_uniform_temporal_neighbor_sample,
-        (
-            "heterogeneous",
-            "uniform",
-            False,
-        ): pylibcugraph.heterogeneous_uniform_neighbor_sample,
-        (
-            "heterogeneous",
-            "biased",
-            True,
-        ): pylibcugraph.heterogeneous_biased_temporal_neighbor_sample,
-        (
-            "heterogeneous",
-            "biased",
-            False,
-        ): pylibcugraph.heterogeneous_biased_neighbor_sample,
-    }
-
     def __init__(
         self,
         graph: Union[pylibcugraph.SGGraph, pylibcugraph.MGGraph],
@@ -128,10 +84,11 @@ class BaseDistributedSampler:
     def sample_batches(
         self,
         seeds: TensorType,
-        time: Optional[TensorType],
+        seed_times: Optional[TensorType],
         batch_id_offsets: TensorType,
+        seed_start_times: Optional[TensorType] = None,
+        seed_end_times: Optional[TensorType] = None,
         random_state: int = 0,
-        assume_equal_input_size: bool = False,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Dict[str, TensorType]:
         """
@@ -142,18 +99,21 @@ class BaseDistributedSampler:
         ----------
         seeds: TensorType
             Input seeds for a single call group (node ids).
-        time: Optional[TensorType]
-            Input times for a single call group (node times).
+        seed_times: Optional[TensorType]
+            Per-seed times for temporal sampling (non-fixed-window).  Mutually
+            exclusive with ``seed_start_times`` / ``seed_end_times``.
         batch_id_offsets: TensorType
             Offsets (start/end) of each batch.  i.e. 0, 5, 10
             corresponds to 2 batches, the first from index 0-4,
             inclusive, and the second from index 5-9, inclusive.
+        seed_start_times: Optional[TensorType]
+            Per-seed lower time-window bounds for fixed-window sampling.
+            Must be provided together with ``seed_end_times``.
+        seed_end_times: Optional[TensorType]
+            Per-seed upper time-window bounds for fixed-window sampling.
+            Must be provided together with ``seed_start_times``.
         random_state: int
             The random seed to use for sampling.
-        assume_equal_input_size: bool
-            If True, will assume all ranks have the same number of inputs,
-            and will skip the synchronization/gather steps to check for
-            and handle uneven inputs.
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
             Metadata for the graph.  This is used to determine the
             type of the graph and the edge types.  This is only
@@ -221,7 +181,11 @@ class BaseDistributedSampler:
         self,
         call_id: int,
         current_seeds_and_ix: Tuple[
-            "torch.Tensor", "torch.Tensor", Optional["torch.Tensor"]
+            "torch.Tensor",
+            "torch.Tensor",
+            Optional["torch.Tensor"],
+            Optional["torch.Tensor"],
+            Optional["torch.Tensor"],
         ],
         batch_id_start: int,
         batch_size: int,
@@ -230,7 +194,13 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]],
     ) -> Union[None, Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]]:
-        current_seeds, current_ix, current_time = current_seeds_and_ix
+        (
+            current_seeds,
+            current_ix,
+            current_time,
+            current_start_time,
+            current_end_time,
+        ) = current_seeds_and_ix
 
         # do qr division to get the number of batch_size batches and the
         # size of the last batch
@@ -249,6 +219,8 @@ class BaseDistributedSampler:
         minibatch_dict = self.sample_batches(
             seeds=current_seeds,
             seed_times=current_time,
+            seed_start_times=current_start_time,
+            seed_end_times=current_end_time,
             batch_id_offsets=input_offsets,
             random_state=random_state,
             metadata=metadata,
@@ -284,8 +256,12 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         label: Optional[TensorType] = None,
         input_time: Optional[TensorType] = None,
+        input_start_time: Optional[TensorType] = None,
+        input_end_time: Optional[TensorType] = None,
     ):
         time_call_groups = None
+        start_time_call_groups = None
+        end_time_call_groups = None
         label_call_groups = None
 
         # Split the input seeds into call groups.  Each call group
@@ -295,6 +271,12 @@ class BaseDistributedSampler:
         index_call_groups = torch.split(input_id, seeds_per_call, dim=-1)
         if input_time is not None:
             time_call_groups = torch.split(input_time, seeds_per_call, dim=-1)
+        if input_start_time is not None:
+            start_time_call_groups = torch.split(
+                input_start_time, seeds_per_call, dim=-1
+            )
+        if input_end_time is not None:
+            end_time_call_groups = torch.split(input_end_time, seeds_per_call, dim=-1)
         if label is not None:
             label_call_groups = torch.split(label, seeds_per_call, dim=-1)
 
@@ -327,9 +309,35 @@ class BaseDistributedSampler:
                     [torch.tensor([], dtype=input_time.dtype, device=input_time.device)]
                     * (int(num_call_groups) - len(time_call_groups))
                 )
+            if input_start_time is not None:
+                start_time_call_groups = list(start_time_call_groups) + (
+                    [
+                        torch.tensor(
+                            [],
+                            dtype=input_start_time.dtype,
+                            device=input_start_time.device,
+                        )
+                    ]
+                    * (int(num_call_groups) - len(start_time_call_groups))
+                )
+            if input_end_time is not None:
+                end_time_call_groups = list(end_time_call_groups) + (
+                    [
+                        torch.tensor(
+                            [],
+                            dtype=input_end_time.dtype,
+                            device=input_end_time.device,
+                        )
+                    ]
+                    * (int(num_call_groups) - len(end_time_call_groups))
+                )
 
         if time_call_groups is None:
             time_call_groups = [None] * len(seeds_call_groups)
+        if start_time_call_groups is None:
+            start_time_call_groups = [None] * len(seeds_call_groups)
+        if end_time_call_groups is None:
+            end_time_call_groups = [None] * len(seeds_call_groups)
         if label_call_groups is None:
             label_call_groups = [torch.tensor([], dtype=torch.int32)] * len(
                 seeds_call_groups
@@ -340,6 +348,8 @@ class BaseDistributedSampler:
             "index": index_call_groups,
             "label": label_call_groups,
             "time": time_call_groups,
+            "start_time": start_time_call_groups,
+            "end_time": end_time_call_groups,
         }
 
     def sample_from_nodes(
@@ -351,6 +361,8 @@ class BaseDistributedSampler:
         assume_equal_input_size: bool = False,
         input_id: Optional[TensorType] = None,
         input_time: Optional[TensorType] = None,
+        input_start_time: Optional[TensorType] = None,
+        input_end_time: Optional[TensorType] = None,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Iterator[Tuple[Dict[str, "torch.Tensor"], int, int]]:
         """
@@ -377,6 +389,10 @@ class BaseDistributedSampler:
             will be saved with the samples.
         input_time: Optional[TensorType]
             Input times associated with each input node.
+        input_start_time: Optional[TensorType]
+            Lower time-window bounds associated with each input node.
+        input_end_time: Optional[TensorType]
+            Upper time-window bounds associated with each input node.
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]]
             Metadata for the graph.  This is used to determine the
             type of the graph and the edge types.  This is only
@@ -407,6 +423,8 @@ class BaseDistributedSampler:
             actual_seeds_per_call,
             assume_equal_input_size=input_size_is_equal,
             input_time=input_time,
+            input_start_time=input_start_time,
+            input_end_time=input_end_time,
         )
 
         sample_args = [
@@ -420,7 +438,13 @@ class BaseDistributedSampler:
 
         # Buffered sampling
         return BufferedSampleReader(
-            zip(call_groups["seeds"], call_groups["index"], call_groups["time"]),
+            zip(
+                call_groups["seeds"],
+                call_groups["index"],
+                call_groups["time"],
+                call_groups["start_time"],
+                call_groups["end_time"],
+            ),
             self.__sample_from_nodes_func,
             *sample_args,
         )
@@ -786,6 +810,10 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         Whether to apply temporal constraints during sampling.
     temporal_comparison : str, optional
         Temporal comparison mode passed to pylibcugraph.
+    temporal_strategy : str, optional
+        Temporal neighbor selection strategy (``"uniform"`` or ``"last"``).
+    fixed_window : bool, optional
+        Whether to retain each seed's original time window at every hop.
     vertex_type_offsets : TensorType, optional
         Offsets separating vertex types. Required for heterogeneous sampling.
     num_edge_types : int, optional
@@ -817,13 +845,55 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         heterogeneous: bool = False,
         temporal: bool = False,
         temporal_comparison: Optional[str] = None,
+        temporal_strategy: str = "uniform",
+        fixed_window: bool = False,
         vertex_type_offsets: Optional[TensorType] = None,
         num_edge_types: int = 1,
     ):
+        # fixed_window implies temporal — enable it automatically rather than
+        # requiring the caller to pass both flags.
+        if fixed_window and not temporal:
+            temporal = True
+
+        if temporal_strategy not in ("uniform", "last"):
+            raise ValueError(
+                "Invalid temporal strategy "
+                f"'{temporal_strategy}' (expected 'uniform' or 'last')"
+            )
+        if fixed_window and temporal_comparison not in (
+            None,
+            "monotonically_increasing",
+        ):
+            raise ValueError(
+                "fixed-window sampling only supports 'monotonically_increasing' ordering; "
+                f"got temporal_comparison={temporal_comparison!r}"
+            )
+        if temporal_strategy == "last":
+            if not temporal:
+                raise ValueError(
+                    "The 'last' temporal strategy requires temporal sampling"
+                )
+            if not fixed_window:
+                raise ValueError(
+                    "The 'last' temporal strategy requires fixed-window sampling"
+                )
+            if with_replacement:
+                raise ValueError(
+                    "The 'last' temporal strategy does not support replacement"
+                )
+            if biased:
+                raise ValueError(
+                    "The 'last' temporal strategy does not support biased sampling"
+                )
+
         # pylibcugraph requires temporal sampling to be disjoint.
         disjoint = disjoint or temporal
 
         self.__fanout = fanout
+        self.__fixed_window = fixed_window
+        self.__temporal_comparison = (
+            temporal_comparison or "monotonically_decreasing" if temporal else None
+        )
         self.__func_kwargs = {
             "h_fan_out": np.asarray(fanout, dtype="int32"),
             "prior_sources_behavior": prior_sources_behavior,
@@ -833,25 +903,12 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "compression": compression,
             "with_replacement": with_replacement,
             "disjoint_sampling": disjoint,
+            "num_edge_types": num_edge_types,
+            "use_edge_weights_as_biases": biased,
+            "temporal_sampling_comparison": self.__temporal_comparison,
+            "neighbor_selection": "last" if temporal_strategy == "last" else "random",
+            "fixed_window": fixed_window,
         }
-
-        # It is currently required that graphs are weighted for biased
-        # sampling.  So setting the function here is safe.  In the future,
-        # if libcugraph allows setting a new attribute, this API might
-        # change.
-
-        self.__func = self._func_table[
-            (
-                "heterogeneous" if heterogeneous else "homogeneous",
-                "uniform" if not biased else "biased",
-                temporal,
-            )
-        ]
-
-        if temporal:
-            self.__func_kwargs["temporal_property_name"] = "time"
-            self.__func_kwargs["temporal_sampling_comparison"] = temporal_comparison
-            self.__func_kwargs["starting_vertex_start_times"] = None
 
         if heterogeneous:
             if vertex_type_offsets is None:
@@ -923,6 +980,8 @@ class DistributedNeighborSampler(BaseDistributedSampler):
         seeds: TensorType,
         seed_times: Optional[TensorType],
         batch_id_offsets: TensorType,
+        seed_start_times: Optional[TensorType] = None,
+        seed_end_times: Optional[TensorType] = None,
         random_state: int = 0,
         metadata: Optional[Dict[str, Union[str, Tuple[str, str, str]]]] = None,
     ) -> Dict[str, TensorType]:
@@ -940,10 +999,44 @@ class DistributedNeighborSampler(BaseDistributedSampler):
             "random_state": random_state + rank,
         }
         kwargs.update(self.__func_kwargs)
-        if seed_times is not None:
-            kwargs.update({"starting_vertex_start_times": cupy.asarray(seed_times)})
+        if seed_times is not None and (
+            seed_start_times is not None or seed_end_times is not None
+        ):
+            raise ValueError(
+                "input_time cannot be combined with input_start_time or input_end_time"
+            )
+        if (seed_start_times is None) != (seed_end_times is None):
+            raise ValueError(
+                "input_start_time and input_end_time must be provided together"
+            )
 
-        sampling_results_dict = self.__func(**kwargs)
+        if seed_times is not None:
+            if self.__fixed_window:
+                raise ValueError(
+                    "fixed-window sampling requires input_start_time and "
+                    "input_end_time instead of input_time"
+                )
+            time_key = (
+                "starting_vertex_start_times"
+                if self.__temporal_comparison
+                in ("strictly_increasing", "monotonically_increasing")
+                else "starting_vertex_end_times"
+            )
+            kwargs[time_key] = cupy.asarray(seed_times)
+        elif seed_start_times is not None:
+            if not self.__fixed_window:
+                raise ValueError(
+                    "input_start_time and input_end_time require fixed-window sampling"
+                )
+            kwargs["starting_vertex_start_times"] = cupy.asarray(seed_start_times)
+            kwargs["starting_vertex_end_times"] = cupy.asarray(seed_end_times)
+        elif self.__fixed_window:
+            raise ValueError(
+                "fixed-window sampling requires both input_start_time and "
+                "input_end_time"
+            )
+
+        sampling_results_dict = pylibcugraph.neighbor_sample(**kwargs)
 
         sampling_results_dict["fanout"] = cupy.array(self.__fanout, dtype="int32")
         sampling_results_dict["rank"] = rank

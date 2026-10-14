@@ -1,6 +1,6 @@
 # =============================================================================
 # cmake-format: off
-# SPDX-FileCopyrightText: Copyright (c) 2018-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2018-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 # cmake-format: on
 # =============================================================================
@@ -21,6 +21,15 @@ project(
   VERSION "${RAPIDS_VERSION}"
   LANGUAGES CXX CUDA
 )
+
+# Find CMake packages provided by installed wheels.
+find_package(Python COMPONENTS Interpreter)
+if(Python_FOUND)
+  include(${rapids-cmake-dir}/cython-core/find_prefix_paths.cmake)
+  rapids_cython_find_prefix_paths("${Python_EXECUTABLE}" wheel_prefix_paths)
+  set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS TRUE)
+  list(PREPEND CMAKE_PREFIX_PATH ${wheel_prefix_paths})
+endif()
 
 # Write the version header
 rapids_cmake_write_version_file(include/wholegraph/version_config.hpp)
@@ -105,6 +114,7 @@ endif()
 
 rapids_cpm_init()
 
+include(./cmake/thirdparty/get_rmm.cmake)
 include(./cmake/thirdparty/get_raft.cmake)
 include(./cmake/thirdparty/get_nccl.cmake)
 if(BUILD_WITH_NVSHMEM)
@@ -168,7 +178,7 @@ target_include_directories(
 target_link_libraries(
   wholegraph
   PUBLIC CUDA::cuda_driver CUDA::cudart_static raft::raft
-  PRIVATE NCCL::NCCL
+  PRIVATE NCCL::NCCL rmm::rmm
 )
 
 if(CUDAToolkit_VERSION VERSION_GREATER "12.3")
@@ -286,7 +296,7 @@ rapids_export(
 # ##################################################################################################
 # * doxygen docs -------------------------------------------------------------
 
-find_package(Doxygen 1.8.11)
+find_package(Doxygen 1.18.0)
 if(Doxygen_FOUND)
   add_custom_command(
     OUTPUT WHOLEGRAPH_DOXYGEN

@@ -16,6 +16,12 @@ CUGRAPH_PYG_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name whe
 # generate constraints (possibly pinning to oldest support versions of dependencies)
 rapids-generate-pip-constraints test_cugraph_pyg "${PIP_CONSTRAINT}" constraints
 
+# notes:
+#
+#   * echo to expand wildcard before adding `[extra]` requires for pip
+#   * '--extra-index-url pypi.nvidia.com' can be removed when 'cugraph' and
+#     its dependencies are available from pypi.org
+#
 PIP_INSTALL_ARGS=(
   --prefer-binary
   --constraint "${PIP_CONSTRAINT}"
@@ -51,12 +57,6 @@ else
   )
 fi
 
-# notes:
-#
-#   * echo to expand wildcard before adding `[extra]` requires for pip
-#   * '--extra-index-url pypi.nvidia.com' can be removed when 'cugraph' and
-#     its dependencies are available from pypi.org
-#
 rapids-pip-retry install \
   "${PIP_INSTALL_ARGS[@]}"
 

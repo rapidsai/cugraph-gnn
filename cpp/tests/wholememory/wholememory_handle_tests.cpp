@@ -1,8 +1,13 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <gtest/gtest.h>
+
+#include <rmm/mr/per_device_resource.hpp>
+#include <rmm/mr/statistics_resource_adaptor.hpp>
+
+#include <utility>
 
 #include "parallel_utils.hpp"
 #include "wholememory/communicator.hpp"
@@ -193,3 +198,139 @@ INSTANTIATE_TEST_SUITE_P(
                     std::make_tuple(WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_ML_HOST),
                     std::make_tuple(WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_ML_DEVICE)));
 #endif
+
+TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
+{
+  int dev_count = ForkGetDeviceCount();
+  EXPECT_GE(dev_count, 1);
+  WHOLEMEMORY_CHECK(dev_count >= 1);
+  std::vector<std::array<int, 2>> pipes;
+  CreatePipes(&pipes, dev_count);
+  MultiProcessRun(
+    dev_count,
+    [&pipes](int rank, int world_size) {
+      EXPECT_EQ(wholememory_init(0), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(cudaSetDevice(rank), cudaSuccess);
+
+      wholememory_comm_t wm_comm = create_communicator_by_pipes(pipes, rank, world_size);
+
+      // Wrap the original device resource with counters so the test can distinguish allocations
+      // made through RMM from allocations made through WholeMemory's specialized CUDA paths.
+      auto const upstream_mr = rmm::mr::get_current_device_resource_ref();
+      rmm::mr::statistics_resource_adaptor statistics_mr{upstream_mr};
+      rmm::mr::statistics_resource_adaptor alternate_statistics_mr{upstream_mr};
+      auto previous_mr =
+        rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+
+      EXPECT_FALSE(wholememory_is_rmm_enabled());
+
+      size_t constexpr total_size{1024UL * 1024UL};
+      size_t constexpr granularity{128UL};
+
+      // RMM is opt-in: a distributed device allocation must use the legacy allocator while the
+      // feature is disabled.
+      auto const disabled_allocations_before = statistics_mr.get_allocations_counter().total;
+      wholememory_handle_t disabled_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&disabled_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, disabled_allocations_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(disabled_handle), WHOLEMEMORY_SUCCESS);
+
+      EXPECT_EQ(wholememory_set_rmm_enabled(true), WHOLEMEMORY_SUCCESS);
+      EXPECT_TRUE(wholememory_is_rmm_enabled());
+
+      // A supported device allocation uses whichever resource is current when it is created, and
+      // the resulting buffer remembers that resource for deallocation.
+      auto const retained_allocations_before = statistics_mr.get_allocations_counter().total;
+      auto const retained_bytes_before       = statistics_mr.get_bytes_counter().value;
+      wholememory_handle_t retained_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&retained_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_GT(statistics_mr.get_allocations_counter().total, retained_allocations_before);
+      EXPECT_GT(statistics_mr.get_bytes_counter().value, retained_bytes_before);
+      auto const original_allocations_after_first = statistics_mr.get_allocations_counter().total;
+
+      auto const alternate_allocations_before =
+        alternate_statistics_mr.get_allocations_counter().total;
+      auto const alternate_bytes_before = alternate_statistics_mr.get_bytes_counter().value;
+      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{alternate_statistics_mr});
+
+      wholememory_handle_t alternate_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&alternate_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_DEVICE,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, original_allocations_after_first);
+      EXPECT_GT(alternate_statistics_mr.get_allocations_counter().total,
+                alternate_allocations_before);
+      EXPECT_GT(alternate_statistics_mr.get_bytes_counter().value, alternate_bytes_before);
+
+      EXPECT_EQ(wholememory::destroy_wholememory(alternate_handle), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(alternate_statistics_mr.get_bytes_counter().value, alternate_bytes_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(retained_handle), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_bytes_counter().value, retained_bytes_before);
+      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+
+      // These are the two WholeMemory device-storage modes supported by the RMM allocation path.
+      for (auto memory_type : {WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_MT_HIERARCHY}) {
+        auto const allocations_before = statistics_mr.get_allocations_counter().total;
+        auto const bytes_before       = statistics_mr.get_bytes_counter().value;
+        wholememory_handle_t handle;
+        EXPECT_EQ(wholememory::create_wholememory(
+                    &handle, total_size, wm_comm, memory_type, WHOLEMEMORY_ML_DEVICE, granularity),
+                  WHOLEMEMORY_SUCCESS);
+        EXPECT_GT(statistics_mr.get_allocations_counter().total, allocations_before);
+        EXPECT_GT(statistics_mr.get_bytes_counter().value, bytes_before);
+        EXPECT_EQ(wholememory::destroy_wholememory(handle), WHOLEMEMORY_SUCCESS);
+        EXPECT_EQ(statistics_mr.get_bytes_counter().value, bytes_before);
+      }
+
+      // Chunked and continuous device storage require CUDA IPC or virtual-memory APIs, so enabling
+      // RMM must leave both on their existing allocation paths.
+      for (auto memory_type : {WHOLEMEMORY_MT_CHUNKED, WHOLEMEMORY_MT_CONTINUOUS}) {
+        auto const fallback_allocations_before = statistics_mr.get_allocations_counter().total;
+        wholememory_handle_t fallback_handle;
+        EXPECT_EQ(
+          wholememory::create_wholememory(
+            &fallback_handle, total_size, wm_comm, memory_type, WHOLEMEMORY_ML_DEVICE, granularity),
+          WHOLEMEMORY_SUCCESS);
+        EXPECT_EQ(statistics_mr.get_allocations_counter().total, fallback_allocations_before);
+        EXPECT_EQ(wholememory::destroy_wholememory(fallback_handle), WHOLEMEMORY_SUCCESS);
+      }
+
+      // Host storage is also outside the scope of the RMM device allocator.
+      auto const host_allocations_before = statistics_mr.get_allocations_counter().total;
+      wholememory_handle_t host_handle;
+      EXPECT_EQ(wholememory::create_wholememory(&host_handle,
+                                                total_size,
+                                                wm_comm,
+                                                WHOLEMEMORY_MT_DISTRIBUTED,
+                                                WHOLEMEMORY_ML_HOST,
+                                                granularity),
+                WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(statistics_mr.get_allocations_counter().total, host_allocations_before);
+      EXPECT_EQ(wholememory::destroy_wholememory(host_handle), WHOLEMEMORY_SUCCESS);
+
+      // Successful finalization resets the process-wide opt-in for the next initialization.
+      EXPECT_EQ(wholememory::destroy_all_communicators(), WHOLEMEMORY_SUCCESS);
+      EXPECT_EQ(wholememory_finalize(), WHOLEMEMORY_SUCCESS);
+      EXPECT_FALSE(wholememory_is_rmm_enabled());
+      rmm::mr::set_current_device_resource(std::move(previous_mr));
+      WHOLEMEMORY_CHECK(::testing::Test::HasFailure() == false);
+    },
+    true);
+  ClosePipes(&pipes);
+}

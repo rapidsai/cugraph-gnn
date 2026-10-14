@@ -7,7 +7,7 @@ import os
 from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
-from cugraph_pyg.tensor.utils import has_nvlink_network, is_empty
+from cugraph_pyg.tensor.utils import is_empty
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 
@@ -44,17 +44,19 @@ class FeatureStore(
     visible to the store. Indexed insertion of a DistTensor is not supported.
     """
 
-    def __init__(self, memory_type=None, location="cpu"):
+    def __init__(self, location="cpu", backend=None):
         """
         Constructs an empty FeatureStore.
 
         Parameters
         ----------
-        memory_type: str (optional, default=None)
-            Has no effect.  Retained for compatibility purposes.
-
         location: str(optional, default='cpu')
             The location ('cpu' or 'cuda') where data is stored.
+
+        backend: str(optional, default=None)
+            The WholeGraph backend ('nccl' or 'vmm') used to store data. When
+            omitted, 'vmm' is selected for single-node configurations and
+            'nccl' is selected for multinode configurations.
         """
         super().__init__()
 
@@ -62,16 +64,14 @@ class FeatureStore(
 
         self.__wg_location = location
 
-        if int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+        if backend is not None:
+            if backend not in ["nccl", "vmm"]:
+                raise ValueError("backend must be 'nccl' or 'vmm'")
+            self.__backend = backend
+        elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
             self.__backend = "vmm"
         else:
-            self.__backend = "vmm" if has_nvlink_network() else "nccl"
-
-        if memory_type is not None:
-            warnings.warn(
-                "The memory_type argument is deprecated. "
-                "Memory type is now automatically inferred."
-            )
+            self.__backend = "nccl"
 
     def __make_wg_tensor(self, tensor, ix=None):
         world_size = torch.distributed.get_world_size()
@@ -182,7 +182,24 @@ class FeatureStore(
         if ix.dim() != 1:
             raise ValueError("Index must be 1D")
 
-        tx[ix] = tensor.cpu().clone(memory_format=torch.contiguous_format).pin_memory()
+        cuda_visible = tensor.is_cuda or tensor.is_pinned()
+        if cuda_visible and tensor.is_contiguous():
+            scatter_tensor = tensor
+        elif tensor.is_cuda:
+            scatter_tensor = tensor.contiguous()
+        else:
+            # Allocate the final layout directly instead of cloning into pageable
+            # memory before pinning it. The copy still gives tensors deserialized
+            # with torch.load fresh storage.
+            scatter_tensor = torch.empty_like(
+                tensor,
+                device="cpu",
+                pin_memory=True,
+                memory_format=torch.contiguous_format,
+            )
+            scatter_tensor.copy_(tensor)
+
+        tx[ix] = scatter_tensor
         return tx
 
     def _put_tensor(
@@ -196,6 +213,14 @@ class FeatureStore(
                     "An index cannot be specified when storing a DistTensor "
                     "by reference"
                 )
+            warnings.warn(
+                "Putting a DistTensor into a FeatureStore performs a zero-copy "
+                "operation. The DistTensor is stored by reference and is not moved "
+                "to the FeatureStore's configured storage location, even when the "
+                "FeatureStore and DistTensor storage locations differ.",
+                UserWarning,
+                stacklevel=2,
+            )
             self.__features[(attr.group_name, attr.attr_name)] = tensor
             return True
 

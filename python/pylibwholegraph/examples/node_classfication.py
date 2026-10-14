@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
@@ -166,6 +166,7 @@ def main_func():
         graph_structure_wholememory_location,
         os.path.join(args.root_dir, "homograph_csr_row_ptr"),
         torch.int64,
+        0,
     )
     csr_col_ind_wm_tensor = wgth.create_wholememory_tensor_from_filelist(
         graph_comm,
@@ -173,6 +174,7 @@ def main_func():
         graph_structure_wholememory_location,
         os.path.join(args.root_dir, "homograph_csr_col_idx"),
         torch.int,
+        0,
     )
     graph_structure.set_csr_graph(csr_row_ptr_wm_tensor, csr_col_ind_wm_tensor)
 
