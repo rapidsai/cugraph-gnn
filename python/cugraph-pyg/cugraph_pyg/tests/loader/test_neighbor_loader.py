@@ -860,17 +860,18 @@ def test_neighbor_loader_disjoint(single_pytorch_worker):
     loader_nd = NeighborLoader(
         (feature_store, graph_store),
         [1],
-        input_nodes=torch.tensor([0, 1]),
+        input_nodes=torch.tensor([1, 0]),
         batch_size=2,
         disjoint=False,
     )
     batch_nd = next(iter(loader_nd))
     assert batch_nd.e_id.numel() == 2
+    assert batch_nd.batch is None
 
     loader_d = NeighborLoader(
         (feature_store, graph_store),
         [1],
-        input_nodes=torch.tensor([0, 1]),
+        input_nodes=torch.tensor([1, 0]),
         batch_size=2,
         disjoint=True,
     )
@@ -882,6 +883,55 @@ def test_neighbor_loader_disjoint(single_pytorch_worker):
 
     assert sorted(batch_d.input_id.tolist()) == [0, 1]
     assert sorted(batch_d.n_id.tolist()) == [0, 1, 2]
+    assert batch_d.batch.shape == batch_d.n_id.shape
+    # cuGraph sorts retained seed IDs during output renumbering. Membership
+    # still refers to loader input order: local node 0 came from input 1,
+    # while local node 1 came from input 0.
+    assert batch_d.batch[: batch_d.batch_size].tolist() == [1, 0]
+    assert (batch_d.batch >= 0).all()
+    assert (
+        batch_d.batch[batch_d.edge_index[0]] == batch_d.batch[batch_d.edge_index[1]]
+    ).all()
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.sg
+def test_neighbor_loader_disjoint_heterogeneous_batch(single_pytorch_worker):
+    """Verify seed membership propagation for heterogeneous node samples."""
+    graph_store = GraphStore()
+    graph_store.put_edge_index(
+        torch.tensor([[0, 0], [0, 1]]),
+        ("author", "writes", "paper"),
+        "coo",
+        False,
+        (1, 2),
+    )
+
+    feature_store = FeatureStore()
+    feature_store["author", "feat", None] = torch.randint(128, (1, 8))
+    feature_store["paper", "feat", None] = torch.randint(128, (2, 8))
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        {("author", "writes", "paper"): [1]},
+        input_nodes=("paper", torch.tensor([0, 1])),
+        batch_size=2,
+        disjoint=True,
+    )
+    batch = next(iter(loader))
+
+    assert batch["paper"].n_id.tolist() == [0, 1]
+    assert batch["author"].n_id.tolist() == [0]
+    assert batch["paper"].batch.tolist() == [0, 1]
+    assert batch["author"].batch.shape == batch["author"].n_id.shape
+    assert (batch["author"].batch >= 0).all()
+
+    edge_index = batch["author", "writes", "paper"].edge_index
+    assert edge_index.tolist() == [[0], [0]]
+    assert batch["author", "writes", "paper"].e_id.tolist() == [0]
+    assert (
+        batch["author"].batch[edge_index[0]] == batch["paper"].batch[edge_index[1]]
+    ).all()
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
@@ -918,8 +968,14 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
     )
 
     for batch in loader:
+        assert batch.batch.shape == batch.n_id.shape
+        assert batch.batch[: batch.batch_size].tolist() == list(range(batch.batch_size))
+        assert (batch.batch >= 0).all()
+
         tree_vertices = {}
-        for n_id in torch.arange(batch.num_sampled_nodes[0].item()):
+        # Retained seeds without sampled hop-0 edges are still roots and are
+        # present in the first ``batch_size`` local-node positions.
+        for n_id in torch.arange(batch.batch_size):
             tree_vertices[n_id.item()] = set([n_id.item()])
             edge_offset = 0
             for hop in range(len(batch.num_sampled_edges)):
@@ -937,7 +993,18 @@ def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_wor
         tv_items = list(tree_vertices.values())
         for i in range(len(tv_items)):
             for j in range(i + 1, len(tv_items)):
-                assert (tv_items[i] & tv_items[j]) == set()
+                overlap = tv_items[i] & tv_items[j]
+                assert overlap == set(), (
+                    "cuGraph disjoint sampling produced overlapping seed trees: "
+                    f"seeds {i} and {j} share local nodes {sorted(overlap)}"
+                )
+
+        assert (
+            batch.batch[batch.edge_index[0]] == batch.batch[batch.edge_index[1]]
+        ).all(), (
+            "seed trees are disjoint, but propagated batch membership is "
+            "inconsistent across sampled edges"
+        )
 
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
