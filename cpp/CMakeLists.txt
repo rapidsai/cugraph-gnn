@@ -72,9 +72,8 @@ endif()
 # ##################################################################################################
 # * compiler options -----------------------------------------------------------
 
-# Disable CMake's automatic module scanning for C++ files.
-# This project doesn't use C++20 modules, and the scanning can cause issues for some
-# versions of 'sccache'.
+# Disable CMake's automatic module scanning for C++ files. This project doesn't use C++20 modules,
+# and the scanning can cause issues for some versions of 'sccache'.
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 # * find CUDAToolkit package
