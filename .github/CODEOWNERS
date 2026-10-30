@@ -22,11 +22,12 @@ cpp/               @rapidsai/wholegraph-cpp-codeowners
 /print_env.sh            @rapidsai/ci-codeowners
 
 # packaging code owners
-/conda/            @rapidsai/packaging-codeowners
-/dependencies.yaml @rapidsai/packaging-codeowners
-/build.sh          @rapidsai/packaging-codeowners
-pyproject.toml     @rapidsai/packaging-codeowners
-VERSION            @rapidsai/packaging-codeowners
+/conda/                     @rapidsai/packaging-codeowners
+/dependencies.yaml          @rapidsai/packaging-codeowners
+/build.sh                   @rapidsai/packaging-codeowners
+pyproject.toml              @rapidsai/packaging-codeowners
+/python/cugraph-pyg/conda/  @rapidsai/packaging-codeowners
+VERSION                     @rapidsai/packaging-codeowners
 
 # Ops code owners
 /SECURITY.md             @rapidsai/ops-codeowners
