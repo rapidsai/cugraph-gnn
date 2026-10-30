@@ -414,7 +414,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - *pyarrow
-          - pytest-forked
           - scipy
   depends_on_pytorch:
     specific:
