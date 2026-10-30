@@ -409,7 +409,7 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
-          - pytest
+          - pytest>=7
           - pytest-benchmark
           - pytest-cov
           - pytest-xdist
@@ -418,7 +418,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - *pyarrow
-          - pytest-forked
           - scipy
   depends_on_pytorch:
     specific:
