@@ -59,6 +59,7 @@ jobs:
       node_type: cpu8
       script: ci/build_cpp.sh
       sha: ${{ inputs.sha }}
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -78,6 +79,7 @@ jobs:
       sha: ${{ inputs.sha }}
       # Build a conda package for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -96,6 +98,7 @@ jobs:
       script: ci/build_python_noarch.sh
       sha: ${{ inputs.sha }}
       pure-conda: true
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -155,6 +158,7 @@ jobs:
       package-name: cugraph-pyg
       package-type: python
       pure-wheel: true
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -197,6 +201,7 @@ jobs:
       package-type: cpp
       # build for every combination of arch and CUDA version, but only for the latest Python
       matrix_filter: group_by([.ARCH, (.CUDA_VER|split(".")|map(tonumber)|.[0])]) | map(max_by(.PY_VER|split(".")|map(tonumber)))
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -219,6 +224,7 @@ jobs:
       package-type: python
       # Build a wheel for each CUDA x ARCH x minimum supported Python version
       matrix_filter: group_by({CUDA_VER, ARCH}) | map(min_by(.PY_VER | split(".") | map(tonumber)))
+      matrix_type: cuda-13-4-nightly
     permissions:
       actions: read
       contents: read
@@ -273,4 +279,4 @@ jobs:
       packages: write
     with:
       push: true
-      cuda: '["12.9", "13.3"]'
+      cuda: '["12.9", "13.4"]'

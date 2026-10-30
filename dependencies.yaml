@@ -8,7 +8,7 @@ files:
     matrix:
       # CUDA versions match PyTorch releases, not RAPIDS
       # ref: https://pytorch.org/get-started/locally/
-      cuda: ["12.9", "13.3"]
+      cuda: ["12.9", "13.4"]
       arch: [x86_64, aarch64]
     includes:
       - checks
@@ -198,7 +198,7 @@ files:
       - test_python_common
   cugraph_pyg_dev:
     matrix:
-      cuda: ["12.9", "13.3"]
+      cuda: ["12.9", "13.4"]
       arch: [x86_64, aarch64]
     output: conda
     conda_dir: python/cugraph-pyg/conda
@@ -265,6 +265,10 @@ dependencies:
               cuda: "13.3"
             packages:
               - cuda-version=13.3
+          - matrix:
+              cuda: "13.4"
+            packages:
+              - cuda-version=13.4
       - output_types: [requirements, constraints]
         matrices:
           # if use_cuda_wheels=false is provided, do not add dependencies on any CUDA wheels
