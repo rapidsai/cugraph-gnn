@@ -7,4 +7,5 @@ set -euo pipefail
 # Support invoking run_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/pylibwholegraph/pylibwholegraph/
 
-pytest -rs --cache-clear --import-mode=append "$@" tests
+NCCL_DEBUG=INFO timeout 300 pytest -rs --cache-clear --import-mode=append -x "$@" tests/pylibwholegraph/test_wholememory_binding.py || true
+timeout 1500 pytest -rs --cache-clear --import-mode=append "$@" tests
