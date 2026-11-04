@@ -224,7 +224,6 @@ jobs:
       build_type: pull-request
       script: ci/test_cpp.sh
       matrix_type: wsl-pr
-      container-options: "--shm-size=1g"
     permissions:
       actions: read
       contents: read
@@ -350,7 +349,6 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
       matrix_type: wsl-pr
-      container-options: "--shm-size=1g"
     permissions:
       actions: read
       contents: read
@@ -387,7 +385,6 @@ jobs:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
       matrix_type: wsl-pr
-      container-options: "--shm-size=1g"
     permissions:
       actions: read
       contents: read
