@@ -7,7 +7,7 @@ set -euo pipefail
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
-NCCL_CUMEM_ENABLE=0 NCCL_MAX_NCHANNELS=4 pytest -rs --cache-clear --benchmark-disable . 2>&1 | tail -60 || true
+NCCL_CUMEM_ENABLE=0 pytest -rs --cache-clear --benchmark-disable . 2>&1 | tail -60 || true
 exit 1
 pytest -rs --cache-clear --benchmark-disable "$@" .
 

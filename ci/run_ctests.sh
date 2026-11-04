@@ -21,7 +21,6 @@ else
     exit 1
 fi
 
-df -h /dev/shm; uname -r
-for envs in "NCCL_CUMEM_ENABLE=0 NCCL_MAX_NCHANNELS=16" "NCCL_CUMEM_ENABLE=0 NCCL_MAX_NCHANNELS=4" "NCCL_CUMEM_ENABLE=1 NCCL_MAX_NCHANNELS=4"; do echo "=== $envs"; env $envs NCCL_DEBUG=WARN timeout 300 ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3:*EmbeddingGatherTest/4' 2>&1 | grep -E "NCCL WARN|WholeMemory failure|OK \]|FAILED  \]|PASSED" || true; done
+for v in 0 1; do echo "=== NCCL_CUMEM_ENABLE=$v"; NCCL_DEBUG=WARN NCCL_CUMEM_ENABLE=$v timeout 300 ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3:*EmbeddingGatherTest/4' 2>&1 | grep -E "NCCL WARN|WholeMemory failure|OK \]|FAILED  \]|PASSED" || true; done
 exit 1
 find . -type f -executable -print0 | xargs -0 -r -t -n1 -P1 sh -c 'exec "$0"';
