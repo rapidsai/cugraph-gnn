@@ -7,8 +7,7 @@ set -euo pipefail
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
-NCCL_CUMEM_ENABLE=0 pytest -rs --cache-clear --benchmark-disable . 2>&1 | tail -60 || true
-exit 1
+NCCL_DEBUG=INFO pytest -rs --cache-clear --benchmark-disable -x -k "not mg" . 2>&1 | grep -E "NCCL|Error|passed|failed" | head -200 || true
 pytest -rs --cache-clear --benchmark-disable "$@" .
 
 # Used to skip certain examples in CI due to memory limitations

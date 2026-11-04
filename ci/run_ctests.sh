@@ -21,6 +21,8 @@ else
     exit 1
 fi
 
-for v in 0 1; do echo "=== NCCL_CUMEM_ENABLE=$v"; NCCL_DEBUG=WARN NCCL_CUMEM_ENABLE=$v timeout 300 ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3:*EmbeddingGatherTest/4' 2>&1 | grep -E "NCCL WARN|WholeMemory failure|OK \]|FAILED  \]|PASSED" || true; done
-exit 1
+nvidia-smi topo -m || true
+NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3' || true
+for p2p in 0 1; do for shm in 0 1; do echo "=== NCCL_P2P_DISABLE=$p2p NCCL_SHM_DISABLE=$shm"; NCCL_DEBUG=WARN NCCL_P2P_DISABLE=$p2p NCCL_SHM_DISABLE=$shm timeout 300 ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3:*EmbeddingGatherTest/4' 2>&1 | tail -5 || true; done; done
+NCCL_DEBUG=INFO NCCL_CUMEM_ENABLE=0 timeout 300 ./WHOLEGRAPH_EMBEDDING_TEST --gtest_filter='*EmbeddingGatherTest/3' 2>&1 | tail -40 || true
 find . -type f -executable -print0 | xargs -0 -r -t -n1 -P1 sh -c 'exec "$0"';
