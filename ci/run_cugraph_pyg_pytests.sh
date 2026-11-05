@@ -7,7 +7,7 @@ set -euo pipefail
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
-NCCL_DEBUG=INFO timeout 1500 pytest -s -x -v -rs --cache-clear --benchmark-disable tests/data/test_feature_store.py 2>&1 | grep -vE "NCCL INFO (Channel|Connected|Trees|P2P|comm 0x.*rank.*nRanks)" | tail -400 || true
+PYTHONUNBUFFERED=1 NCCL_DEBUG=WARN timeout 5400 pytest -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=300 . 2>&1 | grep -vE "NCCL INFO|ibvwrap|libnccl-env" || true
 exit 1
 
 # Used to skip certain examples in CI due to memory limitations
