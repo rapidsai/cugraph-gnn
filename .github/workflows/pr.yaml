@@ -11,9 +11,16 @@ jobs:
   pr-builder:
     needs:
       - build-details
+      - check-nightly-ci
       - changed-files
+      - devcontainer
+      - checks
       - conda-cpp-build
       - conda-cpp-tests
+      - conda-python-build
+      - conda-python-build-noarch
+      - conda-python-tests
+      - docs-build
       - wheel-build-libwholegraph
       - wheel-build-pylibwholegraph
       - wheel-tests-pylibwholegraph
@@ -28,7 +35,6 @@ jobs:
   build-details:
     uses: rapidsai/shared-workflows/.github/workflows/compute-build-details.yaml@main
   check-nightly-ci:
-    if: false
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -168,7 +174,6 @@ jobs:
       packages: read
       pull-requests: read
   devcontainer:
-    if: false
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/build-in-devcontainer.yaml@main
     with:
@@ -190,7 +195,6 @@ jobs:
       packages: read
       pull-requests: read
   checks:
-    if: false
     uses: rapidsai/shared-workflows/.github/workflows/checks.yaml@main
     with:
       enable_check_generated_files: false
@@ -200,7 +204,7 @@ jobs:
     permissions:
       contents: read
   conda-cpp-build:
-    needs: [build-details]
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
     with:
@@ -219,11 +223,11 @@ jobs:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
-    if: false
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_cpp
     with:
       build_type: pull-request
       script: ci/test_cpp.sh
-      matrix_type: wsl-pr
+      matrix_type: pull-request,wsl-pr
       # NCCL_CUMEM_ENABLE=0 on WSL needs more than Docker's default 64 MB /dev/shm.
       container-options: "--shm-size=1g"
     permissions:
@@ -233,7 +237,6 @@ jobs:
       packages: read
       pull-requests: read
   conda-python-build:
-    if: false
     needs: [build-details, conda-cpp-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
@@ -251,7 +254,6 @@ jobs:
       packages: read
       pull-requests: read
   conda-python-build-noarch:
-    if: false
     needs: [build-details, conda-cpp-build, conda-python-build]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
@@ -271,7 +273,7 @@ jobs:
     needs: [conda-python-build, conda-python-build-noarch, changed-files]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
-    if: false
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_conda
     with:
       build_type: pull-request
       # There aren't pytorch-gpu aarch64 packages with CUDA 12.2 support, so skip (arm64, CUDA 12.2) but
@@ -289,7 +291,7 @@ jobs:
     needs: [conda-cpp-build, changed-files]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@main
-    if: false
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).build_docs
     with:
       arch: "amd64"
       build_type: pull-request
@@ -303,7 +305,7 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-libwholegraph:
-    needs: [build-details]
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
@@ -323,7 +325,7 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-pylibwholegraph:
-    needs: [build-details, wheel-build-libwholegraph]
+    needs: [build-details, checks, wheel-build-libwholegraph]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
@@ -346,11 +348,11 @@ jobs:
     needs: [wheel-build-pylibwholegraph, changed-files]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
-    if: false
+    if: fromJSON(needs.changed-files.outputs.changed_file_groups).test_python_wheels
     with:
       build_type: pull-request
       script: ci/test_wheel_pylibwholegraph.sh
-      matrix_type: wsl-pr
+      matrix_type: pull-request,wsl-pr
       # NCCL_CUMEM_ENABLE=0 on WSL needs more than Docker's default 64 MB /dev/shm.
       container-options: "--shm-size=1g"
     permissions:
@@ -360,7 +362,7 @@ jobs:
       packages: read
       pull-requests: read
   wheel-build-cugraph-pyg:
-    needs: [build-details]
+    needs: [build-details, checks]
     secrets: inherit # zizmor: ignore[secrets-inherit]
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
     with:
@@ -388,9 +390,9 @@ jobs:
     with:
       build_type: pull-request
       script: ci/test_wheel_cugraph-pyg.sh
-      matrix_type: wsl-pr
+      matrix_type: pull-request,wsl-pr
       # NCCL_CUMEM_ENABLE=0 on WSL needs more than Docker's default 64 MB /dev/shm.
-      container-options: "--shm-size=1g --cap-add=SYS_PTRACE"
+      container-options: "--shm-size=1g"
     permissions:
       actions: read
       contents: read
