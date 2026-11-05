@@ -7,12 +7,6 @@ set -euo pipefail
 # Support invoking test_cpp.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
-# On the WSL runners' driver, cuMemSetAccess fails (CUDA error 999) on the GPUDirect RDMA-capable
-# cuMem allocations NCCL makes, so fall back to NCCL's non-cuMem path (rapidsai/cugraph-gnn#567).
-if grep -qi microsoft /proc/version; then
-  export NCCL_CUMEM_ENABLE=0
-fi
-
 . /opt/conda/etc/profile.d/conda.sh
 
 rapids-logger "Configuring conda strict channel priority"

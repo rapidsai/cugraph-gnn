@@ -6,12 +6,6 @@ set -eoxu pipefail
 
 source rapids-init-pip
 
-# On the WSL runners' driver, cuMemSetAccess fails (CUDA error 999) on the GPUDirect RDMA-capable
-# cuMem allocations NCCL makes, so fall back to NCCL's non-cuMem path (rapidsai/cugraph-gnn#567).
-if grep -qi microsoft /proc/version; then
-  export NCCL_CUMEM_ENABLE=0
-fi
-
 RAPIDS_PY_CUDA_SUFFIX="$(rapids-wheel-ctk-name-gen "${RAPIDS_CUDA_VERSION}")"
 
 # Download the libwholegraph, pylibwholegraph, and cugraph-pyg built in the previous step
