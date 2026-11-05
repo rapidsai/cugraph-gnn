@@ -8,9 +8,17 @@ set -euo pipefail
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
 export PYTHONUNBUFFERED=1
-echo "=== C3 full -s INFO"; NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT,BOOTSTRAP,ENV,SHM,PROXY,NET timeout 420 pytest -s -x -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=300 . 2>&1 | grep -vE "NCCL INFO Channel|Connected all|NCCL INFO P2P|PASSED|SKIPPED" | head -400 || true
-echo "=== C1 full no-cacheprovider no-benchmark-disable"; NCCL_DEBUG=WARN timeout 420 pytest -x -v -rs -p no:cacheprovider -o faulthandler_timeout=300 . 2>&1 | grep -E "FAIL|ERROR|Timeout|Fatal|passed|failed|comm.py" | head -20 || true
-echo "=== C2 -k with cache-clear benchmark-disable"; NCCL_DEBUG=WARN timeout 420 pytest -x -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=300 . -k test_feature_store 2>&1 | grep -E "FAIL|ERROR|Timeout|Fatal|passed|failed|comm.py" | head -20 || true
+(apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gdb) > /tmp/apt.log 2>&1 || tail -5 /tmp/apt.log
+pip install -q py-spy > /tmp/pyspy.log 2>&1 || tail -5 /tmp/pyspy.log
+NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT,BOOTSTRAP,ENV,SHM,PROXY NCCL_DEBUG_FILE=/tmp/nccl.%p.log pytest -v -rs --cache-clear --benchmark-disable . > /tmp/pytest.out 2>&1 &
+PID=$!
+sleep 240
+echo "=== pytest.out"; grep -vE "PASSED|SKIPPED" /tmp/pytest.out | head -40
+echo "=== processes"; ps -ef --forest | grep -v "ps -ef" | tail -20
+echo "=== gdb"; timeout 120 gdb -p "$PID" -batch -ex "set pagination off" -ex "thread apply all bt 30" 2>&1 | grep -vE "^\[New LWP|^$" | head -300 || true
+echo "=== py-spy"; timeout 120 py-spy dump --native --pid "$PID" 2>&1 | head -200 || true
+echo "=== nccl logs"; for f in /tmp/nccl.*.log; do echo "--- $f"; grep -vE "Trees|Channel|P2P" "$f" | tail -40; done
+kill -9 "$PID" || true
 exit 1
 
 # Used to skip certain examples in CI due to memory limitations
