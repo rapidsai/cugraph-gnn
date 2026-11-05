@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+if grep -qi microsoft /proc/version; then export NCCL_CUMEM_ENABLE=0; fi
+
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 

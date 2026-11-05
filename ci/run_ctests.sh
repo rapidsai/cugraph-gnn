@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+if grep -qi microsoft /proc/version; then export NCCL_CUMEM_ENABLE=0; fi
+
 # Support customizing the ctests' install location
 # First, try the installed location (CI/conda environments)
 installed_test_location="${INSTALL_PREFIX:-${CONDA_PREFIX:-/usr}}/bin/gtests/libwholegraph/"
@@ -21,4 +23,6 @@ else
     exit 1
 fi
 
-find . -type f -executable -print0 | xargs -0 -r -t -n1 -P1 sh -c 'exec "$0"';
+df -h /dev/shm; ipcs -l || true
+for t in $(find . -type f -executable | sort); do echo "=== $t"; NCCL_DEBUG=WARN timeout 1200 "$t" 2>&1 | grep -E 'FAILED|failure|WARN|rror|PASSED|ran\.|Abort|Segm' | head -100 || true; done
+exit 1
