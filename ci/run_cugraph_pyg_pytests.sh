@@ -8,8 +8,9 @@ set -euo pipefail
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
 export PYTHONUNBUFFERED=1
-echo "=== A full"; NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT,BOOTSTRAP,ENV,SHM,PROXY,NET timeout 1500 pytest -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=240 "$@" . 2>&1 | grep -vE "NCCL INFO Channel|Connected all|NCCL INFO P2P" | grep -vE "PASSED|SKIPPED" | tail -400 || true
-echo "=== B full again"; NCCL_DEBUG=WARN timeout 1500 pytest -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=240 . 2>&1 | grep -E "FAIL|ERROR|Timeout|Fatal|passed|failed|comm.py" | head -60 || true
+echo "=== C3 full -s INFO"; NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT,BOOTSTRAP,ENV,SHM,PROXY,NET timeout 420 pytest -s -x -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=300 . 2>&1 | grep -vE "NCCL INFO Channel|Connected all|NCCL INFO P2P|PASSED|SKIPPED" | head -400 || true
+echo "=== C1 full no-cacheprovider no-benchmark-disable"; NCCL_DEBUG=WARN timeout 420 pytest -x -v -rs -p no:cacheprovider -o faulthandler_timeout=300 . 2>&1 | grep -E "FAIL|ERROR|Timeout|Fatal|passed|failed|comm.py" | head -20 || true
+echo "=== C2 -k with cache-clear benchmark-disable"; NCCL_DEBUG=WARN timeout 420 pytest -x -v -rs --cache-clear --benchmark-disable -o faulthandler_timeout=300 . -k test_feature_store 2>&1 | grep -E "FAIL|ERROR|Timeout|Fatal|passed|failed|comm.py" | head -20 || true
 exit 1
 
 # Used to skip certain examples in CI due to memory limitations
