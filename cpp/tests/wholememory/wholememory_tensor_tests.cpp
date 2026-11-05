@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <gtest/gtest.h>
@@ -47,6 +47,12 @@ TEST(WholeMemoryMatrixTest, SubTensorTest)
     EXPECT_EQ(wholememory_create_unique_id(&unique_id), WHOLEMEMORY_SUCCESS);
     EXPECT_EQ(wholememory_create_communicator(&wm_comm, unique_id, world_rank, world_size),
               WHOLEMEMORY_SUCCESS);
+
+    if (wholememory_communicator_support_type_location(
+          wm_comm, WHOLEMEMORY_MT_CONTINUOUS, WHOLEMEMORY_ML_HOST) != WHOLEMEMORY_SUCCESS) {
+      EXPECT_EQ(wholememory_finalize(), WHOLEMEMORY_SUCCESS);
+      GTEST_SKIP_("Skip due to not supported.");
+    }
 
     int64_t sizes[2] = {params.row, params.col};
     wholememory_matrix_description_t mat_desc =
