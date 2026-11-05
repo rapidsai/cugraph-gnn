@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -7,7 +7,8 @@ set -euo pipefail
 # Support invoking run_cugraph_pyg_pytests.sh outside the script directory
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
-pytest -rs --cache-clear --benchmark-disable "$@" .
+NCCL_DEBUG=INFO timeout 1500 pytest -s -x -v -rs --cache-clear --benchmark-disable tests/data/test_feature_store.py 2>&1 | grep -vE "NCCL INFO (Channel|Connected|Trees|P2P|comm 0x.*rank.*nRanks)" | tail -400 || true
+exit 1
 
 # Used to skip certain examples in CI due to memory limitations
 export CI=true
