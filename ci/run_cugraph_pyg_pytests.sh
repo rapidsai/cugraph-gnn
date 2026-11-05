@@ -8,17 +8,23 @@ set -euo pipefail
 cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../python/cugraph-pyg/cugraph_pyg
 
 export PYTHONUNBUFFERED=1
-(apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gdb) > /tmp/apt.log 2>&1 || tail -5 /tmp/apt.log
-pip install -q py-spy > /tmp/pyspy.log 2>&1 || tail -5 /tmp/pyspy.log
-NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT,BOOTSTRAP,ENV,SHM,PROXY NCCL_DEBUG_FILE=/tmp/nccl.%p.log pytest -v -rs --cache-clear --benchmark-disable . > /tmp/pytest.out 2>&1 &
+(apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gdb procps) > /tmp/apt.log 2>&1 || tail -5 /tmp/apt.log
+NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=INIT NCCL_DEBUG_FILE=/tmp/nccl.%p.log pytest -v -rs --cache-clear --benchmark-disable "$@" . > /tmp/pytest.out 2>&1 &
 PID=$!
-sleep 240
-echo "=== pytest.out"; grep -vE "PASSED|SKIPPED" /tmp/pytest.out | head -40
-echo "=== processes"; ps -ef --forest | grep -v "ps -ef" | tail -20
-echo "=== gdb"; timeout 120 gdb -p "$PID" -batch -ex "set pagination off" -ex "thread apply all bt 30" 2>&1 | grep -vE "^\[New LWP|^$" | head -300 || true
-echo "=== py-spy"; timeout 120 py-spy dump --native --pid "$PID" 2>&1 | head -200 || true
-echo "=== nccl logs"; for f in /tmp/nccl.*.log; do echo "--- $f"; grep -vE "Trees|Channel|P2P" "$f" | tail -40; done
-kill -9 "$PID" || true
+last=0; idle=0
+while kill -0 "$PID" 2>/dev/null; do
+  sleep 30
+  sz=$(stat -c %s /tmp/pytest.out)
+  if [ "$sz" = "$last" ]; then idle=$((idle+30)); else idle=0; last=$sz; fi
+  if [ "$idle" -ge 420 ]; then
+    echo "=== HANG"; tail -3 /tmp/pytest.out
+    for p in "$PID" $(pgrep -P "$PID"); do echo "--- gdb $p $(tr '\0' ' ' < /proc/$p/cmdline | cut -c1-120)"; timeout 120 gdb -p "$p" -batch -ex "thread apply all bt 25" 2>&1 | grep -E "^#|^Thread" | head -300; done
+    for f in /tmp/nccl.*.log; do echo "--- $f"; tail -15 "$f"; done
+    kill -9 "$PID"; break
+  fi
+done
+wait "$PID" || true
+echo "=== pytest output"; grep -vE "PASSED|SKIPPED" /tmp/pytest.out | tail -200
 exit 1
 
 # Used to skip certain examples in CI due to memory limitations

@@ -390,7 +390,7 @@ jobs:
       script: ci/test_wheel_cugraph-pyg.sh
       matrix_type: wsl-pr
       # NCCL_CUMEM_ENABLE=0 on WSL needs more than Docker's default 64 MB /dev/shm.
-      container-options: "--shm-size=1g"
+      container-options: "--shm-size=1g --cap-add=SYS_PTRACE"
     permissions:
       actions: read
       contents: read
