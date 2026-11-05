@@ -12,6 +12,12 @@ fi
 
 source rapids-init-pip
 
+# On the WSL runners' driver, cuMemSetAccess fails (CUDA error 999) on the GPUDirect RDMA-capable
+# cuMem allocations NCCL makes, so fall back to NCCL's non-cuMem path (rapidsai/cugraph-gnn#567).
+if grep -qi microsoft /proc/version; then
+  export NCCL_CUMEM_ENABLE=0
+fi
+
 LIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_cpp libwholegraph cugraph-gnn --cuda "$RAPIDS_CUDA_VERSION")")
 PYLIBWHOLEGRAPH_WHEELHOUSE=$(rapids-download-from-github "$(rapids-artifact-name wheel_python pylibwholegraph cugraph-gnn --stable --cuda "$RAPIDS_CUDA_VERSION")")
 
