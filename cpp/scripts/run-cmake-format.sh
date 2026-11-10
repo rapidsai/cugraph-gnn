@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # rapids-pre-commit-hooks: disable-next-line[verify-hardcoded-version]
-# copied from: https://github.com/rapidsai/rapids-cmake/blob/main/ci/checks/run-cmake-format.sh
+# copied from: https://github.com/rapidsai/rapids-cmake/blob/release/26.12/ci/checks/run-cmake-format.sh
 #
 # This script is a wrapper for cmakelang that may be used with pre-commit. The
 # wrapping is necessary because RAPIDS libraries split configuration for
