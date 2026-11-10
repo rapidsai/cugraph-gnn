@@ -293,7 +293,7 @@ jobs:
     with:
       arch: "amd64"
       build_type: pull-request
-      container_image: "rapidsai/ci-conda:26.12-latest"
+      container_image: "rapidsai/ci-conda:27.02-latest"
       node_type: "cpu8"
       script: "ci/build_docs.sh"
     permissions:
