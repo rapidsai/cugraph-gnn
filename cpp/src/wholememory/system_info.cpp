@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <string>
@@ -27,6 +27,16 @@ bool DevAttrPagebleMemoryAccess()
   WM_CUDA_CHECK_NO_THROW(cudaGetDevice(&current_dev_id));
   int value           = 0;
   cudaDeviceAttr attr = cudaDevAttrPageableMemoryAccess;
+  WM_CUDA_CHECK_NO_THROW(cudaDeviceGetAttribute(&value, attr, current_dev_id));
+  return value > 0;
+}
+
+bool DevAttrCanUseHostPointerForRegisteredMem()
+{
+  int current_dev_id = -1;
+  WM_CUDA_CHECK_NO_THROW(cudaGetDevice(&current_dev_id));
+  int value           = 0;
+  cudaDeviceAttr attr = cudaDevAttrCanUseHostPointerForRegisteredMem;
   WM_CUDA_CHECK_NO_THROW(cudaDeviceGetAttribute(&value, attr, current_dev_id));
   return value > 0;
 }

@@ -7,6 +7,7 @@ from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import FeatureStore
 from cugraph_pyg.tensor import DistEmbedding
+from cugraph_pyg.tensor.utils import is_vmm_supported
 
 torch = import_optional("torch")
 torch_geometric = import_optional("torch_geometric")
@@ -17,6 +18,8 @@ pylibwholegraph = import_optional("pylibwholegraph")
 @pytest.mark.sg
 @pytest.mark.parametrize("backend", ["nccl", "vmm"])
 def test_feature_store_basic_api(single_pytorch_worker, backend):
+    if backend == "vmm" and not is_vmm_supported("cpu"):
+        pytest.skip("vmm backend does not support location 'cpu'")
     feature_store = FeatureStore(backend=backend)
     assert feature_store._FeatureStore__backend == backend
 
@@ -66,18 +69,23 @@ def test_feature_store_invalid_backend(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize(
-    ("local_world_size", "world_size", "expected_backend"),
-    [(2, 2, "vmm"), (1, 2, "nccl")],
+    ("local_world_size", "world_size", "vmm_supported", "expected_backend"),
+    [(2, 2, True, "vmm"), (2, 2, False, "nccl"), (1, 2, True, "nccl")],
 )
 def test_feature_store_default_backend(
     single_pytorch_worker,
     monkeypatch,
     local_world_size,
     world_size,
+    vmm_supported,
     expected_backend,
 ):
     monkeypatch.setenv("LOCAL_WORLD_SIZE", str(local_world_size))
     monkeypatch.setattr(torch.distributed, "get_world_size", lambda: world_size)
+    monkeypatch.setattr(
+        "cugraph_pyg.data.feature_store.is_vmm_supported",
+        lambda location: vmm_supported,
+    )
 
     feature_store = FeatureStore()
 

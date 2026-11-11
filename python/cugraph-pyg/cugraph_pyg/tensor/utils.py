@@ -195,6 +195,11 @@ def create_wg_dist_tensor_from_files(
     return wm_embedding
 
 
+def is_vmm_supported(location: str) -> bool:
+    """Return True if the 'vmm' backend can store data at ``location``."""
+    return wgth.get_global_communicator().support_type_location("continuous", location)
+
+
 def is_empty(a):
     return a.numel() == 0
 
