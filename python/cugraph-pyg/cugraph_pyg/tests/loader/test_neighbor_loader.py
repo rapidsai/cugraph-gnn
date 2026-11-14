@@ -1068,23 +1068,22 @@ def test_neighbor_loader_temporal_last_unsupported_options(single_pytorch_worker
             weight_attr="w",
         )
 
-    # 'last' requires monotonically_increasing; any other comparison is rejected
-    with pytest.raises(ValueError, match="requires.*monotonically_increasing"):
+    # Unknown comparison names are not supported.
+    with pytest.raises(ValueError, match="Invalid temporal comparison"):
         NeighborLoader(
             (feature_store, graph_store),
             **common,
             temporal_strategy="last",
-            temporal_comparison="strictly_increasing",
+            temporal_comparison="last",
         )
 
-    # 'last' requires a fixed time window (input_start_time + input_end_time)
-    with pytest.raises(ValueError, match="requires both input_start_time"):
+    # 'last' without a fixed window still requires a time attribute.
+    with pytest.raises(ValueError, match="requires time_attr"):
         NeighborLoader(
             (feature_store, graph_store),
             num_neighbors=[1],
             input_nodes=torch.tensor([0]),
             input_time=torch.tensor([3]),
-            time_attr="time",
             temporal_strategy="last",
         )
 
@@ -1094,14 +1093,6 @@ def test_neighbor_loader_temporal_last_unsupported_options(single_pytorch_worker
             (feature_store, graph_store),
             **common,
             temporal_strategy="newest",
-        )
-
-    # Fixed-window sampling only supports monotonically_increasing ordering
-    with pytest.raises(ValueError, match="only supports.*monotonically_increasing"):
-        NeighborLoader(
-            (feature_store, graph_store),
-            **common,
-            temporal_comparison="strictly_increasing",
         )
 
     # input_start_time without input_end_time is rejected
@@ -1152,16 +1143,6 @@ def test_neighbor_loader_temporal_last(single_pytorch_worker):
     ]
     feature_store[("paper", "cites", "paper"), "time", None] = edge_time
 
-    with pytest.raises(ValueError, match="requires both input_start_time"):
-        NeighborLoader(
-            (feature_store, graph_store),
-            num_neighbors=[1, 1],
-            input_nodes=torch.tensor([0]),
-            input_time=torch.tensor([3]),
-            time_attr="time",
-            temporal_strategy="last",
-        )
-
     with pytest.warns(UserWarning, match=r"exceed 2\*\*53"):
         loader = NeighborLoader(
             (feature_store, graph_store),
@@ -1178,6 +1159,109 @@ def test_neighbor_loader_temporal_last(single_pytorch_worker):
     assert out.n_id.tolist() == [0, 2, 4]
     assert out.e_id.tolist() == [1, 3]
     assert out.num_sampled_nodes.tolist() == [1, 1, 1]
+    assert out.num_sampled_edges.tolist() == [1, 1]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("temporal_strategy", ["uniform", "last"])
+@pytest.mark.parametrize(
+    "temporal_comparison, expected_edges",
+    [
+        (None, [0, 2, 3, 4]),
+        ("monotonically_increasing", [0, 2, 3, 4]),
+        ("strictly_increasing", [0, 3, 4]),
+        ("monotonically_decreasing", [0, 2, 3, 4]),
+        ("strictly_decreasing", [0, 2, 3]),
+    ],
+)
+@pytest.mark.sg
+def test_neighbor_loader_fixed_window_comparisons(
+    single_pytorch_worker, temporal_strategy, temporal_comparison, expected_edges
+):
+    # Hop 1 has time 2. Hop 2 must still use [1, 3], with the appropriate
+    # strict endpoint, rather than replacing either bound with time 2.
+    src = torch.tensor([0, 1, 1, 1, 1, 1])
+    dst = torch.tensor([1, 2, 3, 4, 5, 6])
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+    edge_type = ("paper", "cites", "paper")
+    graph_store[edge_type, "coo", False, (7, 7)] = [dst, src]
+    feature_store[edge_type, "time", None] = torch.tensor(
+        [2, 0, 1, 2, 3, 4], dtype=torch.int32
+    )
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1, 5],
+        input_nodes=torch.tensor([0]),
+        input_start_time=torch.tensor([1], dtype=torch.int32),
+        input_end_time=torch.tensor([3], dtype=torch.int32),
+        time_attr="time",
+        temporal_strategy=temporal_strategy,
+        temporal_comparison=temporal_comparison,
+        batch_size=1,
+        shuffle=False,
+    )
+
+    out = next(iter(loader))
+    assert sorted(out.e_id.tolist()) == expected_edges
+    assert out.num_sampled_edges.tolist() == [1, len(expected_edges) - 1]
+
+
+@pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
+@pytest.mark.parametrize("fixed_window", [False, True])
+@pytest.mark.parametrize(
+    "temporal_comparison",
+    [
+        None,
+        "monotonically_increasing",
+        "strictly_increasing",
+        "monotonically_decreasing",
+        "strictly_decreasing",
+    ],
+)
+@pytest.mark.sg
+def test_neighbor_loader_last_comparisons(
+    single_pytorch_worker, fixed_window, temporal_comparison
+):
+    src = torch.tensor([0, 1, 1, 1, 1, 1])
+    dst = torch.tensor([1, 2, 3, 4, 5, 6])
+    graph_store = GraphStore()
+    feature_store = FeatureStore()
+    edge_type = ("paper", "cites", "paper")
+    graph_store[edge_type, "coo", False, (7, 7)] = [dst, src]
+    feature_store[edge_type, "time", None] = torch.tensor(
+        [2, 0, 1, 2, 3, 4], dtype=torch.int32
+    )
+    comparison = temporal_comparison or (
+        "monotonically_increasing" if fixed_window else "monotonically_decreasing"
+    )
+    increasing = comparison.endswith("_increasing")
+    if fixed_window:
+        time_args = dict(
+            input_start_time=torch.tensor([1], dtype=torch.int32),
+            input_end_time=torch.tensor([3], dtype=torch.int32),
+        )
+        expected_last_edge = 4 if increasing else 2
+    else:
+        time_args = dict(
+            input_time=torch.tensor([1 if increasing else 3], dtype=torch.int32)
+        )
+        expected_last_edge = 5 if increasing else 1
+
+    loader = NeighborLoader(
+        (feature_store, graph_store),
+        num_neighbors=[1, 1],
+        input_nodes=torch.tensor([0]),
+        time_attr="time",
+        temporal_strategy="last",
+        temporal_comparison=temporal_comparison,
+        batch_size=1,
+        shuffle=False,
+        **time_args,
+    )
+
+    out = next(iter(loader))
+    assert out.e_id.tolist() == [0, expected_last_edge]
     assert out.num_sampled_edges.tolist() == [1, 1]
 
 
