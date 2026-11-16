@@ -14,7 +14,7 @@ from pylibcugraph.comms import cugraph_comms_get_raft_handle
 
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 from cugraph_pyg.tensor import DistTensor, DistMatrix
-from cugraph_pyg.tensor.utils import is_empty
+from cugraph_pyg.tensor.utils import is_empty, is_vmm_supported
 
 from typing import Union, Optional, List, Dict, Tuple, Callable
 
@@ -90,8 +90,8 @@ class GraphStore(
         backend: str(optional, default=None)
             The WholeGraph backend ('nccl' or 'vmm') used to store edge
             indices. When omitted, 'vmm' is selected for single-node
-            configurations and 'nccl' is selected for multinode
-            configurations.
+            configurations that support it at ``location`` and 'nccl' is
+            selected otherwise.
         """
         self.__edge_indices = {}
         self.__sizes = {}
@@ -109,7 +109,9 @@ class GraphStore(
             if backend not in ["nccl", "vmm"]:
                 raise ValueError("backend must be 'nccl' or 'vmm'")
             self.__backend = backend
-        elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+        elif int(
+            os.environ["LOCAL_WORLD_SIZE"]
+        ) == torch.distributed.get_world_size() and is_vmm_supported(location):
             self.__backend = "vmm"
         else:
             self.__backend = "nccl"

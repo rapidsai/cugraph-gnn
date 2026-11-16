@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "communicator.hpp"
@@ -348,7 +348,10 @@ bool wholememory_comm_::support_type_location(wholememory_memory_type_t memory_t
                                               wholememory_memory_location_t memory_location) const
 {
   if (memory_location == WHOLEMEMORY_ML_HOST) {
-    if (is_intranode() || memory_type == WHOLEMEMORY_MT_DISTRIBUTED) return true;
+    if (memory_type == WHOLEMEMORY_MT_DISTRIBUTED) return true;
+    // Intranode host memory uses the cudaHostRegister'ed host pointer on the device, which is not
+    // possible without cudaDevAttrCanUseHostPointerForRegisteredMem (e.g. on WSL).
+    if (is_intranode()) return DevAttrCanUseHostPointerForRegisteredMem();
     return is_intra_mnnvl() && SupportEGM();
   } else if (memory_location == WHOLEMEMORY_ML_DEVICE) {
     if (memory_type == WHOLEMEMORY_MT_DISTRIBUTED) return true;
