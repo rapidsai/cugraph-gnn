@@ -38,9 +38,6 @@ def karate():
     Loaded from ``karate.csv`` in ``RAPIDS_DATASET_ROOT_DIR`` (or the repo's
     ``datasets/`` directory) so tests don't need ``cugraph`` (and its ``cudf``
     dependency) installed.
-
-    Returns a namespace with ``src`` and ``dst`` (int32 numpy arrays) and
-    ``num_nodes``. It is picklable, so it can be passed to spawned worker processes.
     """
     dataset_root = os.environ.get("RAPIDS_DATASET_ROOT_DIR")
     if dataset_root:
