@@ -180,6 +180,7 @@ files:
       - depends_on_cupy
       - depends_on_pylibwholegraph
       - depends_on_pylibcugraph
+      - depends_on_raft_dask
       - python_run_cugraph_pyg
   py_test_cugraph_pyg:
     output: pyproject
@@ -809,3 +810,26 @@ dependencies:
       - output_types: conda
         packages:
           - cugraph-pyg==26.12.*,>=0.0.0a0
+  # 'raft-dask' is technically optional for 'pylibcugraph', but 'cugraph-pyg'
+  # unconditionally relies on things that need it, like `cugraph_comms_get_raft_handle()`
+  depends_on_raft_dask:
+    common:
+      - output_types: conda
+        packages:
+          - &raft_dask_unsuffixed raft-dask==26.12.*,>=0.0.0a0
+    specific:
+      - output_types: [requirements, constraints, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu12==26.12.*,>=0.0.0a0
+          - matrix:
+              cuda: "13.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu13==26.12.*,>=0.0.0a0
+          - matrix:
+              cuda_suffixed: "false"
+            packages: [*raft_dask_unsuffixed]
