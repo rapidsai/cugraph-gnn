@@ -740,11 +740,16 @@ dependencies:
               cuda_suffixed: "false"
             packages: [*cugraph_unsuffixed]
   depends_on_cuml:
-    common:
-      - output_types: conda
-        packages:
-          - &cuml_unsuffixed cuml==26.12.*,>=0.0.0a0
     specific:
+      - output_types: [conda]
+        matrices:
+          # skip cuML on old-CUDA-12 environments, most of RAPIDS 26.12+ is not installable alongside old pytorch-gpu packages
+          - matrix:
+              cuda: "12.2"
+            packages:
+          - matrix:
+            packages:
+              - &cuml_unsuffixed cuml==26.12.*,>=0.0.0a0
       - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
@@ -761,11 +766,16 @@ dependencies:
               cuda_suffixed: "false"
             packages: [*cuml_unsuffixed]
   depends_on_cudf:
-    common:
-      - output_types: conda
-        packages:
-          - &cudf_unsuffixed cudf==26.12.*,>=0.0.0a0
     specific:
+      - output_types: [conda]
+        matrices:
+          # skip cuML on old-CUDA-12 environments, most of RAPIDS 26.12+ is not installable alongside old pytorch-gpu packages
+          - matrix:
+              cuda: "12.2"
+            packages:
+          - matrix:
+            packages:
+              - &cudf_unsuffixed cudf==26.12.*,>=0.0.0a0
       - output_types: [requirements, constraints, pyproject]
         matrices:
           - matrix:
