@@ -373,7 +373,6 @@ dependencies:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - &numpy numpy>=2.0,<3.0
-          - &pyarrow pyarrow
   python_run_cugraph_pyg:
     common:
       - output_types: [conda, pyproject, requirements, constraints]
@@ -415,7 +414,6 @@ dependencies:
     common:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
-          - *pyarrow
           - scipy
   depends_on_pytorch:
     specific:
