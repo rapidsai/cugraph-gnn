@@ -19,7 +19,6 @@ files:
       - python_build_cythonize
       - depends_on_rmm
       - depends_on_pylibcugraph
-      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_cupy
       - depends_on_cuml
@@ -56,7 +55,6 @@ files:
     output: none
     includes:
       - cuda_version
-      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
       - depends_on_cuml
@@ -194,7 +192,6 @@ files:
       key: test
     includes:
       - depends_on_cuml
-      - depends_on_cugraph
       - test_python_common
   cugraph_pyg_dev:
     matrix:
@@ -714,31 +711,6 @@ dependencies:
           - matrix:
               cuda_suffixed: "false"
             packages: [*pylibcugraph_unsuffixed]
-  depends_on_cugraph:
-    common:
-      - output_types: conda
-        packages:
-          - &cugraph_unsuffixed cugraph==26.12.*,>=0.0.0a0
-      - output_types: [requirements, constraints]
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-    specific:
-      - output_types: [requirements, constraints, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu12==26.12.*,>=0.0.0a0
-          - matrix:
-              cuda: "13.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu13==26.12.*,>=0.0.0a0
-          - matrix:
-              cuda_suffixed: "false"
-            packages: [*cugraph_unsuffixed]
   depends_on_cuml:
     specific:
       - output_types: [conda]
