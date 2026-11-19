@@ -43,8 +43,6 @@ requirements:
     # to support use cases like building container images.
     - pytorch >=2.3
     - pytorch_geometric >=2.5,<2.9
-    # needed for things like 'pylibcugraph.cugraph_comms_get_raft_handle'
-    - raft-dask =${{ minor_version }}
 
 tests:
   - python:
