@@ -3,7 +3,6 @@
 
 import pytest
 
-from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.tensor import DistMatrix
@@ -18,14 +17,13 @@ torch_geometric = import_optional("torch_geometric")
 @pytest.mark.sg
 @pytest.mark.parametrize("location", ["cpu", "cuda"])
 @pytest.mark.parametrize("backend", ["nccl", "vmm"])
-def test_graph_store_basic_api(single_pytorch_worker, location, backend):
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device="cuda")
-    dst = torch.as_tensor(df["dst"], device="cuda")
+def test_graph_store_basic_api(single_pytorch_worker, karate, location, backend):
+    src = torch.as_tensor(karate.src, device="cuda")
+    dst = torch.as_tensor(karate.dst, device="cuda")
 
     ei = torch.stack([dst, src])
 
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     graph_store = GraphStore(location=location, backend=backend)
     assert graph_store._GraphStore__backend == backend
@@ -104,13 +102,12 @@ def test_graph_store_default_backend(
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_graph_store_finalize(single_pytorch_worker):
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device="cuda")
-    dst = torch.as_tensor(df["dst"], device="cuda")
+def test_graph_store_finalize(single_pytorch_worker, karate):
+    src = torch.as_tensor(karate.src, device="cuda")
+    dst = torch.as_tensor(karate.dst, device="cuda")
     edge_index = torch.stack([dst, src])
     edge_type = ("person", "knows", "person")
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     graph_store = GraphStore()
     graph_store.put_edge_index(

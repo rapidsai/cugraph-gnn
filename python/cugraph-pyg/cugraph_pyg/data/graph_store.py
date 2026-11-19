@@ -18,7 +18,6 @@ from cugraph_pyg.tensor.utils import is_empty
 
 from typing import Union, Optional, List, Dict, Tuple, Callable
 
-# cudf is an optional dependency.  It is only imported here for typing.
 cudf = import_optional("cudf")
 
 # Have to use import_optional even though these are required
@@ -199,14 +198,16 @@ class GraphStore(
             self.__clear_graph()
             return True
 
-        if isinstance(edge_index, (cupy.ndarray, cudf.Series)):
+        # cudf is optional, so only check for cudf.Series if cudf is installed
+        # (attribute access on a MissingModule raises).
+        if isinstance(edge_index, cupy.ndarray) or (
+            not isinstance(cudf, MissingModule) and isinstance(edge_index, cudf.Series)
+        ):
             edge_index = torch.as_tensor(edge_index, device="cuda")
         elif isinstance(edge_index, (np.ndarray)):
             edge_index = torch.as_tensor(edge_index, device="cpu")
         elif isinstance(edge_index, pandas.Series):
             edge_index = torch.as_tensor(edge_index.values, device="cpu")
-        elif isinstance(edge_index, cudf.Series):
-            edge_index = torch.as_tensor(edge_index.values, device="cuda")
 
         world_size = torch.distributed.get_world_size()
         rank = torch.distributed.get_rank()
