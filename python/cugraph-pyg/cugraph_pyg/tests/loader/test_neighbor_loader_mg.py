@@ -1,11 +1,10 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
 import os
 
-from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import GraphStore, FeatureStore
@@ -48,15 +47,14 @@ def init_pytorch_worker(rank, world_size, cugraph_id):
     cugraph_comms_init(rank=rank, world_size=world_size, uid=cugraph_id, device=rank)
 
 
-def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
+def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size, karate):
     """
     Basic e2e test that covers loading and sampling.
     """
     init_pytorch_worker(rank, world_size, uid)
 
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device="cuda")
-    dst = torch.as_tensor(df["dst"], device="cuda")
+    src = torch.as_tensor(karate.src, device="cuda")
+    dst = torch.as_tensor(karate.dst, device="cuda")
 
     ei = torch.stack([dst, src])
     ei = torch.tensor_split(ei.clone(), world_size, axis=1)[rank]
@@ -87,7 +85,7 @@ def run_test_neighbor_loader_mg(rank, uid, world_size, specify_size):
 @pytest.mark.parametrize("specify_size", [True, False])
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
-def test_neighbor_loader_mg(specify_size):
+def test_neighbor_loader_mg(specify_size, karate):
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
 
@@ -100,6 +98,7 @@ def test_neighbor_loader_mg(specify_size):
             uid,
             world_size,
             specify_size,
+            karate,
         ),
         nprocs=world_size,
     )

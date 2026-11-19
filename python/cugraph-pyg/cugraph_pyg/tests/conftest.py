@@ -1,9 +1,12 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
 import os
+from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
 
 from pylibcugraph.comms import (
     cugraph_comms_init,
@@ -25,6 +28,33 @@ except ImportError:
     import pytest_benchmark
 
     gpubenchmark = pytest_benchmark.plugin.benchmark
+
+
+@pytest.fixture(scope="session")
+def karate():
+    """
+    Zachary's karate club graph, the same data as ``cugraph.datasets.karate``.
+
+    Loaded from ``karate.csv`` in ``RAPIDS_DATASET_ROOT_DIR`` (or the repo's
+    ``datasets/`` directory) so tests don't need ``cugraph`` (and its ``cudf``
+    dependency) installed.
+    """
+    dataset_root = os.environ.get("RAPIDS_DATASET_ROOT_DIR")
+    if dataset_root:
+        csv_path = Path(dataset_root) / "karate.csv"
+    else:
+        # tests/ -> cugraph_pyg/ -> cugraph-pyg/ -> python/ -> repo root
+        csv_path = Path(__file__).resolve().parents[4] / "datasets" / "karate.csv"
+
+    # space-delimited, no header: src dst wgt
+    src, dst = np.loadtxt(
+        csv_path, delimiter=" ", usecols=(0, 1), dtype=np.int32, unpack=True
+    )
+    src = np.ascontiguousarray(src)
+    dst = np.ascontiguousarray(dst)
+    return SimpleNamespace(
+        src=src, dst=dst, num_nodes=int(max(src.max(), dst.max())) + 1
+    )
 
 
 @pytest.fixture(scope="module")

@@ -3,7 +3,6 @@
 
 import pytest
 
-from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 import cugraph_pyg
@@ -16,18 +15,17 @@ torch_geometric = import_optional("torch_geometric")
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
-def test_neighbor_loader(single_pytorch_worker):
+def test_neighbor_loader(single_pytorch_worker, karate):
     """
     Basic e2e test that covers loading and sampling.
     """
 
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device="cuda")
-    dst = torch.as_tensor(df["dst"], device="cuda")
+    src = torch.as_tensor(karate.src, device="cuda")
+    dst = torch.as_tensor(karate.dst, device="cuda")
 
     ei = torch.stack([dst, src])
 
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     graph_store = GraphStore()
     graph_store.put_edge_index(
@@ -887,15 +885,16 @@ def test_neighbor_loader_disjoint(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize("batch_size", [1, 2, 4, 8, 16])
-def test_neighbor_loader_disjoint_batch_structure(batch_size, single_pytorch_worker):
+def test_neighbor_loader_disjoint_batch_structure(
+    batch_size, single_pytorch_worker, karate
+):
     """
     Verify disjoint batch field invariants across different batch sizes.
     """
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device="cuda")
-    dst = torch.as_tensor(df["dst"], device="cuda")
+    src = torch.as_tensor(karate.src, device="cuda")
+    dst = torch.as_tensor(karate.dst, device="cuda")
 
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     graph_store = GraphStore()
     graph_store.put_edge_index(
