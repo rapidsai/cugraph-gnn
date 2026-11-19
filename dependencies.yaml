@@ -25,6 +25,7 @@ files:
       - depends_on_nccl
       - depends_on_pytorch
       - depends_on_pyg
+      - depends_on_raft_dask
       - python_run_cugraph_pyg
       - rapids_build_setuptools
       - rapids_build_skbuild
@@ -193,6 +194,7 @@ files:
       key: test
     includes:
       - depends_on_cuml
+      - depends_on_raft_dask
       - test_python_common
   cugraph_pyg_dev:
     matrix:
