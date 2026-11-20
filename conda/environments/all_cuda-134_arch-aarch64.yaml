@@ -14,7 +14,6 @@ dependencies:
 - cuda-version=13.4
 - cudf==27.2.*,>=0.0.0a0
 - cugraph==27.2.*,>=0.0.0a0
-- cuml==27.2.*,>=0.0.0a0
 - cupy>=14.0.1,!=14.1.0
 - cython>=3.2.2
 - doxygen=1.18.0
@@ -31,15 +30,11 @@ dependencies:
 - pre-commit
 - pyarrow
 - pylibcugraph==27.2.*,>=0.0.0a0
-- pytest-benchmark
 - pytest-cov
-- pytest-xdist
 - pytest>=7
 - pytorch_geometric>=2.5,<2.9
 - rapids-build-backend>=0.4.0,<0.5.0
 - rmm==27.2.*,>=0.0.0a0
 - scikit-build-core>=0.11.0
-- scipy
 - setuptools>=77.0.0
-- wheel
 name: all_cuda-134_arch-aarch64
