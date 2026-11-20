@@ -22,7 +22,6 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_cupy
-      - depends_on_cuml
       - depends_on_nccl
       - depends_on_pytorch
       - depends_on_pyg
@@ -59,9 +58,6 @@ files:
       - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
-      - depends_on_cuml
-      - depends_on_ogb
-      - depends_on_sentence_transformers
       - py_version
       - test_python_common
       - depends_on_pylibwholegraph
@@ -193,7 +189,6 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - depends_on_cuml
       - depends_on_cugraph
       - test_python_common
   cugraph_pyg_dev:
@@ -212,7 +207,6 @@ files:
     output: none
     includes:
       - depends_on_pyg
-      - depends_on_sentence_transformers
   torch_only:
     output: none
     includes:
@@ -399,7 +393,6 @@ dependencies:
         packages:
           - *rapids_build_backend
           - setuptools>=77.0.0
-          - wheel
   test_cpp:
     common:
       - output_types: conda
@@ -410,15 +403,12 @@ dependencies:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - pytest>=7
-          - pytest-benchmark
           - pytest-cov
-          - pytest-xdist
   test_python_pylibwholegraph:
     common:
       - output_types: [conda, pyproject, requirements, constraints]
         packages:
           - *pyarrow
-          - scipy
   depends_on_pytorch:
     specific:
       # conda: choose between GPU and CPU-only pytorch
@@ -551,22 +541,6 @@ dependencies:
           - matrix:
               cuda_suffixed: "false"
             packages:
-  depends_on_ogb:
-    common:
-      - output_types: [conda]
-        packages:
-          - ogb
-  # for MovieLens example
-  depends_on_sentence_transformers:
-    specific:
-      - output_types: [conda, requirements, constraints, pyproject]
-        matrices:
-          - matrix:
-              no_pytorch: "true"
-            packages:
-          - matrix:
-            packages:
-              - sentence-transformers>=3.0.1
   depends_on_pyg:
     common:
       - output_types: [conda]
@@ -739,27 +713,6 @@ dependencies:
           - matrix:
               cuda_suffixed: "false"
             packages: [*cugraph_unsuffixed]
-  depends_on_cuml:
-    common:
-      - output_types: conda
-        packages:
-          - &cuml_unsuffixed cuml==27.2.*,>=0.0.0a0
-    specific:
-      - output_types: [requirements, constraints, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - cuml-cu12==27.2.*,>=0.0.0a0
-          - matrix:
-              cuda: "13.*"
-              cuda_suffixed: "true"
-            packages:
-              - cuml-cu13==27.2.*,>=0.0.0a0
-          - matrix:
-              cuda_suffixed: "false"
-            packages: [*cuml_unsuffixed]
   depends_on_cudf:
     common:
       - output_types: conda
