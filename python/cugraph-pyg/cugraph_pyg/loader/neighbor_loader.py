@@ -300,6 +300,7 @@ class NeighborLoader(NodeLoader):
             ),
             (feature_store, graph_store),
             batch_size=batch_size,
+            disjoint=disjoint or is_temporal,
         )
 
         super().__init__(
