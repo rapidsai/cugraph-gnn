@@ -219,8 +219,7 @@ TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
       auto const upstream_mr = rmm::mr::get_current_device_resource_ref();
       rmm::mr::statistics_resource_adaptor statistics_mr{upstream_mr};
       rmm::mr::statistics_resource_adaptor alternate_statistics_mr{upstream_mr};
-      auto previous_mr =
-        rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+      auto previous_mr = rmm::mr::set_current_device_resource(statistics_mr);
 
       EXPECT_FALSE(wholememory_is_rmm_enabled());
 
@@ -263,7 +262,7 @@ TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
       auto const alternate_allocations_before =
         alternate_statistics_mr.get_allocations_counter().total;
       auto const alternate_bytes_before = alternate_statistics_mr.get_bytes_counter().value;
-      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{alternate_statistics_mr});
+      rmm::mr::set_current_device_resource(alternate_statistics_mr);
 
       wholememory_handle_t alternate_handle;
       EXPECT_EQ(wholememory::create_wholememory(&alternate_handle,
@@ -282,7 +281,7 @@ TEST(WholeMemoryHandleRMMTests, UsesRMMForSupportedDeviceMemory)
       EXPECT_EQ(alternate_statistics_mr.get_bytes_counter().value, alternate_bytes_before);
       EXPECT_EQ(wholememory::destroy_wholememory(retained_handle), WHOLEMEMORY_SUCCESS);
       EXPECT_EQ(statistics_mr.get_bytes_counter().value, retained_bytes_before);
-      rmm::mr::set_current_device_resource(rmm::device_async_resource_ref{statistics_mr});
+      rmm::mr::set_current_device_resource(statistics_mr);
 
       // These are the two WholeMemory device-storage modes supported by the RMM allocation path.
       for (auto memory_type : {WHOLEMEMORY_MT_DISTRIBUTED, WHOLEMEMORY_MT_HIERARCHY}) {
