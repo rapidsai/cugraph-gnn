@@ -75,7 +75,6 @@ outputs:
         - ${{ stdlib("c") }}
       host:
         - cuda-version =${{ cuda_version }}
-        - doxygen ==${{ doxygen_version }}
         - libraft =${{ minor_version }}
         - libraft-headers =${{ minor_version }}
         - librmm =${{ minor_version }}

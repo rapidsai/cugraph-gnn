@@ -7,9 +7,7 @@ channels:
 dependencies:
 - pre-commit
 - pylibcugraph==27.2.*,>=0.0.0a0
-- pytest-benchmark
 - pytest-cov
-- pytest-xdist
 - pytest>=7
 - pytorch_geometric>=2.5,<2.9
 name: cugraph_pyg_dev_cuda-134_arch-x86_64

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -13,18 +13,6 @@ from pylibcugraph.comms import (
 
 
 # module-wide fixtures
-
-# If the rapids-pytest-benchmark plugin is installed, the "gpubenchmark"
-# fixture will be available automatically. Check that this fixture is available
-# by trying to import rapids_pytest_benchmark, and if that fails, set
-# "gpubenchmark" to the standard "benchmark" fixture provided by
-# pytest-benchmark.
-try:
-    import rapids_pytest_benchmark  # noqa: F401
-except ImportError:
-    import pytest_benchmark
-
-    gpubenchmark = pytest_benchmark.plugin.benchmark
 
 
 @pytest.fixture(scope="module")
