@@ -56,6 +56,13 @@ os.environ["CUDF_SPILL"] = "1"
 os.environ["RAPIDS_NO_INITIALIZE"] = "1"
 
 
+def _enable_spilling():
+    """vendored ``cugraph.testing.mg_utils.enable_spilling``"""
+    import cudf
+
+    cudf.set_option("spill", True)
+
+
 def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
     import rmm
 
@@ -72,9 +79,7 @@ def init_pytorch_worker(global_rank, local_rank, world_size, cugraph_id):
 
     cupy.cuda.set_allocator(rmm_cupy_allocator)
 
-    from cugraph.testing.mg_utils import enable_spilling
-
-    enable_spilling()
+    _enable_spilling()
 
     torch.cuda.set_device(local_rank)
 

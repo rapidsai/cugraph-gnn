@@ -278,7 +278,7 @@ jobs:
       # otherwise run all jobs.
       matrix_filter: map(select((.ARCH == "amd64") or ((.ARCH == "arm64") and (.CUDA_VER != "12.2.2"))))
       script: ci/test_python.sh
-      matrix_type: pull-request
+      matrix_type: pull-request,nightly
     permissions:
       actions: read
       contents: read

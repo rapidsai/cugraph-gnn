@@ -5,7 +5,6 @@ import os
 
 import pytest
 
-from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.data import FeatureStore, GraphStore
@@ -22,7 +21,7 @@ torch_geometric = import_optional("torch_geometric")
 pylibwholegraph = import_optional("pylibwholegraph")
 
 
-def run_test_graph_store_basic_api(rank, world_size):
+def run_test_graph_store_basic_api(rank, world_size, karate):
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -30,9 +29,8 @@ def run_test_graph_store_basic_api(rank, world_size):
     torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
 
     # Load and distribute the graph data
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device=f"cuda:{rank}").to(torch.int64)
-    dst = torch.as_tensor(df["dst"], device=f"cuda:{rank}").to(torch.int64)
+    src = torch.as_tensor(karate.src, device=f"cuda:{rank}").to(torch.int64)
+    dst = torch.as_tensor(karate.dst, device=f"cuda:{rank}").to(torch.int64)
 
     # Split the edge indices across GPUs
     num_edges = len(src)
@@ -44,7 +42,7 @@ def run_test_graph_store_basic_api(rank, world_size):
     local_dst = dst[start_idx:end_idx]
 
     ei = torch.stack([local_dst, local_src])
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     # Create and populate the graph store
     graph_store = GraphStore()
@@ -85,7 +83,7 @@ def run_test_graph_store_basic_api(rank, world_size):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
-def test_graph_store_basic_api_mg():
+def test_graph_store_basic_api_mg(karate):
     world_size = torch.cuda.device_count()
 
     # simulate torchrun call
@@ -93,12 +91,12 @@ def test_graph_store_basic_api_mg():
 
     torch.multiprocessing.spawn(
         run_test_graph_store_basic_api,
-        args=(world_size,),
+        args=(world_size, karate),
         nprocs=world_size,
     )
 
 
-def run_test_graph_store_finalize(rank, uid, world_size):
+def run_test_graph_store_finalize(rank, uid, world_size, karate):
     torch.cuda.set_device(rank)
 
     os.environ["MASTER_ADDR"] = "localhost"
@@ -106,12 +104,11 @@ def run_test_graph_store_finalize(rank, uid, world_size):
     torch.distributed.init_process_group("nccl", rank=rank, world_size=world_size)
     cugraph_comms_init(rank=rank, world_size=world_size, uid=uid, device=rank)
 
-    df = karate.get_edgelist()
-    src = torch.as_tensor(df["src"], device=f"cuda:{rank}").to(torch.int64)
-    dst = torch.as_tensor(df["dst"], device=f"cuda:{rank}").to(torch.int64)
+    src = torch.as_tensor(karate.src, device=f"cuda:{rank}").to(torch.int64)
+    dst = torch.as_tensor(karate.dst, device=f"cuda:{rank}").to(torch.int64)
     edge_index = torch.tensor_split(torch.stack([dst, src]), world_size, dim=1)[rank]
     edge_type = ("person", "knows", "person")
-    num_nodes = karate.number_of_nodes()
+    num_nodes = karate.num_nodes
 
     graph_store = GraphStore()
     graph_store.put_edge_index(
@@ -146,7 +143,7 @@ def run_test_graph_store_finalize(rank, uid, world_size):
 
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.mg
-def test_graph_store_finalize_mg():
+def test_graph_store_finalize_mg(karate):
     uid = cugraph_comms_create_unique_id()
     world_size = torch.cuda.device_count()
 
@@ -154,6 +151,6 @@ def test_graph_store_finalize_mg():
 
     torch.multiprocessing.spawn(
         run_test_graph_store_finalize,
-        args=(uid, world_size),
+        args=(uid, world_size, karate),
         nprocs=world_size,
     )
