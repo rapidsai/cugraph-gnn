@@ -7,7 +7,7 @@ import os
 from typing import Optional, Tuple, List
 
 from cugraph_pyg.tensor import DistEmbedding, DistTensor
-from cugraph_pyg.tensor.utils import is_empty
+from cugraph_pyg.tensor.utils import is_empty, is_vmm_supported
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 
@@ -55,8 +55,8 @@ class FeatureStore(
 
         backend: str(optional, default=None)
             The WholeGraph backend ('nccl' or 'vmm') used to store data. When
-            omitted, 'vmm' is selected for single-node configurations and
-            'nccl' is selected for multinode configurations.
+            omitted, 'vmm' is selected for single-node configurations that
+            support it at ``location`` and 'nccl' is selected otherwise.
         """
         super().__init__()
 
@@ -68,7 +68,9 @@ class FeatureStore(
             if backend not in ["nccl", "vmm"]:
                 raise ValueError("backend must be 'nccl' or 'vmm'")
             self.__backend = backend
-        elif int(os.environ["LOCAL_WORLD_SIZE"]) == torch.distributed.get_world_size():
+        elif int(
+            os.environ["LOCAL_WORLD_SIZE"]
+        ) == torch.distributed.get_world_size() and is_vmm_supported(location):
             self.__backend = "vmm"
         else:
             self.__backend = "nccl"

@@ -7,6 +7,7 @@ from cugraph.datasets import karate
 from cugraph_pyg.utils.imports import import_optional, MissingModule
 
 from cugraph_pyg.tensor import DistMatrix
+from cugraph_pyg.tensor.utils import is_vmm_supported
 from cugraph_pyg.data import FeatureStore, GraphStore
 from cugraph_pyg.loader import NeighborLoader
 
@@ -19,6 +20,8 @@ torch_geometric = import_optional("torch_geometric")
 @pytest.mark.parametrize("location", ["cpu", "cuda"])
 @pytest.mark.parametrize("backend", ["nccl", "vmm"])
 def test_graph_store_basic_api(single_pytorch_worker, location, backend):
+    if backend == "vmm" and not is_vmm_supported(location):
+        pytest.skip(f"vmm backend does not support location '{location}'")
     df = karate.get_edgelist()
     src = torch.as_tensor(df["src"], device="cuda")
     dst = torch.as_tensor(df["dst"], device="cuda")
@@ -84,18 +87,23 @@ def test_graph_store_invalid_backend(single_pytorch_worker):
 @pytest.mark.skipif(isinstance(torch, MissingModule), reason="torch not available")
 @pytest.mark.sg
 @pytest.mark.parametrize(
-    ("local_world_size", "world_size", "expected_backend"),
-    [(2, 2, "vmm"), (1, 2, "nccl")],
+    ("local_world_size", "world_size", "vmm_supported", "expected_backend"),
+    [(2, 2, True, "vmm"), (2, 2, False, "nccl"), (1, 2, True, "nccl")],
 )
 def test_graph_store_default_backend(
     single_pytorch_worker,
     monkeypatch,
     local_world_size,
     world_size,
+    vmm_supported,
     expected_backend,
 ):
     monkeypatch.setenv("LOCAL_WORLD_SIZE", str(local_world_size))
     monkeypatch.setattr(torch.distributed, "get_world_size", lambda: world_size)
+    monkeypatch.setattr(
+        "cugraph_pyg.data.graph_store.is_vmm_supported",
+        lambda location: vmm_supported,
+    )
 
     graph_store = GraphStore()
 
