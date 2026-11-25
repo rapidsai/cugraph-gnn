@@ -85,9 +85,11 @@ class NeighborLoader(NodeLoader):
             See torch_geometric.loader.NeighborLoader.
         temporal_strategy: str (optional, default='uniform')
             The temporal sampling strategy (``'uniform'`` or ``'last'``).
-            ``'last'`` selects the most recent neighbors within each seed's
-            fixed time window and therefore requires ``input_start_time`` and
-            ``input_end_time``.
+            ``'last'`` selects the latest eligible neighbors for increasing
+            comparisons and the earliest eligible neighbors for decreasing
+            comparisons (last in decreasing time order). It requires
+            ``time_attr`` and supports both ordinary temporal walks and
+            fixed time windows, without replacement or sampling biases.
             See torch_geometric.loader.NeighborLoader.
         time_attr: str (optional, default=None)
             Used for temporal sampling.
@@ -127,14 +129,19 @@ class NeighborLoader(NodeLoader):
             all workers.  If not provided, it will be automatically
             calculated.
             See cugraph_pyg.sampler.BaseDistributedSampler.
-        temporal_comparison: str (optional, default='monotonically_decreasing')
+        temporal_comparison: str (optional, default=None)
             The comparison operator for temporal sampling
             ('strictly_increasing', 'monotonically_increasing',
             'strictly_decreasing', 'monotonically_decreasing').
-            Fixed-window sampling (``input_start_time`` / ``input_end_time``)
-            only supports ``'monotonically_increasing'``; passing any other
-            value raises a ``ValueError``. ``temporal_strategy='last'`` also
-            requires ``'monotonically_increasing'`` and sets it automatically.
+            Defaults to ``'monotonically_increasing'`` for fixed windows and
+            ``'monotonically_decreasing'`` otherwise, for either strategy.
+            Ordinary walks update the frontier time to the sampled edge time.
+            Fixed windows retain the original bounds at every hop: increasing
+            modes use ``start <= edge_time <= end`` (``start < edge_time`` for
+            strictly increasing), and decreasing modes use
+            ``start <= edge_time <= end`` (``edge_time < end`` for strictly
+            decreasing). Fixed windows do not impose a time ordering between
+            successive hops.
             See cugraph_pyg.sampler.BaseDistributedSampler.
         input_start_time: OptTensor (optional)
             Lower time-window bounds for each input node. Must be passed together
@@ -164,11 +171,8 @@ class NeighborLoader(NodeLoader):
                 f"'{temporal_strategy}' (expected 'uniform' or 'last')"
             )
         if temporal_strategy == "last":
-            if not has_time_window:
-                raise ValueError(
-                    "temporal_strategy='last' requires both input_start_time "
-                    "and input_end_time"
-                )
+            if time_attr is None:
+                raise ValueError("temporal_strategy='last' requires time_attr")
             if replace:
                 raise ValueError(
                     "temporal_strategy='last' does not support replacement"
@@ -177,22 +181,6 @@ class NeighborLoader(NodeLoader):
                 raise ValueError(
                     "temporal_strategy='last' does not support biased sampling"
                 )
-            if temporal_comparison not in (None, "monotonically_increasing"):
-                raise ValueError(
-                    "temporal_strategy='last' requires "
-                    "temporal_comparison='monotonically_increasing'"
-                )
-            temporal_comparison = "monotonically_increasing"
-        elif has_time_window:
-            if temporal_comparison not in (None, "monotonically_increasing"):
-                raise ValueError(
-                    "fixed-window sampling only supports "
-                    "'monotonically_increasing' ordering; "
-                    f"got temporal_comparison={temporal_comparison!r}"
-                )
-            temporal_comparison = "monotonically_increasing"
-        elif temporal_comparison is None:
-            temporal_comparison = "monotonically_decreasing"
 
         if not directed:
             subgraph_type = torch_geometric.sampler.base.SubgraphType.induced

@@ -208,15 +208,125 @@ def test_dist_sampler_last_invalid_construction():
             temporal_strategy="newest",
         )
 
-    # fixed-window with non-monotonically_increasing ordering
-    with pytest.raises(ValueError, match="only supports.*monotonically_increasing"):
+    # 'last' still requires temporal sampling when no window is requested.
+    with pytest.raises(ValueError, match="requires temporal sampling"):
+        DistributedNeighborSampler(
+            graph,
+            fanout=[1],
+            temporal_strategy="last",
+        )
+
+    # Unknown comparison names should not silently select a default.
+    with pytest.raises(ValueError, match="Invalid temporal comparison"):
         DistributedNeighborSampler(
             graph,
             fanout=[1],
             temporal=True,
             fixed_window=True,
-            temporal_comparison="strictly_increasing",
+            temporal_comparison="last",
         )
+
+
+@pytest.mark.parametrize("fixed_window", [False, True])
+@pytest.mark.parametrize("temporal_strategy", ["uniform", "last"])
+@pytest.mark.parametrize(
+    "temporal_comparison",
+    [
+        None,
+        "strictly_increasing",
+        "monotonically_increasing",
+        "strictly_decreasing",
+        "monotonically_decreasing",
+    ],
+)
+def test_dist_sampler_temporal_options(
+    monkeypatch, fixed_window, temporal_strategy, temporal_comparison
+):
+    """Verify the public sampling call forwards the mode and the correct bounds."""
+    import numpy as np
+
+    from cugraph_pyg.sampler import distributed_sampler
+
+    # No graph/kernel execution is needed to check this Python API boundary.
+    monkeypatch.setattr(distributed_sampler, "cupy", np)
+    monkeypatch.setattr(
+        distributed_sampler.BaseDistributedSampler,
+        "_resource_handle",
+        property(lambda self: None),
+    )
+    calls = []
+
+    def neighbor_sample(**kwargs):
+        calls.append(kwargs)
+        return {}
+
+    monkeypatch.setattr(
+        distributed_sampler.pylibcugraph, "neighbor_sample", neighbor_sample
+    )
+    sampler = DistributedNeighborSampler(
+        None,
+        fanout=[1],
+        local_seeds_per_call=1,
+        # Exercise the fixed-window auto-temporal path as well.
+        temporal=not fixed_window,
+        temporal_strategy=temporal_strategy,
+        temporal_comparison=temporal_comparison,
+        fixed_window=fixed_window,
+    )
+    bounds = {}
+    if fixed_window:
+        bounds = dict(
+            seed_start_times=np.array([1], dtype="int32"),
+            seed_end_times=np.array([3], dtype="int32"),
+        )
+    sampler.sample_batches(
+        seeds=np.array([0], dtype="int32"),
+        seed_times=None if fixed_window else np.array([2], dtype="int32"),
+        batch_id_offsets=np.array([0, 1], dtype="int64"),
+        **bounds,
+    )
+
+    (kwargs,) = calls
+    expected_comparison = temporal_comparison or (
+        "monotonically_increasing" if fixed_window else "monotonically_decreasing"
+    )
+    assert kwargs["temporal_sampling_comparison"] == expected_comparison
+    assert kwargs["neighbor_selection"] == (
+        "last" if temporal_strategy == "last" else "random"
+    )
+    assert kwargs["fixed_window"] == fixed_window
+    assert kwargs["disjoint_sampling"]
+    if fixed_window:
+        assert kwargs["starting_vertex_start_times"].tolist() == [1]
+        assert kwargs["starting_vertex_end_times"].tolist() == [3]
+    elif expected_comparison.endswith("_increasing"):
+        assert kwargs["starting_vertex_start_times"].tolist() == [2]
+        assert "starting_vertex_end_times" not in kwargs
+    else:
+        assert kwargs["starting_vertex_end_times"].tolist() == [2]
+        assert "starting_vertex_start_times" not in kwargs
+
+
+@pytest.mark.sg
+def test_dist_sampler_fixed_window_last_default():
+    """An omitted comparison must choose latest, not earliest, in a fixed window."""
+    graph = _make_simple_graph()
+    sampler = DistributedNeighborSampler(
+        graph,
+        fanout=[1],
+        local_seeds_per_call=1,
+        fixed_window=True,
+        temporal_strategy="last",
+        temporal_comparison=None,
+    )
+    out = sampler.sample_batches(
+        seeds=cupy.array([0], dtype="int32"),
+        seed_times=None,
+        batch_id_offsets=cupy.array([0, 1], dtype="int64"),
+        seed_start_times=cupy.array([0], dtype="int64"),
+        seed_end_times=cupy.array([3], dtype="int64"),
+    )
+    assert out["edge_id"].tolist() == [1]
 
 
 @pytest.mark.sg
