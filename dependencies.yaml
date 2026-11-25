@@ -19,12 +19,12 @@ files:
       - python_build_cythonize
       - depends_on_rmm
       - depends_on_pylibcugraph
-      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_cupy
       - depends_on_nccl
       - depends_on_pytorch
       - depends_on_pyg
+      - depends_on_raft_dask
       - python_run_cugraph_pyg
       - rapids_build_setuptools
       - rapids_build_skbuild
@@ -55,13 +55,13 @@ files:
     output: none
     includes:
       - cuda_version
-      - depends_on_cugraph
       - depends_on_cudf
       - depends_on_pytorch
       - py_version
       - test_python_common
       - depends_on_pylibwholegraph
       - depends_on_cugraph_pyg
+      - depends_on_raft_dask
   test_pylibwholegraph:
     output: none
     includes:
@@ -189,7 +189,7 @@ files:
       table: project.optional-dependencies
       key: test
     includes:
-      - depends_on_cugraph
+      - depends_on_raft_dask
       - test_python_common
   cugraph_pyg_dev:
     matrix:
@@ -688,31 +688,6 @@ dependencies:
           - matrix:
               cuda_suffixed: "false"
             packages: [*pylibcugraph_unsuffixed]
-  depends_on_cugraph:
-    common:
-      - output_types: conda
-        packages:
-          - &cugraph_unsuffixed cugraph==27.2.*,>=0.0.0a0
-      - output_types: [requirements, constraints]
-        packages:
-          # pip recognizes the index as a global option for the requirements.txt file
-          - --extra-index-url=https://pypi.nvidia.com
-    specific:
-      - output_types: [requirements, constraints, pyproject]
-        matrices:
-          - matrix:
-              cuda: "12.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu12==27.2.*,>=0.0.0a0
-          - matrix:
-              cuda: "13.*"
-              cuda_suffixed: "true"
-            packages:
-              - cugraph-cu13==27.2.*,>=0.0.0a0
-          - matrix:
-              cuda_suffixed: "false"
-            packages: [*cugraph_unsuffixed]
   depends_on_cudf:
     common:
       - output_types: conda
@@ -780,3 +755,26 @@ dependencies:
       - output_types: conda
         packages:
           - cugraph-pyg==27.2.*,>=0.0.0a0
+  # 'raft-dask' is technically optional for 'pylibcugraph', but 'cugraph-pyg'
+  # unconditionally relies on things that need it, like `cugraph_comms_get_raft_handle()`
+  depends_on_raft_dask:
+    common:
+      - output_types: conda
+        packages:
+          - &raft_dask_unsuffixed raft-dask==27.2.*,>=0.0.0a0
+    specific:
+      - output_types: [requirements, constraints, pyproject]
+        matrices:
+          - matrix:
+              cuda: "12.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu12==27.2.*,>=0.0.0a0
+          - matrix:
+              cuda: "13.*"
+              cuda_suffixed: "true"
+            packages:
+              - raft-dask-cu13==27.2.*,>=0.0.0a0
+          - matrix:
+              cuda_suffixed: "false"
+            packages: [*raft_dask_unsuffixed]

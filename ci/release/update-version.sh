@@ -127,6 +127,7 @@ DEPENDENCIES=(
   libwholegraph-tests
   pylibcugraph
   pylibwholegraph
+  raft-dask
   rmm
 )
 for DEP in "${DEPENDENCIES[@]}"; do
